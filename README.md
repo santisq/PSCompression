@@ -1,0 +1,43 @@
+# Compress-BigFiles
+
+## Description
+
+PowerShell function that works around the limitation with built-in cmdlet [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2):
+
+> The `Compress-Archive` cmdlet uses the Microsoft .NET API [`System.IO.Compression.ZipArchive`](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive?view=net-6.0) to compress files. The maximum file size is 2 GB because there's a limitation of the underlying API.
+
+The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.zipfile.createfromdirectory?view=net-6.0#system-io-compression-zipfile-createfromdirectory(system-string-system-string)). However, there are 2 limitations while using this static method:
+   1. The source __must be a directory__, a single file cannot be compressed.
+   2. All files (recursively) on the source folder __will be compressed__, we can't pick / filter files to compress.
+
+This function should be able to handle the same as `CreateFromDirectory` method but also allow us to filter a folder for specific files and compress them and keep the file / folder structure untouched.
+
+## Parameters
+
+| Name | Description |
+| ---  | --- |
+| `-Path` | Absolute or relative path for the File or Folder to be compressed |
+| `-DestinationPath` | The destination path to the Zip file
+| `-CompressionLevel` | Define the compression level that should be used. See [CompressionLevel Enum](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel?view=net-6.0) for details
+
+## Examples
+
+- Compress all `.ext` files from a specific folder:
+
+```ps
+Get-ChildItem .\path -Recurse -Filter *.ext |
+    Compress-BigFiles -DestinationPath dest.zip
+```
+
+- Compress all `.ext` and `.ext2` from a specific folder:
+
+```ps
+Get-ChildItem .\path -Recurse -Include *.ext, *.ext2 |
+    Compress-BigFiles -DestinationPath dest.zip
+```
+
+- Compress a folder using _Fastest_ Compression Level:
+
+```ps
+Compress-BigFiles .\path -Destination myPath.zip -CompressionLevel Fastest
+```
