@@ -10,7 +10,7 @@ The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](h
    1. The source __must be a directory__, a single file cannot be compressed.
    2. All files (recursively) on the source folder __will be compressed__, we can't pick / filter files to compress.
 
-This function should be able to handle the same as `CreateFromDirectory` method but also allow us to filter a folder for specific files and compress them and keep the file / folder structure untouched.
+This function should be able to handle the same as `CreateFromDirectory` Method but also allow us to filter a folder for specific files to compress and also keep the file / folder structure untouched.
 
 ## Parameters
 
