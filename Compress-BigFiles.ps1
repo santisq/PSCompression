@@ -6,7 +6,7 @@ Add-Type -AssemblyName System.IO.Compression
 function Compress-BigFiles {
     [CmdletBinding(DefaultParameterSetName = 'Force')]
     param(
-        [parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [parameter(Position = 0, Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [Alias('FullName')]
         [ValidateScript({
             if(Test-Path -LiteralPath $_) {
