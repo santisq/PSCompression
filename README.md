@@ -24,20 +24,20 @@ This function should be able to handle the same as `CreateFromDirectory` method 
 
 - Compress all `.ext` files from a specific folder:
 
-```ps
+```powershell
 Get-ChildItem .\path -Recurse -Filter *.ext |
     Compress-BigFiles -DestinationPath dest.zip
 ```
 
 - Compress all `.ext` and `.ext2` from a specific folder:
 
-```ps
+```powershell
 Get-ChildItem .\path -Recurse -Include *.ext, *.ext2 |
     Compress-BigFiles -DestinationPath dest.zip
 ```
 
 - Compress a folder using _Fastest_ Compression Level:
 
-```ps
+```powershell
 Compress-BigFiles .\path -Destination myPath.zip -CompressionLevel Fastest
 ```
