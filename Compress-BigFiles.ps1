@@ -6,7 +6,8 @@ Add-Type -AssemblyName System.IO.Compression
 function Compress-BigFiles {
     [CmdletBinding()]
     param(
-        [parameter(ValueFromPipeline, Mandatory)]
+        [parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [Alias('FullName')]
         [ValidateScript({
             if($PSCmdlet.GetUnresolvedProviderPathFromPSPath($_) | Test-Path) {
                 return $true
