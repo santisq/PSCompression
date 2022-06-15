@@ -19,7 +19,7 @@ function Compress-BigFiles {
         })]
         [string] $Path,
 
-        [parameter(Mandatory)]
+        [parameter(Position = 1, Mandatory)]
         [string] $DestinationPath,
 
         [parameter()]
