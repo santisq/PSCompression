@@ -7,6 +7,7 @@ PowerShell function that overcomes the limitation that the built-in cmdlet [`Com
 > The `Compress-Archive` cmdlet uses the Microsoft .NET API [`System.IO.Compression.ZipArchive`](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive?view=net-6.0) to compress files. The maximum file size is 2 GB because there's a limitation of the underlying API.
 
 The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.zipfile.createfromdirectory?view=net-6.0#system-io-compression-zipfile-createfromdirectory(system-string-system-string)). However, there are 3 limitations while using this static method:
+
    1. The source __must be a directory__, a single file cannot be compressed.
    2. All files (recursively) on the source folder __will be compressed__, we can't pick / filter files to compress.
    3. It's not possible to __Update__ the entries of an existing Zip Archive.
@@ -23,7 +24,6 @@ This function should be able to handle the same as `CreateFromDirectory` method 
 | `-Update` | Updates Zip entries and adds new entries to an existing Zip file.
 | `-Force` | Replaces an existing Zip file with a new one. All Zip contents will be lost.
 
-
 ## Performance Measurements
 
 Below is a performance comparison between [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) and this function. Source code for the performance tests in [performance_tests.ps1](performance_tests.ps1).
@@ -32,7 +32,7 @@ This has been tested with [PowerShell 7.3.0-preview.7](https://github.com/PowerS
 
 ### Average Reults
 
-```
+```none
 Test                         Average RelativeSpeed
 ----                         ------- -------------
 Compress-BigFiles (Optimal)  1178.75 1x
@@ -41,7 +41,7 @@ Compress-Archive (Optimal)  34179.89 29.00x
 
 ### Results per Test Run
 
-```
+```none
 TestRun Test                        TotalMilliseconds
 ------- ----                        -----------------
       3 Compress-BigFiles (Optimal)           1132.38
@@ -84,6 +84,7 @@ Compress-BigFiles .\path -Destination myPath.zip -CompressionLevel Fastest
 Get-ChildItem .\path -Recurse -Directory |
     Compress-BigFiles -DestinationPath dest.zip
 ```
+
 - Replacing an existing Zip Archive:
 
 ```powershell
@@ -91,6 +92,7 @@ Compress-BigFiles -Path .\path -DestinationPath dest.zip -Force
 ```
 
 - Adding and updating new entries to an existing Zip Archive:
+
 ```powershell
 Get-ChildItem .\path -Recurse -Directory |
     Compress-BigFiles -DestinationPath dest.zip -Update
