@@ -21,8 +21,40 @@ This function should be able to handle the same as `CreateFromDirectory` method 
 | `-DestinationPath` | The destination path to the Zip file.
 | `-CompressionLevel` | Define the compression level that should be used. See [CompressionLevel Enum](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel?view=net-6.0) for details.
 | `-Update` | Updates Zip entries and adds new entries to an existing Zip file.
-| `-Force` | Replaces an existing Zip file with a new one. All Zip contensts will be lost.
+| `-Force` | Replaces an existing Zip file with a new one. All Zip contents will be lost.
 
+
+## Performance Measurements
+
+Below is a performance comparison between [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) and this function. Source code for the performance tests in [performance_tests.ps1](performance_tests.ps1).
+
+This has been tested with [PowerShell 7.3.0-preview.7](https://github.com/PowerShell/PowerShell).
+
+### Average Reults
+
+```
+Test                         Average RelativeSpeed
+----                         ------- -------------
+Compress-BigFiles (Optimal)  1178.75 1x
+Compress-Archive (Optimal)  34179.89 29.00x
+```
+
+### Results per Test Run
+
+```
+TestRun Test                        TotalMilliseconds
+------- ----                        -----------------
+      3 Compress-BigFiles (Optimal)           1132.38
+      4 Compress-BigFiles (Optimal)           1151.72
+      2 Compress-BigFiles (Optimal)           1156.69
+      5 Compress-BigFiles (Optimal)           1157.54
+      1 Compress-BigFiles (Optimal)           1295.44
+      2 Compress-Archive (Optimal)           33884.40
+      4 Compress-Archive (Optimal)           33907.80
+      3 Compress-Archive (Optimal)           33940.75
+      5 Compress-Archive (Optimal)           34264.44
+      1 Compress-Archive (Optimal)           34902.04
+```
 
 ## Examples
 
