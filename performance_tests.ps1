@@ -1,3 +1,5 @@
+$ProgressPreference = 'SilentlyContinue'
+
 # Init vars
 $folders   = 5
 $files     = 20
@@ -48,7 +50,6 @@ $tests = @{
         Remove-Item $destination -Force
     }
     'Compress-Archive (Optimal)' = {
-        $ProgressPreference = 'SilentlyContinue'
         $destination = Join-Path $pwd.ProviderPath -ChildPath "testZip-Compress-Archive.zip"
         Compress-Archive -Path $testPath -DestinationPath $destination -CompressionLevel Optimal
         Remove-Item $destination -Force
