@@ -20,7 +20,7 @@ This function should be able to handle the same as `CreateFromDirectory` method 
 | ---  | --- |
 | `-Path` | Absolute or relative path for the File or Folder to be compressed |
 | `-DestinationPath` | The destination path to the Zip file
-| `-CompressionLevel` | Define the compression level that should be used. See [CompressionLevel Enum](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel?view=net-6.0) for details
+| `-CompressionLevel` &nbsp; &nbsp; | Define the compression level that should be used. See [CompressionLevel Enum](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel?view=net-6.0) for details
 | `-Update` | Updates Zip entries and adds new entries to an existing Zip file
 | `-Force` | Replaces an existing Zip file with a new one. All Zip contents will be lost
 | `-PassThru` | Outputs the object representing the compressed file. The function produces no output by default
@@ -34,9 +34,9 @@ Below are the test results in [PowerShell Core](https://github.com/PowerShell/Po
 ### Average Reults
 
 ```none
-Test                        Average RelativeSpeed
-----                        ------- -------------
-Compress-File (Optimal)     1178.75 1x
+Test                        Average  RelativeSpeed
+----                        -------  -------------
+Compress-File (Optimal)     1178.75  1x
 Compress-Archive (Optimal)  34179.89 29.00x
 ```
 
