@@ -1,4 +1,4 @@
-# Compress-BigFiles
+# Compress-File
 
 ## Description
 
@@ -18,11 +18,12 @@ This function should be able to handle the same as `CreateFromDirectory` method 
 
 | Name | Description |
 | ---  | --- |
-| `-Path` | Absolute or relative path for the File or Folder to be compressed. |
-| `-DestinationPath` | The destination path to the Zip file.
-| `-CompressionLevel` | Define the compression level that should be used. See [CompressionLevel Enum](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel?view=net-6.0) for details.
-| `-Update` | Updates Zip entries and adds new entries to an existing Zip file.
-| `-Force` | Replaces an existing Zip file with a new one. All Zip contents will be lost.
+| `-Path` | Absolute or relative path for the File or Folder to be compressed |
+| `-DestinationPath` | The destination path to the Zip file
+| `-CompressionLevel` | Define the compression level that should be used. See [CompressionLevel Enum](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel?view=net-6.0) for details
+| `-Update` | Updates Zip entries and adds new entries to an existing Zip file
+| `-Force` | Replaces an existing Zip file with a new one. All Zip contents will be lost
+| `-PassThru` | Outputs the object representing the compressed file. The function produces no output by default
 
 ## Performance Measurements
 
@@ -33,9 +34,9 @@ Below are the test results in [PowerShell Core](https://github.com/PowerShell/Po
 ### Average Reults
 
 ```none
-Test                         Average RelativeSpeed
-----                         ------- -------------
-Compress-BigFiles (Optimal)  1178.75 1x
+Test                        Average RelativeSpeed
+----                        ------- -------------
+Compress-File (Optimal)     1178.75 1x
 Compress-Archive (Optimal)  34179.89 29.00x
 ```
 
@@ -44,11 +45,11 @@ Compress-Archive (Optimal)  34179.89 29.00x
 ```none
 TestRun Test                        TotalMilliseconds
 ------- ----                        -----------------
-      3 Compress-BigFiles (Optimal)           1132.38
-      4 Compress-BigFiles (Optimal)           1151.72
-      2 Compress-BigFiles (Optimal)           1156.69
-      5 Compress-BigFiles (Optimal)           1157.54
-      1 Compress-BigFiles (Optimal)           1295.44
+      3 Compress-File (Optimal)              1132.38
+      4 Compress-File (Optimal)              1151.72
+      2 Compress-File (Optimal)              1156.69
+      5 Compress-File (Optimal)              1157.54
+      1 Compress-File (Optimal)              1295.44
       2 Compress-Archive (Optimal)           33884.40
       4 Compress-Archive (Optimal)           33907.80
       3 Compress-Archive (Optimal)           33940.75
@@ -62,38 +63,38 @@ TestRun Test                        TotalMilliseconds
 
 ```powershell
 Get-ChildItem .\path -Recurse -Filter *.ext |
-    Compress-BigFiles -DestinationPath dest.zip
+    Compress-File -DestinationPath dest.zip
 ```
 
 - Compress all `.ext` and `.ext2` from a specific folder:
 
 ```powershell
 Get-ChildItem .\path -Recurse -Include *.ext, *.ext2 |
-    Compress-BigFiles -DestinationPath dest.zip
+    Compress-File -DestinationPath dest.zip
 ```
 
 - Compress a folder using _Fastest_ Compression Level:
 
 ```powershell
-Compress-BigFiles .\path -Destination myPath.zip -CompressionLevel Fastest
+Compress-File .\path -Destination myPath.zip -CompressionLevel Fastest
 ```
 
 - Compressing all directories in `.\Path`:
 
 ```powershell
 Get-ChildItem .\path -Recurse -Directory |
-    Compress-BigFiles -DestinationPath dest.zip
+    Compress-File -DestinationPath dest.zip
 ```
 
 - Replacing an existing Zip Archive:
 
 ```powershell
-Compress-BigFiles -Path .\path -DestinationPath dest.zip -Force
+Compress-File -Path .\path -DestinationPath dest.zip -Force
 ```
 
 - Adding and updating new entries to an existing Zip Archive:
 
 ```powershell
 Get-ChildItem .\path -Recurse -Directory |
-    Compress-BigFiles -DestinationPath dest.zip -Update
+    Compress-File -DestinationPath dest.zip -Update
 ```

@@ -40,13 +40,13 @@ $createTestFiles = {
 & $createTestFiles $TestPath $Folders $Files $FileSize
 
 # bring the function to this session
-Invoke-RestMethod 'https://raw.githubusercontent.com/santysq/Compress-BigFiles/main/Compress-BigFiles.ps1' |
+Invoke-RestMethod 'https://raw.githubusercontent.com/santysq/Compress-File/main/Compress-File.ps1' |
     Invoke-Expression
 
 $tests = @{
-    'Compress-BigFiles (Optimal)' = {
-        $destination = Join-Path $pwd.ProviderPath -ChildPath "testZip-Compress-BigFiles.zip"
-        Compress-BigFiles -Path $testPath -DestinationPath $destination -CompressionLevel Optimal
+    'Compress-File (Optimal)' = {
+        $destination = Join-Path $pwd.ProviderPath -ChildPath "testZip-Compress-File.zip"
+        Compress-File -Path $testPath -DestinationPath $destination -CompressionLevel Optimal
         Remove-Item $destination -Force
     }
     'Compress-Archive (Optimal)' = {
