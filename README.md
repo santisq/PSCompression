@@ -29,9 +29,9 @@ This function should be able to handle the same as `CreateFromDirectory` method 
 
 Below is a performance comparison between [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) and this function. Source code for the performance tests in [performance_tests.ps1](performance_tests.ps1).
 
-Below are the test results in [PowerShell Core](https://github.com/PowerShell/PowerShell) where the built-in cmdlet is [known for having performance issues](https://github.com/PowerShell/Microsoft.PowerShell.Archive/issues/78).
+<sup>Tested in [PowerShell Core](https://github.com/PowerShell/PowerShell) where the built-in cmdlet is [known for having performance issues](https://github.com/PowerShell/Microsoft.PowerShell.Archive/issues/78).</sup>
 
-### Average Reults
+### Average Results
 
 ```none
 Test                        Average  RelativeSpeed
