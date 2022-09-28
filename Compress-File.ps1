@@ -50,23 +50,28 @@ function Compress-File {
             $fsMode = [FileMode]::CreateNew
         }
 
-        try {
-            $destfs = [File]::Open($DestinationPath, $fsMode)
-            $zip    = [ZipArchive]::new($destfs, [ZipArchiveMode]::Update)
-        }
-        catch {
-            $zip, $destfs | ForEach-Object Dispose
-            $PSCmdlet.ThrowTerminatingError($_)
-        }
+        $ExpectingInput = $null
     }
     process {
+        if(-not $ExpectingInput) {
+            try {
+                $destfs = [File]::Open($DestinationPath, $fsMode)
+                $zip    = [ZipArchive]::new($destfs, [ZipArchiveMode]::Update)
+                $ExpectingInput = $true
+            }
+            catch {
+                $zip, $destfs | ForEach-Object Dispose
+                $PSCmdlet.ThrowTerminatingError($_)
+            }
+        }
+
         if([File]::GetAttributes($Path) -band [FileAttributes]::Archive) {
             [FileInfo] $Path = $Path
             $here = $Path.Directory.FullName
         }
         else {
             [DirectoryInfo] $Path = $Path
-            $here = $Path.FullName
+            $here = $Path.Parent.FullName
         }
 
         $queue = [Queue[FileSystemInfo]]::new()
@@ -86,20 +91,26 @@ function Compress-File {
 
             foreach($item in $current) {
                 try {
-                    if($item -is [DirectoryInfo]) {
-                        $queue.Enqueue($item)
-                        continue
-                    }
-
                     if($item.FullName -eq $DestinationPath) {
                         continue
                     }
-                    $relative = $item.FullName.Substring($here.Length + 1).Replace('\', '/')
-                    $sourcefs = $item.Open([FileMode]::Open, [FileAccess]::Read, [FileShare]::Read)
+
+                    $relative = $item.FullName.Substring($here.Length + 1)
                     $entry    = $zip.GetEntry($relative)
+
+                    if($item -is [DirectoryInfo]) {
+                        $queue.Enqueue($item)
+                        if(-not $entry) {
+                            $entry = $zip.CreateEntry($relative + '\', $CompressionLevel)
+                        }
+                        continue
+                    }
+
                     if(-not $entry) {
                         $entry = $zip.CreateEntry($relative, $CompressionLevel)
                     }
+
+                    $sourcefs = $item.Open([FileMode]::Open, [FileAccess]::Read, [FileShare]::Read)
                     $entryfs  = $entry.Open()
                     $sourcefs.CopyTo($entryfs)
                 }
