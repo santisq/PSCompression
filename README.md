@@ -12,7 +12,36 @@ The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](h
    2. All files (recursively) on the source folder __will be compressed__, we can't pick / filter files to compress.
    3. It's not possible to __Update__ the entries of an existing Zip Archive.
 
-This function should be able to handle the same as `CreateFromDirectory` method but also allow us to filter a folder for specific files to compress and also keep the file / folder structure untouched.
+This function should be able to handle the same as `CreateFromDirectory` method but also allow us to filter a folder for specific files to compress and also __keep the file / folder structure__.
+
+---
+
+This function was initially posted to address [this Stack Overflow question](https://stackoverflow.com/a/72611161/15339544). [Another question](https://stackoverflow.com/q/74129754/15339544) in the same site pointed out another limitation with the native cmdlet, it can't compress if another process has a handle on a file.
+
+#### How to reproduce?
+
+```powershell
+# cd to a temporary folder and
+# start a Job which will write to a file
+$job = Start-Job {
+    0..1000 | ForEach-Object {
+        "Iteration ${_}:" + ('A' * 1kb)
+        Start-Sleep -Milliseconds 200
+    } | Set-Content .\temp\test.txt
+}
+
+Start-Sleep -Seconds 1
+# attempt to compress
+Compress-Archive .\temp\test.txt -DestinationPath test.zip
+# Exception:
+# The process cannot access the file '..\test.txt' because it is being used by another process.
+$job | Stop-Job -PassThru | Remove-Job
+Remove-Item .\temp -Recurse
+```
+
+To overcome this issue, and also to emulate explorer's behavior when compressing files used by another process, the function posted below will default to __[`[FileShare] 'ReadWrite, Delete'`](https://learn.microsoft.com/en-us/dotnet/api/system.io.fileshare?view=net-6.0)__ when opening a [`FileStream`](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.open?view=net-7.0).
+
+---
 
 ## Parameters
 
