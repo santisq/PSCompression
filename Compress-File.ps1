@@ -110,7 +110,7 @@ function Compress-File {
                         $entry = $zip.CreateEntry($relative, $CompressionLevel)
                     }
 
-                    $sourcefs = $item.Open([FileMode]::Open, [FileAccess]::Read, [FileShare]::Read)
+                    $sourcefs = $item.Open([FileMode]::Open, [FileAccess]::Read, [FileShare] 'ReadWrite, Delete')
                     $entryfs  = $entry.Open()
                     $sourcefs.CopyTo($entryfs)
                 }
