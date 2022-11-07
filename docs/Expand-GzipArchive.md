@@ -108,6 +108,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Raw
+
+Outputs the expanded file as a single string with newlines preserved.
+By default, newline characters in the expanded string are used as delimiters to separate the input into an array of strings.
+This parameter is only available when expanding to the Success Stream.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Path, LiteralPath
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -PassThru
 Outputs the object representing the expanded file.
 This parameter is only available when expanding to a File.
