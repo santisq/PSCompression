@@ -115,6 +115,7 @@ PrivateData = @{
             'System.IO.Compression'
             'ZipArchive'
             'GZipStream'
+            'compression'
         )
 
         # A URL to the license for this module.
