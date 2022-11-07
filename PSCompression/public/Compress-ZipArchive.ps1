@@ -51,8 +51,7 @@ function Compress-ZipArchive {
     Compress all `.txt` files contained in all folders in the Current Directory.
 
     .EXAMPLE
-    Get-ChildItem .\path -Recurse -Include *.ext, *.ext2 |
-        Compress-ZipArchive -DestinationPath dest.zip
+    Compress-ZipArchive .\*.ext, .\*.ext2 -DestinationPath dest.zip
 
     Compress all `.ext` and `.ext2` from a specific folder.
 

@@ -5,15 +5,15 @@ using namespace System.Text
 function Expand-GzipArchive {
     <#
     .SYNOPSIS
-    Expands a Gzip compressed file from a specified File Path.
+    Expands a Gzip compressed file from a specified specified File Path or Paths.
 
     .Parameter Path
-    Specifies the path or paths to the Gzip files that you want to expand.
+    Specifies the path or paths to the Gzip files to expand.
     To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
     This Parameter accepts wildcard characters. Wildcard characters allow you to add all files in a directory to your archive file.
 
     .PARAMETER LiteralPath
-    Specifies the path or paths to the Gzip files that you want to expand.
+    Specifies the path or paths to the Gzip files to expand.
     Unlike the Path Parameter, the value of LiteralPath is used exactly as it's typed.
     No characters are interpreted as wildcards
 

@@ -5,7 +5,7 @@ using namespace System.Management.Automation
 function Compress-GzipArchive {
     <#
     .SYNOPSIS
-    Creates a compressed Gzip compressed file from a specified File Path or input Bytes.
+    Creates a Gzip compressed file from specified File Paths or input Bytes.
 
     .Parameter Path
     Specifies the path or paths to the files that you want to add to the Gzip archive file.
