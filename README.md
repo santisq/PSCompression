@@ -23,6 +23,7 @@ PowerShell function aimed to compress multiple files into a single Gzip file usi
 ### [`Expand-GzipArchive`](/docs/Expand-GzipArchive.md)
 
 PowerShell function aimed to expand Gzip files into a using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
+
 ### [`ConvertTo-GzipString`](/docs/ConvertTo-GzipString.md)
 
 PowerShell function aimed to compress input strings into Base64 encoded Gzip strings or raw bytes using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).

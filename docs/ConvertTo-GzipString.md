@@ -73,7 +73,7 @@ Accept wildcard characters: False
 ```
 
 ### -Raw
-Outputs the compress bytes to the Success Stream.
+Outputs the compressed bytes to the Success Stream.
 There is no Base64 Encoding when this parameter is used.
 This parameter is meant to be used in combination with [`Compress-GzipArchive`](/docs/Compress-GzipArchive.md).
 

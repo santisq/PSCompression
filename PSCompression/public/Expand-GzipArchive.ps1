@@ -26,6 +26,11 @@ function Expand-GzipArchive {
     Character encoding used when expanding the Gzip content.
     This parameter is only available when expanding to the Success Stream.
 
+    .PARAMETER Raw
+    Outputs the expanded file as a single string with newlines preserved.
+    By default, newline characters in the expanded string are used as delimiters to separate the input into an array of strings.
+    This parameter is only available when expanding to the Success Stream.
+
     .PARAMETER PassThru
     Outputs the object representing the expanded file.
     This parameter is only available when expanding to a File.
@@ -55,6 +60,10 @@ function Expand-GzipArchive {
         [EncodingTransformation()]
         [ArgumentCompleter([EncodingCompleter])]
         [Encoding] $Encoding = 'utf8',
+
+        [Parameter(ParameterSetName = 'Path')]
+        [Parameter(ParameterSetName = 'LiteralPath')]
+        [switch] $Raw,
 
         [Parameter(ParameterSetName = 'PathToFile')]
         [Parameter(ParameterSetName = 'LiteralPathToFile')]
@@ -89,6 +98,11 @@ function Expand-GzipArchive {
                         continue
                     }
                     $reader = [StreamReader]::new($gzip, $Encoding, $true)
+
+                    if($Raw.IsPresent) {
+                        return $reader.ReadToEnd()
+                    }
+
                     while(-not $reader.EndOfStream) {
                         $reader.ReadLine()
                     }

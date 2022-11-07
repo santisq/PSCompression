@@ -22,7 +22,7 @@ function ConvertTo-GzipString {
     See https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel for details.
 
     .PARAMETER Raw
-    Outputs the compress bytes to the Success Stream. There is no Base64 Encoding.
+    Outputs the compressed bytes to the Success Stream. There is no Base64 Encoding.
     This parameter is meant to be used in combination with `Compress-GzipArchive`.
 
     .PARAMETER NoNewLine
@@ -37,6 +37,7 @@ function ConvertTo-GzipString {
     [CmdletBinding()]
     [Alias('gziptostring')]
     param(
+        [AllowEmptyString()]
         [Parameter(Mandatory, ValueFromPipeline)]
         [string[]] $InputObject,
 

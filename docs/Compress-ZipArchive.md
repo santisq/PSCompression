@@ -263,7 +263,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## Performance Measurements
 
-Below is a performance comparison between `Compress-Archive` and this function. Source code for the performance tests in [this link](../tests/zip_performance_tests.ps1).
+Below is a performance comparison between `Compress-Archive` and this function. Source code for the performance tests in [this link](../tests/zip_perftest.ps1).
 
 Tested in older versions of [PowerShell Core](https://github.com/PowerShell/PowerShell) where the built-in cmdlet is [known for having performance issues](https://github.com/PowerShell/Microsoft.PowerShell.Archive/issues/78). This issue has been fixed in latest versions.
 
