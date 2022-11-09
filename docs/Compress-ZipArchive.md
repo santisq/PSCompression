@@ -97,8 +97,6 @@ Get-ChildItem .\path -Recurse -Filter *.ext |
     Compress-ZipArchive -DestinationPath dest.zip
 ```
 
-
-
 ### Example 2: Compress all `.txt` files contained in all folders in the Current Directory
 
 ```powershell
@@ -136,7 +134,7 @@ Compress-ZipArchive -Path .\path -DestinationPath dest.zip -Force
 
 Demonstrates the use of `-Update` parameter switch.
 
-```
+```powershell
 Get-ChildItem .\path -Recurse -Directory |
     Compress-ZipArchive -DestinationPath dest.zip -Update
 ```

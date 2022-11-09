@@ -1,4 +1,6 @@
-﻿# Example 1: Strings to Gzip compressed Base 64 encoded string
+﻿## GZIP EXAMPLES
+
+# Example 1: Strings to Gzip compressed Base 64 encoded string
 
 $strings = 'hello', 'world', '!'
 # With positional binding
@@ -22,7 +24,7 @@ $strings | ConvertTo-GzipString -NoNewLine | ConvertFrom-GzipString
 # Demonstrates how `-Raw` works
 
 'hello world!' | ConvertTo-GzipString -Raw |
-    Compress-GzipArchive -DestinationPath .\files\file.gzip
+    Compress-GzipArchive -DestinationPath .\files\file.gzip -Force
 
 # Example 5: Append content to the previous Gzip file
 
@@ -30,25 +32,31 @@ $strings | ConvertTo-GzipString -NoNewLine | ConvertFrom-GzipString
 'this is new content...' | ConvertTo-GzipString -Raw |
     Compress-GzipArchive -DestinationPath .\files\file.gzip -Update
 
+# Example 6: Expanding a Gzip file
 
-# Example 6: Replace the previous Gzip file with new content
+# Output goes to the Success Stream when `-DestinationPath` is not bound
+Expand-GzipArchive .\files\file.gzip
+
+# Example 7: Replace the previous Gzip file with new content
 
 # Demonstrates how `-Force` works
 $lorem = Invoke-RestMethod loripsum.net/api/10/long/plaintext
 $lorem | ConvertTo-GzipString -Raw |
     Compress-GzipArchive -DestinationPath .\files\file.gzip -Force
 
-# Example 7: Expanding a Gzip file
-
-# Output goes to the Success Stream when `-DestinationPath` is not bound
-Expand-GzipArchive .\files\file.gzip
-
 # Example 8: Expanding a Gzip file outputting to a file
-
 Expand-GzipArchive .\files\file.gzip -DestinationPath .\files\file.txt
-# Check integrity
+
+# Check Length Difference
+Get-Item -Path .\files\file.gzip, .\files\file.txt |
+    Select-Object Name, Length
+
+# Check Integrity
 $lorem | Set-Content .\files\strings.txt
-Get-FileHash -Path .\files\file.txt, .\files\strings.txt -Algorithm MD5
+Get-FileHash -Path .\files\file.txt, .\files\strings.txt -Algorithm MD5 |
+    Select-Object Hash
+
+
 
 # Example 9: Compressing multiple files into one Gzip file
 
@@ -59,7 +67,7 @@ Get-FileHash -Path .\files\file.txt, .\files\strings.txt -Algorithm MD5
 
 (Get-Content .\files\lorem*.txt | Measure-Object Length -Sum).Sum / 1kb                                    # About 90kb
 (Compress-GzipArchive .\files\lorem*.txt -DestinationPath .\files\mergedLorem.gzip -PassThru).Length / 1kb # About 30kb
-(Expand-GzipArchive .\files\mergedLorem.gzip -Raw).Length / 1kb                                            # About 90kb
+(Expand-GzipArchive .\files\mergedLorem.gzip -Raw | Measure-Object Length -Sum).Sum / 1kb                       # About 90kb
 
 # Example 10: Compressing the files content from previous example into one Gzip Base64 string
 

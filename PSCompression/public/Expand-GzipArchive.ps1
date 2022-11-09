@@ -72,6 +72,10 @@ function Expand-GzipArchive {
 
     begin {
         $ExpectingInput = $null
+        $params = @{
+            Raw      = $Raw.IsPresent
+            Encoding = $Encoding
+        }
     }
     process {
         try {
@@ -85,42 +89,23 @@ function Expand-GzipArchive {
             if(-not $ExpectingInput -and $PSBoundParameters.ContainsKey('DestinationPath')) {
                 $ExpectingInput  = $true
                 $DestinationPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
-                $null    = [Directory]::CreateDirectory([Path]::GetDirectoryName($DestinationPath))
-                $outFile = [File]::Open($DestinationPath, [FileMode]::Append)
+                $null = [Directory]::CreateDirectory([Path]::GetDirectoryName($DestinationPath))
+                $params['OutStream'] = [File]::Open($DestinationPath, [FileMode]::Append)
             }
 
-            foreach($item in $items) {
-                try {
-                    $inStream  = [File]::Open($item, [FileMode]::Open)
-                    $gzip      = [GZipStream]::new($inStream, [CompressionMode]::Decompress)
-                    if($PSBoundParameters.ContainsKey('DestinationPath')) {
-                        $gzip.CopyTo($outFile)
-                        continue
-                    }
-                    $reader = [StreamReader]::new($gzip, $Encoding, $true)
-
-                    if($Raw.IsPresent) {
-                        return $reader.ReadToEnd()
-                    }
-
-                    while(-not $reader.EndOfStream) {
-                        $reader.ReadLine()
-                    }
-                }
-                catch {
-                    $PSCmdlet.WriteError($_)
-                }
-                finally {
-                    $gzip, $reader, $inStream | ForEach-Object Dispose
-                }
+            # Had to do this to read appended Gzip content in .NET Framework...
+            if(-not $IsCoreCLR) {
+                return $items | GzipFrameworkReader @params
             }
+
+            $items | GzipCoreReader @params
         }
         catch {
             $PSCmdlet.WriteError($_)
         }
         finally {
-            if($outFile -is [IDisposable]) {
-                $outFile.Dispose()
+            if($params['OutStream'] -is [IDisposable]) {
+                $params['OutStream'].Dispose()
             }
 
             if($PassThru.IsPresent) {
