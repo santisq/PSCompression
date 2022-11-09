@@ -59,7 +59,7 @@ The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](h
    2. All files (recursively) on the source folder __will be compressed__, we can't pick / filter files to compress.
    3. It's not possible to __Update__ the entries of an existing Zip Archive.
 
-This function should be able to handle the same as `CreateFromDirectory` method but also allow us to filter a folder for specific files to compress and also __keep the file / folder structure__.
+This function should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure untouched__.
 
 ---
 
