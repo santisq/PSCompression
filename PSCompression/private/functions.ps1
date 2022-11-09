@@ -100,8 +100,8 @@ function GzipCoreReader {
             $inStream  = $File.OpenRead()
             $gzip      = [GZipStream]::new($inStream, [CompressionMode]::Decompress)
 
-            if($PSBoundParameters.ContainsKey('DestinationPath')) {
-                return $gzip.CopyTo($outFile)
+            if($PSBoundParameters.ContainsKey('OutStream')) {
+                return $gzip.CopyTo($OutStream)
 
             }
 
