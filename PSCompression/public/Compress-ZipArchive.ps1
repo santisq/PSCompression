@@ -142,6 +142,7 @@ function Compress-ZipArchive {
 
         if(-not $ExpectingInput) {
             try {
+                $null   = [Directory]::CreateDirectory([Path]::GetDirectoryName($DestinationPath))
                 $destfs = [File]::Open($DestinationPath, $fsMode)
                 $zip    = [ZipArchive]::new($destfs, [ZipArchiveMode]::Update)
                 $ExpectingInput = $true
