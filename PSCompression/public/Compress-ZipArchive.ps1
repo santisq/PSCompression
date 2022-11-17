@@ -119,6 +119,8 @@ function Compress-ZipArchive {
             $DestinationPath = $DestinationPath + '.zip'
         }
 
+        $zipMode = [ZipArchiveMode]::Update
+
         if($Force.IsPresent) {
             $fsMode = [FileMode]::Create
         }
@@ -126,7 +128,8 @@ function Compress-ZipArchive {
             $fsMode = [FileMode]::OpenOrCreate
         }
         else {
-            $fsMode = [FileMode]::CreateNew
+            $fsMode  = [FileMode]::CreateNew
+            $zipMode = [ZipArchiveMode]::Create
         }
 
         $ExpectingInput = $null
@@ -144,7 +147,7 @@ function Compress-ZipArchive {
             try {
                 $null   = [Directory]::CreateDirectory([Path]::GetDirectoryName($DestinationPath))
                 $destfs = [File]::Open($DestinationPath, $fsMode)
-                $zip    = [ZipArchive]::new($destfs, [ZipArchiveMode]::Update)
+                $zip    = [ZipArchive]::new($destfs, $zipMode)
                 $ExpectingInput = $true
             }
             catch {
@@ -182,17 +185,20 @@ function Compress-ZipArchive {
                         }
 
                         $relative = $item.FullName.Substring($here.Length + 1)
-                        $entry    = $zip.GetEntry($relative)
+
+                        if($Update.IsPresent) {
+                            $entry = $zip.GetEntry($relative)
+                        }
 
                         if($item -is [DirectoryInfo]) {
                             $queue.Enqueue($item)
-                            if(-not $entry) {
+                            if(-not $Update.IsPresent -or -not $entry) {
                                 $entry = $zip.CreateEntry($relative + '\', $CompressionLevel)
                             }
                             continue
                         }
 
-                        if(-not $entry) {
+                        if(-not $Update.IsPresent -or -not $entry) {
                             $entry = $zip.CreateEntry($relative, $CompressionLevel)
                         }
 
