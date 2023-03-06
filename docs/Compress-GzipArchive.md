@@ -73,10 +73,10 @@ PowerShell function aimed to compress multiple files into a single Gzip file usi
 
 __All Gzip Examples can be found [here](/docs/GzipExamples.md).__
 
-
 ## PARAMETERS
 
 ### -Path
+
 Specifies the path or paths to the files that you want to add to the Gzip archive file.
 To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
 This Parameter accepts wildcard characters.

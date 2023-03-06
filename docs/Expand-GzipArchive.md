@@ -8,32 +8,38 @@ schema: 2.0.0
 # Expand-GzipArchive
 
 ## SYNOPSIS
+
 Expands a Gzip compressed file from a specified File Path or Paths.
 
 ## SYNTAX
 
 ### Path (Default)
+
 ```powershell
 Expand-GzipArchive [-Path] <String[]> [-Encoding <Encoding>] [<CommonParameters>]
 ```
 
 ### PathToFile
+
 ```powershell
 Expand-GzipArchive [-Path] <String[]> [[-DestinationPath] <String>] [-PassThru] [<CommonParameters>]
 ```
 
 ### LiteralPath
+
 ```powershell
 Expand-GzipArchive -LiteralPath <String[]> [-Encoding <Encoding>] [<CommonParameters>]
 ```
 
 ### LiteralPathToFile
+
 ```powershell
 Expand-GzipArchive -LiteralPath <String[]> [[-DestinationPath] <String>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-PowerShell function aimed to expand Gzip files into a using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). This function is the counterpart of [`Compress-GzipArchive`](/docs/Compress-GzipArchive.md).
+
+PowerShell function aimed to expand Gzip compressed using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). This function is the counterpart of [`Compress-GzipArchive`](/docs/Compress-GzipArchive.md).
 
 ## EXAMPLES
 __All Gzip Examples can be found [here](/docs/GzipExamples.md).__

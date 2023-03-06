@@ -8,7 +8,8 @@ schema: 2.0.0
 # ConvertFrom-GzipString
 
 ## SYNOPSIS
-Expands a Base64 encoded Gzip compressed input strings.
+
+Expands Base64 Gzip compressed input strings.
 
 ## SYNTAX
 

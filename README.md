@@ -18,19 +18,19 @@ PowerShell function that overcomes the limitations of [`Compress-Archive`](https
 
 ### [`Compress-GzipArchive`](/docs/Compress-GzipArchive.md)
 
-PowerShell function aimed to compress multiple files into a single Gzip file using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
+PowerShell function aimed to compress multiple files into a single Gzip compressed file using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
 
 ### [`Expand-GzipArchive`](/docs/Expand-GzipArchive.md)
 
-PowerShell function aimed to expand Gzip files into a using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
+PowerShell function aimed to expand Gzip files using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
 
 ### [`ConvertTo-GzipString`](/docs/ConvertTo-GzipString.md)
 
-PowerShell function aimed to compress input strings into Base64 encoded Gzip strings or raw bytes using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
+PowerShell function aimed to compress input strings into Base64 Gzip compressed strings or raw bytes using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
 
 ### [`ConvertFrom-GzipString`](/docs/ConvertFrom-GzipString.md)
 
-PowerShell function aimed to expand Base64 encoded Gzip compressed input strings using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
+PowerShell function aimed to expand Base64 Gzip compressed input strings using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
 
 ## Contributing
 

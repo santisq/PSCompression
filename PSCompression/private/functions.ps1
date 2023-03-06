@@ -102,14 +102,12 @@ function GzipCoreReader {
 
             if($PSBoundParameters.ContainsKey('OutStream')) {
                 return $gzip.CopyTo($OutStream)
-
             }
 
             $reader = [StreamReader]::new($gzip, $Encoding, $true)
 
             if($Raw.IsPresent) {
                 return $reader.ReadToEnd()
-
             }
 
             while(-not $reader.EndOfStream) {
