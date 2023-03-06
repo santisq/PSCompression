@@ -42,11 +42,13 @@ Expand-GzipArchive -LiteralPath <String[]> [[-DestinationPath] <String>] [-PassT
 PowerShell function aimed to expand Gzip compressed using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). This function is the counterpart of [`Compress-GzipArchive`](/docs/Compress-GzipArchive.md).
 
 ## EXAMPLES
+
 __All Gzip Examples can be found [here](/docs/GzipExamples.md).__
 
 ## PARAMETERS
 
 ### -Path
+
 Specifies the path or paths to the Gzip files to expand.
 To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
 This Parameter accepts wildcard characters.
@@ -65,6 +67,7 @@ Accept wildcard characters: False
 ```
 
 ### -LiteralPath
+
 Specifies the path or paths to the Gzip files to expand.
 Unlike the `-Path` Parameter, the value of `-LiteralPath` is used exactly as it's typed.
 No characters are interpreted as wildcards
@@ -82,6 +85,7 @@ Accept wildcard characters: False
 ```
 
 ### -DestinationPath
+
 The destination path to where to expand the Gzip file.
 The target folder is created if it does not exist.
 This parameter is Optional, if not used, this function outputs to the Success Stream.
@@ -99,6 +103,7 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
+
 Character encoding used when expanding the Gzip content.
 This parameter is only available when expanding to the Success Stream.
 
@@ -133,6 +138,7 @@ Accept wildcard characters: False
 ```
 
 ### -PassThru
+
 Outputs the object representing the expanded file.
 This parameter is only available when expanding to a File.
 
@@ -149,4 +155,5 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).

@@ -8,65 +8,76 @@ schema: 2.0.0
 # Compress-GzipArchive
 
 ## SYNOPSIS
+
 Creates a Gzip compressed file from specified File Paths or input Bytes.
 
 ## SYNTAX
 
 ### Path (Default)
+
 ```powershell
 Compress-GzipArchive [-Path] <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
  [-PassThru] [<CommonParameters>]
 ```
 
 ### PathWithForce
+
 ```powershell
 Compress-GzipArchive [-Path] <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
  [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ### PathWithUpdate
+
 ```powershell
 Compress-GzipArchive [-Path] <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
  [-Update] [-PassThru] [<CommonParameters>]
 ```
 
 ### LiteralPath
+
 ```powershell
 Compress-GzipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
  [-PassThru] [<CommonParameters>]
 ```
 
 ### LiteralPathWithForce
+
 ```powershell
 Compress-GzipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
  [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ### LiteralPathWithUpdate
+
 ```powershell
 Compress-GzipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
  [-Update] [-PassThru] [<CommonParameters>]
 ```
 
 ### RawBytes
+
 ```powershell
 Compress-GzipArchive -InputBytes <Byte[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
  [-PassThru] [<CommonParameters>]
 ```
 
 ### RawBytesWithForce
+
 ```powershell
 Compress-GzipArchive -InputBytes <Byte[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
  [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ### RawBytesWithUpdate
+
 ```powershell
 Compress-GzipArchive -InputBytes <Byte[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
  [-Update] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 PowerShell function aimed to compress multiple files into a single Gzip file using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion of Gzip files, see [`Expand-GzipArchive`](/docs/Expand-GzipArchive.md)
 
 ## EXAMPLES
@@ -95,6 +106,7 @@ Accept wildcard characters: False
 ```
 
 ### -LiteralPath
+
 Specifies the path or paths to the files that you want to add to the Gzip archive file.
 Unlike the `-Path` Parameter, the value of `-LiteralPath` is used exactly as it's typed.
 No characters are interpreted as wildcards
@@ -112,6 +124,7 @@ Accept wildcard characters: False
 ```
 
 ### -InputBytes
+
 Takes the bytes from pipeline and adds to the Gzip archive file.
 This parameter is meant to be used in combination with [`ConvertTo-GzipString -Raw`](/docs/ConvertTo-GzipString.md).
 
@@ -128,6 +141,7 @@ Accept wildcard characters: False
 ```
 
 ### -DestinationPath
+
 The destination path to the Gzip file.
 If the file name in DestinationPath doesn't have a `.gzip` file name extension, the function appends the `.gzip` file name extension.
 
@@ -144,6 +158,7 @@ Accept wildcard characters: False
 ```
 
 ### -CompressionLevel
+
 Define the compression level that should be used.
 See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details.
 
@@ -161,6 +176,7 @@ Accept wildcard characters: False
 ```
 
 ### -Update
+
 Appends to the existing Gzip file.
 
 ```yaml
@@ -176,6 +192,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
+
 Replaces an existing Gzip file with a new one.
 All contents will be lost.
 
@@ -192,6 +209,7 @@ Accept wildcard characters: False
 ```
 
 ### -PassThru
+
 Outputs the object representing the compressed file.
 The function produces no output by default.
 
@@ -208,4 +226,5 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
