@@ -12,7 +12,7 @@
 RootModule = 'PSCompression.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.4'
+ModuleVersion = '1.0.6'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -54,7 +54,10 @@ PowerShellVersion = '5.1'
 # RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
-# RequiredAssemblies = @()
+RequiredAssemblies = @(
+    'System.IO.Compression'
+    'System.IO.Compression.FileSystem'
+)
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()
@@ -75,10 +78,13 @@ FunctionsToExport = @(
     'Expand-GzipArchive'
     'ConvertTo-GzipString'
     'ConvertFrom-GzipString'
+    'Expand-ZipArchive'
 )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = @()
+CmdletsToExport = @(
+    'Get-ZipContent'
+)
 
 # Variables to export from this module
 VariablesToExport = @()

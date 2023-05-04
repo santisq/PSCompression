@@ -7,7 +7,7 @@ function Expand-GzipArchive {
     .SYNOPSIS
     Expands a Gzip compressed file from a specified specified File Path or Paths.
 
-    .Parameter Path
+    .PARAMETER Path
     Specifies the path or paths to the Gzip files to expand.
     To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
     This Parameter accepts wildcard characters. Wildcard characters allow you to add all files in a directory to your archive file.

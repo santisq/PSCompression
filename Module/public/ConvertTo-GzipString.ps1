@@ -7,7 +7,7 @@ function ConvertTo-GzipString {
     .SYNOPSIS
     Creates a Base64 encoded Gzip compressed string from a specified input string or strings.
 
-    .Parameter InputObject
+    .PARAMETER InputObject
     Specifies the input string or strings to compress.
 
     .PARAMETER Encoding

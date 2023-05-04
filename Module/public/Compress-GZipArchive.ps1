@@ -2,46 +2,9 @@
 using namespace System.IO.Compression
 using namespace System.Text
 using namespace System.Management.Automation
+
+# .ExternalHelp PSCompression-help.xml
 function Compress-GzipArchive {
-    <#
-    .SYNOPSIS
-    Creates a Gzip compressed file from specified File Paths or input Bytes.
-
-    .Parameter Path
-    Specifies the path or paths to the files that you want to add to the Gzip archive file.
-    To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
-    This Parameter accepts wildcard characters. Wildcard characters allow you to add all files in a directory to your archive file.
-
-    .PARAMETER LiteralPath
-    Specifies the path or paths to the files that you want to add to the Gzip archive file.
-    Unlike the Path Parameter, the value of LiteralPath is used exactly as it's typed.
-    No characters are interpreted as wildcards
-
-    .PARAMETER InputBytes
-    Takes the bytes from pipeline and adds to the Gzip archive file.
-    This parameter is meant to be used in combination with `ConvertTo-GzipString -Raw`.
-
-    .PARAMETER DestinationPath
-    The destination path to the Gzip file.
-    If the file name in DestinationPath doesn't have a `.gzip` file name extension, the function appends the `.gzip` file name extension.
-
-    .PARAMETER CompressionLevel
-    Define the compression level that should be used.
-    See https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel for details.
-
-    .PARAMETER Update
-    Appends to the existing Gzip file.
-
-    .PARAMETER Force
-    Replaces an existing Gzip file with a new one. All contents will be lost.
-
-    .PARAMETER PassThru
-    Outputs the object representing the compressed file. The function produces no output by default.
-
-    .LINK
-    https://github.com/santisq/PSCompression
-    #>
-
     [CmdletBinding(DefaultParameterSetName='Path')]
     [Alias('gziptofile')]
     param(
