@@ -12,7 +12,8 @@ public static class _Format
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetParentEntry(ZipEntry entry)
     {
-        return entry.EntryType == "Directory" ?
-            entry.EntryRelativePath : Path.GetDirectoryName(entry.EntryRelativePath);
+        return string.Concat(entry.EntryType == "Directory" ?
+            entry.EntryRelativePath : Path.GetDirectoryName(entry.EntryRelativePath),
+            $" @ {entry.Source}");
     }
 }

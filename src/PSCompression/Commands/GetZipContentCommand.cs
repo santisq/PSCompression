@@ -113,6 +113,10 @@ public sealed class GetZipContentCommand : PSCmdlet
                     continue;
                 }
             }
+            catch(PipelineStoppedException)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 WriteError(new ErrorRecord(
@@ -129,6 +133,10 @@ public sealed class GetZipContentCommand : PSCmdlet
                 {
                     WriteObject(new ZipEntry(entry, path));
                 }
+            }
+            catch(PipelineStoppedException)
+            {
+                throw;
             }
             catch (Exception e)
             {

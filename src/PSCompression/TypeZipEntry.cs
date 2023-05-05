@@ -1,18 +1,27 @@
 using System;
+using System.IO;
 using System.IO.Compression;
+using System.Management.Automation;
+using System.Text;
 
 namespace PSCompression;
 
-public class ZipEntry
+public enum ZipEntryType
+{
+    Directory = 0,
+    File      = 1
+}
+
+public class ZipEntryBase
 {
     private readonly ZipArchiveEntry _entry;
 
     private readonly static string[] _suffix;
 
-    static ZipEntry() =>
+    static ZipEntryBase() =>
         _suffix = new string[9] { "Bytes", "Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb" };
 
-    public string Source  { get; }
+    public string Source { get; }
 
     public string EntryName => _entry.Name;
 
@@ -28,9 +37,10 @@ public class ZipEntry
 
     public string CompressedSize => FormatLength(CompressedLength);
 
-    public string EntryType => string.IsNullOrEmpty(EntryName) ? "Directory" : "File";
+    public ZipEntryType EntryType => string.IsNullOrEmpty(EntryName) ?
+        ZipEntryType.Directory : ZipEntryType.File;
 
-    internal ZipEntry(ZipArchiveEntry entry, string source)
+    internal ZipEntryBase(ZipArchiveEntry entry, string source)
     {
         _entry = entry;
         Source = source;
@@ -49,6 +59,37 @@ public class ZipEntry
 
         return string.Format("{0} {1}", Math.Round(len, 2), _suffix[index]);
     }
-    // public Stream
-}
 
+    private ZipArchive OpenRead() => ZipFile.OpenRead(Source);
+
+    private Stream GetStream(ZipArchive zip) => zip.GetEntry(EntryRelativePath).Open();
+
+    internal void ReadLines(Encoding encoding, PSCmdlet cmdlet, bool detectEncoding = true)
+    {
+        using ZipArchive zip = OpenRead();
+        using Stream entryStream = GetStream(zip);
+        using StreamReader reader = new(entryStream, encoding, detectEncoding);
+
+        while (!reader.EndOfStream)
+        {
+            cmdlet.WriteObject(reader.ReadLine());
+        }
+    }
+
+    internal void ReadLines(PSCmdlet cmdlet) => ReadLines(Encoding.UTF8, cmdlet: cmdlet);
+
+    internal string ReadToEnd(Encoding encoding, bool detectEncoding = true)
+    {
+        using ZipArchive zip = OpenRead();
+        using Stream entryStream = GetStream(zip);
+        using StreamReader reader = new(entryStream, encoding, detectEncoding);
+        return reader.ReadToEnd();
+    }
+
+    internal string ReadToEnd() => ReadToEnd(Encoding.UTF8);
+
+    public void ExtractToFile(string destinationFileName, bool overwrite)
+    {
+
+    }
+}
