@@ -5,22 +5,24 @@ namespace PSCompression;
 
 public class ZipEntry
 {
-    internal static string[] _suffix;
+    private readonly ZipArchiveEntry _entry;
+
+    private readonly static string[] _suffix;
 
     static ZipEntry() =>
-        _suffix = new string[] { "Bytes", "Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb" };
+        _suffix = new string[9] { "Bytes", "Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb" };
 
-    public string Source { get; }
+    public string Source  { get; }
 
-    public string EntryName { get; }
+    public string EntryName => _entry.Name;
 
-    public DateTimeOffset LastWriteTime { get; }
+    public DateTimeOffset LastWriteTime => _entry.LastWriteTime;
 
-    public string EntryRelativePath { get; }
+    public string EntryRelativePath => _entry.FullName;
 
-    public long Length { get; }
+    public long Length => _entry.Length;
 
-    public long CompressedLength { get; }
+    public long CompressedLength => _entry.CompressedLength;
 
     public string Size => FormatLength(Length);
 
@@ -30,12 +32,8 @@ public class ZipEntry
 
     internal ZipEntry(ZipArchiveEntry entry, string source)
     {
+        _entry = entry;
         Source = source;
-        EntryName = entry.Name;
-        EntryRelativePath = entry.FullName;
-        LastWriteTime = entry.LastWriteTime;
-        Length = entry.Length;
-        CompressedLength = entry.CompressedLength;
     }
 
     private static string FormatLength(long length)

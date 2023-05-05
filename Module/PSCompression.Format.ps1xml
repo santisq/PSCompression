@@ -16,7 +16,10 @@
             <Label>EntryType</Label>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>EntryRelativePath</Label>
+            <Label>EntryName</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LastWriteTime</Label>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>CompressedSize</Label>
@@ -34,7 +37,10 @@
                 <PropertyName>EntryType</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>EntryRelativePath</PropertyName>
+                <PropertyName>EntryName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LastWriteTime</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>CompressedSize</PropertyName>
