@@ -9,6 +9,8 @@ using Microsoft.PowerShell.Commands;
 namespace PSCompression;
 
 [Cmdlet(VerbsCommon.Get, "ZipContent", DefaultParameterSetName = "Path")]
+[OutputType(typeof(ZipEntry))]
+[Alias("gczip")]
 public sealed class GetZipContentCommand : PSCmdlet
 {
     private bool _isLiteral;
@@ -44,7 +46,7 @@ public sealed class GetZipContentCommand : PSCmdlet
             catch (Exception e)
             {
                 WriteError(new ErrorRecord(
-                    e, "PSCompression.ResolvePath", ErrorCategory.NotSpecified, path));
+                    e, "ResolvePath", ErrorCategory.NotSpecified, path));
             }
         }
 
@@ -95,9 +97,7 @@ public sealed class GetZipContentCommand : PSCmdlet
             {
                 WriteError(new ErrorRecord(
                     new ArgumentException($"The resolved path '{path}' is not a FileSystem path but {provider.Name}."),
-                    "PSCompression.PathNotFileSystem",
-                    ErrorCategory.InvalidArgument,
-                    path));
+                    "PathNotFileSystem", ErrorCategory.InvalidArgument, path));
 
                 continue;
             }
@@ -108,9 +108,7 @@ public sealed class GetZipContentCommand : PSCmdlet
                 {
                     WriteError(new ErrorRecord(
                         new ArgumentException($"Unable to get zip content because it is a directory: '{path}'."),
-                        "PSCompression.PathIsDirectory",
-                        ErrorCategory.InvalidArgument,
-                        path));
+                        "PathIsDirectory", ErrorCategory.InvalidArgument, path));
 
                     continue;
                 }
@@ -118,7 +116,7 @@ public sealed class GetZipContentCommand : PSCmdlet
             catch (Exception e)
             {
                 WriteError(new ErrorRecord(
-                    e, "PSCompression.InvalidPath", ErrorCategory.InvalidArgument, path));
+                    e, "InvalidPath", ErrorCategory.InvalidArgument, path));
 
                 continue;
             }
@@ -129,13 +127,13 @@ public sealed class GetZipContentCommand : PSCmdlet
 
                 foreach (ZipArchiveEntry entry in zip.Entries)
                 {
-                    WriteObject(entry);
+                    WriteObject(new ZipEntry(entry, path));
                 }
             }
             catch (Exception e)
             {
                 WriteError(new ErrorRecord(
-                    e, "PSCompression.ZipOpen", ErrorCategory.NotSpecified, path));
+                    e, "ZipOpen", ErrorCategory.NotSpecified, path));
             }
         }
     }

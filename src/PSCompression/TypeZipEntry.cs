@@ -1,23 +1,56 @@
 using System;
-using System.IO;
 using System.IO.Compression;
 
 namespace PSCompression;
 
 public class ZipEntry
 {
-    private readonly ZipArchiveEntry _instance;
+    internal static string[] _suffix;
 
-    public string Name => _instance.Name;
+    static ZipEntry() =>
+        _suffix = new string[] { "Bytes", "Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb" };
 
-    public DateTimeOffset LastWriteTime => _instance.LastWriteTime;
+    public string Source { get; }
 
-    public string EntryRelativePath => _instance.FullName;
+    public string EntryName { get; }
 
-    internal ZipEntry(ZipArchiveEntry entry)
+    public DateTimeOffset LastWriteTime { get; }
+
+    public string EntryRelativePath { get; }
+
+    public long Length { get; }
+
+    public long CompressedLength { get; }
+
+    public string Size => FormatLength(Length);
+
+    public string CompressedSize => FormatLength(CompressedLength);
+
+    public string EntryType => string.IsNullOrEmpty(EntryName) ? "Directory" : "File";
+
+    internal ZipEntry(ZipArchiveEntry entry, string source)
     {
-        _instance = entry;
+        Source = source;
+        EntryName = entry.Name;
+        EntryRelativePath = entry.FullName;
+        LastWriteTime = entry.LastWriteTime;
+        Length = entry.Length;
+        CompressedLength = entry.CompressedLength;
     }
 
+    private static string FormatLength(long length)
+    {
+        int index = 0;
+        double len = length;
+
+        while (len >= 1024)
+        {
+            len /= 1024;
+            index++;
+        }
+
+        return string.Format("{0} {1}", Math.Round(len, 2), _suffix[index]);
+    }
     // public Stream
 }
+

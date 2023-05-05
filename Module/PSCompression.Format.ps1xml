@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <ViewDefinitions>
+    <View>
+      <Name>zipentryview</Name>
+      <ViewSelectedBy>
+        <TypeName>PSCompression.ZipEntry</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <ScriptBlock>[PSCompression._Format]::GetParentEntry($_)</ScriptBlock>
+        <Label>Parent Entry</Label>
+      </GroupBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>EntryType</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>EntryRelativePath</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CompressedSize</Label>
+            <Alignment>Right</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Size</Label>
+            <Alignment>Right</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>EntryType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>EntryRelativePath</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>CompressedSize</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Size</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>
