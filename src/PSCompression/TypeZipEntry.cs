@@ -88,8 +88,7 @@ public class ZipEntryBase
 
     internal string ReadToEnd() => ReadToEnd(Encoding.UTF8);
 
-    public void ExtractToFile(string destinationFileName, bool overwrite)
-    {
-
-    }
+    // public void ExtractToFile(string destinationFileName, bool overwrite)
+    // {
+    // }
 }

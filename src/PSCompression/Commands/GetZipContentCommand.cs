@@ -9,7 +9,7 @@ using Microsoft.PowerShell.Commands;
 namespace PSCompression;
 
 [Cmdlet(VerbsCommon.Get, "ZipContent", DefaultParameterSetName = "Path")]
-[OutputType(typeof(ZipEntry))]
+[OutputType(typeof(ZipEntryBase))]
 [Alias("gczip")]
 public sealed class GetZipContentCommand : PSCmdlet
 {
@@ -131,7 +131,7 @@ public sealed class GetZipContentCommand : PSCmdlet
 
                 foreach (ZipArchiveEntry entry in zip.Entries)
                 {
-                    WriteObject(new ZipEntry(entry, path));
+                    WriteObject(new ZipEntryBase(entry, path));
                 }
             }
             catch(PipelineStoppedException)
