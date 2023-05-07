@@ -3,11 +3,17 @@ using System.Management.Automation;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsCommon.Get, "ZipContent")]
+[Cmdlet(VerbsCommon.Get, "ZipContent", DefaultParameterSetName = "Raw")]
 public sealed class GetZipContentCommand : PSCmdlet
 {
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
     public ZipEntryFile[]? InputObject { get; set; }
+
+    [Parameter(ParameterSetName = "Raw")]
+    public SwitchParameter Raw { get; set; }
+
+    [Parameter(ParameterSetName = "Stream")]
+    public SwitchParameter Stream { get; set; }
 
     protected override void ProcessRecord()
     {
@@ -21,7 +27,21 @@ public sealed class GetZipContentCommand : PSCmdlet
             try
             {
                 entry.OpenRead();
-                WriteObject(new ZipContent(entry));
+                ZipEntryContent entryContent = new(entry);
+
+                if(ParameterSetName == "Raw")
+                {
+                    if(Raw.IsPresent)
+                    {
+                        WriteObject(entryContent.ReadAllText(null));
+                        return;
+                    }
+
+                    WriteObject(entryContent.ReadAllLines(null));
+                    return;
+                }
+
+                entryContent.ReadLines(this, null);
             }
             catch (PipelineStoppedException)
             {

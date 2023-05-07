@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
@@ -84,14 +85,14 @@ public sealed class ZipEntryFile : ZipEntryBase, IDisposable
         }
     }
 
-    internal void ReadLines(Encoding encoding, PSCmdlet cmdlet, bool detectEncoding = true)
+    internal IEnumerable<string> ReadLines(Encoding encoding, bool detectEncoding = true)
     {
         ValidateStreamOpen();
         using StreamReader reader = new(_entryStream, encoding, detectEncoding);
 
         while (!reader.EndOfStream)
         {
-            cmdlet.WriteObject(reader.ReadLine());
+            yield return reader.ReadLine();
         }
     }
 
@@ -102,7 +103,7 @@ public sealed class ZipEntryFile : ZipEntryBase, IDisposable
         return reader.ReadToEnd();
     }
 
-    internal void ReadLines(PSCmdlet cmdlet) => ReadLines(Encoding.UTF8, cmdlet: cmdlet);
+    internal IEnumerable<string> ReadLines() => ReadLines(Encoding.UTF8);
 
     internal string ReadToEnd() => ReadToEnd(Encoding.UTF8);
 
