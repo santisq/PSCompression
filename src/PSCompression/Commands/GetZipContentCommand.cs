@@ -1,3 +1,4 @@
+using System;
 using System.Management.Automation;
 
 namespace PSCompression;
@@ -10,14 +11,31 @@ public sealed class GetZipContentCommand : PSCmdlet
 
     protected override void ProcessRecord()
     {
-        if(InputObject is null)
+        if (InputObject is null)
         {
             return;
         }
 
         foreach (ZipEntryFile entry in InputObject)
         {
-            WriteObject(entry.ReadToEnd());
+            try
+            {
+                entry.OpenRead();
+                WriteObject(new ZipContent(entry));
+            }
+            catch (PipelineStoppedException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                WriteError(new ErrorRecord(
+                    e, "EntryOpen", ErrorCategory.OpenError, entry));
+            }
+            finally
+            {
+                entry?.Dispose();
+            }
         }
     }
 }

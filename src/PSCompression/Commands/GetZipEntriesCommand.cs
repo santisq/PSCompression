@@ -211,7 +211,7 @@ public sealed class GetZipEntriesCommand : PSCmdlet
             catch (Exception e)
             {
                 WriteError(new ErrorRecord(
-                    e, "ZipOpen", ErrorCategory.NotSpecified, path));
+                    e, "ZipOpen", ErrorCategory.OpenError, path));
             }
         }
     }
