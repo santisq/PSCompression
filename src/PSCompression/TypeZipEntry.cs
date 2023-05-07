@@ -58,23 +58,36 @@ public abstract class ZipEntryBase
     }
 }
 
-public sealed class ZipEntryFile : ZipEntryBase
+public sealed class ZipEntryFile : ZipEntryBase, IDisposable
 {
+    private ZipArchive? _zipStream;
+
+    private Stream? _entryStream;
+
     public ZipEntryType EntryType => ZipEntryType.File;
 
     internal ZipEntryFile(ZipArchiveEntry entry, string source) :
         base(entry, source)
     { }
 
-    private ZipArchive OpenRead() => ZipFile.OpenRead(Source);
+    internal void OpenRead()
+    {
+        _zipStream = ZipFile.OpenRead(Source);
+        _entryStream = _zipStream.GetEntry(EntryRelativePath).Open();
+    }
 
-    private Stream GetStream(ZipArchive zip) => zip.GetEntry(EntryRelativePath).Open();
+    private void ValidateStreamOpen()
+    {
+        if(_zipStream is null || _entryStream is null)
+        {
+            throw new ArgumentNullException("Stream is not opened.");
+        }
+    }
 
     internal void ReadLines(Encoding encoding, PSCmdlet cmdlet, bool detectEncoding = true)
     {
-        using ZipArchive zip = OpenRead();
-        using Stream entryStream = GetStream(zip);
-        using StreamReader reader = new(entryStream, encoding, detectEncoding);
+        ValidateStreamOpen();
+        using StreamReader reader = new(_entryStream, encoding, detectEncoding);
 
         while (!reader.EndOfStream)
         {
@@ -82,17 +95,22 @@ public sealed class ZipEntryFile : ZipEntryBase
         }
     }
 
-    internal void ReadLines(PSCmdlet cmdlet) => ReadLines(Encoding.UTF8, cmdlet: cmdlet);
-
     internal string ReadToEnd(Encoding encoding, bool detectEncoding = true)
     {
-        using ZipArchive zip = OpenRead();
-        using Stream entryStream = GetStream(zip);
-        using StreamReader reader = new(entryStream, encoding, detectEncoding);
+        ValidateStreamOpen();
+        using StreamReader reader = new(_entryStream, encoding, detectEncoding);
         return reader.ReadToEnd();
     }
 
+    internal void ReadLines(PSCmdlet cmdlet) => ReadLines(Encoding.UTF8, cmdlet: cmdlet);
+
     internal string ReadToEnd() => ReadToEnd(Encoding.UTF8);
+
+    public void Dispose()
+    {
+        _entryStream?.Dispose();
+        _zipStream?.Dispose();
+    }
 }
 
 public sealed class ZipEntryDirectory : ZipEntryBase

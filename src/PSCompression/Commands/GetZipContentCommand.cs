@@ -5,10 +5,19 @@ namespace PSCompression;
 [Cmdlet(VerbsCommon.Get, "ZipContent")]
 public sealed class GetZipContentCommand : PSCmdlet
 {
-    public ZipEntryFile[] InputObject { get; set; }
+    [Parameter(Mandatory = true, ValueFromPipeline = true)]
+    public ZipEntryFile[]? InputObject { get; set; }
 
     protected override void ProcessRecord()
     {
-        base.ProcessRecord();
+        if(InputObject is null)
+        {
+            return;
+        }
+
+        foreach (ZipEntryFile entry in InputObject)
+        {
+            WriteObject(entry.ReadToEnd());
+        }
     }
 }
