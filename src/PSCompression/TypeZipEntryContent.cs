@@ -33,18 +33,6 @@ public sealed class ZipEntryContent
         return this;
     }
 
-    internal void ReadLines(PSCmdlet cmdlet, Encoding? encoding, bool detectEncoding = true)
-    {
-        if(encoding is null && detectEncoding)
-        {
-            cmdlet.WriteObject(_sourceEntry.ReadLines(), enumerateCollection: true);
-            return;
-        }
-
-        cmdlet.WriteObject(
-            _sourceEntry.ReadLines(encoding!, detectEncoding), enumerateCollection: true);
-    }
-
     internal ZipEntryContent ReadAllLines(Encoding? encoding, bool detectEncoding = true)
     {
         _content.Clear();

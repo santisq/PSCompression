@@ -29,9 +29,9 @@ public sealed class GetZipContentCommand : PSCmdlet
                 entry.OpenRead();
                 ZipEntryContent entryContent = new(entry);
 
-                if(ParameterSetName == "Raw")
+                if (ParameterSetName == "Raw")
                 {
-                    if(Raw.IsPresent)
+                    if (Raw.IsPresent)
                     {
                         WriteObject(entryContent.ReadAllText(null));
                         return;
@@ -41,7 +41,7 @@ public sealed class GetZipContentCommand : PSCmdlet
                     return;
                 }
 
-                entryContent.ReadLines(this, null);
+                WriteObject(entry.ReadLines(), enumerateCollection: true);
             }
             catch (PipelineStoppedException)
             {
