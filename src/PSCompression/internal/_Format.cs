@@ -10,10 +10,10 @@ namespace PSCompression;
 public static class _Format
 {
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
-    public static string GetParentEntry(ZipEntryBase entry)
-    {
-        return string.Concat(entry.EntryType is ZipEntryType.File ?
-            entry.EntryRelativePath : Path.GetDirectoryName(entry.EntryRelativePath),
-            $" @ {entry.Source}");
-    }
+    public static string GetParentEntry(ZipEntryDirectory entry) =>
+        string.Concat(entry.EntryRelativePath, $" @ Source: {entry.Source}");
+
+    [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
+    public static string GetParentEntry(ZipEntryFile entry) =>
+        string.Concat(Path.GetDirectoryName(entry.EntryRelativePath), $" @ Source: {entry.Source}");
 }

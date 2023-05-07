@@ -4,7 +4,7 @@
     <View>
       <Name>zipentryview</Name>
       <ViewSelectedBy>
-        <TypeName>PSCompression.ZipEntry</TypeName>
+        <TypeName>PSCompression.ZipEntryBase</TypeName>
       </ViewSelectedBy>
       <GroupBy>
         <ScriptBlock>[PSCompression._Format]::GetParentEntry($_)</ScriptBlock>

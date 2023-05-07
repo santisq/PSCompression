@@ -47,9 +47,10 @@ task BuildDocs {
 
 task BuildPowerShell {
     $buildModuleSplat = @{
-        SourcePath      = Join-Path $PowerShellPath -ChildPath ($ModuleName + '.psd1')
+        SourcePath      = $PowerShellPath
         OutputDirectory = $ReleasePath
         Encoding        = 'UTF8Bom'
+        IgnoreAlias     = $true
     }
 
     if(Test-Path $psm1) {

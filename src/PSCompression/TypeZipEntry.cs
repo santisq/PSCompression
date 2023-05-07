@@ -9,10 +9,10 @@ namespace PSCompression;
 public enum ZipEntryType
 {
     Directory = 0,
-    File      = 1
+    File = 1
 }
 
-public class ZipEntryBase
+public abstract class ZipEntryBase
 {
     private readonly ZipArchiveEntry _entry;
 
@@ -25,7 +25,7 @@ public class ZipEntryBase
 
     public string EntryName => _entry.Name;
 
-    public DateTimeOffset LastWriteTime => _entry.LastWriteTime;
+    public DateTime LastWriteTime => _entry.LastWriteTime.LocalDateTime;
 
     public string EntryRelativePath => _entry.FullName;
 
@@ -37,10 +37,7 @@ public class ZipEntryBase
 
     public string CompressedSize => FormatLength(CompressedLength);
 
-    public ZipEntryType EntryType => string.IsNullOrEmpty(EntryName) ?
-        ZipEntryType.Directory : ZipEntryType.File;
-
-    internal ZipEntryBase(ZipArchiveEntry entry, string source)
+    protected ZipEntryBase(ZipArchiveEntry entry, string source)
     {
         _entry = entry;
         Source = source;
@@ -59,6 +56,15 @@ public class ZipEntryBase
 
         return string.Format("{0} {1}", Math.Round(len, 2), _suffix[index]);
     }
+}
+
+public sealed class ZipEntryFile : ZipEntryBase
+{
+    public ZipEntryType EntryType => ZipEntryType.File;
+
+    internal ZipEntryFile(ZipArchiveEntry entry, string source) :
+        base(entry, source)
+    { }
 
     private ZipArchive OpenRead() => ZipFile.OpenRead(Source);
 
@@ -87,8 +93,13 @@ public class ZipEntryBase
     }
 
     internal string ReadToEnd() => ReadToEnd(Encoding.UTF8);
+}
 
-    // public void ExtractToFile(string destinationFileName, bool overwrite)
-    // {
-    // }
+public sealed class ZipEntryDirectory : ZipEntryBase
+{
+    public ZipEntryType EntryType => ZipEntryType.Directory;
+
+    internal ZipEntryDirectory(ZipArchiveEntry entry, string source) :
+        base(entry, source)
+    { }
 }
