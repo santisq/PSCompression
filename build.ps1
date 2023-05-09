@@ -19,7 +19,7 @@ end {
     $modulePath = [IO.Path]::Combine($PSScriptRoot, 'tools', 'Modules')
     $requirements = Import-PowerShellDataFile ([IO.Path]::Combine($PSScriptRoot, 'tools', 'requiredModules.psd1'))
 
-    foreach ($req in $requirements.GetEnumerator()) {
+    foreach ($req in $requirements.GetEnumerator() | Sort-Object { $_.Value['Priority'] }) {
         $targetPath = [IO.Path]::Combine($modulePath, $req.Key)
 
         if (Test-Path -LiteralPath $targetPath) {
@@ -31,7 +31,7 @@ end {
         $null = New-Item -Path $targetPath -ItemType Directory -Force
 
         $webParams = @{
-            Uri             = "https://www.powershellgallery.com/api/v2/package/$($req.Key)/$($req.Value)"
+            Uri             = "https://www.powershellgallery.com/api/v2/package/$($req.Key)/$($req.Value['Version'])"
             OutFile         = [IO.Path]::Combine($modulePath, "$($req.Key).zip") # WinPS requires the .zip extension to extract
             UseBasicParsing = $true
         }

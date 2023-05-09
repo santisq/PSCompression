@@ -8,7 +8,7 @@ namespace PSCompression;
 [Cmdlet(VerbsCommon.Get, "ZipContent", DefaultParameterSetName = "Raw")]
 public sealed class GetZipContentCommand : PSCmdlet
 {
-    private List<string> _content = new();
+    private readonly List<string> _content = new();
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
     public ZipEntryFile[]? InputObject { get; set; }
@@ -18,6 +18,14 @@ public sealed class GetZipContentCommand : PSCmdlet
 
     [Parameter(ParameterSetName = "Stream")]
     public SwitchParameter Stream { get; set; }
+
+    private void StreamRead(StreamReader reader)
+    {
+        while(!reader.EndOfStream)
+        {
+            WriteObject(reader.ReadLine());
+        }
+    }
 
     protected override void ProcessRecord()
     {
@@ -33,7 +41,25 @@ public sealed class GetZipContentCommand : PSCmdlet
                 using ZipEntryStream stream = entry.OpenRead();
                 using StreamReader reader = new(stream);
 
+                if(Stream.IsPresent)
+                {
+                    StreamRead(reader);
+                    return;
+                }
 
+                if(Raw.IsPresent)
+                {
+                    WriteObject(new ZipEntryContent(entry, reader.ReadToEnd()));
+                    return;
+                }
+
+                while(!reader.EndOfStream)
+                {
+                    _content.Add(reader.ReadLine());
+                }
+
+                WriteObject(new ZipEntryContent(entry, _content.ToArray()));
+                _content.Clear();
             }
             catch (PipelineStoppedException)
             {
