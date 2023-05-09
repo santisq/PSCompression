@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Management.Automation;
 
 namespace PSCompression;
 
 [Cmdlet(VerbsCommon.Get, "ZipContent", DefaultParameterSetName = "Raw")]
+[OutputType(typeof(ZipEntryContent))]
+[Alias("gczip")]
 public sealed class GetZipContentCommand : PSCmdlet
 {
     private readonly List<string> _content = new();
@@ -29,10 +32,7 @@ public sealed class GetZipContentCommand : PSCmdlet
 
     protected override void ProcessRecord()
     {
-        if (InputObject is null)
-        {
-            return;
-        }
+        Debug.Assert(InputObject is not null);
 
         foreach (ZipEntryFile entry in InputObject)
         {

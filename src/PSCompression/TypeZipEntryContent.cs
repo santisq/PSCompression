@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Management.Automation;
-using System.Text;
-
 namespace PSCompression;
 
 public sealed class ZipEntryContent
@@ -19,4 +15,6 @@ public sealed class ZipEntryContent
         _sourceEntry = entry;
         Content = content;
     }
+
+    public ZipEntryFile GetZipEntry() => _sourceEntry;
 }
