@@ -26,22 +26,7 @@ public sealed class GetZipContentCommand : PSCmdlet
         {
             try
             {
-                entry.OpenRead();
-                ZipEntryContent entryContent = new(entry);
 
-                if (ParameterSetName == "Raw")
-                {
-                    if (Raw.IsPresent)
-                    {
-                        WriteObject(entryContent.ReadAllText(null));
-                        return;
-                    }
-
-                    WriteObject(entryContent.ReadAllLines(null));
-                    return;
-                }
-
-                WriteObject(entry.ReadLines(), enumerateCollection: true);
             }
             catch (PipelineStoppedException)
             {
@@ -51,10 +36,6 @@ public sealed class GetZipContentCommand : PSCmdlet
             {
                 WriteError(new ErrorRecord(
                     e, "EntryOpen", ErrorCategory.OpenError, entry));
-            }
-            finally
-            {
-                entry?.Dispose();
             }
         }
     }

@@ -20,7 +20,10 @@ public abstract class ZipEntryBase
     private readonly static string[] _suffix;
 
     static ZipEntryBase() =>
-        _suffix = new string[9] { "Bytes", "Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb" };
+        _suffix = new string[9]
+        {
+            "Bytes", "Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb"
+        };
 
     public string Source { get; }
 
@@ -59,59 +62,17 @@ public abstract class ZipEntryBase
     }
 }
 
-public sealed class ZipEntryFile : ZipEntryBase, IDisposable
+public sealed class ZipEntryFile : ZipEntryBase
 {
-    private ZipArchive? _zipStream;
-
-    private Stream? _entryStream;
-
     public ZipEntryType EntryType => ZipEntryType.File;
 
     internal ZipEntryFile(ZipArchiveEntry entry, string source) :
         base(entry, source)
     { }
 
-    internal void OpenRead()
-    {
-        _zipStream = ZipFile.OpenRead(Source);
-        _entryStream = _zipStream.GetEntry(EntryRelativePath).Open();
-    }
+    public ZipEntryStream OpenRead() => new(this, ZipArchiveMode.Read);
 
-    private void ValidateStreamOpen()
-    {
-        if(_zipStream is null || _entryStream is null)
-        {
-            throw new ArgumentNullException("Stream is not opened.");
-        }
-    }
-
-    internal IEnumerable<string> ReadLines(Encoding encoding, bool detectEncoding = true)
-    {
-        ValidateStreamOpen();
-        using StreamReader reader = new(_entryStream, encoding, detectEncoding);
-
-        while (!reader.EndOfStream)
-        {
-            yield return reader.ReadLine();
-        }
-    }
-
-    internal string ReadToEnd(Encoding encoding, bool detectEncoding = true)
-    {
-        ValidateStreamOpen();
-        using StreamReader reader = new(_entryStream, encoding, detectEncoding);
-        return reader.ReadToEnd();
-    }
-
-    internal IEnumerable<string> ReadLines() => ReadLines(Encoding.UTF8);
-
-    internal string ReadToEnd() => ReadToEnd(Encoding.UTF8);
-
-    public void Dispose()
-    {
-        _entryStream?.Dispose();
-        _zipStream?.Dispose();
-    }
+    public ZipEntryStream OpenWrite() => new(this, ZipArchiveMode.Update);
 }
 
 public sealed class ZipEntryDirectory : ZipEntryBase

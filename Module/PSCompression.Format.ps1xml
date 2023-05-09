@@ -23,11 +23,9 @@
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>CompressedSize</Label>
-            <Alignment>Right</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Size</Label>
-            <Alignment>Right</Alignment>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
@@ -44,9 +42,11 @@
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>CompressedSize</PropertyName>
+                <Alignment>Right</Alignment>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Size</PropertyName>
+                <Alignment>Right</Alignment>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

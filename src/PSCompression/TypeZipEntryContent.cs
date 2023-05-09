@@ -8,44 +8,15 @@ public sealed class ZipEntryContent
 {
     private readonly ZipEntryFile _sourceEntry;
 
-    private static readonly List<string> _content;
-
     public string Source => _sourceEntry.Source;
 
     public string EntryRelativePath => _sourceEntry.EntryRelativePath;
 
-    public object? Content { get; set; }
+    public object? Content { get; }
 
-    internal ZipEntryContent(ZipEntryFile entry) =>
+    internal ZipEntryContent(ZipEntryFile entry, object content)
+    {
         _sourceEntry = entry;
-
-    static ZipEntryContent() => _content = new();
-
-    internal ZipEntryContent ReadAllText(Encoding? encoding, bool detectEncoding = true)
-    {
-        if (encoding is null && detectEncoding)
-        {
-            Content = _sourceEntry.ReadToEnd();
-            return this;
-        }
-
-        Content = _sourceEntry.ReadToEnd(encoding!, detectEncoding);
-        return this;
-    }
-
-    internal ZipEntryContent ReadAllLines(Encoding? encoding, bool detectEncoding = true)
-    {
-        _content.Clear();
-
-        if (encoding is null && detectEncoding)
-        {
-            _content.AddRange(_sourceEntry.ReadLines());
-            Content = _content.ToArray();
-            return this;
-        }
-
-        _content.AddRange(_sourceEntry.ReadLines(encoding!, detectEncoding));
-        Content = _content.ToArray();
-        return this;
+        Content = content;
     }
 }
