@@ -4,7 +4,7 @@ using System.Management.Automation;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsCommon.Set, "ZipContent")]
+[Cmdlet(VerbsCommon.Set, "ZipContent", DefaultParameterSetName = "InputString")]
 public sealed class SetZipContentCommand : PSCmdlet, IDisposable
 {
     private ZipEntryStream _stream = null!;
@@ -21,8 +21,11 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
     [Parameter(Mandatory = true, Position = 0)]
     public ZipEntryFile ZipEntry { get; set; } = null!;
 
-    [Parameter]
+    [Parameter(ParameterSetName = "ByteStream")]
     public SwitchParameter AsByteStream { get; set; }
+
+    [Parameter(ParameterSetName = "InputString")]
+    public SwitchParameter Append { get; set; }
 
     private void WriteLines(string[] lines)
     {
@@ -51,15 +54,24 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
         try
         {
             _stream = ZipEntry.OpenWrite();
-            _stream.SetLength(0);
 
-            if (!AsByteStream.IsPresent)
+            if (AsByteStream.IsPresent || !Append.IsPresent)
             {
-                _writer = new(_stream);
+                _stream.SetLength(0);
+            }
+
+            if (ParameterSetName == "ByteStream")
+            {
+                _buffer = new byte[128000];
                 return;
             }
 
-            _buffer = new byte[128000];
+            _writer = new(_stream);
+
+            if (Append.IsPresent)
+            {
+                _writer.BaseStream.Seek(0, SeekOrigin.End);
+            }
         }
         catch (PipelineStoppedException)
         {
@@ -76,13 +88,13 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (!AsByteStream.IsPresent)
+            if (ParameterSetName == "ByteStream")
             {
-                WriteLines(Array.ConvertAll(InputObject, Convert.ToString));
+                WriteLines(LanguagePrimitives.ConvertTo<string[]>(InputObject));
                 return;
             }
 
-            WriteBytes(Array.ConvertAll(InputObject, Convert.ToByte));
+            WriteBytes(LanguagePrimitives.ConvertTo<byte[]>(InputObject));
         }
         catch (PipelineStoppedException)
         {
@@ -99,7 +111,7 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (_index > 0)
+            if (AsByteStream.IsPresent && _index > 0)
             {
                 _stream.Write(_buffer, 0, _index);
             }
