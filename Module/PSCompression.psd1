@@ -85,6 +85,7 @@
     CmdletsToExport    = @(
         'Get-ZipEntries'
         'Get-ZipContent'
+        'Set-ZipContent'
     )
 
     # Variables to export from this module

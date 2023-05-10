@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Management.Automation;
 
@@ -14,7 +13,7 @@ public sealed class GetZipContentCommand : PSCmdlet
     private readonly List<string> _content = new();
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
-    public ZipEntryFile[]? InputObject { get; set; }
+    public ZipEntryFile[] InputObject { get; set; } = null!;
 
     [Parameter(ParameterSetName = "Raw")]
     public SwitchParameter Raw { get; set; }
@@ -24,7 +23,7 @@ public sealed class GetZipContentCommand : PSCmdlet
 
     private void StreamRead(StreamReader reader)
     {
-        while(!reader.EndOfStream)
+        while (!reader.EndOfStream)
         {
             WriteObject(reader.ReadLine());
         }
@@ -32,8 +31,6 @@ public sealed class GetZipContentCommand : PSCmdlet
 
     protected override void ProcessRecord()
     {
-        Debug.Assert(InputObject is not null);
-
         foreach (ZipEntryFile entry in InputObject)
         {
             try
@@ -41,19 +38,19 @@ public sealed class GetZipContentCommand : PSCmdlet
                 using ZipEntryStream stream = entry.OpenRead();
                 using StreamReader reader = new(stream);
 
-                if(Stream.IsPresent)
+                if (Stream.IsPresent)
                 {
                     StreamRead(reader);
                     return;
                 }
 
-                if(Raw.IsPresent)
+                if (Raw.IsPresent)
                 {
                     WriteObject(new ZipEntryContent(entry, reader.ReadToEnd()));
                     return;
                 }
 
-                while(!reader.EndOfStream)
+                while (!reader.EndOfStream)
                 {
                     _content.Add(reader.ReadLine());
                 }
