@@ -88,7 +88,7 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (ParameterSetName == "ByteStream")
+            if (ParameterSetName == "InputString")
             {
                 WriteLines(LanguagePrimitives.ConvertTo<string[]>(InputObject));
                 return;
