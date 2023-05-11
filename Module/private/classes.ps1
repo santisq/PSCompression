@@ -58,7 +58,6 @@ class EncodingCompleter : IArgumentCompleter {
         'utf8NoBOM'
         'bigendianunicode'
         'oem'
-        'utf7'
         'utf8BOM'
         'utf32'
         'ansi'

@@ -107,13 +107,13 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (ParameterSetName == "ValueString")
+            if (ParameterSetName == "StringValue")
             {
-                WriteLines(LanguagePrimitives.ConvertTo<string[]>(SourceEntry));
+                WriteLines(LanguagePrimitives.ConvertTo<string[]>(Value));
                 return;
             }
 
-            WriteBytes(LanguagePrimitives.ConvertTo<byte[]>(SourceEntry));
+            WriteBytes(LanguagePrimitives.ConvertTo<byte[]>(Value));
         }
         catch (PipelineStoppedException)
         {

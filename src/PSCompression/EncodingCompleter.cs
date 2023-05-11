@@ -10,13 +10,12 @@ public class EncodingCompleter : IArgumentCompleter
     private static readonly string[] _encodingSet =
     {
         "ascii",
-        "bigendianutf32",
+        "bigendianUtf32",
         "unicode",
         "utf8",
         "utf8NoBOM",
-        "bigendianunicode",
+        "bigendianUnicode",
         "oem",
-        "utf7",
         "utf8BOM",
         "utf32",
         "ansi"
