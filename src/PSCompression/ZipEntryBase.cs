@@ -57,25 +57,3 @@ public abstract class ZipEntryBase
         return string.Format("{0} {1}", Math.Round(len, 2), _suffix[index]);
     }
 }
-
-public sealed class ZipEntryFile : ZipEntryBase
-{
-    public ZipEntryType EntryType => ZipEntryType.File;
-
-    internal ZipEntryFile(ZipArchiveEntry entry, string source) :
-        base(entry, source)
-    { }
-
-    public ZipEntryStream OpenRead() => new(this, ZipArchiveMode.Read);
-
-    public ZipEntryStream OpenWrite() => new(this, ZipArchiveMode.Update);
-}
-
-public sealed class ZipEntryDirectory : ZipEntryBase
-{
-    public ZipEntryType EntryType => ZipEntryType.Directory;
-
-    internal ZipEntryDirectory(ZipArchiveEntry entry, string source) :
-        base(entry, source)
-    { }
-}
