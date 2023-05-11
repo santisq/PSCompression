@@ -7,7 +7,7 @@
         <TypeName>PSCompression.ZipEntryBase</TypeName>
       </ViewSelectedBy>
       <GroupBy>
-        <ScriptBlock>[PSCompression._Format]::GetParentEntry($_)</ScriptBlock>
+        <ScriptBlock>[PSCompression.Internal._Format]::GetParentEntry($_)</ScriptBlock>
         <Label>Parent Entry</Label>
       </GroupBy>
       <TableControl>

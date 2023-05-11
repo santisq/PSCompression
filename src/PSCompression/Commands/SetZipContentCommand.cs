@@ -1,34 +1,48 @@
 using System;
 using System.IO;
 using System.Management.Automation;
+using System.Text;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsCommon.Set, "ZipContent", DefaultParameterSetName = "InputString")]
+[Cmdlet(VerbsCommon.Set, "ZipContent", DefaultParameterSetName = "StringValue")]
 public sealed class SetZipContentCommand : PSCmdlet, IDisposable
 {
-    private ZipEntryStream _stream = null!;
+    private ZipEntryStream? _stream;
 
-    private StreamWriter _writer = null!;
+    private StreamWriter? _writer;
 
-    private byte[] _buffer = null!;
+    private byte[]? _buffer;
 
     private int _index;
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
-    public object[] InputObject { get; set; } = null!;
+    public object[] Value { get; set; } = null!;
 
     [Parameter(Mandatory = true, Position = 0)]
-    public ZipEntryFile ZipEntry { get; set; } = null!;
+    public ZipEntryFile SourceEntry { get; set; } = null!;
+
+    [Parameter(ParameterSetName = "StringValue")]
+    [ArgumentCompleter(typeof(EncodingCompleter))]
+    [EncodingTransformation]
+    public Encoding Encoding { get; set; } = Encoding.UTF8;
 
     [Parameter(ParameterSetName = "ByteStream")]
     public SwitchParameter AsByteStream { get; set; }
 
-    [Parameter(ParameterSetName = "InputString")]
+    [Parameter(ParameterSetName = "StringValue")]
     public SwitchParameter Append { get; set; }
+
+    [Parameter]
+    public SwitchParameter PassThru { get; set; }
 
     private void WriteLines(string[] lines)
     {
+        if (_writer is null)
+        {
+            return;
+        }
+
         foreach (string line in lines)
         {
             _writer.WriteLine(line);
@@ -37,6 +51,11 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
 
     private void WriteBytes(byte[] bytes)
     {
+        if (_buffer is null || _stream is null)
+        {
+            return;
+        }
+
         foreach (byte b in bytes)
         {
             if (_index == _buffer.Length)
@@ -53,7 +72,7 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            _stream = ZipEntry.OpenWrite();
+            _stream = SourceEntry.OpenWrite();
 
             if (AsByteStream.IsPresent || !Append.IsPresent)
             {
@@ -66,7 +85,7 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
                 return;
             }
 
-            _writer = new(_stream);
+            _writer = new(_stream, Encoding);
 
             if (Append.IsPresent)
             {
@@ -80,7 +99,7 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
         catch (Exception e)
         {
             ThrowTerminatingError(new ErrorRecord(
-                e, "StreamOpen", ErrorCategory.OpenError, ZipEntry));
+                e, "StreamOpen", ErrorCategory.OpenError, SourceEntry));
         }
     }
 
@@ -88,13 +107,13 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (ParameterSetName == "InputString")
+            if (ParameterSetName == "ValueString")
             {
-                WriteLines(LanguagePrimitives.ConvertTo<string[]>(InputObject));
+                WriteLines(LanguagePrimitives.ConvertTo<string[]>(SourceEntry));
                 return;
             }
 
-            WriteBytes(LanguagePrimitives.ConvertTo<byte[]>(InputObject));
+            WriteBytes(LanguagePrimitives.ConvertTo<byte[]>(SourceEntry));
         }
         catch (PipelineStoppedException)
         {
@@ -103,7 +122,7 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
         catch (Exception e)
         {
             ThrowTerminatingError(new ErrorRecord(
-                e, "WriteError", ErrorCategory.WriteError, InputObject));
+                e, "WriteError", ErrorCategory.WriteError, SourceEntry));
         }
     }
 
@@ -113,7 +132,17 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
         {
             if (AsByteStream.IsPresent && _index > 0)
             {
+                if (_stream is null || _buffer is null)
+                {
+                    return;
+                }
+
                 _stream.Write(_buffer, 0, _index);
+            }
+
+            if (PassThru.IsPresent)
+            {
+                WriteObject(SourceEntry);
             }
         }
         catch (PipelineStoppedException)
@@ -123,7 +152,7 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
         catch (Exception e)
         {
             ThrowTerminatingError(new ErrorRecord(
-                e, "WriteError", ErrorCategory.WriteError, InputObject));
+                e, "WriteError", ErrorCategory.WriteError, SourceEntry));
         }
     }
 

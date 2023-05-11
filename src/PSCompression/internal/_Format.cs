@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Management.Automation;
 
-namespace PSCompression;
+namespace PSCompression.Internal;
 
 #pragma warning disable IDE1006
 
