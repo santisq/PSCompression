@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
+using System.Text;
 
 namespace PSCompression;
 
@@ -14,6 +15,11 @@ public sealed class GetZipContentCommand : PSCmdlet
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
     public ZipEntryFile[] InputObject { get; set; } = null!;
+
+    [Parameter(ParameterSetName = "StringValue")]
+    [ArgumentCompleter(typeof(EncodingCompleter))]
+    [EncodingTransformation]
+    public Encoding Encoding { get; set; } = Encoding.UTF8;
 
     [Parameter(ParameterSetName = "Raw")]
     public SwitchParameter Raw { get; set; }
@@ -36,7 +42,7 @@ public sealed class GetZipContentCommand : PSCmdlet
             try
             {
                 using ZipEntryStream stream = entry.OpenRead();
-                using StreamReader reader = new(stream);
+                using StreamReader reader = new(stream, Encoding);
 
                 if (Stream.IsPresent)
                 {
