@@ -33,6 +33,9 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
     [Parameter(ParameterSetName = "StringValue")]
     public SwitchParameter Append { get; set; }
 
+    [Parameter(ParameterSetName = "ByteStream")]
+    public long BufferSize { get; set; } = 128000;
+
     [Parameter]
     public SwitchParameter PassThru { get; set; }
 
@@ -81,7 +84,7 @@ public sealed class SetZipContentCommand : PSCmdlet, IDisposable
 
             if (ParameterSetName == "ByteStream")
             {
-                _buffer = new byte[128000];
+                _buffer = new byte[BufferSize];
                 return;
             }
 

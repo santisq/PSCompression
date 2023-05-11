@@ -21,7 +21,7 @@ public class EncodingTransformation : ArgumentTransformationAttribute
 
     private Encoding ParseStringEncoding(string str)
     {
-        return str.ToLower() switch
+        return str.ToLowerInvariant() switch
         {
             "ascii" => new ASCIIEncoding(),
             "bigendianunicode" => new UnicodeEncoding(true, true),

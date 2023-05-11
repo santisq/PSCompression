@@ -7,7 +7,6 @@
 #
 
 @{
-
     # Script module or binary module file associated with this manifest.
     RootModule         = 'PSCompression.psm1'
 
@@ -118,13 +117,13 @@
 
             # Tags applied to this module. These help with module discovery in online galleries.
             Tags       = @(
-                'PowerShell'
+                'powershell'
                 'zip'
+                'zip-compression'
                 'gzip'
-                'System.IO.Compression'
-                'ZipArchive'
-                'GZipStream'
+                'gzip-compression'
                 'compression'
+                'csharp'
             )
 
             # A URL to the license for this module.
