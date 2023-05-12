@@ -26,41 +26,7 @@ public sealed class GetZipEntriesCommand : PSCmdlet
 
     private bool _withExclude;
 
-    private (string, ProviderInfo)[] NormalizePaths()
-    {
-        List<(string, ProviderInfo)> result = new();
-        Collection<string> resolvedPaths;
-        ProviderInfo provider;
-
-        foreach (string path in _paths)
-        {
-            if (_isLiteral)
-            {
-                string resolvedPath = SessionState.Path.GetUnresolvedProviderPathFromPSPath(
-                    path, out provider, out _);
-
-                result.Add((resolvedPath, provider));
-                continue;
-            }
-
-            try
-            {
-                resolvedPaths = GetResolvedProviderPathFromPSPath(path, out provider);
-
-                foreach (string resolvedPath in resolvedPaths)
-                {
-                    result.Add((resolvedPath, provider));
-                }
-            }
-            catch (Exception e)
-            {
-                WriteError(new ErrorRecord(
-                    e, "ResolvePath", ErrorCategory.NotSpecified, path));
-            }
-        }
-
-        return result.ToArray();
-    }
+    private readonly List<ZipEntryBase> _output = new();
 
     [Parameter(
         ParameterSetName = "Path",
@@ -107,6 +73,79 @@ public sealed class GetZipEntriesCommand : PSCmdlet
     [SupportsWildcards]
     public string[]? Exclude { get; set; }
 
+    private (string, ProviderInfo)[] NormalizePaths()
+    {
+        List<(string, ProviderInfo)> result = new();
+        Collection<string> resolvedPaths;
+        ProviderInfo provider;
+
+        foreach (string path in _paths)
+        {
+            if (_isLiteral)
+            {
+                string resolvedPath = SessionState.Path.GetUnresolvedProviderPathFromPSPath(
+                    path, out provider, out _);
+
+                result.Add((resolvedPath, provider));
+                continue;
+            }
+
+            try
+            {
+                resolvedPaths = GetResolvedProviderPathFromPSPath(path, out provider);
+
+                foreach (string resolvedPath in resolvedPaths)
+                {
+                    result.Add((resolvedPath, provider));
+                }
+            }
+            catch (Exception e)
+            {
+                WriteError(new ErrorRecord(
+                    e, "ResolvePath", ErrorCategory.NotSpecified, path));
+            }
+        }
+
+        return result.ToArray();
+    }
+
+    private bool ValidatePath(string path, ProviderInfo provider)
+    {
+        if (provider.ImplementingType != typeof(FileSystemProvider))
+        {
+            WriteError(new ErrorRecord(
+                new ArgumentException($"The resolved path '{path}' is not a FileSystem path but {provider.Name}."),
+                "PathNotFileSystem", ErrorCategory.InvalidArgument, path));
+
+            return false;
+        }
+
+        try
+        {
+            if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
+            {
+                WriteError(new ErrorRecord(
+                    new ArgumentException($"Unable to get zip content because it is a directory: '{path}'."),
+                    "PathIsDirectory", ErrorCategory.InvalidArgument, path));
+
+                return false;
+            }
+        }
+        catch (PipelineStoppedException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            WriteError(new ErrorRecord(
+                e, "InvalidPath", ErrorCategory.InvalidArgument, path));
+
+            return false;
+        }
+
+        return true;
+    }
+
     protected override void BeginProcessing()
     {
         if (Exclude is null && Include is null)
@@ -140,69 +179,47 @@ public sealed class GetZipEntriesCommand : PSCmdlet
     {
         foreach ((string path, ProviderInfo provider) in NormalizePaths())
         {
-            if (provider.ImplementingType != typeof(FileSystemProvider))
+            if (!ValidatePath(path, provider))
             {
-                WriteError(new ErrorRecord(
-                    new ArgumentException($"The resolved path '{path}' is not a FileSystem path but {provider.Name}."),
-                    "PathNotFileSystem", ErrorCategory.InvalidArgument, path));
-
                 continue;
             }
 
             try
             {
-                if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
+                using (ZipArchive zip = ZipFile.OpenRead(path))
                 {
-                    WriteError(new ErrorRecord(
-                        new ArgumentException($"Unable to get zip content because it is a directory: '{path}'."),
-                        "PathIsDirectory", ErrorCategory.InvalidArgument, path));
+                    _output.Clear();
 
-                    continue;
+                    foreach (ZipArchiveEntry entry in zip.Entries)
+                    {
+                        bool isDirectory = string.IsNullOrEmpty(entry.Name);
+
+                        if (_withInclude && !_includePatterns.Any(e => e.IsMatch(entry.FullName)))
+                        {
+                            continue;
+                        }
+
+                        if (_withExclude && _excludePatterns.Any(e => e.IsMatch(entry.FullName)))
+                        {
+                            continue;
+                        }
+
+                        if ((isDirectory && EntryType == "File") || (!isDirectory && EntryType == "Directory"))
+                        {
+                            continue;
+                        }
+
+                        if (isDirectory)
+                        {
+                            _output.Add(new ZipEntryDirectory(entry, path));
+                            continue;
+                        }
+
+                        _output.Add(new ZipEntryFile(entry, path));
+                    }
                 }
-            }
-            catch (PipelineStoppedException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(new ErrorRecord(
-                    e, "InvalidPath", ErrorCategory.InvalidArgument, path));
 
-                continue;
-            }
-
-            try
-            {
-                using ZipArchive zip = ZipFile.OpenRead(path);
-
-                foreach (ZipArchiveEntry entry in zip.Entries)
-                {
-                    bool isDirectory = string.IsNullOrEmpty(entry.Name);
-
-                    if (_withInclude && !_includePatterns.Any(e => e.IsMatch(entry.FullName)))
-                    {
-                        continue;
-                    }
-
-                    if (_withExclude && _excludePatterns.Any(e => e.IsMatch(entry.FullName)))
-                    {
-                        continue;
-                    }
-
-                    if ((isDirectory && EntryType == "File") || (!isDirectory && EntryType == "Directory"))
-                    {
-                        continue;
-                    }
-
-                    if (isDirectory)
-                    {
-                        WriteObject(new ZipEntryDirectory(entry, path));
-                        continue;
-                    }
-
-                    WriteObject(new ZipEntryFile(entry, path));
-                }
+                WriteObject(_output.ToArray(), enumerateCollection: true);
             }
             catch (PipelineStoppedException)
             {

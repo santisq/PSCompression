@@ -11,27 +11,30 @@ public enum ZipEntryType
 
 public abstract class ZipEntryBase
 {
-    private readonly ZipArchiveEntry _entry;
-
-    private readonly static string[] _suffix;
-
-    static ZipEntryBase() =>
-        _suffix = new string[9]
-        {
-            "Bytes", "Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb"
-        };
+    private readonly static string[] _suffix =
+    {
+        "Bytes",
+        "Kb",
+        "Mb",
+        "Gb",
+        "Tb",
+        "Pb",
+        "Eb",
+        "Zb",
+        "Yb"
+    };
 
     public string Source { get; }
 
-    public string EntryName => _entry.Name;
+    public string EntryName { get; }
 
-    public DateTime LastWriteTime => _entry.LastWriteTime.LocalDateTime;
+    public string EntryRelativePath { get; }
 
-    public string EntryRelativePath => _entry.FullName;
+    public DateTime LastWriteTime { get; }
 
-    public long Length => _entry.Length;
+    public long Length { get; }
 
-    public long CompressedLength => _entry.CompressedLength;
+    public long CompressedLength { get; }
 
     public string Size => FormatLength(Length);
 
@@ -39,8 +42,12 @@ public abstract class ZipEntryBase
 
     protected ZipEntryBase(ZipArchiveEntry entry, string source)
     {
-        _entry = entry;
         Source = source;
+        EntryName = entry.Name;
+        EntryRelativePath = entry.FullName;
+        LastWriteTime = entry.LastWriteTime.LocalDateTime;
+        Length = entry.Length;
+        CompressedLength = entry.CompressedLength;
     }
 
     private static string FormatLength(long length)
@@ -54,6 +61,12 @@ public abstract class ZipEntryBase
             index++;
         }
 
-        return string.Format("{0} {1}", Math.Round(len, 2), _suffix[index]);
+        return Math.Round(len, 2) + " " + _suffix[index];
+    }
+
+    public void RemoveEntry()
+    {
+        using ZipArchive zip = ZipFile.Open(Source, ZipArchiveMode.Update);
+        zip.GetEntry(EntryRelativePath).Delete();
     }
 }
