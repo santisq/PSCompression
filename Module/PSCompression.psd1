@@ -86,6 +86,7 @@
         'Get-ZipContent'
         'Set-ZipContent'
         'Remove-ZipEntry'
+        'New-ZipFileEntry'
     )
 
     # Variables to export from this module

@@ -1,25 +1,24 @@
-﻿using System.IO.Compression;
+﻿using System;
+using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsCommon.New, "ZipEntry")]
+[Cmdlet(VerbsCommon.New, "ZipFileEntry")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryDirectory))]
 public sealed class NewZipEntryCommand : CommandsBase
 {
-    private Regex _re = new(@"[\\/]$", RegexOptions.Compiled);
+    private readonly Regex _re = new(@"[\\/]$", RegexOptions.Compiled);
 
-    [Parameter(
-        Mandatory = true,
-        ValueFromPipelineByPropertyName = true,
-        Position = 0
-    )]
-    [Alias("PSPath")]
+    private readonly List<ZipEntryBase> _result = new();
+
+    [Parameter(Mandatory = true, Position = 0)]
     public string LiteralPath { get; set; } = null!;
 
-    [Parameter(Mandatory = true, Position = 1)]
+    [Parameter(Mandatory = true)]
     public string[] EntryRelativePath { get; set; } = null!;
 
     [Parameter(Position = 2)]
@@ -38,19 +37,36 @@ public sealed class NewZipEntryCommand : CommandsBase
             return;
         }
 
-        foreach (string entryPath in EntryRelativePath)
+        try
         {
-            if(_re.IsMatch(entryPath))
+            using (ZipArchive zip = ZipFile.Open(path, ZipArchiveMode.Update))
             {
-                new ZipEntryDirectory(CreateEntry(entryPath, path), path)
+                _result.Clear();
+
+                foreach (string entryPath in EntryRelativePath)
+                {
+                    ZipArchiveEntry entry = zip.CreateEntry(entryPath, CompressionLevel);
+
+                    if (_re.IsMatch(entryPath))
+                    {
+                        _result.Add(new ZipEntryDirectory(entry, path));
+                        continue;
+                    }
+
+                    _result.Add(new ZipEntryFile(entry, path));
+                }
             }
+
+            WriteObject(_result.ToArray(), enumerateCollection: true);
+        }
+        catch (PipelineStoppedException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            WriteError(new ErrorRecord(
+                e, "ZipOpen", ErrorCategory.OpenError, path));
         }
     }
-
-    private ZipArchiveEntry CreateEntry(string entryPath, string source)
-    {
-        using ZipArchive zip = ZipFile.Open(source, ZipArchiveMode.Update);
-        return zip.CreateEntry(entryPath, CompressionLevel);
-    }
-
 }
