@@ -21,7 +21,7 @@ public sealed class NewZipEntryCommand : CommandsBase
     [Parameter(Mandatory = true)]
     public string[] EntryRelativePath { get; set; } = null!;
 
-    [Parameter(Position = 2)]
+    [Parameter(Position = 1)]
     public object[]? Value { get; set; }
 
     [Parameter]
