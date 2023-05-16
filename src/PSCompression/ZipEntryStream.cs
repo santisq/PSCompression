@@ -111,7 +111,7 @@ public sealed class ZipEntryStream : Stream
 
     protected override void Dispose(bool disposing)
     {
-        if(!disposing)
+        if (!disposing)
         {
             return;
         }

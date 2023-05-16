@@ -5,8 +5,8 @@ using System.Text;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsCommon.Set, "ZipContent", DefaultParameterSetName = "StringValue")]
-public sealed class SetZipContentCommand : PSCmdlet, IDisposable
+[Cmdlet(VerbsCommon.Set, "ZipEntryContent", DefaultParameterSetName = "StringValue")]
+public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
 {
     private ZipEntryStream? _stream;
 

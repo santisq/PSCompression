@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsCommon.New, "ZipFileEntry")]
+[Cmdlet(VerbsCommon.New, "ZipEntry")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryDirectory))]
 public sealed class NewZipEntryCommand : CommandsBase
 {
@@ -18,11 +18,8 @@ public sealed class NewZipEntryCommand : CommandsBase
     [Parameter(Mandatory = true, Position = 0)]
     public string LiteralPath { get; set; } = null!;
 
-    [Parameter(Mandatory = true)]
+    [Parameter(Mandatory = true, Position = 1)]
     public string[] EntryRelativePath { get; set; } = null!;
-
-    [Parameter(Position = 1)]
-    public object[]? Value { get; set; }
 
     [Parameter]
     public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;

@@ -6,10 +6,10 @@ using System.Text;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsCommon.Get, "ZipContent", DefaultParameterSetName = "Raw")]
+[Cmdlet(VerbsCommon.Get, "ZipEntryContent", DefaultParameterSetName = "Raw")]
 [OutputType(typeof(ZipEntryContent))]
 [Alias("gczip")]
-public sealed class GetZipContentCommand : PSCmdlet
+public sealed class GetZipEntryContentCommand : PSCmdlet
 {
     private readonly List<string> _content = new();
 
