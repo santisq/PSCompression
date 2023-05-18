@@ -42,7 +42,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
     {
         foreach (ZipContentReader reader in _cache.Values)
         {
-            reader.Dispose();
+            reader?.Dispose();
         }
     }
 
