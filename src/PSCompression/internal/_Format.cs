@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Management.Automation;
@@ -11,9 +12,10 @@ public static class _Format
 {
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetParentEntry(ZipEntryDirectory entry) =>
-        string.Concat(entry.EntryRelativePath, $" @ Source: {entry.Source}");
+        string.Concat(entry.EntryRelativePath, $" => {entry.Source}");
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetParentEntry(ZipEntryFile entry) =>
-        string.Concat(Path.GetDirectoryName(entry.EntryRelativePath), $" @ Source: {entry.Source}");
+        string.Concat(Path.GetDirectoryName(
+            entry.EntryRelativePath), $" => {entry.Source}");
 }

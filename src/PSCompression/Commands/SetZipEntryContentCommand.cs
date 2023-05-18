@@ -34,7 +34,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
     public SwitchParameter Append { get; set; }
 
     [Parameter(ParameterSetName = "ByteStream")]
-    public long BufferSize { get; set; } = 128000;
+    public int BufferSize { get; set; } = 128000;
 
     [Parameter]
     public SwitchParameter PassThru { get; set; }

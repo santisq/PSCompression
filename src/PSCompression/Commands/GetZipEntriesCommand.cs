@@ -9,7 +9,7 @@ namespace PSCompression;
 [Cmdlet(VerbsCommon.Get, "ZipEntries", DefaultParameterSetName = "Path")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryDirectory))]
 [Alias("gezip")]
-public sealed class GetZipEntriesCommand : CommandsBase
+public sealed class GetZipEntriesCommand : PSCompressionCommandsBase
 {
     private bool _isLiteral;
 

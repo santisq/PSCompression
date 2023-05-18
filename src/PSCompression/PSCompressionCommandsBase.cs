@@ -7,9 +7,9 @@ using Microsoft.PowerShell.Commands;
 
 namespace PSCompression;
 
-public abstract class CommandsBase : PSCmdlet
+public abstract class PSCompressionCommandsBase : PSCmdlet
 {
-    protected CommandsBase()
+    protected PSCompressionCommandsBase()
     { }
 
     protected (string, ProviderInfo)[] NormalizePaths(string[] paths, bool isLiteral)

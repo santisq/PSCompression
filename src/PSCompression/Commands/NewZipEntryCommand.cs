@@ -9,7 +9,7 @@ namespace PSCompression;
 
 [Cmdlet(VerbsCommon.New, "ZipEntry")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryDirectory))]
-public sealed class NewZipEntryCommand : CommandsBase
+public sealed class NewZipEntryCommand : PSCompressionCommandsBase
 {
     private readonly Regex _re = new(@"[\\/]$", RegexOptions.Compiled);
 
