@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Management.Automation;
 using System.Text;
 
@@ -46,7 +44,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
         }
     }
 
-    private ZipContentReader GetReader(string entrySource)
+    private ZipContentReader GetOrAddReader(string entrySource)
     {
         if (!_cache.ContainsKey(entrySource))
         {
@@ -62,7 +60,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
         {
             try
             {
-                ZipContentReader reader = GetReader(entry.EntryRelativePath);
+                ZipContentReader reader = GetOrAddReader(entry.EntryRelativePath);
 
                 if (AsBytes.IsPresent)
                 {
