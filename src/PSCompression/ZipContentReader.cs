@@ -8,11 +8,11 @@ using System.Text;
 
 namespace PSCompression;
 
-public class ZipContentReader : IDisposable
+internal class ZipContentReader : IDisposable
 {
-    public string Source { get; }
+    internal string Source { get; }
 
-    public ZipArchive ZipArchive { get; }
+    internal ZipArchive ZipArchive { get; }
 
     private byte[]? _buffer;
 
