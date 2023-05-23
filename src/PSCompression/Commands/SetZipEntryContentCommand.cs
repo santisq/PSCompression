@@ -31,6 +31,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
     public SwitchParameter AsByteStream { get; set; }
 
     [Parameter(ParameterSetName = "StringValue")]
+    [Parameter(ParameterSetName = "ByteStream")]
     public SwitchParameter Append { get; set; }
 
     [Parameter(ParameterSetName = "ByteStream")]

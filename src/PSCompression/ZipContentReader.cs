@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -8,20 +7,15 @@ using System.Text;
 
 namespace PSCompression;
 
-internal class ZipContentReader : IDisposable
+internal sealed class ZipContentReader : ZipContentOpsBase
 {
-    internal string Source { get; }
-
-    internal ZipArchive ZipArchive { get; }
-
-    private byte[]? _buffer;
-
     private readonly List<string> _content = new();
 
-    internal ZipContentReader(string source)
+    protected override ZipArchive ZipArchive { get; }
+
+    internal ZipContentReader(string source) : base(source)
     {
         ZipArchive = ZipFile.OpenRead(source);
-        Source = source;
     }
 
     private Stream GetStream(string entry) =>
@@ -82,6 +76,4 @@ internal class ZipContentReader : IDisposable
 
         return _content.ToArray();
     }
-
-    public void Dispose() => ZipArchive?.Dispose();
 }

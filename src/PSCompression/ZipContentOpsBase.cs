@@ -7,21 +7,20 @@ internal abstract class ZipContentOpsBase : IDisposable
 {
     internal string Source { get; }
 
-    internal ZipArchive ZipArchive { get; }
+    protected abstract ZipArchive ZipArchive { get; }
 
-    private bool _disposed;
+    protected byte[]? _buffer;
 
-    internal byte[]? _buffer;
+    protected bool _disposed;
 
-    protected ZipContentOpsBase(string source, ZipArchiveMode mode)
+    protected ZipContentOpsBase(string source)
     {
-        ZipArchive = ZipFile.Open(source, mode);
         Source = source;
     }
 
     protected virtual void Dispose(bool disposing)
     {
-        if(!_disposed)
+        if (!_disposed)
         {
             ZipArchive.Dispose();
             _disposed = true;
