@@ -1,3 +1,4 @@
+using System.IO;
 using System.IO.Compression;
 
 namespace PSCompression;
@@ -18,5 +19,12 @@ public sealed class ZipEntryFile : ZipEntryBase
     {
         using ZipEntryStream zip = OpenRead();
         zip.ZipStream.GetEntry(EntryRelativePath).ExtractToFile(destinationFileName, overwrite);
+    }
+
+    internal void Refresh()
+    {
+        using ZipEntryStream zipEntryStream = OpenRead();
+        Length = zipEntryStream.ZipEntry.Length;
+        CompressedLength = zipEntryStream.ZipEntry.CompressedLength;
     }
 }

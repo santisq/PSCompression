@@ -10,6 +10,8 @@ public sealed class ZipEntryStream : Stream
 {
     public Stream EntryStream { get; }
 
+    public ZipArchiveEntry ZipEntry { get; }
+
     public ZipArchive ZipStream { get; }
 
     public bool Disposed { get; private set; }
@@ -17,7 +19,8 @@ public sealed class ZipEntryStream : Stream
     public ZipEntryStream(ZipEntryFile entry, ZipArchiveMode mode)
     {
         ZipStream = ZipFile.Open(entry.Source, mode);
-        EntryStream = ZipStream.GetEntry(entry.EntryRelativePath).Open();
+        ZipEntry = ZipStream.GetEntry(entry.EntryRelativePath);
+        EntryStream = ZipEntry.Open();
     }
 
     public override bool CanRead => EntryStream.CanRead;

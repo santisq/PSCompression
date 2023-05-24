@@ -32,9 +32,9 @@ public abstract class ZipEntryBase
 
     public DateTime LastWriteTime { get; }
 
-    public long Length { get; }
+    public long Length { get; internal set; }
 
-    public long CompressedLength { get; }
+    public long CompressedLength { get; internal set; }
 
     public string Size => FormatLength(Length);
 

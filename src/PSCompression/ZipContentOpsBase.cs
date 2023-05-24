@@ -7,7 +7,7 @@ internal abstract class ZipContentOpsBase : IDisposable
 {
     internal string Source { get; }
 
-    protected abstract ZipArchive ZipArchive { get; }
+    public abstract ZipArchive ZipArchive { get; }
 
     protected byte[]? _buffer;
 

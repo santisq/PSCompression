@@ -8,7 +8,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
 {
     private int _index;
 
-    protected override ZipArchive ZipArchive { get => _zipEntryStream.ZipStream; }
+    public override ZipArchive ZipArchive { get => _zipEntryStream.ZipStream; }
 
     private readonly StreamWriter? _writer;
 
@@ -33,7 +33,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
         base(entry.Source)
     {
         _zipEntryStream = entry.OpenWrite();
-        _writer = new(_zipEntryStream, encoding);
+        _writer = new StreamWriter(_zipEntryStream, encoding);
 
         if (append)
         {
@@ -78,7 +78,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
 
     public void Flush()
     {
-        if(_index > 0 && _buffer is not null)
+        if (_index > 0 && _buffer is not null)
         {
             _zipEntryStream.Write(_buffer, 0, _index);
             _index = 0;
@@ -87,12 +87,11 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
 
     protected override void Dispose(bool disposing)
     {
-        Flush();
-        base.Dispose(disposing);
-
         if (!_disposed)
         {
+            Flush();
             _writer?.Dispose();
+            _zipEntryStream?.Dispose();
             _disposed = true;
         }
     }

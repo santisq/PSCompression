@@ -11,7 +11,7 @@ internal sealed class ZipContentReader : ZipContentOpsBase
 {
     private readonly List<string> _content = new();
 
-    protected override ZipArchive ZipArchive { get; }
+    public override ZipArchive ZipArchive { get; }
 
     internal ZipContentReader(string source) : base(source)
     {
@@ -20,17 +20,6 @@ internal sealed class ZipContentReader : ZipContentOpsBase
 
     private Stream GetStream(string entry) =>
         ZipArchive.GetEntry(entry).Open();
-
-    internal void StreamLines(string entry, Encoding encoding, PSCmdlet cmdlet)
-    {
-        using Stream entryStream = GetStream(entry);
-        using StreamReader reader = new(entry, encoding);
-
-        while (!reader.EndOfStream)
-        {
-            cmdlet.WriteObject(reader.ReadLine());
-        }
-    }
 
     internal void StreamBytes(string entry, int bufferSize, PSCmdlet cmdlet)
     {
@@ -52,6 +41,17 @@ internal sealed class ZipContentReader : ZipContentOpsBase
 
         entryStream.CopyTo(mem);
         return mem.ToArray();
+    }
+
+    internal void StreamLines(string entry, Encoding encoding, PSCmdlet cmdlet)
+    {
+        using Stream entryStream = GetStream(entry);
+        using StreamReader reader = new(entryStream, encoding);
+
+        while (!reader.EndOfStream)
+        {
+            cmdlet.WriteObject(reader.ReadLine());
+        }
     }
 
     internal string ReadToEnd(string entry, Encoding encoding)

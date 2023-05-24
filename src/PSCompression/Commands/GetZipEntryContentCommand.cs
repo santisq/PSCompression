@@ -13,7 +13,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
     private readonly Dictionary<string, ZipContentReader> _cache = new();
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
-    public ZipEntryFile[] InputObject { get; set; } = null!;
+    public ZipEntryFile[] ZipEntry { get; set; } = null!;
 
     [Parameter(ParameterSetName = "Raw")]
     [Parameter(ParameterSetName = "Stream")]
@@ -36,14 +36,6 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
     [ValidateNotNullOrEmpty]
     public int BufferSize { get; set; } = 128000;
 
-    public void Dispose()
-    {
-        foreach (ZipContentReader reader in _cache.Values)
-        {
-            reader?.Dispose();
-        }
-    }
-
     private ZipContentReader GetOrAddReader(string entrySource)
     {
         if (!_cache.ContainsKey(entrySource))
@@ -56,11 +48,11 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
 
     protected override void ProcessRecord()
     {
-        foreach (ZipEntryFile entry in InputObject)
+        foreach (ZipEntryFile entry in ZipEntry)
         {
             try
             {
-                ZipContentReader reader = GetOrAddReader(entry.EntryRelativePath);
+                ZipContentReader reader = GetOrAddReader(entry.Source);
 
                 if (AsBytes.IsPresent)
                 {
@@ -102,6 +94,14 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
                 WriteError(new ErrorRecord(
                     e, "EntryOpen", ErrorCategory.OpenError, entry));
             }
+        }
+    }
+
+        public void Dispose()
+    {
+        foreach (ZipContentReader reader in _cache.Values)
+        {
+            reader?.Dispose();
         }
     }
 }
