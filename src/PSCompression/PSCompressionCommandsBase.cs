@@ -48,7 +48,7 @@ public abstract class PSCompressionCommandsBase : PSCmdlet
         return result.ToArray();
     }
 
-    protected bool ValidatePath(string path, ProviderInfo provider)
+    protected bool ValidatePath(string path, ProviderInfo provider, bool assertFile = true)
     {
         if (provider.ImplementingType != typeof(FileSystemProvider))
         {
@@ -61,7 +61,7 @@ public abstract class PSCompressionCommandsBase : PSCmdlet
 
         try
         {
-            if (File.GetAttributes(path).HasFlag(FileAttributes.Directory))
+            if (assertFile && File.GetAttributes(path).HasFlag(FileAttributes.Directory))
             {
                 WriteError(new ErrorRecord(
                     new ArgumentException($"Unable to get zip content because it is a directory: '{path}'."),

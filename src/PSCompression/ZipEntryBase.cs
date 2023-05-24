@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.IO.Compression;
 
 namespace PSCompression;
@@ -70,13 +71,31 @@ public abstract class ZipEntryBase
         zip.GetEntry(EntryRelativePath).Delete();
     }
 
-    internal void RemoveEntry(ZipArchive zip)
-    {
+    internal void RemoveEntry(ZipArchive zip) =>
         zip.GetEntry(EntryRelativePath).Delete();
-    }
 
-    internal ZipArchive OpenZip(ZipArchiveMode mode)
+    internal ZipArchive OpenZip(ZipArchiveMode mode) =>
+        ZipFile.Open(Source, mode);
+
+    internal (string, bool) ExtractTo(ZipArchive zip, string destination, bool overwrite)
     {
-        return ZipFile.Open(Source, mode);
+        destination = Path.GetFullPath(Path.Combine(destination, EntryRelativePath));
+
+        if (string.IsNullOrEmpty(EntryName))
+        {
+            Directory.CreateDirectory(destination);
+            return (destination, false);
+        }
+
+        string parent = Path.GetDirectoryName(destination);
+
+        if (!Directory.Exists(parent))
+        {
+            Directory.CreateDirectory(parent);
+        }
+
+        ZipArchiveEntry entry = zip.GetEntry(EntryRelativePath);
+        entry.ExtractToFile(destination, overwrite);
+        return (destination, true);
     }
 }

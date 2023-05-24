@@ -15,12 +15,6 @@ public sealed class ZipEntryFile : ZipEntryBase
 
     public ZipEntryStream OpenWrite() => new(this, ZipArchiveMode.Update);
 
-    public void ExtractTo(string destinationFileName, bool overwrite)
-    {
-        using ZipEntryStream zip = OpenRead();
-        zip.ZipStream.GetEntry(EntryRelativePath).ExtractToFile(destinationFileName, overwrite);
-    }
-
     internal void Refresh()
     {
         using ZipEntryStream zipEntryStream = OpenRead();

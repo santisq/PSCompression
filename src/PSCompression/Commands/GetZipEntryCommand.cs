@@ -6,10 +6,10 @@ using System.Management.Automation;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsCommon.Get, "ZipEntries", DefaultParameterSetName = "Path")]
+[Cmdlet(VerbsCommon.Get, "ZipEntry", DefaultParameterSetName = "Path")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryDirectory))]
 [Alias("gezip")]
-public sealed class GetZipEntriesCommand : PSCompressionCommandsBase
+public sealed class GetZipEntryCommand : PSCompressionCommandsBase
 {
     private bool _isLiteral;
 
