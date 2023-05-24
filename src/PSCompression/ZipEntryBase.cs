@@ -69,4 +69,14 @@ public abstract class ZipEntryBase
         using ZipArchive zip = ZipFile.Open(Source, ZipArchiveMode.Update);
         zip.GetEntry(EntryRelativePath).Delete();
     }
+
+    internal void RemoveEntry(ZipArchive zip)
+    {
+        zip.GetEntry(EntryRelativePath).Delete();
+    }
+
+    internal ZipArchive OpenZip(ZipArchiveMode mode)
+    {
+        return ZipFile.Open(Source, mode);
+    }
 }
