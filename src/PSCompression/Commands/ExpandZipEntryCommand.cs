@@ -8,12 +8,16 @@ using System.Management.Automation;
 namespace PSCompression;
 
 [Cmdlet(VerbsData.Expand, "ZipEntry")]
-public abstract class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposable
+[OutputType(
+    typeof(FileInfo), typeof(DirectoryInfo),
+    ParameterSetName = new string[1] { "PassThru" }
+)]
+public sealed class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposable
 {
     private readonly Dictionary<string, ZipArchive> _cache = new();
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
-    public ZipEntryFile[] ZipEntry { get; set; } = null!;
+    public ZipEntryBase[] ZipEntry { get; set; } = null!;
 
     [Parameter(Position = 0)]
     public string? Destination { get; set; }
@@ -21,7 +25,7 @@ public abstract class ExpandZipEntryCommand : PSCompressionCommandsBase, IDispos
     [Parameter]
     public SwitchParameter Force { get; set; }
 
-    [Parameter]
+    [Parameter(ParameterSetName = "PassThru")]
     public SwitchParameter PassThru { get; set; }
 
     protected override void BeginProcessing()
@@ -31,7 +35,7 @@ public abstract class ExpandZipEntryCommand : PSCompressionCommandsBase, IDispos
         (string path, ProviderInfo provider) = NormalizePaths(new string[1] { Destination }, isLiteral: true)
             .FirstOrDefault();
 
-        if (!ValidatePath(path, provider))
+        if (!ValidatePath(path, provider, assertFile: false))
         {
             Destination = null;
             return;
@@ -55,25 +59,37 @@ public abstract class ExpandZipEntryCommand : PSCompressionCommandsBase, IDispos
 
         foreach (ZipEntryBase entry in ZipEntry)
         {
-            if (!_cache.ContainsKey(entry.Source))
+            try
             {
-                _cache[entry.Source] = entry.OpenZip(ZipArchiveMode.Read);
-            }
-
-            (string path, bool isfile) = entry.ExtractTo(
-                _cache[entry.Source],
-                Destination,
-                Force.IsPresent);
-
-            if (PassThru.IsPresent)
-            {
-                if (isfile)
+                if (!_cache.ContainsKey(entry.Source))
                 {
-                    WriteObject(new FileInfo(path));
-                    return;
+                    _cache[entry.Source] = entry.OpenZip(ZipArchiveMode.Read);
                 }
 
-                WriteObject(new DirectoryInfo(path));
+                (string path, bool isfile) = entry.ExtractTo(
+                    _cache[entry.Source],
+                    Destination,
+                    Force.IsPresent);
+
+                if (PassThru.IsPresent)
+                {
+                    if (isfile)
+                    {
+                        WriteObject(new FileInfo(path));
+                        return;
+                    }
+
+                    WriteObject(new DirectoryInfo(path));
+                }
+            }
+            catch (PipelineStoppedException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                WriteError(new ErrorRecord(
+                    e, "ExtractEntry", ErrorCategory.NotSpecified, entry));
             }
         }
     }
