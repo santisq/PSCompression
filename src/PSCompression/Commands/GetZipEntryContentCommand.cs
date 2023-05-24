@@ -97,7 +97,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
         }
     }
 
-        public void Dispose()
+    public void Dispose()
     {
         foreach (ZipContentReader reader in _cache.Values)
         {
