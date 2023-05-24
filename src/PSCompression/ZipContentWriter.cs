@@ -81,6 +81,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
         if(_index > 0 && _buffer is not null)
         {
             _zipEntryStream.Write(_buffer, 0, _index);
+            _index = 0;
         }
     }
 
