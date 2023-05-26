@@ -12,7 +12,7 @@ public enum ZipEntryType
 
 public abstract class ZipEntryBase
 {
-    private readonly static string[] _suffix =
+    private readonly static string[] s_suffix =
     {
         "Bytes",
         "Kb",
@@ -62,7 +62,7 @@ public abstract class ZipEntryBase
             index++;
         }
 
-        return Math.Round(len, 2) + " " + _suffix[index];
+        return Math.Round(len, 2) + " " + s_suffix[index];
     }
 
     public void RemoveEntry()

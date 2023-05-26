@@ -7,7 +7,7 @@ namespace PSCompression;
 
 public class EncodingCompleter : IArgumentCompleter
 {
-    private static readonly string[] _encodingSet =
+    private static readonly string[] s_encodingSet =
     {
         "ascii",
         "bigendianUtf32",
@@ -28,7 +28,7 @@ public class EncodingCompleter : IArgumentCompleter
         CommandAst commandAst,
         IDictionary fakeBoundParameters)
     {
-        foreach (string encoding in _encodingSet)
+        foreach (string encoding in s_encodingSet)
         {
             yield return new CompletionResult(encoding);
         }
