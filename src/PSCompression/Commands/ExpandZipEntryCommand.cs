@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -8,13 +7,10 @@ using System.Management.Automation;
 namespace PSCompression;
 
 [Cmdlet(VerbsData.Expand, "ZipEntry")]
-[OutputType(
-    typeof(FileInfo), typeof(DirectoryInfo),
-    ParameterSetName = new string[1] { "PassThru" }
-)]
+[OutputType(typeof(FileSystemInfo), ParameterSetName = new string[1] { "PassThru" })]
 public sealed class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposable
 {
-    private readonly Dictionary<string, ZipArchive> _cache = new();
+    private readonly ZipArchiveCache _cache = new();
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
     public ZipEntryBase[] ZipEntry { get; set; } = null!;
@@ -32,7 +28,8 @@ public sealed class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposab
     {
         Destination ??= SessionState.Path.CurrentFileSystemLocation.Path;
 
-        (string path, ProviderInfo provider) = NormalizePaths(new string[1] { Destination }, isLiteral: true)
+        (string path, ProviderInfo provider) = NormalizePaths(
+            new string[1] { Destination }, isLiteral: true)
             .FirstOrDefault();
 
         if (!ValidatePath(path, provider, assertFile: false))
@@ -61,13 +58,8 @@ public sealed class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposab
         {
             try
             {
-                if (!_cache.ContainsKey(entry.Source))
-                {
-                    _cache[entry.Source] = entry.OpenZip(ZipArchiveMode.Read);
-                }
-
                 (string path, bool isfile) = entry.ExtractTo(
-                    _cache[entry.Source],
+                    _cache.GetOrAdd(entry, ZipArchiveMode.Read),
                     Destination,
                     Force.IsPresent);
 
@@ -94,11 +86,5 @@ public sealed class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposab
         }
     }
 
-    public void Dispose()
-    {
-        foreach (ZipArchive zip in _cache.Values)
-        {
-            zip?.Dispose();
-        }
-    }
+    public void Dispose() => _cache?.Dispose();
 }

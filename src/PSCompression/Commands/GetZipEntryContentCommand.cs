@@ -10,7 +10,7 @@ namespace PSCompression;
 [Alias("gczip")]
 public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
 {
-    private readonly Dictionary<string, ZipContentReader> _cache = new();
+    private readonly ZipContentReaderCache _cache = new();
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
     public ZipEntryFile[] ZipEntry { get; set; } = null!;
@@ -36,23 +36,13 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
     [ValidateNotNullOrEmpty]
     public int BufferSize { get; set; } = 128000;
 
-    private ZipContentReader GetOrAddReader(string entrySource)
-    {
-        if (!_cache.ContainsKey(entrySource))
-        {
-            _cache[entrySource] = new ZipContentReader(entrySource);
-        }
-
-        return _cache[entrySource];
-    }
-
     protected override void ProcessRecord()
     {
         foreach (ZipEntryFile entry in ZipEntry)
         {
             try
             {
-                ZipContentReader reader = GetOrAddReader(entry.Source);
+                ZipContentReader reader = _cache.GetOrAdd(entry);
 
                 if (AsBytes.IsPresent)
                 {
@@ -97,11 +87,5 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        foreach (ZipContentReader reader in _cache.Values)
-        {
-            reader?.Dispose();
-        }
-    }
+    public void Dispose() => _cache?.Dispose();
 }

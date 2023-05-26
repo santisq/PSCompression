@@ -1,11 +1,11 @@
 using System;
-using System.IO;
 using System.Management.Automation;
 using System.Text;
 
 namespace PSCompression;
 
 [Cmdlet(VerbsCommon.Set, "ZipEntryContent", DefaultParameterSetName = "StringValue")]
+[OutputType(typeof(ZipEntryFile))]
 public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
 {
     private ZipContentWriter? _zipWriter;

@@ -27,7 +27,8 @@ public sealed class NewZipEntryCommand : PSCompressionCommandsBase
     protected override void ProcessRecord()
     {
         (string path, ProviderInfo provider) = NormalizePaths(
-            new string[1] { LiteralPath }, true).FirstOrDefault();
+            new string[1] { LiteralPath }, isLiteral: true)
+            .FirstOrDefault();
 
         if (!ValidatePath(path, provider))
         {
