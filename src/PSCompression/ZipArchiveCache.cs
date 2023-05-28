@@ -1,9 +1,15 @@
+using System;
+using System.Collections.Generic;
 using System.IO.Compression;
 
 namespace PSCompression;
 
-internal sealed class ZipArchiveCache : ZipCacheBase<ZipArchive>
+internal class ZipArchiveCache : IDisposable
 {
+    private readonly Dictionary<string, ZipArchive> _cache;
+
+    internal ZipArchiveCache() => _cache = new();
+
     internal ZipArchive GetOrAdd(ZipEntryBase entry, ZipArchiveMode mode)
     {
         if (!_cache.ContainsKey(entry.Source))
@@ -14,7 +20,7 @@ internal sealed class ZipArchiveCache : ZipCacheBase<ZipArchive>
         return _cache[entry.Source];
     }
 
-    public override void Dispose()
+    public void Dispose()
     {
         foreach (ZipArchive zip in _cache.Values)
         {

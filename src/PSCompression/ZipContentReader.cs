@@ -11,12 +11,8 @@ internal sealed class ZipContentReader : ZipContentOpsBase
 {
     private readonly List<string> _content = new();
 
-    public override ZipArchive ZipArchive { get; }
-
-    internal ZipContentReader(string source) : base(source)
-    {
-        ZipArchive = ZipFile.OpenRead(source);
-    }
+    internal ZipContentReader(ZipArchive zip) : base(zip)
+    { }
 
     private Stream GetStream(string entry) =>
         ZipArchive.GetEntry(entry).Open();

@@ -5,18 +5,17 @@ namespace PSCompression;
 
 internal abstract class ZipContentOpsBase : IDisposable
 {
-    internal string Source { get; }
-
-    public abstract ZipArchive ZipArchive { get; }
+    public virtual ZipArchive ZipArchive { get; } = default!;
 
     protected byte[]? _buffer;
 
     protected bool _disposed;
 
-    protected ZipContentOpsBase(string source)
-    {
-        Source = source;
-    }
+    protected ZipContentOpsBase(ZipArchive zip) =>
+        ZipArchive = zip;
+
+    protected ZipContentOpsBase()
+    { }
 
     protected virtual void Dispose(bool disposing)
     {

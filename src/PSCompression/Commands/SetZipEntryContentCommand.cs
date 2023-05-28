@@ -85,14 +85,23 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
     }
 
-    public void Dispose()
+    protected override void EndProcessing()
     {
-        _zipWriter?.Dispose();
-
         if (PassThru.IsPresent && _zipWriter is not null)
         {
-            SourceEntry.Refresh();
-            WriteObject(SourceEntry);
+            try
+            {
+                _zipWriter.Dispose();
+                SourceEntry.Refresh();
+                WriteObject(SourceEntry);
+            }
+            catch (Exception e)
+            {
+                WriteError(new ErrorRecord(
+                    e, "RefreshEntry", ErrorCategory.CloseError, SourceEntry));
+            }
         }
     }
+
+    public void Dispose() => _zipWriter?.Dispose();
 }

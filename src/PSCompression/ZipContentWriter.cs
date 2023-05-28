@@ -8,14 +8,13 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
 {
     private int _index;
 
-    public override ZipArchive ZipArchive { get => _zipEntryStream.ZipStream; }
+    public override ZipArchive ZipArchive => _zipEntryStream.ZipStream;
 
     private readonly StreamWriter? _writer;
 
     private readonly ZipEntryStream _zipEntryStream;
 
-    internal ZipContentWriter(ZipEntryFile entry, bool append, int bufferSize) :
-        base(entry.Source)
+    internal ZipContentWriter(ZipEntryFile entry, bool append, int bufferSize)
     {
         _zipEntryStream = entry.OpenWrite();
         _buffer = new byte[bufferSize];
@@ -29,8 +28,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
         _zipEntryStream.SetLength(0);
     }
 
-    internal ZipContentWriter(ZipEntryFile entry, bool append, Encoding encoding) :
-        base(entry.Source)
+    internal ZipContentWriter(ZipEntryFile entry, bool append, Encoding encoding)
     {
         _zipEntryStream = entry.OpenWrite();
         _writer = new StreamWriter(_zipEntryStream, encoding);

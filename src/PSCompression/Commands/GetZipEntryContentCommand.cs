@@ -1,4 +1,5 @@
 using System;
+using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace PSCompression;
 [Alias("gczip")]
 public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
 {
-    private readonly ZipContentReaderCache _cache = new();
+    private readonly ZipArchiveCache _cache = new();
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
     public ZipEntryFile[] ZipEntry { get; set; } = null!;
@@ -41,7 +42,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
         {
             try
             {
-                ZipContentReader reader = _cache.GetOrAdd(entry);
+                ZipContentReader reader = new(_cache.GetOrAdd(entry, ZipArchiveMode.Read));
 
                 if (AsBytes.IsPresent)
                 {
