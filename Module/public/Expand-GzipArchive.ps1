@@ -2,45 +2,12 @@
 using namespace System.IO.Compression
 using namespace System.Text
 
+# .ExternalHelp PSCompression-help.xml
 function Expand-GzipArchive {
-    <#
-    .SYNOPSIS
-    Expands a Gzip compressed file from a specified specified File Path or Paths.
-
-    .PARAMETER Path
-    Specifies the path or paths to the Gzip files to expand.
-    To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
-    This Parameter accepts wildcard characters. Wildcard characters allow you to add all files in a directory to your archive file.
-
-    .PARAMETER LiteralPath
-    Specifies the path or paths to the Gzip files to expand.
-    Unlike the Path Parameter, the value of LiteralPath is used exactly as it's typed.
-    No characters are interpreted as wildcards
-
-    .PARAMETER DestinationPath
-    The destination path to where to expand the Gzip file.
-    The target folder is created if it does not exist.
-    This parameter is Optional, if not used, this function outputs to the Success Stream.
-
-    .PARAMETER Encoding
-    Character encoding used when expanding the Gzip content.
-    This parameter is only available when expanding to the Success Stream.
-
-    .PARAMETER Raw
-    Outputs the expanded file as a single string with newlines preserved.
-    By default, newline characters in the expanded string are used as delimiters to separate the input into an array of strings.
-    This parameter is only available when expanding to the Success Stream.
-
-    .PARAMETER PassThru
-    Outputs the object representing the expanded file.
-    This parameter is only available when expanding to a File.
-
-    .LINK
-    https://github.com/santisq/PSCompression
-    #>
-
-    [CmdletBinding(DefaultParameterSetName='Path')]
+    [CmdletBinding(DefaultParameterSetName = 'Path')]
     [Alias('gzipfromfile')]
+    [OutputType([string], ParameterSetName = ('Path', 'LiteralPath'))]
+    [OutputType([System.IO.FileInfo], ParameterSetName = ('PathToFile', 'LiteralPathToFile'))]
     param(
         [Parameter(ParameterSetName = 'PathToFile', Mandatory, Position = 0, ValueFromPipeline)]
         [Parameter(ParameterSetName = 'Path', Mandatory, Position = 0, ValueFromPipeline)]
@@ -80,14 +47,16 @@ function Expand-GzipArchive {
     process {
         try {
             $isLiteral = $PSBoundParameters.ContainsKey('LiteralPath')
-            $paths     = $Path
+            $paths = $Path
+
             if($isLiteral) {
                 $paths = $LiteralPath
             }
-            $items = $ExecutionContext.InvokeProvider.Item.Get($paths, $true, $isLiteral)
+
+            $items = $PSCmdlet.InvokeProvider.Item.Get($paths, $true, $isLiteral)
 
             if(-not $ExpectingInput -and $PSBoundParameters.ContainsKey('DestinationPath')) {
-                $ExpectingInput  = $true
+                $ExpectingInput = $true
                 $DestinationPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
                 $null = [Directory]::CreateDirectory([Path]::GetDirectoryName($DestinationPath))
                 $params['OutStream'] = [File]::Open($DestinationPath, [FileMode]::Append)

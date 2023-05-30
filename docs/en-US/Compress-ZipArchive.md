@@ -1,8 +1,15 @@
+---
+external help file: PSCompression-help.xml
+Module Name: PSCompression
+online version: https://github.com/santisq/PSCompression
+schema: 2.0.0
+---
+
 # Compress-ZipArchive
 
 ## SYNOPSIS
 
-PowerShell function that overcomes the limitations of [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) while keeping similar pipeline capabilities.
+PowerShell cmdlet that overcomes the limitations of [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) while keeping similar pipeline capabilities.
 
 ## SYNTAX
 
@@ -50,7 +57,7 @@ Compress-ZipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-Compre
 
 ## DESCRIPTION
 
-PowerShell function that overcomes the limitation that the built-in cmdlet `Compress-Archive` has:
+PowerShell cmdlet that overcomes the limitation that the built-in cmdlet `Compress-Archive` has:
 
 > The `Compress-Archive` cmdlet uses the Microsoft .NET API [`System.IO.Compression.ZipArchive`](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive?view=net-6.0) to compress files. The maximum file size is 2 GB because there's a limitation of the underlying API.
 
@@ -60,68 +67,7 @@ The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](h
    2. All files (recursively) on the source folder __will be compressed__, we can't pick / filter files to compress.
    3. It's not possible to __Update__ the entries of an existing Zip Archive.
 
-This function should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure untouched__.
-
----
-
-## NOTES
-
-This function was initially posted to address [this Stack Overflow question](https://stackoverflow.com/a/72611161/15339544). [Another question](https://stackoverflow.com/q/74129754/15339544) in the same site pointed out another limitation with the native cmdlet, it can't compress if another process has a handle on a file.
-
-__How to reproduce?__
-
-```powershell
-# cd to a temporary folder and
-# start a Job which will write to a file
-$job = Start-Job {
-    0..1000 | ForEach-Object {
-        "Iteration ${_}:" + ('A' * 1kb)
-        Start-Sleep -Milliseconds 200
-    } | Set-Content .\temp\test.txt
-}
-
-Start-Sleep -Seconds 1
-# attempt to compress
-Compress-Archive .\temp\test.txt -DestinationPath test.zip
-# Exception:
-# The process cannot access the file '..\test.txt' because it is being used by another process.
-$job | Stop-Job -PassThru | Remove-Job
-Remove-Item .\temp -Recurse
-```
-
-To overcome this issue, and also to emulate explorer's behavior when compressing files used by another process, the function posted below will default to __[`[FileShare] 'ReadWrite, Delete'`](https://learn.microsoft.com/en-us/dotnet/api/system.io.fileshare?view=net-6.0)__ when opening a [`FileStream`](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.open?view=net-7.0).
-
-## Performance Measurements
-
-Below is a performance comparison between `Compress-Archive` and this function. Source code for the performance tests in [this link](../tests/zip_perftest.ps1).
-
-Tested in older versions of [PowerShell Core](https://github.com/PowerShell/PowerShell) where the built-in cmdlet is [known for having performance issues](https://github.com/PowerShell/Microsoft.PowerShell.Archive/issues/78). This issue has been fixed in latest versions.
-
-### Average Results
-
-```none
-Test                            Average     RelativeSpeed
-----                            -------     -------------
-Compress-ZipArchive (Optimal)   1178.75 ms  1x
-Compress-Archive (Optimal)      34179.89 ms 29.00x
-```
-
-### Results per Test Run
-
-```none
-TestRun Test                               TotalMilliseconds
-------- ----                               -----------------
-      3 Compress-ZipArchive (Optimal)      1132.38 ms
-      4 Compress-ZipArchive (Optimal)      1151.72 ms
-      2 Compress-ZipArchive (Optimal)      1156.69 ms
-      5 Compress-ZipArchive (Optimal)      1157.54 ms
-      1 Compress-ZipArchive (Optimal)      1295.44 ms
-      2 Compress-Archive (Optimal)         33884.40 ms
-      4 Compress-Archive (Optimal)         33907.80 ms
-      3 Compress-Archive (Optimal)         33940.75 ms
-      5 Compress-Archive (Optimal)         34264.44 ms
-      1 Compress-Archive (Optimal)         34902.04 ms
-```
+This cmdlet should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure untouched__.
 
 ## EXAMPLES
 
@@ -216,7 +162,7 @@ Accept wildcard characters: False
 ### -DestinationPath
 
 The destination path to the Zip file.
-If the file name in DestinationPath doesn't have a `.zip` file name extension, the function appends the `.zip` file name extension.
+If the file name in DestinationPath doesn't have a `.zip` file name extension, the cmdlet appends the `.zip` file name extension.
 
 ```yaml
 Type: String
@@ -284,7 +230,7 @@ Accept wildcard characters: False
 ### -PassThru
 
 Outputs the object representing the compressed file.
-The function produces no output by default.
+The cmdlet produces no output by default.
 
 ```yaml
 Type: SwitchParameter
@@ -301,3 +247,13 @@ Accept wildcard characters: False
 ### CommonParameters
 
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## OUTPUTS
+
+### None
+
+By default, this cmdlet produces no output.
+
+### System.IO.FileInfo
+
+When the `-PassThru` switch is used this cmdlet outputs the `FileInfo` instance representing the compressed file.

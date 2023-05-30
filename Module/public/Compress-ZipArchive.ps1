@@ -2,87 +2,11 @@ using namespace System.IO
 using namespace System.IO.Compression
 using namespace System.Collections.Generic
 
+# .ExternalHelp PSCompression-help.xml
 function Compress-ZipArchive {
-    <#
-    .SYNOPSIS
-    PowerShell function that overcomes the limitations of `Compress-Archive` while keeping similar pipeline capabilities.
-
-    .DESCRIPTION
-    `Compress-ZipArchive` intends to solve the present limitations of the built-in cmdlet `Compress-Archive`:
-        1. Compression is limited to files below 2Gb
-        2. It cannot compress files in use by another process, even though explorer can.
-
-    .PARAMETER Path
-    Specifies the path or paths to the files that you want to add to the archive zipped file.
-    To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
-    This Parameter accepts wildcard characters. Wildcard characters allow you to add all files in a directory to your archive file.
-
-    .PARAMETER LiteralPath
-    Specifies the path or paths to the files that you want to add to the archive zipped file.
-    Unlike the Path Parameter, the value of LiteralPath is used exactly as it's typed.
-    No characters are interpreted as wildcards
-
-    .PARAMETER DestinationPath
-    The destination path to the Zip file.
-    If the file name in DestinationPath doesn't have a `.zip` file name extension, the function appends the `.zip` file name extension.
-
-    .PARAMETER CompressionLevel
-    Define the compression level that should be used.
-    See https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel for details.
-
-    .PARAMETER Update
-    Updates Zip entries and adds new entries to an existing Zip file.
-
-    .PARAMETER Force
-    Replaces an existing Zip file with a new one. All Zip contents will be lost.
-
-    .PARAMETER PassThru
-    Outputs the object representing the compressed file. The function produces no output by default.
-
-    .EXAMPLE
-    Get-ChildItem .\path -Recurse -Filter *.ext |
-        Compress-ZipArchive -DestinationPath dest.zip
-
-    Compress all `.ext` files from a specific folder.
-
-    .EXAMPLE
-    Compress-ZipArchive .\*\*.txt -DestinationPath dest.zip
-
-    Compress all `.txt` files contained in all folders in the Current Directory.
-
-    .EXAMPLE
-    Compress-ZipArchive .\*.ext, .\*.ext2 -DestinationPath dest.zip
-
-    Compress all `.ext` and `.ext2` from a specific folder.
-
-    .EXAMPLE
-    Compress-ZipArchive .\path -Destination myPath.zip -CompressionLevel Fastest
-
-    Compress a folder using "Fastest" Compression Level.
-
-    .EXAMPLE
-    Get-ChildItem .\path -Recurse -Directory |
-        Compress-ZipArchive -DestinationPath dest.zip
-
-    Compressing all directories in ".\Path".
-
-    .EXAMPLE
-    Compress-ZipArchive -Path .\path -DestinationPath dest.zip -Force
-
-    Replacing an existing Zip Archive.
-
-    .EXAMPLE
-    Get-ChildItem .\path -Recurse -Directory |
-        Compress-ZipArchive -DestinationPath dest.zip -Update
-
-    Adding and updating new entries to an existing Zip Archive.
-
-    .LINK
-    https://github.com/santisq/PSCompression
-    #>
-
     [CmdletBinding(DefaultParameterSetName = 'Path')]
     [Alias('zip', 'ziparchive')]
+    [OutputType([System.IO.FileInfo])]
     param(
         [Parameter(ParameterSetName = 'PathWithUpdate', Mandatory, Position = 0, ValueFromPipeline)]
         [Parameter(ParameterSetName = 'PathWithForce', Mandatory, Position = 0, ValueFromPipeline)]
@@ -115,6 +39,7 @@ function Compress-ZipArchive {
 
     begin {
         $DestinationPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+
         if([Path]::GetExtension($DestinationPath) -ne '.zip') {
             $DestinationPath = $DestinationPath + '.zip'
         }
@@ -128,26 +53,26 @@ function Compress-ZipArchive {
             $fsMode = [FileMode]::OpenOrCreate
         }
         else {
-            $fsMode  = [FileMode]::CreateNew
+            $fsMode = [FileMode]::CreateNew
             $zipMode = [ZipArchiveMode]::Create
         }
 
         $ExpectingInput = $null
     }
     process {
-        $isLiteral  = $false
+        $isLiteral = $false
         $targetPath = $Path
 
         if($PSBoundParameters.ContainsKey('LiteralPath')) {
-            $isLiteral  = $true
+            $isLiteral = $true
             $targetPath = $LiteralPath
         }
 
         if(-not $ExpectingInput) {
             try {
-                $null   = [Directory]::CreateDirectory([Path]::GetDirectoryName($DestinationPath))
+                $null = [Directory]::CreateDirectory([Path]::GetDirectoryName($DestinationPath))
                 $destfs = [File]::Open($DestinationPath, $fsMode)
-                $zip    = [ZipArchive]::new($destfs, $zipMode)
+                $zip = [ZipArchive]::new($destfs, $zipMode)
                 $ExpectingInput = $true
             }
             catch {
@@ -158,7 +83,7 @@ function Compress-ZipArchive {
 
         $queue = [Queue[FileSystemInfo]]::new()
 
-        foreach($item in $ExecutionContext.InvokeProvider.Item.Get($targetPath, $true, $isLiteral)) {
+        foreach($item in $PSCmdlet.InvokeProvider.Item.Get($targetPath, $true, $isLiteral)) {
             $queue.Enqueue($item)
 
             $here = $item.Parent.FullName
@@ -203,21 +128,32 @@ function Compress-ZipArchive {
                         }
 
                         $sourcefs = $item.Open([FileMode]::Open, [FileAccess]::Read, [FileShare] 'ReadWrite, Delete')
-                        $entryfs  = $entry.Open()
+                        $entryfs = $entry.Open()
                         $sourcefs.CopyTo($entryfs)
                     }
                     catch {
                         $PSCmdlet.WriteError($_)
                     }
                     finally {
-                        $entryfs, $sourcefs | ForEach-Object Dispose
+                        if($entryfs -is [System.IDisposable]) {
+                            $entryfs.Dispose()
+                        }
+                        if($sourcefs -is [System.IDisposable]) {
+                            $sourcefs.Dispose()
+                        }
                     }
                 }
             }
         }
     }
     end {
-        $zip, $destfs | ForEach-Object Dispose
+        if($zip -is [System.IDisposable]) {
+            $zip.Dispose()
+        }
+
+        if($destfs -is [System.IDisposable]) {
+            $destfs.Dispose()
+        }
 
         if($PassThru.IsPresent) {
             $DestinationPath -as [FileInfo]

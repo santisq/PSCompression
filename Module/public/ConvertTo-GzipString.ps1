@@ -2,40 +2,12 @@
 using namespace System.IO.Compression
 using namespace System.Text
 
+# .ExternalHelp PSCompression-help.xml
 function ConvertTo-GzipString {
-    <#
-    .SYNOPSIS
-    Creates a Base64 encoded Gzip compressed string from a specified input string or strings.
-
-    .PARAMETER InputObject
-    Specifies the input string or strings to compress.
-
-    .PARAMETER Encoding
-    Character encoding used when compressing the Gzip input.
-
-    .PARAMETER DestinationPath
-    The destination path to the Gzip file.
-    If the file name in DestinationPath doesn't have a `.gzip` file name extension, the function appends the `.gzip` file name extension.
-
-    .PARAMETER CompressionLevel
-    Define the compression level that should be used.
-    See https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel for details.
-
-    .PARAMETER Raw
-    Outputs the compressed bytes to the Success Stream. There is no Base64 Encoding.
-    This parameter is meant to be used in combination with `Compress-GzipArchive`.
-
-    .PARAMETER NoNewLine
-    The encoded string representations of the input objects are concatenated to form the output.
-    No spaces or newlines are inserted between the output strings.
-    No newline is added after the last output string.
-
-    .LINK
-    https://github.com/santisq/PSCompression
-    #>
-
     [CmdletBinding()]
     [Alias('gziptostring')]
+    [OutputType([byte], ParameterSetName = 'ByteStream')]
+    [OutputType([string])]
     param(
         [AllowEmptyString()]
         [Parameter(Mandatory, ValueFromPipeline)]
@@ -44,13 +16,13 @@ function ConvertTo-GzipString {
         [Parameter()]
         [EncodingTransformation()]
         [ArgumentCompleter([EncodingCompleter])]
-        [Encoding] $Encoding = 'utf-8',
+        [Encoding] $Encoding = 'utf8',
 
         [Parameter()]
         [CompressionLevel] $CompressionLevel = 'Optimal',
 
-        [Parameter()]
-        [switch] $Raw,
+        [Parameter(ParameterSetName = 'ByteStream')]
+        [switch] $AsByteStream,
 
         [Parameter()]
         [switch] $NoNewLine
@@ -58,7 +30,7 @@ function ConvertTo-GzipString {
 
     begin {
         $inStream = [MemoryStream]::new()
-        $newLine  = $Encoding.GetBytes([Environment]::NewLine)
+        $newLine = $Encoding.GetBytes([Environment]::NewLine)
     }
     process {
         foreach($string in $InputObject) {
@@ -73,7 +45,7 @@ function ConvertTo-GzipString {
     end {
         try {
             $outStream = [MemoryStream]::new()
-            $gzip      = [GZipStream]::new($outStream, [CompressionMode]::Compress, $CompressionLevel)
+            $gzip = [GZipStream]::new($outStream, [CompressionMode]::Compress, $CompressionLevel)
             $inStream.Flush()
             $inStream.WriteTo($gzip)
         }
@@ -81,13 +53,24 @@ function ConvertTo-GzipString {
             $PSCmdlet.WriteError($_)
         }
         finally {
-            $gzip, $outStream, $inStream | ForEach-Object Dispose
+            if($gzip -is [System.IDisposable]) {
+                $gzip.Dispose()
+            }
+
+            if($outStream -is [System.IDisposable]) {
+                $outStream.Dispose()
+            }
+
+            if($inStream -is [System.IDisposable]) {
+                $inStream.Dispose()
+            }
         }
 
         try {
-            if($Raw.IsPresent) {
+            if($AsByteStream.IsPresent) {
                 return $PSCmdlet.WriteObject($outStream.ToArray())
             }
+
             [Convert]::ToBase64String($outStream.ToArray())
         }
         catch {

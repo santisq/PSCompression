@@ -78,113 +78,44 @@ Compress-GzipArchive -InputBytes <Byte[]> [-DestinationPath] <String> [-Compress
 
 ## DESCRIPTION
 
-PowerShell function aimed to compress multiple files into a single Gzip file using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion of Gzip files, see [`Expand-GzipArchive`](/docs/Expand-GzipArchive.md)
+PowerShell cmdlet aimed to compress multiple files into a single Gzip file using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion see `Expand-GzipArchive`.
 
 ## EXAMPLES
 
-### Example 1: Strings to Gzip compressed Base 64 encoded string
+### Example 1: Create a Gzip compressed file from a File Path
 
 ```powershell
-PS ..\pwsh> $strings = 'hello', 'world', '!'
-
-# With positional binding
-PS ..\pwsh> ConvertTo-GzipString $strings
-
-H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
-
-# Or pipeline input, both work
-PS ..\pwsh> $strings | ConvertTo-GzipString
-
-H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
+# If the destination doesn't end with `.gz` the extension will be automatically added
+PS ..\pwsh> Compress-GzipArchive path\to\myFile.ext -DestinationPath myFile.gz
 ```
 
-### Example 2: Expanding compressed strings
+### Example 2: Create a Gzip compressed file from a string
 
 ```powershell
-PS ..\pwsh> ConvertFrom-GzipString H4sIAAAAAAAACstIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
-
-hello
-world
-!
-```
-
-### Example 3: Demonstrates how `-NoNewLine` works
-
-```powershell
-# New lines are preserved when the function receives an array of strings.
-PS ..\pwsh> $strings | ConvertTo-GzipString | ConvertFrom-GzipString
-
-hello
-world
-!
-
-# When using the `-NoNewLine` switch, all strings are concatenated
-PS ..\pwsh> $strings | ConvertTo-GzipString -NoNewLine | ConvertFrom-GzipString
-
-helloworld!
-```
-
-### Example 4: Create a Gzip compressed file from a string
-
-```powershell
-# Demonstrates how `-Raw` works on `ConvertTo-GzipString`.
+# Demonstrates how `-AsByteStream` works on `ConvertTo-GzipString`.
 # Sends the compressed bytes to `Compress-GzipArchive`.
-PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -Raw |
-    Compress-GzipArchive -DestinationPath .\files\file.gzip
+PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream |
+    Compress-GzipArchive -DestinationPath .\files\file.gz
 ```
 
-### Example 5: Append content to the previous Gzip file
+### Example 3: Append content to a Gzip file
 
 ```powershell
 # Demonstrates how `-Update` works.
-PS ..\pwsh> 'this is new content...' | ConvertTo-GzipString -Raw |
-    Compress-GzipArchive -DestinationPath .\files\file.gzip -Update
+PS ..\pwsh> 'this is new content...' | ConvertTo-GzipString -AsByteStream |
+    Compress-GzipArchive -DestinationPath .\files\file.gz -Update
 ```
 
-### Example 6: Expanding a Gzip file
-
-```powershell
-# Output goes to the Success Stream when `-DestinationPath` is not bound.
-PS ..\pwsh> Expand-GzipArchive .\files\file.gzip
-
-hello world!
-this is new content...
-```
-
-### Example 7: Replace the previous Gzip file with new content
+### Example 4: Replace a Gzip file with new content
 
 ```powershell
 # Demonstrates how `-Force` works.
 PS ..\pwsh> $lorem = Invoke-RestMethod loripsum.net/api/10/long/plaintext
-PS ..\pwsh> $lorem | ConvertTo-GzipString -Raw |
+PS ..\pwsh> $lorem | ConvertTo-GzipString -AsByteStream |
     Compress-GzipArchive -DestinationPath .\files\file.gzip -Force
 ```
 
-### Example 8: Expanding a Gzip file outputting to a file
-
-```powershell
-PS ..\pwsh> Expand-GzipArchive .\files\file.gzip -DestinationPath .\files\file.txt
-
-# Checking Length Difference
-PS ..\pwsh> Get-Item -Path .\files\file.gzip, .\files\file.txt |
-    Select-Object Name, Length
-
-Name      Length
-----      ------
-file.gzip   3168
-file.txt    6857
-
-# Checking Integrity between expanded and original
-PS ..\pwsh> $lorem | Set-Content .\files\strings.txt
-PS ..\pwsh> Get-FileHash -Path .\files\file.txt, .\files\strings.txt -Algorithm MD5
-
-Hash
-----
-E22E4786F9666E6E7F4A512B3714C517
-E22E4786F9666E6E7F4A512B3714C517
-```
-
-### Example 9: Compressing multiple files into one Gzip file
+### Example 5: Compressing multiple files into one Gzip file
 
 ```powershell
 # Due to the nature of Gzip without Tar, all file contents are merged into one file.
@@ -201,23 +132,6 @@ PS ..\pwsh> (Get-Content .\files\lorem*.txt | Measure-Object Length -Sum).Sum / 
 PS ..\pwsh> (Compress-GzipArchive .\files\lorem*.txt -DestinationPath .\files\mergedLorem.gzip -PassThru).Length / 1kb
 
 27.6982421875
-
-# Expand the compressed file
-PS ..\pwsh> (Expand-GzipArchive .\files\mergedLorem.gzip | Measure-Object Length -Sum).Sum / 1kb
-
-86.775390625
-```
-
-### Example 10: Compressing the files content from previous example into one Gzip Base64 string
-
-```powershell
-PS ..\pwsh> (Get-Content .\files\lorem*.txt | ConvertTo-GzipString).Length / 1kb
-
-36.94921875
-
-PS ..\pwsh> (Get-Content .\files\lorem*.txt | ConvertTo-GzipString | ConvertFrom-GzipString -Raw).Length / 1kb
-
-87.216796875
 ```
 
 ## PARAMETERS
@@ -262,7 +176,7 @@ Accept wildcard characters: False
 ### -InputBytes
 
 Takes the bytes from pipeline and adds to the Gzip archive file.
-This parameter is meant to be used in combination with [`ConvertTo-GzipString -Raw`](/docs/ConvertTo-GzipString.md).
+This parameter is meant to be used in combination with `ConvertTo-GzipString -AsByteStream`.
 
 ```yaml
 Type: Byte[]
@@ -278,8 +192,8 @@ Accept wildcard characters: False
 
 ### -DestinationPath
 
-The destination path to the Gzip file.
-If the file name in DestinationPath doesn't have a `.gzip` file name extension, the function appends the `.gzip` file name extension.
+The destination path to the Gzip compressed file.
+If the file name in DestinationPath doesn't have a `.gz` file name extension, the cmdlet appends the `.gz` file name extension.
 
 ```yaml
 Type: String
@@ -313,7 +227,7 @@ Accept wildcard characters: False
 
 ### -Update
 
-Appends to the existing Gzip file.
+Appends content to the existing Gzip file.
 
 ```yaml
 Type: SwitchParameter
@@ -329,8 +243,7 @@ Accept wildcard characters: False
 
 ### -Force
 
-Replaces an existing Gzip file with a new one.
-All contents will be lost.
+Replaces the content of a Gzip file.
 
 ```yaml
 Type: SwitchParameter
@@ -347,7 +260,7 @@ Accept wildcard characters: False
 ### -PassThru
 
 Outputs the object representing the compressed file.
-The function produces no output by default.
+The cmdlet produces no output by default.
 
 ```yaml
 Type: SwitchParameter
@@ -364,3 +277,13 @@ Accept wildcard characters: False
 ### CommonParameters
 
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## OUTPUTS
+
+### None
+
+By default, this cmdlet produces no output.
+
+### System.IO.FileInfo
+
+When the `-PassThru` switch is used this cmdlet outputs the `FileInfo` instance representing the compressed file.

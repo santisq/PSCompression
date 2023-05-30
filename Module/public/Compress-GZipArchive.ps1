@@ -5,8 +5,9 @@ using namespace System.Management.Automation
 
 # .ExternalHelp PSCompression-help.xml
 function Compress-GzipArchive {
-    [CmdletBinding(DefaultParameterSetName='Path')]
+    [CmdletBinding(DefaultParameterSetName = 'Path')]
     [Alias('gziptofile')]
+    [OutputType([System.IO.FileInfo])]
     param(
         [Parameter(ParameterSetName = 'PathWithUpdate', Mandatory, Position = 0, ValueFromPipeline)]
         [Parameter(ParameterSetName = 'PathWithForce', Mandatory, Position = 0, ValueFromPipeline)]
@@ -54,39 +55,33 @@ function Compress-GzipArchive {
         else {
             $fsMode = [FileMode]::CreateNew
         }
-        $ExpectingInput = $null
+
+        $expectingInput = $null
     }
     process {
         try {
             if($withPath = -not $PSBoundParameters.ContainsKey('InputBytes')) {
                 $isLiteral = $PSBoundParameters.ContainsKey('LiteralPath')
-                $paths     = $Path
+                $paths = $Path
+
                 if($isLiteral) {
                     $paths = $LiteralPath
                 }
-                $items = $ExecutionContext.InvokeProvider.Item.Get($paths, $true, $isLiteral)
 
-                if(-not $items) {
-                    foreach($path in $paths) {
-                        $PSCmdlet.WriteError([ErrorRecord]::new(
-                            [ItemNotFoundException] "Cannot find path '$path' because it does not exist.",
-                            'PathNotFound',
-                            [ErrorCategory]::ObjectNotFound,
-                            $DestinationPath
-                        ))
-                    }
-                }
+                $items = $PSCmdlet.InvokeProvider.Item.Get($paths, $true, $isLiteral)
             }
 
             if(-not $expectingInput) {
-                $expectingInput  = $true
+                $expectingInput = $true
                 $DestinationPath = $PSCmdlet.GetUnresolvedProviderPathFromPSPath($DestinationPath)
-                if([Path]::GetExtension($DestinationPath) -ne '.gzip') {
-                    $DestinationPath = $DestinationPath + '.gzip'
+
+                if([Path]::GetExtension($DestinationPath) -ne '.gz') {
+                    $DestinationPath = $DestinationPath + '.gz'
                 }
-                $null      = [Directory]::CreateDirectory([Path]::GetDirectoryName($DestinationPath))
+
+                $null = [Directory]::CreateDirectory([Path]::GetDirectoryName($DestinationPath))
                 $outStream = [File]::Open($DestinationPath, $fsMode)
-                $gzip      = [GZipStream]::new($outStream, [CompressionMode]::Compress, $CompressionLevel)
+                $gzip = [GZipStream]::new($outStream, [CompressionMode]::Compress, $CompressionLevel)
 
                 if(-not $withPath) {
                     $inStream = [MemoryStream]::new($InputBytes)
@@ -109,7 +104,18 @@ function Compress-GzipArchive {
             }
         }
         catch {
-            $gzip, $outStream, $inStream | ForEach-Object Dispose
+            if($gzip -is [System.IDisposable]) {
+                $gzip.Dispose()
+            }
+
+            if($outStream -is [System.IDisposable]) {
+                $outStream.Dispose()
+            }
+
+            if($inStream -is [System.IDisposable]) {
+                $inStream.Dispose()
+            }
+
             $PSCmdlet.ThrowTerminatingError($_)
         }
     }
@@ -124,7 +130,17 @@ function Compress-GzipArchive {
             $PSCmdlet.ThrowTerminatingError($_)
         }
         finally {
-            $gzip, $outStream, $inStream | ForEach-Object Dispose
+            if($gzip -is [System.IDisposable]) {
+                $gzip.Dispose()
+            }
+
+            if($outStream -is [System.IDisposable]) {
+                $outStream.Dispose()
+            }
+
+            if($inStream -is [System.IDisposable]) {
+                $inStream.Dispose()
+            }
 
             if($PassThru.IsPresent) {
                 $outStream.Name -as [FileInfo]

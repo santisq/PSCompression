@@ -21,7 +21,7 @@ function GzipFrameworkReader {
     process {
         try {
             # Credits to jborean - https://github.com/jborean93 for this craziness
-            $sb     = [StringBuilder]::new()
+            $sb = [StringBuilder]::new()
             $stream = $File.OpenRead()
             $marker = 0
             while (($b = $stream.ReadByte()) -ne -1) {
@@ -41,8 +41,8 @@ function GzipFrameworkReader {
                     if ($b -eq 0x08) {
                         try {
                             $subStream = $File.OpenRead()
-                            $null   = $subStream.Seek($stream.Position - 3, [SeekOrigin]::Begin)
-                            $gzip   = [GZipStream]::new($subStream, [CompressionMode]::Decompress)
+                            $null = $subStream.Seek($stream.Position - 3, [SeekOrigin]::Begin)
+                            $gzip = [GZipStream]::new($subStream, [CompressionMode]::Decompress)
                             $reader = [StreamReader]::new($gzip)
 
                             if($PSBoundParameters.ContainsKey('OutStream')) {
@@ -62,7 +62,17 @@ function GzipFrameworkReader {
                             }
                         }
                         finally {
-                            $reader, $gzip, $subStream | ForEach-Object Dispose
+                            if($reader -is [System.IDisposable]) {
+                                $reader.Dispose()
+                            }
+
+                            if($gzip -is [System.IDisposable]) {
+                                $gzip.Dispose()
+                            }
+
+                            if($subStream -is [System.IDisposable]) {
+                                $subStream.Dispose()
+                            }
                         }
                     }
                 }
@@ -97,8 +107,8 @@ function GzipCoreReader {
 
     process {
         try {
-            $inStream  = $File.OpenRead()
-            $gzip      = [GZipStream]::new($inStream, [CompressionMode]::Decompress)
+            $inStream = $File.OpenRead()
+            $gzip = [GZipStream]::new($inStream, [CompressionMode]::Decompress)
 
             if($PSBoundParameters.ContainsKey('OutStream')) {
                 return $gzip.CopyTo($OutStream)
@@ -118,7 +128,17 @@ function GzipCoreReader {
             $PSCmdlet.WriteError($_)
         }
         finally {
-            $gzip, $reader, $inStream | ForEach-Object Dispose
+            if($gzip -is [System.IDisposable]) {
+                $gzip.Dispose()
+            }
+
+            if($reader -is [System.IDisposable]) {
+                $reader.Dispose()
+            }
+
+            if($inStream -is [System.IDisposable]) {
+                $inStream.Dispose()
+            }
         }
     }
 }

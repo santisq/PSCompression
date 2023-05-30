@@ -65,7 +65,7 @@
     # TypesToProcess = @()
 
     # Format files (.ps1xml) to be loaded when importing this module
-    FormatsToProcess = @('PSCompression.Format.ps1xml')
+    FormatsToProcess   = @('PSCompression.Format.ps1xml')
 
     # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
     # NestedModules = @()
@@ -114,9 +114,7 @@
 
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData        = @{
-
         PSData = @{
-
             # Tags applied to this module. These help with module discovery in online galleries.
             Tags       = @(
                 'powershell'
