@@ -13,7 +13,7 @@ public sealed class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposab
     private readonly ZipArchiveCache _cache = new();
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
-    public ZipEntryBase[] ZipEntry { get; set; } = null!;
+    public ZipEntryBase[] InputObject { get; set; } = null!;
 
     [Parameter(Position = 0)]
     public string? Destination { get; set; }
@@ -54,7 +54,7 @@ public sealed class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposab
             return;
         }
 
-        foreach (ZipEntryBase entry in ZipEntry)
+        foreach (ZipEntryBase entry in InputObject)
         {
             try
             {

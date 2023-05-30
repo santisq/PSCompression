@@ -8,30 +8,60 @@ schema: 2.0.0
 # Expand-ZipEntry
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+
+Expands Zip Archive Entries to a destination directory.
 
 ## SYNTAX
 
-```
-Expand-ZipEntry -ZipEntry <ZipEntryBase[]> [[-Destination] <String>] [-Force] [-PassThru] [<CommonParameters>]
+```powershell
+Expand-ZipEntry -InputObject <ZipEntryBase[]> [[-Destination] <String>] [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+
+The `Expand-ZipEntry` cmdlet can expand Zip Archive Entries outputted by the `Get-ZipEntry` command to a destination directory. This is useful when there is a need to extract a few entries from a Zip File as opposed to expanding the whole file. Expanded entries maintain their original folder structure based on their relative zip path.
 
 ## EXAMPLES
 
-### Example 1
+### Example 1: Extract all `.txt` files from a Zip Archive to the current directory
+
 ```powershell
-PS C:\> {{ Add example code here }}
+PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Include *.txt | Expand-ZipEntry
 ```
 
-{{ Add example description here }}
+### Example 2: Extract all `.txt` files from a Zip Archive to the a desired directory
+
+```powershell
+PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Include *.txt | Expand-ZipEntry -Destination path\to\myfolder
+```
+
+### Example 3: Extract all entries excluding `.txt` files to the current directory
+
+```powershell
+PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Exclude *.txt | Expand-ZipEntry
+```
+
+### Example 4: Extract all entries excluding `.txt` files to the current directory overwritting existing files
+
+```powershell
+PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Exclude *.txt | Expand-ZipEntry -Force
+```
+
+Demonstrates how `-Force` switch works.
+
+### Example 5: Extract all entries excluding `.txt` files to the current directory outputting the expanded entries
+
+```powershell
+PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Exclude *.txt | Expand-ZipEntry -PassThru
+```
+
+By default this cmdlet produces no output. When `-PassThru` is used, this cmdlet outputs the `FileInfo` and `DirectoryInfo` instances representing the expanded entries.
 
 ## PARAMETERS
 
 ### -Destination
-{{ Fill Destination Description }}
+
+The destination directory where to extract the Zip Entries. This parameter is optional, when not used, the entries are extracted to the their relative zip path to the current directory.
 
 ```yaml
 Type: String
@@ -46,7 +76,8 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-{{ Fill Force Description }}
+
+Existing files in the destination directory are overwritten when this switch is used.
 
 ```yaml
 Type: SwitchParameter
@@ -61,7 +92,8 @@ Accept wildcard characters: False
 ```
 
 ### -PassThru
-{{ Fill PassThru Description }}
+
+The cmdlet outputs the `FileInfo` and `DirectoryInfo` instances of the extracted entries when this switch is used.
 
 ```yaml
 Type: SwitchParameter
@@ -75,8 +107,9 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ZipEntry
-{{ Fill ZipEntry Description }}
+### -InputObject
+
+The zip entries to expand. Note that this parameter is meant to be bound from pipeline however can be used manually if you want. __The input object must be an instance of `ZipEntryBase` or their descendant types, `ZipEntryFile` or `ZipEntryDirectory`.__
 
 ```yaml
 Type: ZipEntryBase[]
@@ -91,7 +124,8 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -99,8 +133,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
+### None
+
+By default, this cmdlet produces no output.
+
 ### System.IO.FileSystemInfo
 
-## NOTES
-
-## RELATED LINKS
+The cmdlet outputs the `FileInfo` and `DirectoryInfo` instances of the extracted entries when `-PassThru` switch is used.

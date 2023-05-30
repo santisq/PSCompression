@@ -8,28 +8,33 @@ schema: 2.0.0
 # Get-ZipEntry
 
 ## SYNOPSIS
+
 {{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ### Path (Default)
-```
+
+```powershell
 Get-ZipEntry [-Path] <String[]> [-EntryType <String>] [-Include <String[]>] [-Exclude <String[]>]
  [<CommonParameters>]
 ```
 
 ### LiteralPath
-```
+
+```powershell
 Get-ZipEntry -LiteralPath <String[]> [-EntryType <String>] [-Include <String[]>] [-Exclude <String[]>]
  [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 {{ Fill in the Description }}
 
 ## EXAMPLES
 
 ### Example 1
+
 ```powershell
 PS C:\> {{ Add example code here }}
 ```
@@ -39,6 +44,7 @@ PS C:\> {{ Add example code here }}
 ## PARAMETERS
 
 ### -EntryType
+
 {{ Fill EntryType Description }}
 
 ```yaml
@@ -55,6 +61,7 @@ Accept wildcard characters: False
 ```
 
 ### -Exclude
+
 {{ Fill Exclude Description }}
 
 ```yaml
@@ -70,6 +77,7 @@ Accept wildcard characters: True
 ```
 
 ### -Include
+
 {{ Fill Include Description }}
 
 ```yaml
@@ -85,6 +93,7 @@ Accept wildcard characters: True
 ```
 
 ### -LiteralPath
+
 {{ Fill LiteralPath Description }}
 
 ```yaml
@@ -100,6 +109,7 @@ Accept wildcard characters: False
 ```
 
 ### -Path
+
 {{ Fill Path Description }}
 
 ```yaml
@@ -115,6 +125,7 @@ Accept wildcard characters: True
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS

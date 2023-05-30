@@ -8,24 +8,33 @@
       </ViewSelectedBy>
       <GroupBy>
         <ScriptBlock>[PSCompression.Internal._Format]::GetParentEntry($_)</ScriptBlock>
-        <Label>Parent Entry</Label>
+        <Label>Entry Path</Label>
       </GroupBy>
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
             <Label>EntryType</Label>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>EntryName</Label>
+            <Width>10</Width>
+            <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>LastWriteTime</Label>
+            <Width>26</Width>
+            <Alignment>Right</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>CompressedSize</Label>
+            <Width>15</Width>
+            <Alignment>Right</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Size</Label>
+            <Width>15</Width>
+            <Alignment>Right</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>EntryName</Label>
+            <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
@@ -35,18 +44,16 @@
                 <PropertyName>EntryType</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>EntryName</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
                 <PropertyName>LastWriteTime</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>CompressedSize</PropertyName>
-                <Alignment>Right</Alignment>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Size</PropertyName>
-                <Alignment>Right</Alignment>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>EntryName</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

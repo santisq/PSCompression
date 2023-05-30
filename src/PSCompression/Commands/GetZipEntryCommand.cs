@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
+using System.Text.RegularExpressions;
 
 namespace PSCompression;
 
@@ -22,6 +23,11 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
     private bool _withInclude;
 
     private bool _withExclude;
+
+    private static readonly Regex s_re = new(@"[\\/]+|(?<![\\/])$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private const string _pathChar = "/";
 
     private readonly List<ZipEntryBase> _output = new();
 
@@ -143,6 +149,7 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
                     }
                 }
 
+                _output.Sort(SortByRelativePath);
                 WriteObject(_output.ToArray(), enumerateCollection: true);
             }
             catch (PipelineStoppedException)
@@ -156,4 +163,18 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
             }
         }
     }
+
+    private static int SortByRelativePath(ZipEntryBase x, ZipEntryBase y)
+    {
+        return (x, y) switch
+        {
+            (null, null) => 0,
+            (null, _) => -1,
+            (_, null) => 1,
+            _ => CompareRelativePath(x.EntryRelativePath, y.EntryRelativePath)
+        };
+    }
+
+    private static int CompareRelativePath(string x, string y) =>
+        s_re.Replace(x, _pathChar).CompareTo(s_re.Replace(y, _pathChar));
 }
