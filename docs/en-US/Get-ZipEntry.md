@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Lists Zip Archive Entries from one or more specified Zip Archive paths.
 
 ## SYNTAX
 
@@ -29,14 +29,42 @@ Get-ZipEntry -LiteralPath <String[]> [-EntryType <String>] [-Include <String[]>]
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+The `Get-ZipEntry` cmdlet lists entries from specified Zip paths. It has built-in functionalities to filter entries and is the main entry point for the ZipEntry cmdlets in this module.
 
 ## EXAMPLES
+
+### Example 1: List entries for a specified Zip file path
+
+```powershell
+PS ..\pwsh> Get-ZipEntry path\to\myZip.zip
+```
+
+### Example 2: List entries from all Zip files in the current directory
+
+```powershell
+PS ..\pwsh> Get-ZipEntry *.zip
+```
+
+The `-Path` parameter supports wildcards.
+
+### Example 3: List all `Archive` entries from a Zip file
+
+```powershell
+PS ..pwsh\> Get-ZipEntry path\to\myZip.zip -EntryType Archive
+```
+
+The `-EntryType` parameter supports filtering by `Archive` or `Directory`.
 
 ### Example 1
 
 ```powershell
-PS C:\> {{ Add example code here }}
+PS ..pwsh\>
+```
+
+### Example 1
+
+```powershell
+PS ..pwsh\>
 ```
 
 {{ Add example description here }}

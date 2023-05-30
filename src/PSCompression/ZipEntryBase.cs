@@ -7,7 +7,7 @@ namespace PSCompression;
 public enum ZipEntryType
 {
     Directory = 0,
-    File = 1
+    Archive = 1
 }
 
 public abstract class ZipEntryBase

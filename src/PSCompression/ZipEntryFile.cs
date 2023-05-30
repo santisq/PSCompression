@@ -4,7 +4,7 @@ namespace PSCompression;
 
 public sealed class ZipEntryFile : ZipEntryBase
 {
-    public ZipEntryType EntryType => ZipEntryType.File;
+    public ZipEntryType EntryType => ZipEntryType.Archive;
 
     internal ZipEntryFile(ZipArchiveEntry entry, string source) :
         base(entry, source)

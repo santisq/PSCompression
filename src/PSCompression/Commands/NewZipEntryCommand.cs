@@ -11,7 +11,8 @@ namespace PSCompression;
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryDirectory))]
 public sealed class NewZipEntryCommand : PSCompressionCommandsBase
 {
-    private readonly Regex _re = new(@"[\\/]$", RegexOptions.Compiled);
+    private readonly Regex _re = new(@"[\\/]$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private readonly List<ZipEntryBase> _result = new();
 

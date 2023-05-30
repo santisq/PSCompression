@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace PSCompression;
 
 [Cmdlet(VerbsCommon.Get, "ZipEntry", DefaultParameterSetName = "Path")]
-[OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryDirectory))]
+[OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
 [Alias("gezip")]
 public sealed class GetZipEntryCommand : PSCompressionCommandsBase
 {
@@ -65,8 +65,7 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
     }
 
     [Parameter]
-    [ValidateSet("File", "Directory")]
-    public string? EntryType { get; set; }
+    public ZipEntryType? EntryType { get; set; }
 
     [Parameter]
     [SupportsWildcards]
@@ -124,17 +123,17 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
                     {
                         bool isDirectory = string.IsNullOrEmpty(entry.Name);
 
-                        if (_withInclude && !_includePatterns.Any(e => e.IsMatch(entry.FullName)))
+                        if (SkipEntryType(isDirectory))
                         {
                             continue;
                         }
 
-                        if (_withExclude && _excludePatterns.Any(e => e.IsMatch(entry.FullName)))
+                        if (SkipInclude(entry.FullName))
                         {
                             continue;
                         }
 
-                        if ((isDirectory && EntryType == "File") || (!isDirectory && EntryType == "Directory"))
+                        if (SkipExclude(entry.FullName))
                         {
                             continue;
                         }
@@ -163,6 +162,16 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
             }
         }
     }
+
+    private bool SkipInclude(string path) =>
+        _withInclude && !_includePatterns.Any(e => e.IsMatch(path));
+
+    private bool SkipExclude(string path) =>
+        _withExclude && _excludePatterns.Any(e => e.IsMatch(path));
+
+    private bool SkipEntryType(bool isdir) =>
+        (isdir && EntryType == ZipEntryType.Archive)
+        || (!isdir && EntryType == ZipEntryType.Directory);
 
     private static int SortByRelativePath(ZipEntryBase x, ZipEntryBase y)
     {
