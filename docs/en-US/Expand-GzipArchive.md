@@ -46,11 +46,12 @@ PowerShell cmdlet aimed to expand Gzip compressed using the [`GzipStream` Class]
 ### Example 1: Expanding a Gzip archive to the success stream
 
 ```powershell
-# Note: Output goes to the Success Stream when `-DestinationPath` is not bound.
 PS ..\pwsh> Expand-GzipArchive .\files\file.gz
 
 hello world!
 ```
+
+Output goes to the Success Stream when `-DestinationPath` is not used.
 
 ### Example 2: Expanding a Gzip archive to a new file
 

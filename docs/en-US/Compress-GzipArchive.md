@@ -85,54 +85,57 @@ PowerShell cmdlet aimed to compress multiple files into a single Gzip file using
 ### Example 1: Create a Gzip compressed file from a File Path
 
 ```powershell
-# If the destination doesn't end with `.gz` the extension will be automatically added
 PS ..\pwsh> Compress-GzipArchive path\to\myFile.ext -DestinationPath myFile.gz
 ```
+
+If the destination does not end with `.gz` the extension is automatically added.
 
 ### Example 2: Create a Gzip compressed file from a string
 
 ```powershell
-# Demonstrates how `-AsByteStream` works on `ConvertTo-GzipString`.
-# Sends the compressed bytes to `Compress-GzipArchive`.
 PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream |
     Compress-GzipArchive -DestinationPath .\files\file.gz
 ```
 
+Demonstrates how `-AsByteStream` works on `ConvertTo-GzipString`.
+Sends the compressed bytes to `Compress-GzipArchive`.
+
 ### Example 3: Append content to a Gzip file
 
 ```powershell
-# Demonstrates how `-Update` works.
 PS ..\pwsh> 'this is new content...' | ConvertTo-GzipString -AsByteStream |
     Compress-GzipArchive -DestinationPath .\files\file.gz -Update
 ```
 
+Demonstrates how `-Update` works.
+
 ### Example 4: Replace a Gzip file with new content
 
 ```powershell
-# Demonstrates how `-Force` works.
 PS ..\pwsh> $lorem = Invoke-RestMethod loripsum.net/api/10/long/plaintext
 PS ..\pwsh> $lorem | ConvertTo-GzipString -AsByteStream |
     Compress-GzipArchive -DestinationPath .\files\file.gzip -Force
 ```
 
+Demonstrates how `-Force` works.
+
 ### Example 5: Compressing multiple files into one Gzip file
 
 ```powershell
-# Due to the nature of Gzip without Tar, all file contents are merged into one file.
 PS ..\pwsh> 0..10 | ForEach-Object {
     Invoke-RestMethod loripsum.net/api/10/long/plaintext -OutFile .\files\lorem$_.txt
 }
 
 # Check the total Length of the downloaded files
 PS ..\pwsh> (Get-Content .\files\lorem*.txt | Measure-Object Length -Sum).Sum / 1kb
-
 86.787109375
 
-# Check the total Length after Gzip compression
+# Check the total Length after compression
 PS ..\pwsh> (Compress-GzipArchive .\files\lorem*.txt -DestinationPath .\files\mergedLorem.gzip -PassThru).Length / 1kb
-
 27.6982421875
 ```
+
+Due to the nature of Gzip without Tar, all file contents are merged into a single file.
 
 ## PARAMETERS
 

@@ -43,22 +43,24 @@ H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
 ### Example 2: Create a Gzip compressed file from a string
 
 ```powershell
-# Demonstrates how `-AsByteStream` works on `ConvertTo-GzipString`.
-# Sends the compressed bytes to `Compress-GzipArchive`.
 PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream |
     Compress-GzipArchive -DestinationPath .\files\file.gzip
 ```
 
+Demonstrates how `-AsByteStream` works on `ConvertTo-GzipString`.
+Sends the compressed bytes to `Compress-GzipArchive`.
+
 ### Example 3: Compress strings using a specific Encoding
 
 ```powershell
-# Note: Default encoding is utf8NoBom
 PS ..\pwsh> 'ñ' | ConvertTo-GzipString -Encoding ansi | ConvertFrom-GzipString
 �
 
 PS ..\pwsh> 'ñ' | ConvertTo-GzipString -Encoding utf8BOM | ConvertFrom-GzipString
 ñ
 ```
+
+Note: Default Encoding is utf8NoBom.
 
 ### Example 4: Compressing multiple files into one Gzip Base64 string
 
@@ -67,13 +69,13 @@ PS ..\pwsh> 0..10 | ForEach-Object {
     Invoke-RestMethod loripsum.net/api/10/long/plaintext -OutFile .\files\lorem$_.txt
 }
 
-PS ..\pwsh> (Get-Content .\files\lorem*.txt | ConvertTo-GzipString).Length / 1kb
-
-36.94921875
-
-PS ..\pwsh> (Get-Content .\files\lorem*.txt | ConvertTo-GzipString | ConvertFrom-GzipString -Raw).Length / 1kb
-
+# Check the total Length of the downloaded files
+PS ..\pwsh> (Get-Content .\files\lorem*.txt | Measure-Object Length -Sum).Sum / 1kb
 87.216796875
+
+# Check the total Length after compression
+PS ..\pwsh> (Get-Content .\files\lorem*.txt | ConvertTo-GzipString).Length / 1kb
+36.94921875
 ```
 
 ## PARAMETERS
