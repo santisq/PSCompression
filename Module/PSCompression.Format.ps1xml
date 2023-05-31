@@ -44,13 +44,13 @@
                 <PropertyName>EntryType</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>LastWriteTime</PropertyName>
+                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedDate($_.LastWriteTime)</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>CompressedSize</PropertyName>
+                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedLength($_.CompressedLength)</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Size</PropertyName>
+                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedLength($_.Length)</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>EntryName</PropertyName>

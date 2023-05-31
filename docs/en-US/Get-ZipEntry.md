@@ -55,10 +55,10 @@ PS ..pwsh\> Get-ZipEntry path\to\myZip.zip -EntryType Archive
 
 The `-EntryType` parameter supports filtering by `Archive` or `Directory`.
 
-### Example 1
+### Example 4: Filtering entries with `-Include` and `-Exclude` parameters
 
 ```powershell
-PS ..pwsh\>
+PS ..pwsh\> Get-ZipEntry path\to\myZip.zip -Exclude
 ```
 
 ### Example 1

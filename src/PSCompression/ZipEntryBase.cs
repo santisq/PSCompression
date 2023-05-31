@@ -12,19 +12,6 @@ public enum ZipEntryType
 
 public abstract class ZipEntryBase
 {
-    private readonly static string[] s_suffix =
-    {
-        "Bytes",
-        "Kb",
-        "Mb",
-        "Gb",
-        "Tb",
-        "Pb",
-        "Eb",
-        "Zb",
-        "Yb"
-    };
-
     public string Source { get; }
 
     public string EntryName { get; }
@@ -37,10 +24,6 @@ public abstract class ZipEntryBase
 
     public long CompressedLength { get; internal set; }
 
-    public string Size => FormatLength(Length);
-
-    public string CompressedSize => FormatLength(CompressedLength);
-
     protected ZipEntryBase(ZipArchiveEntry entry, string source)
     {
         Source = source;
@@ -49,20 +32,6 @@ public abstract class ZipEntryBase
         LastWriteTime = entry.LastWriteTime.LocalDateTime;
         Length = entry.Length;
         CompressedLength = entry.CompressedLength;
-    }
-
-    private static string FormatLength(long length)
-    {
-        int index = 0;
-        double len = length;
-
-        while (len >= 1024)
-        {
-            len /= 1024;
-            index++;
-        }
-
-        return Math.Round(len, 2) + " " + s_suffix[index];
     }
 
     public void RemoveEntry()
@@ -97,5 +66,18 @@ public abstract class ZipEntryBase
         ZipArchiveEntry entry = zip.GetEntry(EntryRelativePath);
         entry.ExtractToFile(destination, overwrite);
         return (destination, true);
+    }
+
+    public FileSystemInfo ExtractTo(string destination, bool overwrite)
+    {
+        using ZipArchive zip = ZipFile.OpenRead(Source);
+        (string path, bool isdir) = ExtractTo(zip, destination, overwrite);
+
+        if (isdir)
+        {
+            return new DirectoryInfo(destination);
+        }
+
+        return new FileInfo(destination);
     }
 }

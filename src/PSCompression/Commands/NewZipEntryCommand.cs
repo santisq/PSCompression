@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
-using System.Text.RegularExpressions;
 
 namespace PSCompression;
 
 [Cmdlet(VerbsCommon.New, "ZipEntry")]
-[OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryDirectory))]
+[OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
 public sealed class NewZipEntryCommand : PSCompressionCommandsBase
 {
-    private readonly Regex _re = new(@"[\\/]$",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
     private readonly List<ZipEntryBase> _result = new();
 
     [Parameter(Mandatory = true, Position = 0)]
@@ -28,8 +24,8 @@ public sealed class NewZipEntryCommand : PSCompressionCommandsBase
     protected override void ProcessRecord()
     {
         (string path, ProviderInfo provider) = NormalizePaths(
-            new string[1] { LiteralPath }, isLiteral: true)
-            .FirstOrDefault();
+            new string[1] { LiteralPath },
+            isLiteral: true).FirstOrDefault();
 
         if (!ValidatePath(path, provider))
         {
@@ -46,13 +42,13 @@ public sealed class NewZipEntryCommand : PSCompressionCommandsBase
                 {
                     ZipArchiveEntry entry = zip.CreateEntry(entryPath, CompressionLevel);
 
-                    if (_re.IsMatch(entryPath))
+                    if (entryPath.IsDirectoryPath())
                     {
-                        _result.Add(new ZipEntryDirectory(entry, path));
+                        _result.Add(new ZipEntryDirectory(entry, path.ToNormalizedEntryPath()));
                         continue;
                     }
 
-                    _result.Add(new ZipEntryFile(entry, path));
+                    _result.Add(new ZipEntryFile(entry, path.ToNormalizedFileEntryPath()));
                 }
             }
 
