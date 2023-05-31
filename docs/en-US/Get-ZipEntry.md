@@ -50,7 +50,7 @@ The `-Path` parameter supports wildcards.
 ### Example 3: List all `Archive` entries from a Zip file
 
 ```powershell
-PS ..pwsh\> Get-ZipEntry path\to\myZip.zip -EntryType Archive
+PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -EntryType Archive
 ```
 
 The `-EntryType` parameter supports filtering by `Archive` or `Directory`.
@@ -58,28 +58,57 @@ The `-EntryType` parameter supports filtering by `Archive` or `Directory`.
 ### Example 4: Filtering entries with `-Include` and `-Exclude` parameters
 
 ```powershell
-PS ..pwsh\> Get-ZipEntry path\to\myZip.zip -Exclude
+PS ..\pwsh> Get-ZipEntry .\test.zip -Include docs/en-us*
+
+   Directory: docs/en-US/
+
+EntryType               LastWriteTime  CompressedSize            Size EntryName
+---------               -------------  --------------            ---- ---------
+Directory          5/30/2023 12:34 AM         0.00  B         0.00  B
+Archive            5/30/2023 12:32 AM         1.92 KB         7.58 KB Compress-GzipArchive.md
+Archive            5/30/2023 12:33 AM         1.99 KB         7.26 KB Compress-ZipArchive.md
+Archive            5/30/2023 12:32 AM         1.02 KB         2.52 KB ConvertFrom-GzipString.md
+Archive            5/30/2023 12:32 AM         1.53 KB         4.36 KB ConvertTo-GzipString.md
+Archive            5/30/2023 12:32 AM         1.47 KB         4.77 KB Expand-GzipArchive.md
+Archive            5/30/2023 12:13 PM         1.20 KB         3.89 KB Expand-ZipEntry.md
+Archive            5/31/2023 10:54 AM         1.02 KB         3.29 KB Get-ZipEntry.md
+Archive            5/29/2023  3:49 PM       800.00  B         2.69 KB Get-ZipEntryContent.md
+Archive            5/29/2023  3:49 PM       736.00  B         1.83 KB New-ZipEntry.md
+Archive            5/29/2023  3:11 PM       411.00  B         1.30 KB PSCompression.md
+Archive            5/29/2023  3:49 PM       643.00  B         1.19 KB Remove-ZipEntry.md
+Archive            5/29/2023  3:49 PM       842.00  B         2.88 KB Set-ZipEntryContent.md
+
+PS ..\pwsh> Get-ZipEntry .\test.zip -Include docs/en-us* -Exclude *Compress*, *Remove*
+
+   Directory: docs/en-US/
+
+EntryType               LastWriteTime  CompressedSize            Size EntryName
+---------               -------------  --------------            ---- ---------
+Directory          5/30/2023 12:34 AM         0.00  B         0.00  B
+Archive            5/30/2023 12:32 AM         1.02 KB         2.52 KB ConvertFrom-GzipString.md
+Archive            5/30/2023 12:32 AM         1.53 KB         4.36 KB ConvertTo-GzipString.md
+Archive            5/30/2023 12:32 AM         1.47 KB         4.77 KB Expand-GzipArchive.md
+Archive            5/30/2023 12:13 PM         1.20 KB         3.89 KB Expand-ZipEntry.md
+Archive            5/31/2023 10:54 AM         1.02 KB         3.29 KB Get-ZipEntry.md
+Archive            5/29/2023  3:49 PM       800.00  B         2.69 KB Get-ZipEntryContent.md
+Archive            5/29/2023  3:49 PM       736.00  B         1.83 KB New-ZipEntry.md
+Archive            5/29/2023  3:49 PM       842.00  B         2.88 KB Set-ZipEntryContent.md
 ```
 
-### Example 1
-
-```powershell
-PS ..pwsh\>
-```
-
-{{ Add example description here }}
+Inclusion and Exclusion patterns are applied to the entries relative path.
+Exclusions are applied after the inclusions.
 
 ## PARAMETERS
 
 ### -EntryType
 
-{{ Fill EntryType Description }}
+Lists entries of a specified type, `Archive` or `Directory`.
 
 ```yaml
-Type: String
+Type: ZipEntryType
 Parameter Sets: (All)
 Aliases:
-Accepted values: File, Directory
+Accepted values: Directory, Archive
 
 Required: False
 Position: Named
@@ -90,7 +119,10 @@ Accept wildcard characters: False
 
 ### -Exclude
 
-{{ Fill Exclude Description }}
+Specifies an array of one or more string patterns to be matched as the cmdlet lists entries. Any matching item is excluded from the output. Wildcard characters are accepted.
+
+__Inclusion and Exclusion patterns are applied to the entries relative path.
+Exclusions are applied after the inclusions.__
 
 ```yaml
 Type: String[]
@@ -106,7 +138,10 @@ Accept wildcard characters: True
 
 ### -Include
 
-{{ Fill Include Description }}
+Specifies an array of one or more string patterns to be matched as the cmdlet lists entries. Any matching item is included in the output. Wildcard characters are accepted.
+
+__Inclusion and Exclusion patterns are applied to the entries relative path.
+Exclusions are applied after the inclusions.__
 
 ```yaml
 Type: String[]
@@ -122,7 +157,7 @@ Accept wildcard characters: True
 
 ### -LiteralPath
 
-{{ Fill LiteralPath Description }}
+Specifies a path to one or more Zip compressed files. Note that the value is used exactly as it's typed. No characters are interpreted as wildcards.
 
 ```yaml
 Type: String[]
@@ -138,7 +173,7 @@ Accept wildcard characters: False
 
 ### -Path
 
-{{ Fill Path Description }}
+Specifies a path to one or more Zip compressed files. Wildcards are accepted.
 
 ```yaml
 Type: String[]
@@ -154,7 +189,7 @@ Accept wildcard characters: True
 
 ### CommonParameters
 
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -162,10 +197,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### PSCompression.ZipEntryDirectory
+### ZipEntryDirectory
 
-### PSCompression.ZipEntryDirectory
-
-## NOTES
-
-## RELATED LINKS
+### ZipEntryFile
