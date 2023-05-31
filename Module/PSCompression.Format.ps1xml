@@ -7,8 +7,8 @@
         <TypeName>PSCompression.ZipEntryBase</TypeName>
       </ViewSelectedBy>
       <GroupBy>
-        <ScriptBlock>[PSCompression.Internal._Format]::GetParentEntry($_)</ScriptBlock>
-        <Label>Entry Path</Label>
+        <ScriptBlock>[PSCompression.Internal._Format]::GetDirectoryPath($_)</ScriptBlock>
+        <Label>Directory</Label>
       </GroupBy>
       <TableControl>
         <TableHeaders>
