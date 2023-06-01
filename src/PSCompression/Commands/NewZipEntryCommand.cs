@@ -34,25 +34,7 @@ public sealed class NewZipEntryCommand : PSCompressionCommandsBase
 
         try
         {
-            using (ZipArchive zip = ZipFile.Open(path, ZipArchiveMode.Update))
-            {
-                _result.Clear();
-
-                foreach (string entryPath in EntryRelativePath)
-                {
-                    ZipArchiveEntry entry = zip.CreateEntry(entryPath, CompressionLevel);
-
-                    if (entryPath.IsDirectoryPath())
-                    {
-                        _result.Add(new ZipEntryDirectory(entry, path.ToNormalizedEntryPath()));
-                        continue;
-                    }
-
-                    _result.Add(new ZipEntryFile(entry, path.ToNormalizedFileEntryPath()));
-                }
-            }
-
-            WriteObject(_result.ToArray(), enumerateCollection: true);
+            WriteObject(CreateEntries(path), enumerateCollection: true);
         }
         catch (PipelineStoppedException)
         {
@@ -63,5 +45,26 @@ public sealed class NewZipEntryCommand : PSCompressionCommandsBase
             WriteError(new ErrorRecord(
                 e, "ZipOpen", ErrorCategory.OpenError, path));
         }
+    }
+
+    private ZipEntryBase[] CreateEntries(string path)
+    {
+        using ZipArchive zip = ZipFile.Open(path, ZipArchiveMode.Update);
+        _result.Clear();
+
+        foreach (string entryPath in EntryRelativePath)
+        {
+            ZipArchiveEntry entry = zip.CreateEntry(entryPath, CompressionLevel);
+
+            if (entryPath.IsDirectoryPath())
+            {
+                _result.Add(new ZipEntryDirectory(entry, path.ToNormalizedEntryPath()));
+                continue;
+            }
+
+            _result.Add(new ZipEntryFile(entry, path.ToNormalizedFileEntryPath()));
+        }
+
+        return _result.ToArray();
     }
 }

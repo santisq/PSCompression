@@ -13,17 +13,17 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
 {
     private bool _isLiteral;
 
-    private string[] _paths = Array.Empty<string>();
-
-    private WildcardPattern[]? _includePatterns;
-
-    private WildcardPattern[]? _excludePatterns;
-
     private bool _withInclude;
 
     private bool _withExclude;
 
+    private string[] _paths = Array.Empty<string>();
+
     private readonly List<ZipEntryBase> _output = new();
+
+    private WildcardPattern[]? _includePatterns;
+
+    private WildcardPattern[]? _excludePatterns;
 
     [Parameter(
         ParameterSetName = "Path",
@@ -109,41 +109,7 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
 
             try
             {
-                using (ZipArchive zip = ZipFile.OpenRead(path))
-                {
-                    _output.Clear();
-
-                    foreach (ZipArchiveEntry entry in zip.Entries)
-                    {
-                        bool isDirectory = string.IsNullOrEmpty(entry.Name);
-
-                        if (SkipEntryType(isDirectory))
-                        {
-                            continue;
-                        }
-
-                        if (SkipInclude(entry.FullName))
-                        {
-                            continue;
-                        }
-
-                        if (SkipExclude(entry.FullName))
-                        {
-                            continue;
-                        }
-
-                        if (isDirectory)
-                        {
-                            _output.Add(new ZipEntryDirectory(entry, path));
-                            continue;
-                        }
-
-                        _output.Add(new ZipEntryFile(entry, path));
-                    }
-                }
-
-                _output.Sort(SortByRelativePath);
-                WriteObject(_output.ToArray(), enumerateCollection: true);
+                WriteObject(GetEntries(path), enumerateCollection: true);
             }
             catch (PipelineStoppedException)
             {
@@ -155,6 +121,43 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
                     e, "ZipOpen", ErrorCategory.OpenError, path));
             }
         }
+    }
+
+    private ZipEntryBase[] GetEntries(string path)
+    {
+        using ZipArchive zip = ZipFile.OpenRead(path);
+        _output.Clear();
+
+        foreach (ZipArchiveEntry entry in zip.Entries)
+        {
+            bool isDirectory = string.IsNullOrEmpty(entry.Name);
+
+            if (SkipEntryType(isDirectory))
+            {
+                continue;
+            }
+
+            if (SkipInclude(entry.FullName))
+            {
+                continue;
+            }
+
+            if (SkipExclude(entry.FullName))
+            {
+                continue;
+            }
+
+            if (isDirectory)
+            {
+                _output.Add(new ZipEntryDirectory(entry, path));
+                continue;
+            }
+
+            _output.Add(new ZipEntryFile(entry, path));
+        }
+
+        _output.Sort(SortByRelativePath);
+        return _output.ToArray();
     }
 
     private bool SkipInclude(string path) =>

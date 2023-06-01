@@ -42,38 +42,8 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
         {
             try
             {
-                ZipContentReader reader = new(_cache.GetOrAdd(entry, ZipArchiveMode.Read));
-
-                if (AsBytes.IsPresent)
-                {
-                    if (Stream.IsPresent)
-                    {
-                        reader.StreamBytes(entry.EntryRelativePath, BufferSize, this);
-                        continue;
-                    }
-
-                    WriteObject(new ZipEntryContent(
-                        entry, reader.ReadAllBytes(entry.EntryRelativePath)));
-
-                    continue;
-                }
-
-                if (Stream.IsPresent)
-                {
-                    reader.StreamLines(entry.EntryRelativePath, Encoding, this);
-                    continue;
-                }
-
-                if (Raw.IsPresent)
-                {
-                    WriteObject(new ZipEntryContent(entry,
-                        reader.ReadToEnd(entry.EntryRelativePath, Encoding)));
-
-                    continue;
-                }
-
-                WriteObject(new ZipEntryContent(entry,
-                    reader.ReadAllLines(entry.EntryRelativePath, Encoding)));
+                ZipContentReader reader = new(GetOrAdd(entry));
+                ReadEntry(entry, reader);
             }
             catch (PipelineStoppedException)
             {
@@ -86,6 +56,44 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
             }
         }
     }
+
+    private void ReadEntry(ZipEntryFile entry, ZipContentReader reader)
+    {
+        switch ((bytes: AsBytes.IsPresent, stream: Stream.IsPresent, raw: Raw.IsPresent))
+        {
+            case { bytes: true, stream: true, raw: _ }:
+                reader.StreamBytes(entry.EntryRelativePath, BufferSize, this);
+                break;
+
+            case { bytes: true, stream: false, raw: _ }:
+                WriteObject(ReadAllBytes(entry, reader));
+                break;
+
+            case { bytes: _, stream: true, raw: _ }:
+                reader.StreamLines(entry.EntryRelativePath, Encoding, this);
+                break;
+
+            case { bytes: _, stream: _, raw: true }:
+                WriteObject(ReadToEnd(entry, reader));
+                break;
+
+            default:
+                WriteObject(ReadAllLines(entry, reader));
+                break;
+        }
+    }
+
+    private ZipArchive GetOrAdd(ZipEntryFile entry) =>
+        _cache.GetOrAdd(entry, ZipArchiveMode.Read);
+
+    private ZipEntryContent ReadAllLines(ZipEntryFile entry, ZipContentReader reader) =>
+        new(entry, reader.ReadAllLines(entry.EntryRelativePath, Encoding));
+
+    private ZipEntryContent ReadToEnd(ZipEntryFile entry, ZipContentReader reader) =>
+        new(entry, reader.ReadToEnd(entry.EntryRelativePath, Encoding));
+
+    private static ZipEntryContent ReadAllBytes(ZipEntryFile entry, ZipContentReader reader) =>
+        new(entry, reader.ReadAllBytes(entry.EntryRelativePath));
 
     public void Dispose() => _cache?.Dispose();
 }

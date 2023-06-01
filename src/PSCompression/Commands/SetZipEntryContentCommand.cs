@@ -87,19 +87,21 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
 
     protected override void EndProcessing()
     {
-        if (PassThru.IsPresent && _zipWriter is not null)
+        if (!PassThru.IsPresent || _zipWriter is null)
         {
-            try
-            {
-                _zipWriter.Dispose();
-                SourceEntry.Refresh();
-                WriteObject(SourceEntry);
-            }
-            catch (Exception e)
-            {
-                WriteError(new ErrorRecord(
-                    e, "RefreshEntry", ErrorCategory.CloseError, SourceEntry));
-            }
+            return;
+        }
+
+        try
+        {
+            _zipWriter.Dispose();
+            SourceEntry.Refresh();
+            WriteObject(SourceEntry);
+        }
+        catch (Exception e)
+        {
+            WriteError(new ErrorRecord(
+                e, "RefreshEntry", ErrorCategory.CloseError, SourceEntry));
         }
     }
 
