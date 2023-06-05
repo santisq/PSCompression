@@ -193,7 +193,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### System.String[]
+### String[]
 
 ## OUTPUTS
 
