@@ -50,7 +50,7 @@ PS ..pwsh\> Get-ZipEntry .\myZip.zip -Include myrelative/entry.txt | Get-ZipEntr
 
 The cmdlet outputs a single multi-line string when the `-Raw` switch is used instead of line-by-line streaming.
 
-### Example 3: Get the bytes of a Zip Entry
+### Example 3: Get the bytes of a Zip Entry as a Stream
 
 ```powershell
 PS ..pwsh\> $bytes = Get-ZipEntry .\test.zip -Include test/helloworld.txt | Get-ZipEntryContent -AsByteStream
@@ -76,11 +76,27 @@ hello world!
 
 The `-AsByteStream` switch can be useful to read non-text zip entries.
 
+### Example 4: Get contents of all `.md` files as byte arrays
+
+```powershell
+PS ..pwsh\> $bytes = Get-ZipEntry .\test.zip -Include *.md | Get-ZipEntryContent -AsByteStream -Raw
+PS ..pwsh\> $bytes[0].GetType()
+
+IsPublic IsSerial Name                                     BaseType
+-------- -------- ----                                     --------
+True     True     Byte[]                                   System.Array
+
+PS ..pwsh\> $bytes[1].Length
+7767
+```
+
+When the `-Raw` and `-AsByteStream` switches are used together the cmdlet outputs `byte[]` as single objects for each zip entry.
+
 ## PARAMETERS
 
 ### -BufferSize
 
-{{ Fill BufferSize Description }}
+This parameter determines the total number of bytes read into the buffer before outputting the stream of bytes. __This parameter is applicable only when `-Raw` is not used.__ The buffer default value is __128 KiB__.
 
 ```yaml
 Type: Int32
@@ -89,14 +105,14 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: 128000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Encoding
 
-{{ Fill Encoding Description }}
+The character encoding used to read the entry content. __This parameter is applicable only when `-AsByteStream` is not used.__ The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding
@@ -105,14 +121,14 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: `utf8NoBOM`
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Raw
 
-{{ Fill Raw Description }}
+Ignores newline characters and returns the entire contents of an entry in one string with the newlines preserved. By default, newline characters in a file are used as delimiters to separate the input into an array of strings.
 
 ```yaml
 Type: SwitchParameter
@@ -128,7 +144,7 @@ Accept wildcard characters: False
 
 ### -ZipEntry
 
-{{ Fill ZipEntry Description }}
+The entry to get the content from. This parameter can be and is meant to be bound from pipeline however can be also used as a named parameter.
 
 ```yaml
 Type: ZipEntryFile[]
@@ -144,7 +160,7 @@ Accept wildcard characters: False
 
 ### -AsByteStream
 
-{{ Fill AsByteStream Description }}
+Specifies that the content should be read as a stream of bytes.
 
 ```yaml
 Type: SwitchParameter
@@ -160,7 +176,7 @@ Accept wildcard characters: False
 
 ### CommonParameters
 
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters. See [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -168,8 +184,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### PSCompression.ZipEntryContent
+### String
 
-## NOTES
+By default, this cmdlet returns the content as an array of strings, one per line. When the `-Raw` parameter is used, it returns a single string.
 
-## RELATED LINKS
+### Byte
+
+This cmdlet returns the content as bytes when the `-AsByteStream` parameter is used.
