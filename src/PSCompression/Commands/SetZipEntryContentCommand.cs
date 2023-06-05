@@ -19,7 +19,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
     [Parameter(ParameterSetName = "StringValue")]
     [ArgumentCompleter(typeof(EncodingCompleter))]
     [EncodingTransformation]
-    public Encoding Encoding { get; set; } = Encoding.UTF8;
+    public Encoding Encoding { get; set; } = new UTF8Encoding();
 
     [Parameter(ParameterSetName = "ByteStream")]
     public SwitchParameter AsByteStream { get; set; }

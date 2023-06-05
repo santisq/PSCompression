@@ -54,15 +54,16 @@ public sealed class NewZipEntryCommand : PSCompressionCommandsBase
 
         foreach (string entryPath in EntryRelativePath)
         {
-            ZipArchiveEntry entry = zip.CreateEntry(entryPath, CompressionLevel);
-
             if (entryPath.IsDirectoryPath())
             {
-                _result.Add(new ZipEntryDirectory(entry, path.ToNormalizedEntryPath()));
+                _result.Add(new ZipEntryDirectory(
+                    zip.CreateEntry(entryPath.ToNormalizedEntryPath(), CompressionLevel), path));
+
                 continue;
             }
 
-            _result.Add(new ZipEntryFile(entry, path.ToNormalizedFileEntryPath()));
+            _result.Add(new ZipEntryFile(
+                zip.CreateEntry(entryPath.ToNormalizedFileEntryPath(), CompressionLevel), path));
         }
 
         return _result.ToArray();

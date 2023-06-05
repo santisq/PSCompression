@@ -13,7 +13,7 @@ public static class _Format
 {
     private readonly static string[] s_suffix =
     {
-        " B",
+        "B",
         "KB",
         "MB",
         "GB",
@@ -48,6 +48,6 @@ public static class _Format
             index++;
         }
 
-        return $"{Math.Round(len, 2):0.00} {s_suffix[index]}";
+        return $"{Math.Round(len, 2):0.00} {s_suffix[index],2}";
     }
 }
