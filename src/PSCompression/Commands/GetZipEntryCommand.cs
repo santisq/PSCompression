@@ -9,7 +9,7 @@ namespace PSCompression;
 [Cmdlet(VerbsCommon.Get, "ZipEntry", DefaultParameterSetName = "Path")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
 [Alias("gezip")]
-public sealed class GetZipEntryCommand : PSCompressionCommandsBase
+public sealed class GetZipEntryCommand : PSCmdlet
 {
     private bool _isLiteral;
 
@@ -100,10 +100,17 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
 
     protected override void ProcessRecord()
     {
-        foreach ((string path, ProviderInfo provider) in NormalizePaths(_paths, _isLiteral))
+        foreach ((string path, ProviderInfo provider) in _paths.NormalizePath(_isLiteral, this))
         {
-            if (!ValidatePath(path, provider))
+            if (!provider.AssertFileSystem())
             {
+                WriteError(ExceptionHelpers.NotFileSystemPathError(path, provider));
+                continue;
+            }
+
+            if (!path.AssertArchive())
+            {
+                WriteError(ExceptionHelpers.NotArchivePathError(path));
                 continue;
             }
 
@@ -117,8 +124,7 @@ public sealed class GetZipEntryCommand : PSCompressionCommandsBase
             }
             catch (Exception e)
             {
-                WriteError(new ErrorRecord(
-                    e, "ZipOpen", ErrorCategory.OpenError, path));
+                WriteError(ExceptionHelpers.ZipOpenError(path, e));
             }
         }
     }

@@ -40,11 +40,11 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         {
             if (ParameterSetName == "ByteStream")
             {
-                _zipWriter = new(SourceEntry, Append.IsPresent, BufferSize);
+                _zipWriter = new ZipContentWriter(SourceEntry, Append.IsPresent, BufferSize);
                 return;
             }
 
-            _zipWriter = new(SourceEntry, Append.IsPresent, Encoding);
+            _zipWriter = new ZipContentWriter(SourceEntry, Append.IsPresent, Encoding);
         }
         catch (PipelineStoppedException)
         {
@@ -52,8 +52,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(new ErrorRecord(
-                e, "StreamOpen", ErrorCategory.OpenError, SourceEntry));
+            ThrowTerminatingError(ExceptionHelpers.StreamOpenError(SourceEntry, e));
         }
     }
 
@@ -80,8 +79,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(new ErrorRecord(
-                e, "WriteError", ErrorCategory.WriteError, SourceEntry));
+            ThrowTerminatingError(ExceptionHelpers.WriteError(SourceEntry, e));
         }
     }
 
@@ -100,8 +98,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            WriteError(new ErrorRecord(
-                e, "RefreshEntry", ErrorCategory.CloseError, SourceEntry));
+            ThrowTerminatingError(ExceptionHelpers.StreamOpenError(SourceEntry, e));
         }
     }
 

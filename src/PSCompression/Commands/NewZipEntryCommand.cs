@@ -6,26 +6,32 @@ using System.Management.Automation;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsCommon.New, "ZipEntry")]
+[Cmdlet(VerbsCommon.New, "ZipEntry", DefaultParameterSetName = "Value")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
-public sealed class NewZipEntryCommand : PSCompressionCommandsBase
+public sealed class NewZipEntryCommand : PSCmdlet
 {
     private readonly List<ZipEntryBase> _result = new();
 
+    private ZipArchive? _zip;
+
+    [Parameter(ValueFromPipeline = true, ParameterSetName = "Value")]
+    public object? Value { get; set; }
+
+    [Parameter(ParameterSetName = "File")]
+    public string? SourcePath { get; set; }
+
     [Parameter(Mandatory = true, Position = 0)]
-    public string LiteralPath { get; set; } = null!;
+    public string SourceZip { get; set; } = null!;
 
     [Parameter(Mandatory = true, Position = 1)]
-    public string[] EntryRelativePath { get; set; } = null!;
+    public string[] EntryPath { get; set; } = null!;
 
     [Parameter]
     public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;
 
-    protected override void ProcessRecord()
+    protected override void BeginProcessing()
     {
-        (string path, ProviderInfo provider) = NormalizePaths(
-            new string[1] { LiteralPath },
-            isLiteral: true).FirstOrDefault();
+        (string path, ProviderInfo provider) = NormalizePath(SourceZip, isLiteral: true);
 
         if (!ValidatePath(path, provider))
         {
@@ -34,7 +40,15 @@ public sealed class NewZipEntryCommand : PSCompressionCommandsBase
 
         try
         {
-            WriteObject(CreateEntries(path), enumerateCollection: true);
+            // WriteObject(CreateEntries(path), enumerateCollection: true);
+            _zip = ZipFile.Open(path, ZipArchiveMode.Update);
+
+            if (SourcePath is null)
+            {
+                return;
+            }
+
+
         }
         catch (PipelineStoppedException)
         {
@@ -42,14 +56,35 @@ public sealed class NewZipEntryCommand : PSCompressionCommandsBase
         }
         catch (Exception e)
         {
-            WriteError(new ErrorRecord(
+            ThrowTerminatingError(new ErrorRecord(
                 e, "ZipOpen", ErrorCategory.OpenError, path));
         }
     }
 
+    private ZipEntryDirectory CreateDirectoryEntry(string entry, string source, ZipArchive zip) =>
+        new(zip.CreateEntry(entry.ToNormalizedEntryPath(), CompressionLevel), source);
+
+    private ZipEntryFile CreateFileEntry(string entry, string source, ZipArchive zip) =>
+        new(zip.CreateEntry(entry.ToNormalizedFileEntryPath(), CompressionLevel), source);
+
+    private ZipEntryFile CreateEntryFromFile(string entry, string source, ZipArchive zip, string file) =>
+        new(zip.CreateEntryFromFile(file, entry.ToNormalizedFileEntryPath(), CompressionLevel), source);
+
+    private ZipEntryFile[]? CreateEntriesFromFile(string file, string source, ZipArchive zip)
+    {
+        (string normalizedfile, ProviderInfo provider) = NormalizePath(file, isLiteral: true);
+
+        if (!ValidatePath(normalizedfile, provider))
+        {
+            return;
+        }
+
+        return EntryPath.Select(e => CreateEntryFromFile(e, source, zip, normalizedfile)).ToArray();
+    }
+
     private ZipEntryBase[] CreateEntries(string path)
     {
-        using ZipArchive zip = ZipFile.Open(path, ZipArchiveMode.Update);
+
         _result.Clear();
 
         foreach (string entryPath in EntryRelativePath)

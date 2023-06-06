@@ -1,14 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Management.Automation;
 
 namespace PSCompression;
 
 [Cmdlet(VerbsData.Expand, "ZipEntry")]
 [OutputType(typeof(FileSystemInfo), ParameterSetName = new string[1] { "PassThru" })]
-public sealed class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposable
+public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _cache = new();
 
@@ -28,22 +27,29 @@ public sealed class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposab
     {
         Destination ??= SessionState.Path.CurrentFileSystemLocation.Path;
 
-        (string path, ProviderInfo provider) = NormalizePaths(
-            new string[1] { Destination }, isLiteral: true)
-            .FirstOrDefault();
-
-        if (!ValidatePath(path, provider, assertFile: false))
+        try
         {
-            Destination = null;
-            return;
+            (string path, ProviderInfo provider) = Destination.NormalizePath(isLiteral: true, this);
+
+            if (!provider.AssertFileSystem())
+            {
+                ThrowTerminatingError(ExceptionHelpers.NotFileSystemPathError(Destination, provider));
+            }
+
+            if (!path.AssertDirectory())
+            {
+                ThrowTerminatingError(ExceptionHelpers.NotDirectoryPathError(path));
+            }
+
+            Destination = path;
         }
-
-        if (!Directory.Exists(path))
+        catch (PipelineStoppedException)
         {
-            Destination = null;
-            ThrowTerminatingError(new ErrorRecord(
-                new ArgumentException($"Destination must be an existing directory: '{path}'."),
-                "PathIsDirectory", ErrorCategory.InvalidArgument, path));
+            throw;
+        }
+        catch (Exception e)
+        {
+            ThrowTerminatingError(ExceptionHelpers.ResolvePathError(Destination, e));
         }
     }
 
@@ -80,8 +86,7 @@ public sealed class ExpandZipEntryCommand : PSCompressionCommandsBase, IDisposab
             }
             catch (Exception e)
             {
-                WriteError(new ErrorRecord(
-                    e, "ExtractEntry", ErrorCategory.NotSpecified, entry));
+                WriteError(ExceptionHelpers.ExtractEntryError(entry, e));
             }
         }
     }

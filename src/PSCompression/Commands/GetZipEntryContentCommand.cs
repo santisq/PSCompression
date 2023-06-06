@@ -47,8 +47,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
             }
             catch (Exception e)
             {
-                WriteError(new ErrorRecord(
-                    e, "EntryOpen", ErrorCategory.OpenError, entry));
+                WriteError(ExceptionHelpers.ZipOpenError(entry.Source, e));
             }
         }
     }
