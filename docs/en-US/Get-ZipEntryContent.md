@@ -121,7 +121,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: `utf8NoBOM`
+Default value: utf8NoBOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -144,7 +144,7 @@ Accept wildcard characters: False
 
 ### -ZipEntry
 
-The entry to get the content from. This parameter can be and is meant to be bound from pipeline however can be also used as a named parameter.
+The entry or entries to get the content from. This parameter can be and is meant to be bound from pipeline however can be also used as a named parameter.
 
 ```yaml
 Type: ZipEntryFile[]
@@ -180,7 +180,7 @@ This cmdlet supports the common parameters. See [about_CommonParameters](http://
 
 ## INPUTS
 
-### PSCompression.ZipEntryFile[]
+### ZipEntryFile[]
 
 ## OUTPUTS
 

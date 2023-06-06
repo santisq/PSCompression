@@ -129,7 +129,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### PSCompression.ZipEntryBase[]
+### ZipEntryBase[]
 
 ## OUTPUTS
 

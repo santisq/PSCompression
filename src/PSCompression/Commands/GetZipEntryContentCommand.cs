@@ -20,7 +20,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
     [ArgumentCompleter(typeof(EncodingCompleter))]
     [EncodingTransformation]
     [ValidateNotNullOrEmpty]
-    public Encoding Encoding { get; set; } = Encoding.UTF8;
+    public Encoding Encoding { get; set; } = new UTF8Encoding();
 
     [Parameter]
     public SwitchParameter Raw { get; set; }
