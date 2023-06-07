@@ -21,7 +21,7 @@ public sealed class NewZipEntryCommand : PSCmdlet
     public string? SourcePath { get; set; }
 
     [Parameter(Mandatory = true, Position = 0)]
-    public string SourceZip { get; set; } = null!;
+    public string ZipPath { get; set; } = null!;
 
     [Parameter(Mandatory = true, Position = 1)]
     public string[] EntryPath { get; set; } = null!;
@@ -31,12 +31,24 @@ public sealed class NewZipEntryCommand : PSCmdlet
 
     protected override void BeginProcessing()
     {
-        (string path, ProviderInfo provider) = NormalizePath(SourceZip, isLiteral: true);
+        (string? path, ProviderInfo? provider) = ZipPath.NormalizePath(isLiteral: true, this);
 
-        if (!ValidatePath(path, provider))
+        if (path is null || provider is null)
         {
             return;
         }
+
+        if (!provider.AssertFileSystem())
+        {
+            ThrowTerminatingError(ExceptionHelpers.NotFileSystemPathError(path, provider));
+        }
+
+        if (!path.AssertArchive())
+        {
+            ThrowTerminatingError(ExceptionHelpers.NotArchivePathError(path));
+        }
+
+        ZipPath = path;
 
         try
         {
@@ -48,7 +60,35 @@ public sealed class NewZipEntryCommand : PSCmdlet
                 return;
             }
 
+            (string? sourcePath, ProviderInfo? sourceProvider) = SourcePath.NormalizePath(isLiteral: true, this);
 
+            if (sourcePath is null || sourceProvider is null)
+            {
+                return;
+            }
+
+            if (!sourceProvider.AssertFileSystem())
+            {
+                ThrowTerminatingError(ExceptionHelpers.NotFileSystemPathError(sourcePath, sourceProvider));
+            }
+
+            if (!sourcePath.AssertArchive())
+            {
+                ThrowTerminatingError(ExceptionHelpers.NotArchivePathError(sourcePath));
+            }
+
+            SourcePath = sourcePath;
+
+            foreach (string entry in EntryPath)
+            {
+                if (entry.IsDirectoryPath())
+                {
+                    _result.Add(CreateDirectoryEntry(entry, ZipPath, _zip));
+                    continue;
+                }
+
+                _result.Add(CreateEntryFromFile(entry, ZipPath, _zip, SourcePath));
+            }
         }
         catch (PipelineStoppedException)
         {
@@ -56,8 +96,7 @@ public sealed class NewZipEntryCommand : PSCmdlet
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(new ErrorRecord(
-                e, "ZipOpen", ErrorCategory.OpenError, path));
+            ThrowTerminatingError(ExceptionHelpers.ZipOpenError(ZipPath, e));
         }
     }
 
@@ -69,38 +108,4 @@ public sealed class NewZipEntryCommand : PSCmdlet
 
     private ZipEntryFile CreateEntryFromFile(string entry, string source, ZipArchive zip, string file) =>
         new(zip.CreateEntryFromFile(file, entry.ToNormalizedFileEntryPath(), CompressionLevel), source);
-
-    private ZipEntryFile[]? CreateEntriesFromFile(string file, string source, ZipArchive zip)
-    {
-        (string normalizedfile, ProviderInfo provider) = NormalizePath(file, isLiteral: true);
-
-        if (!ValidatePath(normalizedfile, provider))
-        {
-            return;
-        }
-
-        return EntryPath.Select(e => CreateEntryFromFile(e, source, zip, normalizedfile)).ToArray();
-    }
-
-    private ZipEntryBase[] CreateEntries(string path)
-    {
-
-        _result.Clear();
-
-        foreach (string entryPath in EntryRelativePath)
-        {
-            if (entryPath.IsDirectoryPath())
-            {
-                _result.Add(new ZipEntryDirectory(
-                    zip.CreateEntry(entryPath.ToNormalizedEntryPath(), CompressionLevel), path));
-
-                continue;
-            }
-
-            _result.Add(new ZipEntryFile(
-                zip.CreateEntry(entryPath.ToNormalizedFileEntryPath(), CompressionLevel), path));
-        }
-
-        return _result.ToArray();
-    }
 }

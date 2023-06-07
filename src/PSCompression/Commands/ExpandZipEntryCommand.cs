@@ -27,8 +27,6 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
     {
         Destination ??= SessionState.Path.CurrentFileSystemLocation.Path;
 
-
-
         try
         {
             (string? path, ProviderInfo? provider) = Destination.NormalizePath(isLiteral: true, this);
