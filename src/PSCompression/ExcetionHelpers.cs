@@ -17,7 +17,7 @@ internal static class ExceptionHelpers
         new(e, "InvalidPath", ErrorCategory.InvalidArgument, path);
 
     internal static ErrorRecord NotFileSystemPathError(string path, ProviderInfo provider) =>
-        new(new ArgumentException($"The resolved path '{path}' is not a FileSystem path but {provider.Name}."),
+        new(new ArgumentException($"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
             "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
 
     internal static ErrorRecord ZipOpenError(string path, Exception e) =>
@@ -34,4 +34,7 @@ internal static class ExceptionHelpers
 
     internal static ErrorRecord WriteError(ZipEntryFile entry, Exception e) =>
         new(e, "WriteError", ErrorCategory.WriteError, entry);
+
+    internal static ErrorRecord CreateEntryError(string entry, Exception e) =>
+        new(e, "CreateEntry", ErrorCategory.WriteError, entry);
 }

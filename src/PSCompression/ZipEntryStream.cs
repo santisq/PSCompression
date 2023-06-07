@@ -23,6 +23,13 @@ public sealed class ZipEntryStream : Stream
         EntryStream = ZipEntry.Open();
     }
 
+    public ZipEntryStream(ZipEntryFile entry, ZipArchive stream)
+    {
+        ZipStream = stream;
+        ZipEntry = ZipStream.GetEntry(entry.EntryRelativePath);
+        EntryStream = ZipEntry.Open();
+    }
+
     public override bool CanRead => EntryStream.CanRead;
 
     public override bool CanSeek => EntryStream.CanSeek;

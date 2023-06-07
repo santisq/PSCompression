@@ -28,6 +28,12 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
         _zipEntryStream.SetLength(0);
     }
 
+    internal ZipContentWriter(ZipArchive stream, ZipEntryFile entry, Encoding encoding)
+    {
+        _zipEntryStream = new ZipEntryStream(entry, stream);
+        _writer = new StreamWriter(_zipEntryStream, encoding);
+    }
+
     internal ZipContentWriter(ZipEntryFile entry, bool append, Encoding encoding)
     {
         _zipEntryStream = entry.OpenWrite();

@@ -38,7 +38,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (ParameterSetName == "ByteStream")
+            if (!AsByteStream.IsPresent)
             {
                 _zipWriter = new ZipContentWriter(SourceEntry, Append.IsPresent, BufferSize);
                 return;
@@ -65,7 +65,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
                 return;
             }
 
-            if (ParameterSetName == "StringValue")
+            if (!AsByteStream.IsPresent)
             {
                 _zipWriter.WriteLines(LanguagePrimitives.ConvertTo<string[]>(Value));
                 return;

@@ -71,7 +71,7 @@ internal static class PSCompressionExtensions
         NormalizePath(new string[1] { path }, isLiteral, cmdlet).FirstOrDefault();
 
     internal static bool AssertFileSystem(this ProviderInfo provider) =>
-        provider.ImplementingType != typeof(FileSystemProvider);
+        provider.ImplementingType == typeof(FileSystemProvider);
 
     internal static bool AssertArchive(this string path) =>
         !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
