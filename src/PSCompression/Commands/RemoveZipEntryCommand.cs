@@ -26,8 +26,7 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
             }
             catch (Exception e)
             {
-                WriteError(new ErrorRecord(
-                    e, "RemoveEntry", ErrorCategory.NotSpecified, InputObject));
+                WriteError(ExceptionHelpers.ZipOpenError(entry.Source, e));
             }
         }
     }

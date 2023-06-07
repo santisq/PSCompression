@@ -66,7 +66,7 @@ internal static class PSCompressionExtensions
         return s_normalizedPaths.ToArray();
     }
 
-    internal static (string, ProviderInfo) NormalizePath(
+    internal static (string?, ProviderInfo?) NormalizePath(
         this string path, bool isLiteral, PSCmdlet cmdlet) =>
         NormalizePath(new string[1] { path }, isLiteral, cmdlet).FirstOrDefault();
 
