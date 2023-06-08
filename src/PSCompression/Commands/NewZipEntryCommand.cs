@@ -59,7 +59,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            _zip = ZipFile.Open(path, ZipArchiveMode.Update);
+            _zip = ZipFile.Open(ZipPath, ZipArchiveMode.Update);
+            ZipArchiveEntry zipEntry;
 
             if (SourcePath is null)
             {
@@ -68,11 +69,13 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 {
                     if (entry.IsDirectoryPath())
                     {
-                        _result.Add(CreateDirectoryEntry(entry, ZipPath, _zip));
+                        zipEntry = CreateDirectoryEntry(entry, _zip);
+                        _result.Add(new ZipEntryDirectory(zipEntry, ZipPath));
                         continue;
                     }
 
-                    _result.Add(CreateFileEntry(entry, ZipPath, _zip));
+                    zipEntry = CreateFileEntry(entry, _zip);
+                    _result.Add(new ZipEntryFile(zipEntry, ZipPath));
                 }
 
                 return;
@@ -102,11 +105,13 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             {
                 if (entry.IsDirectoryPath())
                 {
-                    _result.Add(CreateDirectoryEntry(entry, ZipPath, _zip));
+                    zipEntry = CreateDirectoryEntry(entry, _zip);
+                    _result.Add(new ZipEntryDirectory(zipEntry, ZipPath));
                     continue;
                 }
 
-                _result.Add(CreateEntryFromFile(entry, ZipPath, _zip, SourcePath));
+                zipEntry = CreateEntryFromFile(entry, _zip);
+                _result.Add(new ZipEntryFile(zipEntry, ZipPath));
             }
         }
         catch (PipelineStoppedException)
@@ -176,14 +181,14 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         WriteObject(_result.ToArray(), enumerateCollection: true);
     }
 
-    private ZipEntryDirectory CreateDirectoryEntry(string entry, string source, ZipArchive zip) =>
-        new(zip.CreateEntry(entry.ToNormalizedEntryPath()), source);
+    private ZipArchiveEntry CreateDirectoryEntry(string entry, ZipArchive zip) =>
+        zip.CreateEntry(entry.ToNormalizedEntryPath());
 
-    private ZipEntryFile CreateFileEntry(string entry, string source, ZipArchive zip) =>
-        new(zip.CreateEntry(entry.ToNormalizedFileEntryPath(), CompressionLevel), source);
+    private ZipArchiveEntry CreateFileEntry(string entry, ZipArchive zip) =>
+        zip.CreateEntry(entry.ToNormalizedFileEntryPath(), CompressionLevel);
 
-    private ZipEntryFile CreateEntryFromFile(string entry, string source, ZipArchive zip, string file) =>
-        new(zip.CreateEntryFromFile(file, entry.ToNormalizedFileEntryPath(), CompressionLevel), source);
+    private ZipArchiveEntry CreateEntryFromFile(string entry, ZipArchive zip) =>
+        zip.CreateEntryFromFile(SourcePath, entry.ToNormalizedFileEntryPath(), CompressionLevel);
 
     public void Dispose()
     {

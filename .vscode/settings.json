@@ -32,4 +32,5 @@
     "cSpell.words": [
         "pwsh"
     ],
+    "dotnet.defaultSolution": "src\\PSCompression\\PSCompression.sln",
 }
