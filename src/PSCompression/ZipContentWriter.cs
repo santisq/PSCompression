@@ -28,9 +28,9 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
         _zipEntryStream.SetLength(0);
     }
 
-    internal ZipContentWriter(ZipArchive stream, ZipArchiveEntry entry, Encoding encoding)
+    internal ZipContentWriter(ZipArchive zip, ZipArchiveEntry entry, Encoding encoding)
     {
-        _zipEntryStream = new ZipEntryStream(stream, entry);
+        _zipEntryStream = new ZipEntryStream(zip, entry);
         _writer = new StreamWriter(_zipEntryStream, encoding);
     }
 
@@ -87,6 +87,12 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
             _zipEntryStream.Write(_buffer, 0, _index);
             _index = 0;
         }
+    }
+
+    public void Close()
+    {
+        Flush();
+        _writer?.Close();
     }
 
     protected override void Dispose(bool disposing)

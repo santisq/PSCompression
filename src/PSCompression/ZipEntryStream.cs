@@ -27,7 +27,7 @@ public sealed class ZipEntryStream : Stream
     {
         ZipStream = zip;
         ZipEntry = entry;
-        EntryStream = ZipEntry.Open();
+        EntryStream = entry.Open();
     }
 
     public ZipEntryStream(ZipEntryFile entry, ZipArchive stream)
@@ -120,11 +120,7 @@ public sealed class ZipEntryStream : Stream
 
     public override void WriteByte(byte value) => EntryStream.WriteByte(value);
 
-    public override void Close()
-    {
-        EntryStream?.Close();
-        ZipStream?.Dispose();
-    }
+    public override void Close() => EntryStream?.Close();
 
     protected override void Dispose(bool disposing)
     {
@@ -133,6 +129,7 @@ public sealed class ZipEntryStream : Stream
             return;
         }
 
+        EntryStream?.Dispose();
         ZipStream?.Dispose();
         Disposed = true;
     }

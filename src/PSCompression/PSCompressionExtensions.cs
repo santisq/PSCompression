@@ -22,7 +22,7 @@ internal static class PSCompressionExtensions
     private const string _pathChar = "/";
 
     internal static string ToNormalizedEntryPath(this string path) =>
-        s_reNormalize.Replace(path, _pathChar);
+        s_reNormalize.Replace(path, _pathChar).TrimStart('/');
 
     internal static string ToNormalizedFileEntryPath(this string path) =>
         ToNormalizedEntryPath(path).TrimEnd('/');

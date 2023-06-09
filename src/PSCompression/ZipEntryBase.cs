@@ -20,9 +20,9 @@ public abstract class ZipEntryBase
 
     public DateTime LastWriteTime { get; }
 
-    public long Length { get; internal set; }
+    public long? Length { get; internal set; }
 
-    public long CompressedLength { get; internal set; }
+    public long? CompressedLength { get; internal set; }
 
     protected ZipEntryBase(ZipArchiveEntry entry, string source)
     {

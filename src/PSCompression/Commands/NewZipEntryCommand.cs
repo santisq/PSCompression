@@ -19,15 +19,17 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     private ZipContentWriter[]? _writers;
 
     [Parameter(ValueFromPipeline = true, ParameterSetName = "Value")]
+    [ValidateNotNull]
     public string[]? Value { get; set; }
 
     [Parameter(Mandatory = true, Position = 0)]
-    public string ZipPath { get; set; } = null!;
+    public string Destination { get; set; } = null!;
 
     [Parameter(Mandatory = true, Position = 1)]
     public string[] EntryPath { get; set; } = null!;
 
     [Parameter(ParameterSetName = "File", Position = 2)]
+    [ValidateNotNullOrEmpty]
     public string? SourcePath { get; set; }
 
     [Parameter]
@@ -40,7 +42,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void BeginProcessing()
     {
-        (string? path, ProviderInfo? provider) = ZipPath.NormalizePath(isLiteral: true, this);
+        (string? path, ProviderInfo? provider) = Destination.NormalizePath(isLiteral: true, this);
 
         if (path is null || provider is null)
         {
@@ -57,11 +59,11 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             ThrowTerminatingError(ExceptionHelpers.NotArchivePathError(path));
         }
 
-        ZipPath = path;
+        Destination = path;
 
         try
         {
-            _zip = ZipFile.Open(ZipPath, ZipArchiveMode.Update);
+            _zip = ZipFile.Open(Destination, ZipArchiveMode.Update);
 
             if (SourcePath is null)
             {
@@ -109,6 +111,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                     continue;
                 }
 
+                fileStream.Seek(0, SeekOrigin.Begin);
                 _result.Add(CreateEntryFromFile(entry, _zip, fileStream));
             }
         }
@@ -118,7 +121,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.ZipOpenError(ZipPath, e));
+            ThrowTerminatingError(ExceptionHelpers.ZipOpenError(Destination, e));
         }
     }
 
@@ -154,41 +157,34 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void EndProcessing()
     {
-        if (_writers is not null)
-        {
-            foreach (ZipContentWriter writer in _writers)
-            {
-                writer.Dispose();
-            }
-        }
-
-        _zip?.Dispose();
-
         try
         {
-            using (ZipArchive zip = ZipFile.OpenRead(ZipPath))
+            if (_writers is not null)
             {
-                _result.Select(e =>
+                foreach (ZipContentWriter writer in _writers)
                 {
-                    ZipArchiveEntry entry = zip.GetEntry(e.FullName);
-
-                    if (string.IsNullOrEmpty(e.Name))
-                    {
-                        return new ZipEntryDirectory(, ZipPath);
-                    }
-
-                    return new ZipEntryFile(entry, ZipPath)
-                })
-                foreach (ZipArchiveEntry entry in _result)
-                {
-                    if (string.IsNullOrEmpty(entry.Name))
-                    {
-                        WriteObject(new ZipEntryDirectory(_zip.GetEntry(entry.FullName), ZipPath));
-                        continue;
-                    }
-
-                    WriteObject();
+                    writer.Close();
                 }
+            }
+
+            _zip?.Dispose();
+
+            using ZipArchive zip = ZipFile.OpenRead(Destination);
+
+            foreach (ZipArchiveEntry entry in _result)
+            {
+                if (string.IsNullOrEmpty(entry.Name))
+                {
+                    WriteObject(new ZipEntryDirectory(
+                        zip.GetEntry(entry.FullName),
+                        Destination));
+
+                    continue;
+                }
+
+                WriteObject(new ZipEntryFile(
+                    zip.GetEntry(entry.FullName),
+                    Destination));
             }
         }
         catch (PipelineStoppedException)
@@ -197,7 +193,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.ZipOpenError(ZipPath, e));
+            ThrowTerminatingError(ExceptionHelpers.ZipOpenError(Destination, e));
         }
     }
 
@@ -221,6 +217,14 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     public void Dispose()
     {
+        if (_writers is not null)
+        {
+            foreach (ZipContentWriter writer in _writers)
+            {
+                writer?.Dispose();
+            }
+        }
+
         _zip?.Dispose();
     }
 }
