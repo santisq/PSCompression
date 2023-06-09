@@ -198,12 +198,15 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     }
 
     private ZipArchiveEntry CreateDirectoryEntry(string entry, ZipArchive zip) =>
-        zip.CreateEntry(entry.ToNormalizedEntryPath());
+        zip.CreateEntry(entry.NormalizeEntryPath());
 
     private ZipArchiveEntry CreateFileEntry(string entry, ZipArchive zip) =>
-        zip.CreateEntry(entry.ToNormalizedFileEntryPath(), CompressionLevel);
+        zip.CreateEntry(entry.NormalizeFileEntryPath(), CompressionLevel);
 
-    private ZipArchiveEntry CreateEntryFromFile(string entry, ZipArchive zip, FileStream fileStream)
+    private ZipArchiveEntry CreateEntryFromFile(
+        string entry,
+        ZipArchive zip,
+        FileStream fileStream)
     {
         ZipArchiveEntry newentry = CreateFileEntry(entry, zip);
 

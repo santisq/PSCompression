@@ -188,5 +188,5 @@ public sealed class GetZipEntryCommand : PSCmdlet
     }
 
     private static int CompareRelativePath(string x, string y) =>
-        x.ToNormalizedEntryPath().CompareTo(y.ToNormalizedEntryPath());
+        x.NormalizeEntryPath().CompareTo(y.NormalizeEntryPath());
 }

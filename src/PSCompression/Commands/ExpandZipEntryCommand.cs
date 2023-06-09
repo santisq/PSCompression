@@ -15,6 +15,7 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
     public ZipEntryBase[] InputObject { get; set; } = null!;
 
     [Parameter(Position = 0)]
+    [ValidateNotNullOrEmpty]
     public string? Destination { get; set; }
 
     [Parameter]

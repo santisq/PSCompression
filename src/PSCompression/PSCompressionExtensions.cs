@@ -9,7 +9,7 @@ using Microsoft.PowerShell.Commands;
 
 namespace PSCompression;
 
-internal static class PSCompressionExtensions
+public static class Extensions
 {
     private static readonly Regex s_reNormalize = new(@"[\\/]+|(?<![\\/])$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -21,14 +21,18 @@ internal static class PSCompressionExtensions
 
     private const string _pathChar = "/";
 
-    internal static string ToNormalizedEntryPath(this string path) =>
+    internal static string NormalizeEntryPath(this string path) =>
         s_reNormalize.Replace(path, _pathChar).TrimStart('/');
 
-    internal static string ToNormalizedFileEntryPath(this string path) =>
-        ToNormalizedEntryPath(path).TrimEnd('/');
+    internal static string NormalizeFileEntryPath(this string path) =>
+        NormalizeEntryPath(path).TrimEnd('/');
 
     internal static bool IsDirectoryPath(this string path) =>
         s_reEntryDir.IsMatch(path);
+
+    public static string NormalizePath(this string path) =>
+        s_reEntryDir.IsMatch(path) ? NormalizeEntryPath(path) :
+            NormalizeFileEntryPath(path);
 
     internal static (string, ProviderInfo)[] NormalizePath(
         this string[] paths, bool isLiteral, PSCmdlet cmdlet)
