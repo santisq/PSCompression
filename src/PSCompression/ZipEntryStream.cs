@@ -23,6 +23,13 @@ public sealed class ZipEntryStream : Stream
         EntryStream = ZipEntry.Open();
     }
 
+    public ZipEntryStream(ZipArchive zip, ZipArchiveEntry entry)
+    {
+        ZipStream = zip;
+        ZipEntry = entry;
+        EntryStream = ZipEntry.Open();
+    }
+
     public ZipEntryStream(ZipEntryFile entry, ZipArchive stream)
     {
         ZipStream = stream;

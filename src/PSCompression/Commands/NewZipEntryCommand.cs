@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using System.Linq;
 using System.Management.Automation;
 using System.Text;
 
@@ -10,11 +11,11 @@ namespace PSCompression;
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
 public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 {
-    private readonly List<ZipEntryBase> _result = new();
+    private readonly List<ZipArchiveEntry> _result = new();
 
     private ZipArchive? _zip;
 
-    private ZipWriterCache? _cache;
+    private ZipContentWriter[]? _writers;
 
     [Parameter(ValueFromPipeline = true, ParameterSetName = "Value")]
     public string[]? Value { get; set; }
@@ -60,7 +61,6 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         try
         {
             _zip = ZipFile.Open(ZipPath, ZipArchiveMode.Update);
-            ZipArchiveEntry zipEntry;
 
             if (SourcePath is null)
             {
@@ -69,20 +69,19 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 {
                     if (entry.IsDirectoryPath())
                     {
-                        zipEntry = CreateDirectoryEntry(entry, _zip);
-                        _result.Add(new ZipEntryDirectory(zipEntry, ZipPath));
+                        _result.Add(CreateDirectoryEntry(entry, _zip));
                         continue;
                     }
 
-                    zipEntry = CreateFileEntry(entry, _zip);
-                    _result.Add(new ZipEntryFile(zipEntry, ZipPath));
+                    _result.Add(CreateFileEntry(entry, _zip));
                 }
 
                 return;
             }
 
             // Create Entries from file here
-            (string? sourcePath, ProviderInfo? sourceProvider) = SourcePath.NormalizePath(isLiteral: true, this);
+            (string? sourcePath, ProviderInfo? sourceProvider) = SourcePath
+                .NormalizePath(isLiteral: true, this);
 
             if (sourcePath is null || sourceProvider is null)
             {
@@ -105,13 +104,11 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             {
                 if (entry.IsDirectoryPath())
                 {
-                    zipEntry = CreateDirectoryEntry(entry, _zip);
-                    _result.Add(new ZipEntryDirectory(zipEntry, ZipPath));
+                    _result.Add(CreateDirectoryEntry(entry, _zip));
                     continue;
                 }
 
-                zipEntry = CreateEntryFromFile(entry, _zip);
-                _result.Add(new ZipEntryFile(zipEntry, ZipPath));
+                _result.Add(CreateEntryFromFile(entry, _zip));
             }
         }
         catch (PipelineStoppedException)
@@ -132,34 +129,56 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             return;
         }
 
-        _cache ??= new(_zip, Encoding);
-
-        foreach (ZipEntryBase entry in _result)
-        {
-            if (entry is ZipEntryFile fileEntry)
+        _writers ??= _result
+            .Where(e => !string.IsNullOrEmpty(e.Name))
+            .Select(e =>
             {
                 try
                 {
-                    _cache.GetOrAdd(fileEntry).WriteLines(Value);
+                    new ZipContentWriter(_zip, e, Encoding);
                 }
                 catch (PipelineStoppedException)
                 {
                     throw;
                 }
-                catch (Exception e)
-                {
-                    WriteError(ExceptionHelpers.WriteError(fileEntry, e));
-                }
+
+            })
+            .ToArray();
+
+        foreach (ZipContentWriter writer in _writers)
+        {
+            try
+            {
+                writer.WriteLines(Value);
+            }
+            catch (PipelineStoppedException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                WriteError(ExceptionHelpers.WriteError(writer, e));
             }
         }
     }
 
     protected override void EndProcessing()
     {
-        _cache?.Dispose();
-        _zip?.Dispose();
+        if (_writers is not null)
+        {
+            foreach (ZipContentWriter writer in _writers)
+            {
+                writer.Dispose();
+            }
+        }
 
-        foreach (ZipEntryBase entry in _result)
+        if (_zip is not null)
+        {
+            _zip.Dispose();
+            _zip = ZipFile.OpenRead(ZipPath);
+        }
+
+        foreach (ZipArchiveEntry entry in _result)
         {
             if (entry is ZipEntryFile fileEntry)
             {
