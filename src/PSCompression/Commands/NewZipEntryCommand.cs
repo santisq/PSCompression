@@ -129,36 +129,25 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             return;
         }
 
-        _writers ??= _result
-            .Where(e => !string.IsNullOrEmpty(e.Name))
-            .Select(e =>
-            {
-                try
-                {
-                    new ZipContentWriter(_zip, e, Encoding);
-                }
-                catch (PipelineStoppedException)
-                {
-                    throw;
-                }
-
-            })
-            .ToArray();
-
-        foreach (ZipContentWriter writer in _writers)
+        try
         {
-            try
+            _writers ??= _result
+                .Where(e => !string.IsNullOrEmpty(e.Name))
+                .Select(e => new ZipContentWriter(_zip, e, Encoding))
+                .ToArray();
+
+            foreach (ZipContentWriter writer in _writers)
             {
                 writer.WriteLines(Value);
             }
-            catch (PipelineStoppedException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(ExceptionHelpers.WriteError(writer, e));
-            }
+        }
+        catch (PipelineStoppedException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            ThrowTerminatingError(ExceptionHelpers.WriteError(_zip, e));
         }
     }
 
@@ -178,26 +167,21 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             _zip = ZipFile.OpenRead(ZipPath);
         }
 
-        foreach (ZipArchiveEntry entry in _result)
+        if (_zip is null)
         {
-            if (entry is ZipEntryFile fileEntry)
-            {
-                try
-                {
-                    fileEntry.Refresh();
-                }
-                catch (PipelineStoppedException)
-                {
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    WriteError(ExceptionHelpers.StreamOpenError(fileEntry, e));
-                }
-            }
+            return;
         }
 
-        WriteObject(_result.ToArray(), enumerateCollection: true);
+        foreach (ZipArchiveEntry entry in _result)
+        {
+            if (string.IsNullOrEmpty(entry.Name))
+            {
+                WriteObject(new ZipEntryDirectory(_zip.GetEntry(entry.FullName), ZipPath));
+                continue;
+            }
+
+            WriteObject(new ZipEntryFile(entry, ZipPath));
+        }
     }
 
     private ZipArchiveEntry CreateDirectoryEntry(string entry, ZipArchive zip) =>
@@ -211,7 +195,6 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     public void Dispose()
     {
-        _cache?.Dispose();
         _zip?.Dispose();
     }
 }
