@@ -26,11 +26,11 @@ public static class _Format
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetDirectoryPath(ZipEntryDirectory entry) =>
-        entry.EntryRelativePath.ToNormalizedEntryPath();
+        entry.EntryRelativePath.NormalizeEntryPath();
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetDirectoryPath(ZipEntryFile entry) =>
-        Path.GetDirectoryName(entry.EntryRelativePath).ToNormalizedEntryPath();
+        Path.GetDirectoryName(entry.EntryRelativePath).NormalizeEntryPath();
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetFormattedDate(DateTime date) =>

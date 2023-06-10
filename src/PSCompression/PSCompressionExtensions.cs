@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
@@ -82,4 +83,26 @@ public static class Extensions
 
     internal static bool AssertDirectory(this string path) =>
         File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+
+    internal static ZipArchiveEntry CreateEntryFromFile(
+        this ZipArchive zip,
+        string entry,
+        FileStream fileStream,
+        CompressionLevel compressionLevel)
+    {
+        if (entry.IsDirectoryPath())
+        {
+            return zip.CreateEntry(entry);
+        }
+
+        fileStream.Seek(0, SeekOrigin.Begin);
+        ZipArchiveEntry newentry = zip.CreateEntry(entry, compressionLevel);
+
+        using (Stream stream = newentry.Open())
+        {
+            fileStream.CopyTo(stream);
+        }
+
+        return newentry;
+    }
 }

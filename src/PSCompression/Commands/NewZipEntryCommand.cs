@@ -18,6 +18,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     private ZipContentWriter[]? _writers;
 
+    private readonly string[] _entryPath = Array.Empty<string>();
+
     [Parameter(ValueFromPipeline = true, ParameterSetName = "Value")]
     [ValidateNotNull]
     public string[]? Value { get; set; }
@@ -26,7 +28,11 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     public string Destination { get; set; } = null!;
 
     [Parameter(Mandatory = true, Position = 1)]
-    public string[] EntryPath { get; set; } = null!;
+    public string[] EntryPath
+    {
+        get => _entryPath;
+        set => value.Select(e => e.NormalizePath()).ToArray();
+    }
 
     [Parameter(ParameterSetName = "File", Position = 2)]
     [ValidateNotNullOrEmpty]
@@ -68,16 +74,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             if (SourcePath is null)
             {
                 // We can create the entries here and go the process block
-                foreach (string entry in EntryPath)
-                {
-                    if (entry.IsDirectoryPath())
-                    {
-                        _result.Add(CreateDirectoryEntry(entry, _zip));
-                        continue;
-                    }
-
-                    _result.Add(CreateFileEntry(entry, _zip));
-                }
+                _result.AddRange(EntryPath.Select(e =>
+                    _zip.CreateEntry(e, CompressionLevel)));
 
                 return;
             }
@@ -93,27 +91,20 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
             if (!sourceProvider.AssertFileSystem())
             {
-                ThrowTerminatingError(ExceptionHelpers.NotFileSystemPathError(sourcePath, sourceProvider));
+                ThrowTerminatingError(
+                    ExceptionHelpers.NotFileSystemPathError(sourcePath, sourceProvider));
             }
 
             if (!sourcePath.AssertArchive())
             {
-                ThrowTerminatingError(ExceptionHelpers.NotArchivePathError(sourcePath));
+                ThrowTerminatingError(
+                    ExceptionHelpers.NotArchivePathError(sourcePath));
             }
 
             using FileStream fileStream = File.OpenRead(sourcePath);
 
-            foreach (string entry in EntryPath)
-            {
-                if (entry.IsDirectoryPath())
-                {
-                    _result.Add(CreateDirectoryEntry(entry, _zip));
-                    continue;
-                }
-
-                fileStream.Seek(0, SeekOrigin.Begin);
-                _result.Add(CreateEntryFromFile(entry, _zip, fileStream));
-            }
+            _result.AddRange(EntryPath.Select(e =>
+                _zip.CreateEntryFromFile(e, fileStream, CompressionLevel)));
         }
         catch (PipelineStoppedException)
         {
@@ -195,27 +186,6 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         {
             ThrowTerminatingError(ExceptionHelpers.ZipOpenError(Destination, e));
         }
-    }
-
-    private ZipArchiveEntry CreateDirectoryEntry(string entry, ZipArchive zip) =>
-        zip.CreateEntry(entry.NormalizeEntryPath());
-
-    private ZipArchiveEntry CreateFileEntry(string entry, ZipArchive zip) =>
-        zip.CreateEntry(entry.NormalizeFileEntryPath(), CompressionLevel);
-
-    private ZipArchiveEntry CreateEntryFromFile(
-        string entry,
-        ZipArchive zip,
-        FileStream fileStream)
-    {
-        ZipArchiveEntry newentry = CreateFileEntry(entry, zip);
-
-        using (Stream stream = newentry.Open())
-        {
-            fileStream.CopyTo(stream);
-        }
-
-        return newentry;
     }
 
     public void Dispose()
