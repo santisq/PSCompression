@@ -18,7 +18,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     private ZipContentWriter[]? _writers;
 
-    private readonly string[] _entryPath = Array.Empty<string>();
+    private string[] _entryPath = Array.Empty<string>();
 
     [Parameter(ValueFromPipeline = true, ParameterSetName = "Value")]
     [ValidateNotNull]
@@ -31,7 +31,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     public string[] EntryPath
     {
         get => _entryPath;
-        set => value.Select(e => e.NormalizePath()).ToArray();
+        set => _entryPath = value.Select(e => e.NormalizePath()).ToArray();
     }
 
     [Parameter(ParameterSetName = "File", Position = 2)]
@@ -46,9 +46,13 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     [EncodingTransformation]
     public Encoding Encoding { get; set; } = new UTF8Encoding();
 
+    [Parameter]
+    public SwitchParameter Force { get; set; }
+
     protected override void BeginProcessing()
     {
-        (string? path, ProviderInfo? provider) = Destination.NormalizePath(isLiteral: true, this);
+        (string? path, ProviderInfo? provider) = Destination
+            .NormalizePath(isLiteral: true, this);
 
         if (path is null || provider is null)
         {
@@ -57,12 +61,14 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         if (!provider.AssertFileSystem())
         {
-            ThrowTerminatingError(ExceptionHelpers.NotFileSystemPathError(path, provider));
+            ThrowTerminatingError(
+                ExceptionHelpers.NotFileSystemPathError(path, provider));
         }
 
         if (!path.AssertArchive())
         {
-            ThrowTerminatingError(ExceptionHelpers.NotArchivePathError(path));
+            ThrowTerminatingError(
+                ExceptionHelpers.NotArchivePathError(path));
         }
 
         Destination = path;
@@ -74,8 +80,25 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             if (SourcePath is null)
             {
                 // We can create the entries here and go the process block
-                _result.AddRange(EntryPath.Select(e =>
-                    _zip.CreateEntry(e, CompressionLevel)));
+                foreach (string entry in EntryPath)
+                {
+                    ZipArchiveEntry? zipEntry = _zip.GetEntry(entry);
+
+                    if (zipEntry is not null)
+                    {
+                        if (!Force.IsPresent)
+                        {
+                            WriteError(ExceptionHelpers.DuplicatedEntryError(
+                                entry, Destination));
+
+                            continue;
+                        }
+
+                        zipEntry.Delete();
+                    }
+
+                    _result.Add(_zip.CreateEntry(entry, CompressionLevel));
+                }
 
                 return;
             }
@@ -103,8 +126,28 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
             using FileStream fileStream = File.OpenRead(sourcePath);
 
-            _result.AddRange(EntryPath.Select(e =>
-                _zip.CreateEntryFromFile(e, fileStream, CompressionLevel)));
+            foreach (string entry in EntryPath)
+            {
+                ZipArchiveEntry? zipEntry = _zip.GetEntry(entry);
+
+                if (zipEntry is not null)
+                {
+                    if (!Force.IsPresent)
+                    {
+                        WriteError(ExceptionHelpers.DuplicatedEntryError(
+                            entry, Destination));
+
+                        continue;
+                    }
+
+                    zipEntry.Delete();
+                }
+
+                _result.Add(_zip.CreateEntryFromFile(
+                    entry,
+                    fileStream,
+                    CompressionLevel));
+            }
         }
         catch (PipelineStoppedException)
         {
@@ -112,7 +155,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.ZipOpenError(Destination, e));
+            ThrowTerminatingError(
+                ExceptionHelpers.ZipOpenError(Destination, e));
         }
     }
 

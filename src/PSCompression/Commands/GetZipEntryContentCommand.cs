@@ -76,7 +76,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
     }
 
     private ZipArchive GetOrAdd(ZipEntryFile entry) =>
-        _cache.GetOrAdd(entry, ZipArchiveMode.Read);
+        _cache.GetOrAdd(entry);
 
     public void Dispose() => _cache?.Dispose();
 }

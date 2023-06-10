@@ -37,11 +37,11 @@ public abstract class ZipEntryBase
     public void RemoveEntry()
     {
         using ZipArchive zip = ZipFile.Open(Source, ZipArchiveMode.Update);
-        zip.GetEntry(EntryRelativePath).Delete();
+        zip.GetEntry(EntryRelativePath)?.Delete();
     }
 
     internal void RemoveEntry(ZipArchive zip) =>
-        zip.GetEntry(EntryRelativePath).Delete();
+        zip.GetEntry(EntryRelativePath)?.Delete();
 
     internal ZipArchive OpenZip(ZipArchiveMode mode) =>
         ZipFile.Open(Source, mode);

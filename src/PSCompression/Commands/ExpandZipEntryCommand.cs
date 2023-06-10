@@ -30,7 +30,8 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            (string? path, ProviderInfo? provider) = Destination.NormalizePath(isLiteral: true, this);
+            (string? path, ProviderInfo? provider) = Destination
+                .NormalizePath(isLiteral: true, this);
 
             if (path is null || provider is null)
             {
@@ -39,12 +40,14 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
 
             if (!provider.AssertFileSystem())
             {
-                ThrowTerminatingError(ExceptionHelpers.NotFileSystemPathError(Destination, provider));
+                ThrowTerminatingError(
+                    ExceptionHelpers.NotFileSystemPathError(Destination, provider));
             }
 
             if (!path.AssertDirectory())
             {
-                ThrowTerminatingError(ExceptionHelpers.NotDirectoryPathError(path));
+                ThrowTerminatingError(
+                    ExceptionHelpers.NotDirectoryPathError(path));
             }
 
             Destination = path;
@@ -55,7 +58,8 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.ResolvePathError(Destination, e));
+            ThrowTerminatingError(
+                ExceptionHelpers.ResolvePathError(Destination, e));
         }
     }
 
@@ -71,7 +75,7 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
             try
             {
                 (string path, bool isfile) = entry.ExtractTo(
-                    _cache.GetOrAdd(entry, ZipArchiveMode.Read),
+                    _cache.GetOrAdd(entry),
                     Destination,
                     Force.IsPresent);
 

@@ -7,7 +7,7 @@ namespace PSCompression;
 [Cmdlet(VerbsCommon.Remove, "ZipEntry")]
 public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
 {
-    private readonly ZipArchiveCache _cache = new();
+    private readonly ZipArchiveCache _cache = new(ZipArchiveMode.Update);
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
     public ZipEntryBase[] InputObject { get; set; } = null!;
@@ -18,7 +18,7 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
         {
             try
             {
-                entry.RemoveEntry(_cache.GetOrAdd(entry, ZipArchiveMode.Update));
+                entry.RemoveEntry(_cache.GetOrAdd(entry));
             }
             catch (PipelineStoppedException)
             {

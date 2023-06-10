@@ -8,13 +8,21 @@ internal class ZipArchiveCache : IDisposable
 {
     private readonly Dictionary<string, ZipArchive> _cache;
 
+    private readonly ZipArchiveMode _mode = ZipArchiveMode.Read;
+
     internal ZipArchiveCache() => _cache = new();
 
-    internal ZipArchive GetOrAdd(ZipEntryBase entry, ZipArchiveMode mode)
+    internal ZipArchiveCache(ZipArchiveMode mode)
+    {
+        _cache = new();
+        _mode = mode;
+    }
+
+    internal ZipArchive GetOrAdd(ZipEntryBase entry)
     {
         if (!_cache.ContainsKey(entry.Source))
         {
-            _cache[entry.Source] = entry.OpenZip(mode);
+            _cache[entry.Source] = entry.OpenZip(_mode);
         }
 
         return _cache[entry.Source];
