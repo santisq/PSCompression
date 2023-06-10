@@ -29,8 +29,18 @@ public static class _Format
         entry.EntryRelativePath.NormalizeEntryPath();
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
-    public static string GetDirectoryPath(ZipEntryFile entry) =>
-        Path.GetDirectoryName(entry.EntryRelativePath).NormalizeEntryPath();
+    public static string GetDirectoryPath(ZipEntryFile entry)
+    {
+        string path = Path.GetDirectoryName(entry.EntryRelativePath)
+            .NormalizeEntryPath();
+
+        if (string.IsNullOrEmpty(path))
+        {
+            return "/";
+        }
+
+        return path;
+    }
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetFormattedDate(DateTime date) =>
