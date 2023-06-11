@@ -162,8 +162,10 @@ public sealed class GetZipEntryCommand : PSCmdlet
             _output.Add(new ZipEntryFile(entry, path));
         }
 
-        _output.Sort(SortByRelativePath);
-        return _output.ToArray();
+        return _output
+            .OrderBy(SortingOps.SortByParent)
+            .ThenBy(e => e.EntryName)
+            .ToArray();
     }
 
     private bool SkipInclude(string path) =>
@@ -175,18 +177,4 @@ public sealed class GetZipEntryCommand : PSCmdlet
     private bool SkipEntryType(bool isdir) =>
         (isdir && EntryType == ZipEntryType.Archive)
         || (!isdir && EntryType == ZipEntryType.Directory);
-
-    private static int SortByRelativePath(ZipEntryBase x, ZipEntryBase y)
-    {
-        return (x, y) switch
-        {
-            (null, null) => 0,
-            (null, _) => -1,
-            (_, null) => 1,
-            _ => CompareRelativePath(x.EntryRelativePath, y.EntryRelativePath)
-        };
-    }
-
-    private static int CompareRelativePath(string x, string y) =>
-        x.NormalizeEntryPath().CompareTo(y.NormalizeEntryPath());
 }

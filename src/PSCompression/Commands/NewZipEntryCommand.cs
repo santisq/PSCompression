@@ -12,7 +12,7 @@ namespace PSCompression;
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
 public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 {
-    private readonly List<ZipArchiveEntry> _result = new();
+    private readonly List<ZipArchiveEntry> _entries = new();
 
     private ZipArchive? _zip;
 
@@ -97,7 +97,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                         zipEntry.Delete();
                     }
 
-                    _result.Add(_zip.CreateEntry(entry, CompressionLevel));
+                    _entries.Add(_zip.CreateEntry(entry, CompressionLevel));
                 }
 
                 return;
@@ -143,7 +143,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                     zipEntry.Delete();
                 }
 
-                _result.Add(_zip.CreateEntryFromFile(
+                _entries.Add(_zip.CreateEntryFromFile(
                     entry,
                     fileStream,
                     CompressionLevel));
@@ -170,7 +170,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            _writers ??= _result
+            _writers ??= _entries
                 .Where(e => !string.IsNullOrEmpty(e.Name))
                 .Select(e => new ZipContentWriter(_zip, e, Encoding))
                 .ToArray();
@@ -204,23 +204,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
             _zip?.Dispose();
 
-            using ZipArchive zip = ZipFile.OpenRead(Destination);
-
-            foreach (ZipArchiveEntry entry in _result)
-            {
-                if (string.IsNullOrEmpty(entry.Name))
-                {
-                    WriteObject(new ZipEntryDirectory(
-                        zip.GetEntry(entry.FullName),
-                        Destination));
-
-                    continue;
-                }
-
-                WriteObject(new ZipEntryFile(
-                    zip.GetEntry(entry.FullName),
-                    Destination));
-            }
+            WriteObject(CreateOutput(), enumerateCollection: true);
         }
         catch (PipelineStoppedException)
         {
@@ -230,6 +214,34 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         {
             ThrowTerminatingError(ExceptionHelpers.ZipOpenError(Destination, e));
         }
+    }
+
+    private ZipEntryBase[] CreateOutput()
+    {
+        using ZipArchive zip = ZipFile.OpenRead(Destination);
+
+        List<ZipEntryBase> _result = new(_entries.Count);
+
+        foreach (ZipArchiveEntry entry in _entries)
+        {
+            if (string.IsNullOrEmpty(entry.Name))
+            {
+                _result.Add(new ZipEntryDirectory(
+                    zip.GetEntry(entry.FullName),
+                    Destination));
+
+                continue;
+            }
+
+            _result.Add(new ZipEntryFile(
+                zip.GetEntry(entry.FullName),
+                Destination));
+        }
+
+        return _result
+            .OrderBy(SortingOps.SortByParent)
+            .ThenBy(e => e.EntryName)
+            .ToArray();
     }
 
     public void Dispose()

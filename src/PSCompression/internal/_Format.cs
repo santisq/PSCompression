@@ -25,12 +25,13 @@ public static class _Format
     };
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
-    public static string GetDirectoryPath(ZipEntryDirectory entry) =>
-        entry.EntryRelativePath.NormalizeEntryPath();
-
-    [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
-    public static string GetDirectoryPath(ZipEntryFile entry)
+    public static string GetDirectoryPath(ZipEntryBase entry)
     {
+        if (entry is ZipEntryDirectory)
+        {
+            return entry.EntryRelativePath.NormalizeEntryPath();
+        }
+
         string path = Path.GetDirectoryName(entry.EntryRelativePath)
             .NormalizeEntryPath();
 
