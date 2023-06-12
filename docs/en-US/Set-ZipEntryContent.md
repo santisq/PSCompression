@@ -8,28 +8,33 @@ schema: 2.0.0
 # Set-ZipEntryContent
 
 ## SYNOPSIS
+
 {{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ### StringValue (Default)
+
 ```
 Set-ZipEntryContent -Value <Object[]> [-SourceEntry] <ZipEntryFile> [-Encoding <Encoding>] [-Append]
  [-PassThru] [<CommonParameters>]
 ```
 
 ### ByteStream
+
 ```
 Set-ZipEntryContent -Value <Object[]> [-SourceEntry] <ZipEntryFile> [-AsByteStream] [-Append]
  [-BufferSize <Int32>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 {{ Fill in the Description }}
 
 ## EXAMPLES
 
 ### Example 1
+
 ```powershell
 PS C:\> {{ Add example code here }}
 ```
@@ -39,6 +44,7 @@ PS C:\> {{ Add example code here }}
 ## PARAMETERS
 
 ### -Append
+
 {{ Fill Append Description }}
 
 ```yaml
@@ -54,6 +60,7 @@ Accept wildcard characters: False
 ```
 
 ### -AsByteStream
+
 {{ Fill AsByteStream Description }}
 
 ```yaml
@@ -69,6 +76,7 @@ Accept wildcard characters: False
 ```
 
 ### -BufferSize
+
 {{ Fill BufferSize Description }}
 
 ```yaml
@@ -84,6 +92,7 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
+
 {{ Fill Encoding Description }}
 
 ```yaml
@@ -99,6 +108,7 @@ Accept wildcard characters: False
 ```
 
 ### -PassThru
+
 {{ Fill PassThru Description }}
 
 ```yaml
@@ -114,6 +124,7 @@ Accept wildcard characters: False
 ```
 
 ### -SourceEntry
+
 {{ Fill SourceEntry Description }}
 
 ```yaml
@@ -129,6 +140,7 @@ Accept wildcard characters: False
 ```
 
 ### -Value
+
 {{ Fill Value Description }}
 
 ```yaml
@@ -144,6 +156,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
