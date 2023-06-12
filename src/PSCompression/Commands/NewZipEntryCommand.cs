@@ -124,7 +124,11 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                     ExceptionHelpers.NotArchivePathError(sourcePath));
             }
 
-            using FileStream fileStream = File.OpenRead(sourcePath);
+            using FileStream fileStream = File.Open(
+                sourcePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite);
 
             foreach (string entry in EntryPath)
             {
