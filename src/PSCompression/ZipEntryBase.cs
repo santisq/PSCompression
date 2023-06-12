@@ -80,4 +80,6 @@ public abstract class ZipEntryBase
 
         return new FileInfo(destination);
     }
+
+    public override string ToString() => EntryRelativePath;
 }

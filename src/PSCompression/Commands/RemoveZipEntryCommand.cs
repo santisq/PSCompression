@@ -4,7 +4,11 @@ using System.Management.Automation;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsCommon.Remove, "ZipEntry")]
+[Cmdlet(
+    VerbsCommon.Remove, "ZipEntry",
+    SupportsShouldProcess = true,
+    ConfirmImpact = ConfirmImpact.High
+)]
 public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _cache = new(ZipArchiveMode.Update);
@@ -18,7 +22,10 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
         {
             try
             {
-                entry.RemoveEntry(_cache.GetOrAdd(entry));
+                if (ShouldProcess(entry.ToString(), "Remove"))
+                {
+                    entry.RemoveEntry(_cache.GetOrAdd(entry));
+                }
             }
             catch (PipelineStoppedException)
             {
