@@ -137,6 +137,6 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 By default, this cmdlet produces no output.
 
-### System.IO.FileSystemInfo
+### FileSystemInfo
 
 The cmdlet outputs the `FileInfo` and `DirectoryInfo` instances of the extracted entries when `-PassThru` switch is used.

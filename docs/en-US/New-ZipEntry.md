@@ -29,7 +29,7 @@ New-ZipEntry -Destination <String> -EntryPath <String[]> [-SourcePath <String>]
 
 ## DESCRIPTION
 
-The `New-ZipEntry` cmdlet can create one or more Zip Archive Entries from specified paths. The type of the newly created entries are determined by their path, for example, if a path ends with `\` or `/`, the entry will be created as a `Directory` entry, otherwise it will be an `Archive` entry.
+The `New-ZipEntry` cmdlet can create one or more Zip Archive Entries from specified paths. The type of the created entries is determined by their path, for example, if a path ends with `\` or `/`, the entry will be created as a `Directory` entry, otherwise it will be an `Archive` entry.
 
 Entry paths (arguments of the `-EntryPath` parameter) are always normalized, a few examples of how paths are normalized:
 
@@ -86,7 +86,7 @@ PS ..\pwsh> $file = 'hello world!' | New-Item mytestfile.txt
 PS ..\pwsh> New-ZipEntry .\test.zip -EntryPath newentry.txt -SourcePath $file.FullName
 ```
 
-### Example 4: Add all files in a specified location with their content
+### Example 4: Archive all files in a specified location
 
 ```powershell
 PS ..\pwsh> $files = Get-ChildItem -File -Recurse
@@ -95,7 +95,7 @@ PS ..\pwsh> $files | ForEach-Object { New-ZipEntry .\test.zip -EntryPath $_.Full
 
 In this example `$_.FullName.Remove(0, $pwd.Path.Length)` is used to get the file paths relative to the current location. Using `-EntryPath $_.FullName` without getting the relative paths would work too however this would cause issues while attempting to extract the files later.
 
-### Example 5: Add all `.txt` files in a specified location with their content using a specified encoding
+### Example 5: Archive all `.txt` files in a specified location using a specified encoding
 
 ```powershell
 PS ..\pwsh> $files = Get-ChildItem -File -Recurse -Filter *.txt
@@ -105,7 +105,8 @@ PS ..\pwsh> $files | ForEach-Object { $_ | Get-Content -Encoding ascii | New-Zip
 ## PARAMETERS
 
 ### -CompressionLevel
-{{ Fill CompressionLevel Description }}
+
+One of the enumeration values that indicates whether to emphasize speed or compression effectiveness when creating the entry. See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details.
 
 ```yaml
 Type: CompressionLevel
@@ -115,13 +116,14 @@ Accepted values: Optimal, Fastest, NoCompression, SmallestSize
 
 Required: False
 Position: Named
-Default value: None
+Default value: Optimal
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Destination
-{{ Fill Destination Description }}
+
+Specifies the path to a Zip file where to create the entries. You can specify either a relative or an absolute path. A relative path is interpreted as relative to the current working directory. Note that the value is used exactly as it's typed. No characters are interpreted as wildcards.
 
 ```yaml
 Type: String
@@ -129,14 +131,15 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Encoding
-{{ Fill Encoding Description }}
+
+The character encoding used to set the entry content. __This parameter is applicable only when `-SourcePath` is not used.__ The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding
@@ -145,13 +148,14 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: utf8NoBOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -EntryPath
-{{ Fill EntryPath Description }}
+
+Specifies the path to one or more entries to create in the destination Zip file. __The Type of the created entries is determined by their path__, for example, if the path ends with `\` or `/`, the entry will be created as a `Directory` entry, otherwise it will be an `Archive` entry.
 
 ```yaml
 Type: String[]
@@ -159,14 +163,15 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: Named
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Force
-{{ Fill Force Description }}
+
+The cmdlet prevents creating entries in a destination Zip archive if an entry with the same relative path already exists. You can use the `-Force` parameter to overwrite them.
 
 ```yaml
 Type: SwitchParameter
@@ -181,7 +186,8 @@ Accept wildcard characters: False
 ```
 
 ### -SourcePath
-{{ Fill SourcePath Description }}
+
+The path to the file to be archived. You can specify either a relative or an absolute path. A relative path is interpreted as relative to the current working directory.
 
 ```yaml
 Type: String
@@ -189,14 +195,15 @@ Parameter Sets: File
 Aliases:
 
 Required: False
-Position: Named
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Value
-{{ Fill Value Description }}
+
+The string content that will be set to the created entries. You can also pipe a value to `New-ZipEntry`.
 
 ```yaml
 Type: String[]
@@ -211,15 +218,15 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-### None
+### String[]
+
 ## OUTPUTS
 
-### PSCompression.ZipEntryDirectory
-### PSCompression.ZipEntryDirectory
-## NOTES
+### ZipEntryDirectory
 
-## RELATED LINKS
+### ZipEntryFile
