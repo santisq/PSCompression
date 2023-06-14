@@ -14,7 +14,7 @@ internal class ZipArchiveCache : IDisposable
 
     internal ZipArchiveCache(ZipArchiveMode mode)
     {
-        _cache = new();
+        _cache = new Dictionary<string, ZipArchive>();
         _mode = mode;
     }
 
