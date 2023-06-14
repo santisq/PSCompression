@@ -10,14 +10,15 @@ public sealed class ZipEntryFile : ZipEntryBase
         base(entry, source)
     { }
 
-    public ZipEntryStream OpenRead() => new(this, ZipArchiveMode.Read);
+    public ZipArchive OpenRead() => ZipFile.OpenRead(Source);
 
-    public ZipEntryStream OpenWrite() => new(this, ZipArchiveMode.Update);
+    public ZipArchive OpenWrite() => ZipFile.Open(Source, ZipArchiveMode.Update);
 
     internal void Refresh()
     {
-        using ZipEntryStream zipEntryStream = OpenRead();
-        Length = zipEntryStream.ZipEntry.Length;
-        CompressedLength = zipEntryStream.ZipEntry.CompressedLength;
+        using ZipArchive zip = OpenRead();
+        ZipArchiveEntry entry = zip.GetEntry(EntryRelativePath);
+        Length = entry.Length;
+        CompressedLength = entry.CompressedLength;
     }
 }

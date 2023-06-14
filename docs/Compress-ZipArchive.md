@@ -232,8 +232,7 @@ Accept wildcard characters: False
 
 ### -CompressionLevel
 
-Define the compression level that should be used.
-See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details.
+Specifies values that indicate whether a compression operation emphasizes speed or compression size. See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details.
 
 ```yaml
 Type: CompressionLevel

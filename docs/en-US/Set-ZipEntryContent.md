@@ -9,34 +9,36 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Writes or appends content to an existing Zip Archive Entry.
 
 ## SYNTAX
 
 ### StringValue (Default)
 
-```
+```powershell
 Set-ZipEntryContent -Value <Object[]> [-SourceEntry] <ZipEntryFile> [-Encoding <Encoding>] [-Append]
  [-PassThru] [<CommonParameters>]
 ```
 
 ### ByteStream
 
-```
+```powershell
 Set-ZipEntryContent -Value <Object[]> [-SourceEntry] <ZipEntryFile> [-AsByteStream] [-Append]
  [-BufferSize <Int32>] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+The `Set-ZipEntryContent` cmdlet can write or append content to a Zip Archive Entry. By default, this cmdlet replaces the existing content of a Zip Archive Entry, if you need to append content you can use the `-Append` switch. This cmdlet also supports writing or appending raw bytes while using the `-AsByteStream` switch. To send content to `Set-ZipEntryContent` you can use the `-Value` parameter on the command line or send content through the pipeline.
+
+If you need to create a new Zip Archive Entry you can use the [`New-ZipEntry` cmdlet](./New-ZipEntry.md).
 
 ## EXAMPLES
 
 ### Example 1
 
 ```powershell
-PS C:\> {{ Add example code here }}
+PS ..pwsh\>
 ```
 
 {{ Add example description here }}

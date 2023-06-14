@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Creates new Zip Archive Entries from one or more specified entry relative paths.
+Creates Zip Archive Entries from one or more specified entry relative paths.
 
 ## SYNTAX
 
@@ -106,7 +106,7 @@ PS ..\pwsh> $files | ForEach-Object { $_ | Get-Content -Encoding ascii | New-Zip
 
 ### -CompressionLevel
 
-One of the enumeration values that indicates whether to emphasize speed or compression effectiveness when creating the entry. See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details.
+Specifies values that indicate whether a compression operation emphasizes speed or compression size. See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details.
 
 ```yaml
 Type: CompressionLevel

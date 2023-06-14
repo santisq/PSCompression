@@ -38,7 +38,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (!AsByteStream.IsPresent)
+            if (AsByteStream.IsPresent)
             {
                 _zipWriter = new ZipContentWriter(SourceEntry, Append.IsPresent, BufferSize);
                 return;
@@ -65,13 +65,13 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
                 return;
             }
 
-            if (!AsByteStream.IsPresent)
+            if (AsByteStream.IsPresent)
             {
-                _zipWriter.WriteLines(LanguagePrimitives.ConvertTo<string[]>(Value));
+                _zipWriter.WriteBytes(LanguagePrimitives.ConvertTo<byte[]>(Value));
                 return;
             }
 
-            _zipWriter.WriteBytes(LanguagePrimitives.ConvertTo<byte[]>(Value));
+            _zipWriter.WriteLines(LanguagePrimitives.ConvertTo<string[]>(Value));
         }
         catch (PipelineStoppedException)
         {
