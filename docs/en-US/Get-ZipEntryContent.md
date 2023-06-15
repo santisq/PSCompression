@@ -33,7 +33,7 @@ The output entries from `Get-ZipEntry` cmdlet can be passed through the pipeline
 
 ## EXAMPLES
 
-### Example 1: Get the content of a Zip Entry
+### Example 1: Get the content of a Zip Archive Entry
 
 ```powershell
 PS ..pwsh\> Get-ZipEntry .\myZip.zip -Include myrelative/entry.txt | Get-ZipEntryContent
@@ -42,7 +42,7 @@ PS ..pwsh\> Get-ZipEntry .\myZip.zip -Include myrelative/entry.txt | Get-ZipEntr
 `-Include` parameter from `Get-ZipEntry` can be used to target a specific entry by passing the entry's relative path, from there the output can be piped directly to `Get-ZipEntryContent`.
 By default, the cmdlet streams line-by-line .
 
-### Example 2: Get raw content of a Zip Entry
+### Example 2: Get raw content of a Zip Archive Entry
 
 ```powershell
 PS ..pwsh\> Get-ZipEntry .\myZip.zip -Include myrelative/entry.txt | Get-ZipEntryContent -Raw
@@ -50,7 +50,7 @@ PS ..pwsh\> Get-ZipEntry .\myZip.zip -Include myrelative/entry.txt | Get-ZipEntr
 
 The cmdlet outputs a single multi-line string when the `-Raw` switch is used instead of line-by-line streaming.
 
-### Example 3: Get the bytes of a Zip Entry as a Stream
+### Example 3: Get the bytes of a Zip Archive Entry as a Stream
 
 ```powershell
 PS ..pwsh\> $bytes = Get-ZipEntry .\test.zip -Include test/helloworld.txt | Get-ZipEntryContent -AsByteStream
@@ -96,7 +96,7 @@ When the `-Raw` and `-AsByteStream` switches are used together the cmdlet output
 
 ### -BufferSize
 
-This parameter determines the total number of bytes read into the buffer before outputting the stream of bytes. __This parameter is applicable only when `-Raw` is not used.__ The buffer default value is __128 KiB__.
+This parameter determines the total number of bytes read into the buffer before outputting the stream of bytes. __This parameter is applicable only when `-Raw` is not used.__ The buffer default value is __128 KiB.__
 
 ```yaml
 Type: Int32
@@ -112,7 +112,7 @@ Accept wildcard characters: False
 
 ### -Encoding
 
-The character encoding used to read the entry content. __This parameter is applicable only when `-AsByteStream` is not used.__ The default encoding is __`utf8NoBOM`__.
+The character encoding used to read the entry content. __This parameter is applicable only when `-AsByteStream` is not used.__ The default encoding is __`utf8NoBOM`.__
 
 ```yaml
 Type: Encoding

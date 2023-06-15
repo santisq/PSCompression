@@ -67,7 +67,7 @@ Get-FileHash -Path .\files\file.txt, .\files\strings.txt -Algorithm MD5 |
 
 (Get-Content .\files\lorem*.txt | Measure-Object Length -Sum).Sum / 1kb                                    # About 90kb
 (Compress-GzipArchive .\files\lorem*.txt -DestinationPath .\files\mergedLorem.gzip -PassThru).Length / 1kb # About 30kb
-(Expand-GzipArchive .\files\mergedLorem.gzip -Raw | Measure-Object Length -Sum).Sum / 1kb                       # About 90kb
+(Expand-GzipArchive .\files\mergedLorem.gzip -Raw | Measure-Object Length -Sum).Sum / 1kb                  # About 90kb
 
 # Example 10: Compressing the files content from previous example into one Gzip Base64 string
 

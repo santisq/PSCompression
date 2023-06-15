@@ -35,19 +35,56 @@ If you need to create a new Zip Archive Entry you can use the [`New-ZipEntry` cm
 
 ## EXAMPLES
 
-### Example 1
+### Example 1: Write new content to a Zip Archive Entry
 
 ```powershell
-PS ..pwsh\>
+PS ..pwsh\> $entry = New-ZipEntry .\test.zip -EntryPath test\helloworld.txt
+PS ..pwsh\> 'hello', 'world', '!' | Set-ZipEntryContent $entry
+PS ..pwsh\> $entry | Get-ZipEntryContent
+hello
+world
+!
 ```
 
-{{ Add example description here }}
+You can send content through the pipeline or using the `-Value` parameter as shown in the next example.
+
+### Example 2: Append content to a Zip Archive Entry
+
+```powershell
+PS ..pwsh\> Set-ZipEntryContent $entry -Value 'hello', 'world', '!' -Append
+PS ..pwsh\> $entry | Get-ZipEntryContent
+hello
+world
+!
+hello
+world
+!
+```
+
+### Example 3: Write raw bytes to a Zip Archive Entry
+
+```powershell
+PS ..pwsh\> $entry = Get-ZipEntry .\test.zip -Include test/helloworld.txt
+PS ..pwsh\> [System.Text.Encoding]::UTF8.GetBytes('hello world!') | Set-ZipEntryContent $entry -AsByteStream
+PS ..pwsh\> $entry | Get-ZipEntryContent
+hello world!
+```
+
+The cmdlet supports writing and appending raw bytes while using the `-AsByteStream` switch.
+
+### Example 4: Append raw bytes to a Zip Archive Entry
+
+```powershell
+PS ..pwsh\> [System.Text.Encoding]::UTF8.GetBytes('hello world!') | Set-ZipEntryContent $entry -AsByteStream -Append
+PS ..pwsh\> $entry | Get-ZipEntryContent
+hello world!hello world!
+```
 
 ## PARAMETERS
 
 ### -Append
 
-{{ Fill Append Description }}
+Appends the content to the zip entry instead of overwriting it.
 
 ```yaml
 Type: SwitchParameter
@@ -63,7 +100,7 @@ Accept wildcard characters: False
 
 ### -AsByteStream
 
-{{ Fill AsByteStream Description }}
+Specifies that the content should be written as a stream of bytes.
 
 ```yaml
 Type: SwitchParameter
@@ -79,7 +116,7 @@ Accept wildcard characters: False
 
 ### -BufferSize
 
-{{ Fill BufferSize Description }}
+For efficiency purposes this cmdlet buffer bytes before writing them to the Zip Archive Entry. This parameter determines how many bytes are buffered before being written to the stream. __This parameter is applicable only when `-AsByteStream` is used.__ The buffer default value is __128 KiB.__
 
 ```yaml
 Type: Int32
@@ -88,14 +125,14 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: 128000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Encoding
 
-{{ Fill Encoding Description }}
+The character encoding used to read the entry content. __This parameter is applicable only when `-AsByteStream` is not used.__ The default encoding is __`utf8NoBOM`.__
 
 ```yaml
 Type: Encoding
@@ -104,14 +141,14 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: utf8NoBOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -PassThru
 
-{{ Fill PassThru Description }}
+Outputs the object representing the updated zip archive entry. By default, this cmdlet does not generate any output.
 
 ```yaml
 Type: SwitchParameter
@@ -127,7 +164,7 @@ Accept wildcard characters: False
 
 ### -SourceEntry
 
-{{ Fill SourceEntry Description }}
+Specifies the zip archive entry that receives the content. `ZipEntryFile` instances can be obtained using `Get-ZipEntry` or `New-ZipEntry` cmdlets.
 
 ```yaml
 Type: ZipEntryFile
@@ -143,7 +180,7 @@ Accept wildcard characters: False
 
 ### -Value
 
-{{ Fill Value Description }}
+Specifies the new content for the zip entry.
 
 ```yaml
 Type: Object[]
@@ -159,16 +196,20 @@ Accept wildcard characters: False
 
 ### CommonParameters
 
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-### System.Object[]
+### Object[]
+
+You can pipe strings or bytes to this cmdlet.
 
 ## OUTPUTS
 
-### PSCompression.ZipEntryFile
+### None
 
-## NOTES
+This cmdlet produces no output by default .
 
-## RELATED LINKS
+### ZipEntryFile
+
+This cmdlet outputs the updated entry when the `-PassThru` switch is used.
