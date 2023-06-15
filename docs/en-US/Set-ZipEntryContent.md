@@ -116,7 +116,7 @@ Accept wildcard characters: False
 
 ### -BufferSize
 
-For efficiency purposes this cmdlet buffer bytes before writing them to the Zip Archive Entry. This parameter determines how many bytes are buffered before being written to the stream. __This parameter is applicable only when `-AsByteStream` is used.__ The buffer default value is __128 KiB.__
+For efficiency purposes this cmdlet buffers bytes before writing them to the Zip Archive Entry. This parameter determines how many bytes are buffered before being written to the stream. __This parameter is applicable only when `-AsByteStream` is used.__ The buffer default value is __128 KiB.__
 
 ```yaml
 Type: Int32
