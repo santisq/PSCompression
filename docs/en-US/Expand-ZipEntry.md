@@ -129,7 +129,9 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### ZipEntryBase[]
+### ZipEntryBase
+
+You can pipe instances of `ZipEntryFile` to this cmdlet. These instances are produced by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
 
 ## OUTPUTS
 

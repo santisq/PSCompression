@@ -200,7 +200,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### Object[]
+### Object
 
 You can pipe strings or bytes to this cmdlet.
 

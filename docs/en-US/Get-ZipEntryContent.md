@@ -180,7 +180,9 @@ This cmdlet supports the common parameters. See [about_CommonParameters](http://
 
 ## INPUTS
 
-### ZipEntryFile[]
+### ZipEntryFile
+
+You can pipe instances of `ZipEntryFile` to this cmdlet. These instances are produced by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
 
 ## OUTPUTS
 

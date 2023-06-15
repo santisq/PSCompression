@@ -223,7 +223,9 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### String[]
+### String
+
+You can pipe a value for the new zip entry to this cmdlet.
 
 ## OUTPUTS
 

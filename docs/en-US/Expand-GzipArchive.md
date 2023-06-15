@@ -191,6 +191,6 @@ This cmdlet outputs an array of string to the success stream when `-DestinationP
 
 This cmdlet produces no output when expanding to a file and `-PassThru` is not used.
 
-### System.IO.FileInfo
+### FileInfo
 
 When the `-PassThru` switch is used this cmdlet outputs the `FileInfo` instance representing the expanded file.

@@ -287,6 +287,6 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 By default, this cmdlet produces no output.
 
-### System.IO.FileInfo
+### FileInfo
 
 When the `-PassThru` switch is used this cmdlet outputs the `FileInfo` instance representing the compressed file.

@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-PowerShell cmdlet that overcomes the limitations of [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) while keeping similar pipeline capabilities.
+PowerShell function that overcomes the limitations of [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) while keeping similar pipeline capabilities.
 
 ## SYNTAX
 
@@ -57,7 +57,7 @@ Compress-ZipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-Compre
 
 ## DESCRIPTION
 
-PowerShell cmdlet that overcomes the limitation that the built-in cmdlet `Compress-Archive` has:
+PowerShell function that overcomes the limitation that the built-in cmdlet `Compress-Archive` has:
 
 > The `Compress-Archive` cmdlet uses the Microsoft .NET API [`System.IO.Compression.ZipArchive`](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive?view=net-6.0) to compress files. The maximum file size is 2 GB because there's a limitation of the underlying API.
 
@@ -67,7 +67,7 @@ The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](h
    2. All files (recursively) on the source folder __will be compressed__, we can't pick / filter files to compress.
    3. It's not possible to __Update__ the entries of an existing Zip Archive.
 
-This cmdlet should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure untouched__.
+This function should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure untouched__.
 
 ## EXAMPLES
 
@@ -162,7 +162,7 @@ Accept wildcard characters: False
 ### -DestinationPath
 
 The destination path to the Zip file.
-If the file name in DestinationPath doesn't have a `.zip` file name extension, the cmdlet appends the `.zip` file name extension.
+If the file name in DestinationPath doesn't have a `.zip` file name extension, the function appends the `.zip` file name extension.
 
 ```yaml
 Type: String
@@ -178,8 +178,7 @@ Accept wildcard characters: False
 
 ### -CompressionLevel
 
-Define the compression level that should be used.
-See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details.
+Specifies values that indicate whether a compression operation emphasizes speed or compression size. See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details.
 
 ```yaml
 Type: CompressionLevel
@@ -230,7 +229,7 @@ Accept wildcard characters: False
 ### -PassThru
 
 Outputs the object representing the compressed file.
-The cmdlet produces no output by default.
+The function produces no output by default.
 
 ```yaml
 Type: SwitchParameter
@@ -248,12 +247,22 @@ Accept wildcard characters: False
 
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
+## INPUTS
+
+### String
+
+You can pipe a string that contains a path to one or more files.
+
 ## OUTPUTS
 
 ### None
 
 By default, this cmdlet produces no output.
 
-### System.IO.FileInfo
+### FileInfo
 
 When the `-PassThru` switch is used this cmdlet outputs the `FileInfo` instance representing the compressed file.
+
+## NOTES
+
+This function was initially posted to address [this Stack Overflow question](https://stackoverflow.com/a/72611161/15339544). [Another question](https://stackoverflow.com/q/74129754/15339544) in the same site pointed out another limitation with the native cmdlet, it can't compress if another process has a handle on a file. To overcome this issue, and also to emulate explorer's behavior when compressing files used by another process, the function posted below will default to __[`[FileShare] 'ReadWrite, Delete'`](https://learn.microsoft.com/en-us/dotnet/api/system.io.fileshare?view=net-6.0)__ when opening a [`FileStream`](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.open?view=net-7.0).

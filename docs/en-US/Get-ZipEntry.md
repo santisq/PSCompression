@@ -193,7 +193,9 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### String[]
+### String
+
+You can pipe paths to this cmdlet. Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
 
 ## OUTPUTS
 
