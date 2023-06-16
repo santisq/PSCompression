@@ -90,7 +90,9 @@ PS ..\pwsh> New-ZipEntry .\test.zip -EntryPath newentry.txt -SourcePath $file.Fu
 
 ```powershell
 PS ..\pwsh> $files = Get-ChildItem -File -Recurse
-PS ..\pwsh> $files | ForEach-Object { New-ZipEntry .\test.zip -EntryPath $_.FullName.Remove(0, $pwd.Path.Length) -SourcePath $_.FullName }
+PS ..\pwsh> $files | ForEach-Object {
+   New-ZipEntry .\test.zip -EntryPath $_.FullName.Remove(0, $pwd.Path.Length) -SourcePath $_.FullName
+}
 ```
 
 In this example `$_.FullName.Remove(0, $pwd.Path.Length)` is used to get the file paths relative to the current location. Using `-EntryPath $_.FullName` without getting the relative paths would work too however this would cause issues while attempting to extract the files later.
@@ -99,7 +101,10 @@ In this example `$_.FullName.Remove(0, $pwd.Path.Length)` is used to get the fil
 
 ```powershell
 PS ..\pwsh> $files = Get-ChildItem -File -Recurse -Filter *.txt
-PS ..\pwsh> $files | ForEach-Object { $_ | Get-Content -Encoding ascii | New-ZipEntry .\test.zip -EntryPath $_.FullName.Remove(0, $pwd.Path.Length) -Encoding ascii }
+PS ..\pwsh> $files | ForEach-Object {
+   $_ | Get-Content -Encoding ascii |
+      New-ZipEntry .\test.zip -EntryPath $_.FullName.Remove(0, $pwd.Path.Length) -Encoding ascii
+}
 ```
 
 ## PARAMETERS

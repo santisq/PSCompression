@@ -65,7 +65,8 @@ world
 
 ```powershell
 PS ..pwsh\> $entry = Get-ZipEntry .\test.zip -Include test/helloworld.txt
-PS ..pwsh\> [System.Text.Encoding]::UTF8.GetBytes('hello world!') | Set-ZipEntryContent $entry -AsByteStream
+PS ..pwsh\> $bytes = [System.Text.Encoding]::UTF8.GetBytes('hello world!')
+PS ..pwsh\> $bytes | Set-ZipEntryContent $entry -AsByteStream
 PS ..pwsh\> $entry | Get-ZipEntryContent
 hello world!
 ```
@@ -75,10 +76,12 @@ The cmdlet supports writing and appending raw bytes while using the `-AsByteStre
 ### Example 4: Append raw bytes to a Zip Archive Entry
 
 ```powershell
-PS ..pwsh\> [System.Text.Encoding]::UTF8.GetBytes('hello world!') | Set-ZipEntryContent $entry -AsByteStream -Append
+PS ..pwsh\> $bytes | Set-ZipEntryContent $entry -AsByteStream -Append
 PS ..pwsh\> $entry | Get-ZipEntryContent
 hello world!hello world!
 ```
+
+Using the same byte array in the previous example, we can append bytes to the entry stream.
 
 ## PARAMETERS
 
