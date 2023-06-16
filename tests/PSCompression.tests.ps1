@@ -18,27 +18,33 @@
             New-ZipEntry $zip.FullName -EntryPath test\newentry.txt |
                 Should -BeOfType ([PSCompression.ZipEntryFile])
         }
+
         It 'Can create new zip directory entries' {
             New-ZipEntry $zip.FullName -EntryPath test\ |
                 Should -BeOfType ([PSCompression.ZipEntryDirectory])
         }
+
         It 'Can create multiple entries' {
             New-ZipEntry $zip.FullName -EntryPath foo.txt, bar.txt, baz.txt |
                 Should -HaveCount 3
         }
+
         It 'Should not create an entry with the same path' {
             { New-ZipEntry $zip.FullName -EntryPath test\newentry.txt } |
                 Should -Throw
         }
+
         It 'Can replace an existing entry with -Force' {
             { New-ZipEntry $zip.FullName -EntryPath test\newentry.txt -Force } |
                 Should -Not -Throw
         }
+
         It 'Can create entries with content from value' {
             'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt |
                 Get-ZipEntryContent |
                 Should -Be 'hello world!'
         }
+
         It 'Can create entries with content from file' {
             $newItemSplat = @{
                 ItemType = 'File'
@@ -65,18 +71,22 @@
             @($zip | Get-ZipEntry).Count -gt 0 |
                 Should -BeGreaterThan 0
         }
+
         It 'Can list zip file entries' {
             $zip | Get-ZipEntry -EntryType Archive |
                 Should -BeOfType ([PSCompression.ZipEntryFile])
         }
+
         It 'Can list zip directory entries' {
             $zip | Get-ZipEntry -EntryType Directory |
                 Should -BeOfType ([PSCompression.ZipEntryDirectory])
         }
+
         It 'Can list a specific entry with the -Include parameter' {
             $zip | Get-ZipEntry -Include test/newentry.txt |
                 Should -Not -BeNullOrEmpty
         }
+
         It 'Can exclude entries using the -Exclude parameter' {
             $zip | Get-ZipEntry -Exclude *.txt |
                 ForEach-Object { [System.IO.Path]::GetExtension($_.EntryRelativePath) } |
@@ -90,16 +100,19 @@
                 Get-ZipEntryContent |
                 Should -BeOfType ([string])
         }
+
         It 'Can read bytes from zip file entries' {
             $zip | Get-ZipEntry -EntryType Archive |
                 Get-ZipEntryContent -AsByteStream |
                 Should -BeOfType ([byte])
         }
+
         It 'Can output a byte array when using the -Raw switch' {
             $zip | Get-ZipEntry -EntryType Archive |
                 Get-ZipEntryContent -AsByteStream -Raw |
                 Should -BeOfType ([byte[]])
         }
+
         It 'Should not attempt to read a directory entry' {
             { $zip | Get-ZipEntry -EntryType Directory | Get-ZipEntry } |
                 Should -Throw
@@ -113,15 +126,18 @@
 
             $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.ZipEntryFile])
         }
+
         It 'Can remove directory entries' {
             $entries = $zip | Get-ZipEntry -EntryType Directory
             { Remove-ZipEntry -InputObject $entries } | Should -Not -Throw
             $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.ZipEntryDirectory])
         }
+
         It 'Should not throw if there are no entries to remove' {
             { $zip | Get-ZipEntry | Remove-ZipEntry } |
                 Should -Not -Throw
         }
+
         It 'Should be empty after all entries have been removed' {
             $zip | Get-ZipEntry | Should -BeNullOrEmpty
         }
@@ -174,7 +190,7 @@
 
     Context 'Expand-ZipEntry' -Tag 'Expand-ZipEntry' {
         BeforeAll {
-            $path = New-Item (Join-Path $TestDrive -ChildPath 'ExtractTests') -ItemType Directory
+            $destination = New-Item (Join-Path $TestDrive -ChildPath 'ExtractTests') -ItemType Directory
             $zip | Get-ZipEntry | Remove-ZipEntry
 
             $structure = foreach($folder in 0..5) {
@@ -188,10 +204,32 @@
             $content = 'hello world!'
             $content | New-ZipEntry $zip.FullName -EntryPath $structure
 
-            $path, $structure, $content | Out-Null
+            $destination, $structure, $content | Out-Null
         }
 
-        # It ''
+        It 'Can extract entries to a destination directory' {
+            { $zip | Get-ZipEntry | Expand-ZipEntry -Destination $destination } |
+                Should -Not -Throw
+        }
+
+        It 'Should not overwrite files without -Force' {
+            { $zip | Get-ZipEntry | Expand-ZipEntry -Destination $destination } |
+                Should -Throw
+        }
+
+        It 'Can overwrite files if using -Force' {
+            { $zip | Get-ZipEntry | Expand-ZipEntry -Destination $destination -Force } |
+                Should -Not -Throw
+        }
+
+        It 'Should preserve the file content of the extracted entries' {
+            $expanded = $zip | Get-ZipEntry |
+                Expand-ZipEntry -Destination $destination -Force -PassThru
+
+            $expanded | Should -HaveCount $structure.Count
+
+            Get-ChildItem -LiteralPath $destination -Recurse -File |
+                ForEach-Object { $_ | Get-Content | Should -BeExactly $content }
+        }
     }
 }
-
