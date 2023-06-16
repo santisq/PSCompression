@@ -33,4 +33,5 @@
         "pwsh"
     ],
     "dotnet.defaultSolution": "src\\PSCompression\\PSCompression.sln",
+    "pester.autoRunOnSave": false,
 }

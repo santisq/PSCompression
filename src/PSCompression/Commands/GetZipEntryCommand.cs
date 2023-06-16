@@ -164,7 +164,8 @@ public sealed class GetZipEntryCommand : PSCmdlet
 
         return _output
             .OrderBy(SortingOps.SortByParent)
-            .ThenBy(e => e.EntryName)
+            .ThenBy(SortingOps.SortByLength)
+            .ThenBy(SortingOps.SortByName)
             .ToArray();
     }
 

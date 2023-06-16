@@ -244,7 +244,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         return _result
             .OrderBy(SortingOps.SortByParent)
-            .ThenBy(e => e.EntryName)
+            .ThenBy(SortingOps.SortByLength)
+            .ThenBy(SortingOps.SortByName)
             .ToArray();
     }
 
