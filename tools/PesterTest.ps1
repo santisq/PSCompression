@@ -24,7 +24,13 @@ $ErrorActionPreference = 'Stop'
 $requirements = Import-PowerShellDataFile ([IO.Path]::Combine($PSScriptRoot, 'requiredModules.psd1'))
 $modulePath = [IO.Path]::Combine($PSScriptRoot, 'Modules')
 foreach ($req in $requirements.GetEnumerator() | Sort-Object { $_.Value['Priority'] }) {
-    Import-Module -Name ([IO.Path]::Combine($modulePath, $req.Key)) -Force -ErrorAction Stop
+    $importModuleSplat = @{
+        Name                = ([IO.Path]::Combine($modulePath, $req.Key))
+        Force               = $true
+        DisableNameChecking = $true
+    }
+
+    Import-Module @importModuleSplat
 }
 
 [PSCustomObject] $PSVersionTable |

@@ -9,7 +9,6 @@ ConvertTo-GzipString $strings
 $strings | ConvertTo-GzipString
 
 # Example 2: Expanding compressed strings
-
 ConvertFrom-GzipString H4sIAAAAAAAACstIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
 
 # Example 3: Demonstrates how `-NoNewLine` works

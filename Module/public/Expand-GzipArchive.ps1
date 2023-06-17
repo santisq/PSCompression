@@ -24,9 +24,9 @@ function Expand-GzipArchive {
 
         [Parameter(ParameterSetName = 'Path')]
         [Parameter(ParameterSetName = 'LiteralPath')]
-        [EncodingTransformation()]
-        [ArgumentCompleter([EncodingCompleter])]
-        [Encoding] $Encoding = 'utf8',
+        [PSCompression.EncodingTransformation()]
+        [ArgumentCompleter([PSCompression.EncodingCompleter])]
+        [Encoding] $Encoding = [UTF8Encoding]::new(),
 
         [Parameter(ParameterSetName = 'Path')]
         [Parameter(ParameterSetName = 'LiteralPath')]

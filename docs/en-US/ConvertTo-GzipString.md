@@ -60,7 +60,7 @@ PS ..\pwsh> 'ñ' | ConvertTo-GzipString -Encoding utf8BOM | ConvertFrom-GzipStri
 ñ
 ```
 
-Note: Default Encoding is utf8NoBom.
+Note: Default Encoding is `utf8NoBom`.
 
 ### Example 4: Compressing multiple files into one Gzip Base64 string
 
@@ -139,7 +139,7 @@ This parameter is meant to be used in combination with `Compress-GzipArchive`.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: Raw
 
 Required: False
 Position: Named

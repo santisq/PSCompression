@@ -3,7 +3,6 @@
         $ErrorActionPreference = 'Stop'
 
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
-        $zip | Out-Null # Analyzer Rule is annoying :(
 
         $moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
         $manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
@@ -11,6 +10,35 @@
         if (-not (Get-Module -Name $moduleName -ErrorAction SilentlyContinue)) {
             Import-Module $manifestPath -ErrorAction Stop
         }
+
+        $decoder = {
+            param([byte[]] $bytes)
+
+            try {
+                $gzip = [System.IO.Compression.GZipStream]::new(
+                    ($mem = [System.IO.MemoryStream]::new($bytes)),
+                    [System.IO.Compression.CompressionMode]::Decompress)
+
+                $out = [System.IO.MemoryStream]::new()
+                $gzip.CopyTo($out)
+            }
+            finally {
+                if($gzip -is [System.IDisposable]) {
+                    $gzip.Dispose()
+                }
+
+                if($mem -is [System.IDisposable]) {
+                    $mem.Dispose()
+                }
+
+                if($out -is [System.IDisposable]) {
+                    $out.Dispose()
+                    [System.Text.UTF8Encoding]::new().GetString($out.ToArray())
+                }
+            }
+        }
+
+        $zip, $decoder | Out-Null # Analyzer Rule is annoying :(
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -168,7 +196,7 @@
             $entry | Get-ZipEntryContent | Should -BeExactly $newContent
             $entry | Get-ZipEntryContent -Raw |
                 ForEach-Object TrimEnd |
-                Should -BeExactly ($newContent  -join [System.Environment]::NewLine)
+                Should -BeExactly ($newContent -join [System.Environment]::NewLine)
         }
 
         It 'Can write raw bytes to a zip file entry' {
@@ -230,6 +258,48 @@
 
             Get-ChildItem -LiteralPath $destination -Recurse -File |
                 ForEach-Object { $_ | Get-Content | Should -BeExactly $content }
+        }
+    }
+
+    Context 'ConvertTo-GzipString' -Tag 'ConvertTo-GzipString' {
+        BeforeAll {
+            $content = 'hello', 'world', '!'
+            $content | Out-Null
+        }
+
+        It 'Can compress strings to gzip b64 strings from pipeline' {
+            $content | ConvertTo-GzipString |
+                Should -BeExactly 'H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA=='
+        }
+
+        It 'Can compress strings to gzip b64 strings positionally' {
+            ConvertTo-GzipString -InputObject $content |
+                Should -BeExactly 'H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA=='
+        }
+
+        It 'Can compress strings to gzip and output raw bytes' {
+            [byte[]] $bytes = $content | ConvertTo-GzipString -AsByteStream
+            $result = $decoder.InvokeReturnAsIs($bytes)
+            $result.TrimEnd() | Should -BeExactly ($content -join [System.Environment]::NewLine)
+        }
+    }
+
+    Context 'ConvertFrom-GzipString' -Tag 'ConvertFrom-GzipString' {
+        BeforeAll {
+            $content = 'hello', 'world', '!'
+            $content | Out-Null
+        }
+
+        It 'Can convert gzip b64 compressed string and output string array' {
+            'H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==' |
+                ConvertFrom-GzipString | Should -BeExactly $content
+        }
+
+        It 'Can convert gzip b64 compressed string and output multi-line string' {
+            'H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==' |
+                ConvertFrom-GzipString -Raw |
+                ForEach-Object TrimEnd |
+                Should -BeExactly ($content -join [System.Environment]::NewLine)
         }
     }
 }

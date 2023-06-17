@@ -12,9 +12,9 @@ function ConvertFrom-GzipString {
         [string[]] $InputObject,
 
         [Parameter()]
-        [EncodingTransformation()]
-        [ArgumentCompleter([EncodingCompleter])]
-        [Encoding] $Encoding = 'utf8',
+        [PSCompression.EncodingTransformation()]
+        [ArgumentCompleter([PSCompression.EncodingCompleter])]
+        [Encoding] $Encoding = [UTF8Encoding]::new(),
 
         [Parameter()]
         [switch] $Raw

@@ -14,14 +14,15 @@ function ConvertTo-GzipString {
         [string[]] $InputObject,
 
         [Parameter()]
-        [EncodingTransformation()]
-        [ArgumentCompleter([EncodingCompleter])]
-        [Encoding] $Encoding = 'utf8',
+        [PSCompression.EncodingTransformation()]
+        [ArgumentCompleter([PSCompression.EncodingCompleter])]
+        [Encoding] $Encoding = [UTF8Encoding]::new(),
 
         [Parameter()]
         [CompressionLevel] $CompressionLevel = 'Optimal',
 
         [Parameter(ParameterSetName = 'ByteStream')]
+        [Alias('Raw')]
         [switch] $AsByteStream,
 
         [Parameter()]
