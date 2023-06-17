@@ -23,7 +23,7 @@ end {
         $targetPath = [IO.Path]::Combine($modulePath, $req.Key)
 
         if (Test-Path -LiteralPath $targetPath) {
-            Import-Module -Name $targetPath -Force -ErrorAction Stop
+            Import-Module -Name $targetPath -Force -ErrorAction Stop -DisableNameChecking
             continue
         }
 
@@ -53,6 +53,12 @@ end {
         }
 
         Import-Module -Name $targetPath -Force -ErrorAction Stop
+    }
+
+    $dotnetTools = @(dotnet tool list --global) -join "`n"
+    if (-not $dotnetTools.Contains('coverlet.console')) {
+        Write-Host 'Installing dotnet tool coverlet.console'
+        dotnet tool install --global coverlet.console
     }
 
     $invokeBuildSplat = @{

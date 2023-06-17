@@ -23,4 +23,8 @@
         Priority = 1
         Version  = '1.5.7'
     }
+    Pester           = @{
+        Priority = 3
+        Version  = '5.4.1'
+    }
 }

@@ -124,6 +124,11 @@ task Package {
 }
 
 task Analyze {
+    $analyzerPath = [IO.Path]::Combine($PSScriptRoot, 'ScriptAnalyzerSettings.psd1')
+    if(-not (Test-Path $analyzerPath)) {
+        return Write-Host 'No analyzer rules found, skipping...'
+    }
+
     $pssaSplat = @{
         Path        = $ReleasePath
         Settings    = [IO.Path]::Combine($PSScriptRoot, 'ScriptAnalyzerSettings.psd1')
@@ -141,8 +146,7 @@ task Analyze {
 task DoUnitTest {
     $testsPath = [IO.Path]::Combine($PSScriptRoot, 'tests', 'units')
     if (-not (Test-Path -LiteralPath $testsPath)) {
-        Write-Host 'No unit tests found, skipping'
-        return
+        return Write-Host 'No unit tests found, skipping...'
     }
 
     $resultsPath = [IO.Path]::Combine($BuildPath, 'TestResults')
@@ -194,10 +198,9 @@ task DoUnitTest {
 }
 
 task DoTest {
-    $pesterScript = [IO.Path]::Combine($PSScriptRoot, 'tools', 'PesterTest.ps1')
-    if(-not (Test-Path $pesterScript)) {
-        Write-Host 'No Pester tests found, skipping'
-        return
+    $testsPath = [IO.Path]::Combine($PSScriptRoot, 'tests')
+    if(-not (Test-Path $testsPath)) {
+        return Write-Host 'No Pester tests found, skipping...'
     }
 
     $resultsPath = [IO.Path]::Combine($BuildPath, 'TestResults')
@@ -210,7 +213,8 @@ task DoTest {
         Remove-Item $resultsFile -ErrorAction Stop -Force
     }
 
-    $pwsh = [Environment]::GetCommandLineArgs()[0] -replace '\.dll$', ''
+    $pesterScript = [IO.Path]::Combine($PSScriptRoot, 'tools', 'PesterTest.ps1')
+    $pwsh = [Environment]::GetCommandLineArgs()[0] -replace '\.dll$'
     $arguments = @(
         '-NoProfile'
         '-NonInteractive'
@@ -218,12 +222,11 @@ task DoTest {
             '-ExecutionPolicy', 'Bypass'
         }
         '-File', $pesterScript
-        '-TestPath', ([IO.Path]::Combine($PSScriptRoot, 'tests'))
+        '-TestPath', $testsPath
         '-OutputFile', $resultsFile
     )
 
     if ($Configuration -eq 'Debug') {
-        # We use coverlet to collect code coverage of our binary
         $unitCoveragePath = [IO.Path]::Combine($resultsPath, 'UnitCoverage.json')
         $targetArgs = '"' + ($arguments -join '" "') + '"'
 
@@ -249,6 +252,7 @@ task DoTest {
     }
 
     & $pwsh $arguments
+
     if ($LASTEXITCODE) {
         throw 'Pester failed tests'
     }

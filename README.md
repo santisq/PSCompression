@@ -1,5 +1,17 @@
 <h1 align="center">PSCompression</h1>
 
+<div align="center">
+    <sub>
+        Zip and GZip utilities for PowerShell
+    </sub>
+    <br /><br />
+
+[![build](https://github.com/santisq/PSCompression/actions/workflows/ci.yml/badge.svg)](https://github.com/santisq/PSCompression/actions/workflows/ci.yml)
+[![PSTree on PowerShell Gallery](https://img.shields.io/powershellgallery/v/PSCompression?label=gallery)](https://www.powershellgallery.com/packages/PSCompression)
+[![LICENSE](https://img.shields.io/github/license/santisq/PSCompression)](https://github.com/santisq/PSCompression/blob/main/LICENSE)
+
+</div>
+
 PSCompression is a PowerShell Module aimed to provide Gzip utilities for compression and expansion as well as to solve a few issues with Zip compression existing in _built-in PowerShell_.
 
 ## Installation
