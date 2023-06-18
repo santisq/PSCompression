@@ -4,36 +4,40 @@ using namespace System.Text
 
 # .ExternalHelp PSCompression-help.xml
 function Expand-GzipArchive {
-    [CmdletBinding(DefaultParameterSetName = 'Path')]
+    [CmdletBinding(PositionalBinding = $false)]
     [Alias('gzipfromfile')]
     [OutputType([string], ParameterSetName = ('Path', 'LiteralPath'))]
-    [OutputType([System.IO.FileInfo], ParameterSetName = ('PathToFile', 'LiteralPathToFile'))]
+    [OutputType([System.IO.FileInfo], ParameterSetName = ('PathDestination', 'LiteralPathDestination'))]
     param(
-        [Parameter(ParameterSetName = 'PathToFile', Mandatory, Position = 0, ValueFromPipeline)]
         [Parameter(ParameterSetName = 'Path', Mandatory, Position = 0, ValueFromPipeline)]
+        [Parameter(ParameterSetName = 'PathDestination', Mandatory, Position = 0, ValueFromPipeline)]
         [string[]] $Path,
 
-        [Parameter(ParameterSetName = 'LiteralPathToFile', Mandatory, ValueFromPipelineByPropertyName)]
         [Parameter(ParameterSetName = 'LiteralPath', Mandatory, ValueFromPipelineByPropertyName)]
+        [Parameter(ParameterSetName = 'LiteralPathDestination', Mandatory, ValueFromPipelineByPropertyName)]
         [Alias('PSPath')]
         [string[]] $LiteralPath,
 
-        [Parameter(ParameterSetName = 'PathToFile', Position = 1)]
-        [Parameter(ParameterSetName = 'LiteralPathToFile', Position = 1)]
+        [Parameter(Mandatory, ParameterSetName = 'PathDestination')]
+        [Parameter(Mandatory, ParameterSetName = 'LiteralPathDestination')]
         [string] $DestinationPath,
 
         [Parameter(ParameterSetName = 'Path')]
         [Parameter(ParameterSetName = 'LiteralPath')]
+        [Parameter(ParameterSetName = 'PathDestination')]
+        [Parameter(ParameterSetName = 'LiteralPathDestination')]
         [PSCompression.EncodingTransformation()]
         [ArgumentCompleter([PSCompression.EncodingCompleter])]
         [Encoding] $Encoding = [UTF8Encoding]::new(),
 
         [Parameter(ParameterSetName = 'Path')]
         [Parameter(ParameterSetName = 'LiteralPath')]
+        [Parameter(ParameterSetName = 'PathDestination')]
+        [Parameter(ParameterSetName = 'LiteralPathDestination')]
         [switch] $Raw,
 
-        [Parameter(ParameterSetName = 'PathToFile')]
-        [Parameter(ParameterSetName = 'LiteralPathToFile')]
+        [Parameter(ParameterSetName = 'PathDestination')]
+        [Parameter(ParameterSetName = 'LiteralPathDestination')]
         [switch] $PassThru
     )
 
@@ -63,11 +67,11 @@ function Expand-GzipArchive {
             }
 
             # Had to do this to read appended Gzip content in .NET Framework...
-            if(-not $IsCoreCLR) {
-                return $items | GzipFrameworkReader @params
+            if($IsCoreCLR) {
+                return $items | GzipCoreReader @params
             }
 
-            $items | GzipCoreReader @params
+            $items | GzipFrameworkReader @params
         }
         catch {
             $PSCmdlet.WriteError($_)
@@ -78,7 +82,7 @@ function Expand-GzipArchive {
             }
 
             if($PassThru.IsPresent) {
-                $outFile.Name -as [FileInfo]
+                $params['OutStream'].Name -as [FileInfo]
             }
         }
     }
