@@ -71,6 +71,22 @@ jobs:
         name: PSModule
         path: output
 
+    - name: Install Built PowerShell Module
+      shell: pwsh
+      run: |
+        $manifestItem = Get-Item ([IO.Path]::Combine('module', '*.psd1'))
+        $moduleName = $manifestItem.BaseName
+        $manifest = Test-ModuleManifest -Path $manifestItem.FullName -ErrorAction SilentlyContinue -WarningAction Ignore
+
+        $destPath = [IO.Path]::Combine('output', $moduleName, $manifest.Version)
+        if (-not (Test-Path -LiteralPath $destPath)) {
+            New-Item -Path $destPath -ItemType Directory | Out-Null
+        }
+
+        Get-ChildItem output/*.nupkg | Rename-Item -NewName { $_.Name -replace '.nupkg', '.zip' }
+
+        Expand-Archive -Path output/*.zip -DestinationPath $destPath -Force -ErrorAction Stop
+
     - name: Run Tests - Windows PowerShell
       if: ${{ matrix.info.psversion == '5.1' }}
       shell: pwsh
