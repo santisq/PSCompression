@@ -4,7 +4,7 @@
 
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
 
-        $moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
+        $moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'Module', '*.psd1'))).BaseName
         $manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 
         if (-not (Get-Module -Name $moduleName -ErrorAction SilentlyContinue)) {
@@ -323,6 +323,17 @@
             $appendedContent |
                 Compress-GzipArchive -DestinationPath $destination -PassThru -Update |
                 Expand-GzipArchive |
+                Should -BeExactly (-join @($content, $appendedContent | Get-Content))
+        }
+
+        It 'Can expand Gzip files with appended content to a destination file' {
+            $expandGzipArchiveSplat = @{
+                LiteralPath     = $destination
+                DestinationPath = (Join-Path $TestDrive extractappended.txt)
+                PassThru        = $true
+            }
+
+            Get-Content -LiteralPath (Expand-GzipArchive @expandGzipArchiveSplat).FullName |
                 Should -BeExactly (-join @($content, $appendedContent | Get-Content))
         }
 
