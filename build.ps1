@@ -32,7 +32,7 @@ end {
 
         $webParams = @{
             Uri             = "https://www.powershellgallery.com/api/v2/package/$($req.Key)/$($req.Value['Version'])"
-            OutFile         = [IO.Path]::Combine($modulePath, "$($req.Key).zip") # WinPS requires the .zip extension to extract
+            OutFile         = [IO.Path]::Combine($modulePath, "$($req.Key).zip")
             UseBasicParsing = $true
         }
 
@@ -52,7 +52,7 @@ end {
             $ProgressPreference = $oldProgress
         }
 
-        Import-Module -Name $targetPath -Force -ErrorAction Stop
+        Import-Module -Name $targetPath -Force -ErrorAction Stop -DisableNameChecking
     }
 
     $dotnetTools = @(dotnet tool list --global) -join "`n"

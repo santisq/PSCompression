@@ -199,21 +199,25 @@ task DoUnitTest {
 
 task DoTest {
     $testsPath = [IO.Path]::Combine($PSScriptRoot, 'tests')
+    Write-Host "`$testsPath: $testsPath"
     if(-not (Test-Path $testsPath)) {
         return Write-Host 'No Pester tests found, skipping...'
     }
 
     $resultsPath = [IO.Path]::Combine($BuildPath, 'TestResults')
+    Write-Host "`$resultsPath: $resultsPath"
     if (-not (Test-Path $resultsPath)) {
         New-Item $resultsPath -ItemType Directory -ErrorAction Stop | Out-Null
     }
 
     $resultsFile = [IO.Path]::Combine($resultsPath, 'Pester.xml')
+    Write-Host "`$resultsFile: $resultsFile"
     if (Test-Path $resultsFile) {
         Remove-Item $resultsFile -ErrorAction Stop -Force
     }
 
     $pesterScript = [IO.Path]::Combine($PSScriptRoot, 'tools', 'PesterTest.ps1')
+    Write-Host "`$pesterScript: $pesterScript"
     $pwsh = [Environment]::GetCommandLineArgs()[0] -replace '\.dll$'
     $arguments = @(
         '-NoProfile'
@@ -251,6 +255,7 @@ task DoTest {
         $pwsh = 'coverlet'
     }
 
+    Write-Host 'Running $pwsh $arguments'
     & $pwsh $arguments
 
     if ($LASTEXITCODE) {

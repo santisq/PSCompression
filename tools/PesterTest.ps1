@@ -21,15 +21,16 @@ param (
 
 $ErrorActionPreference = 'Stop'
 
+Write-Host 'in PesterTests.ps1'
 $requirements = Import-PowerShellDataFile ([IO.Path]::Combine($PSScriptRoot, 'requiredModules.psd1'))
-$modulePath = [IO.Path]::Combine($PSScriptRoot, 'Modules')
 foreach ($req in $requirements.GetEnumerator() | Sort-Object { $_.Value['Priority'] }) {
     $importModuleSplat = @{
-        Name                = ([IO.Path]::Combine($modulePath, $req.Key))
+        Name                = ([IO.Path]::Combine($PSScriptRoot, 'Modules', $req.Key))
         Force               = $true
         DisableNameChecking = $true
     }
 
+    Write-Host "Importing $($importModuleSplat['Name'])"
     Import-Module @importModuleSplat
 }
 
