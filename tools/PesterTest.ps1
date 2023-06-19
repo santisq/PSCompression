@@ -20,8 +20,6 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
-
-Write-Host 'in PesterTests.ps1'
 $requirements = Import-PowerShellDataFile ([IO.Path]::Combine($PSScriptRoot, 'requiredModules.psd1'))
 foreach ($req in $requirements.GetEnumerator() | Sort-Object { $_.Value['Priority'] }) {
     $importModuleSplat = @{
@@ -30,7 +28,7 @@ foreach ($req in $requirements.GetEnumerator() | Sort-Object { $_.Value['Priorit
         DisableNameChecking = $true
     }
 
-    Write-Host "Importing $($importModuleSplat['Name'])"
+    Write-Host "Importing: $($importModuleSplat['Name'])"
     Import-Module @importModuleSplat
 }
 

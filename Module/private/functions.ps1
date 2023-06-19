@@ -21,9 +21,10 @@ function GzipFrameworkReader {
     process {
         try {
             # Credits to jborean - https://github.com/jborean93 for this craziness
-            $sb = [StringBuilder]::new()
             $stream = $File.OpenRead()
             $marker = 0
+            $outmem = [MemoryStream]::new()
+
             while (($b = $stream.ReadByte()) -ne -1) {
                 if ($marker -eq 0 -and $b -eq 0x1F) {
                     $marker += 1
@@ -43,29 +44,15 @@ function GzipFrameworkReader {
                             $subStream = $File.OpenRead()
                             $null = $subStream.Seek($stream.Position - 3, [SeekOrigin]::Begin)
                             $gzip = [GZipStream]::new($subStream, [CompressionMode]::Decompress)
-                            $reader = [StreamReader]::new($gzip)
 
                             if($PSBoundParameters.ContainsKey('OutStream')) {
                                 $gzip.CopyTo($OutStream)
                                 continue
                             }
 
-                            if($Raw.IsPresent) {
-                                while(-not $reader.EndOfStream) {
-                                    $sb = $sb.AppendLine($reader.ReadLine())
-                                    continue
-                                }
-                            }
-
-                            while(-not $reader.EndOfStream) {
-                                $reader.ReadLine()
-                            }
+                            $gzip.CopyTo($outmem)
                         }
                         finally {
-                            if($reader -is [System.IDisposable]) {
-                                $reader.Dispose()
-                            }
-
                             if($gzip -is [System.IDisposable]) {
                                 $gzip.Dispose()
                             }
@@ -77,13 +64,29 @@ function GzipFrameworkReader {
                     }
                 }
             }
+
+            $null = $outmem.Seek(0, [SeekOrigin]::Begin)
+            $reader = [StreamReader]::new($outmem, $Encoding)
+
             if($Raw.IsPresent) {
-                $sb.ToString()
+                return $reader.ReadToEnd()
+            }
+
+            while(-not $reader.EndOfStream) {
+                $reader.ReadLine()
             }
         }
         finally {
             if($stream -is [IDisposable]) {
                 $stream.Dispose()
+            }
+
+            if($reader -is [IDisposable]) {
+                $reader.Dispose()
+            }
+
+            if($outmem -is [IDisposable]) {
+                $outmem.Dispose()
             }
         }
     }

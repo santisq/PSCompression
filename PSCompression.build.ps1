@@ -154,8 +154,6 @@ task DoUnitTest {
         New-Item $resultsPath -ItemType Directory -ErrorAction Stop | Out-Null
     }
 
-    # dotnet test places the results in a subfolder of the results-directory. This subfolder is based on a random guid
-    # so a temp folder is used to ensure we only get the current runs results
     $tempResultsPath = [IO.Path]::Combine($resultsPath, 'TempUnit')
     if (Test-Path -LiteralPath $tempResultsPath) {
         Remove-Item -LiteralPath $tempResultsPath -Force -Recurse
