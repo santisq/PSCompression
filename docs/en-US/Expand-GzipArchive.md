@@ -13,16 +13,10 @@ Expands a Gzip compressed file from a specified File Path or Paths.
 
 ## SYNTAX
 
-### Path (Default)
+### Path
 
 ```powershell
 Expand-GzipArchive [-Path] <String[]> [-Encoding <Encoding>] [-Raw] [<CommonParameters>]
-```
-
-### PathToFile
-
-```powershell
-Expand-GzipArchive [-Path] <String[]> [[-DestinationPath] <String>] [-PassThru] [<CommonParameters>]
 ```
 
 ### LiteralPath
@@ -31,15 +25,21 @@ Expand-GzipArchive [-Path] <String[]> [[-DestinationPath] <String>] [-PassThru] 
 Expand-GzipArchive -LiteralPath <String[]> [-Encoding <Encoding>] [-Raw] [<CommonParameters>]
 ```
 
-### LiteralPathToFile
+### PathDestination
 
 ```powershell
-Expand-GzipArchive -LiteralPath <String[]> [[-DestinationPath] <String>] [-PassThru] [<CommonParameters>]
+Expand-GzipArchive [-Path] <String[]> [-DestinationPath] <String> [-PassThru] [<CommonParameters>]
+```
+
+### LiteralPathDestination
+
+```powershell
+Expand-GzipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-PowerShell cmdlet aimed to expand Gzip compressed using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). This cmdlet is the counterpart of `Compress-GzipArchive`.
+The `Expand-GzipArchive` cmdlet aims to expand Gzip compressed files to a destination path or to the success stream using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). This cmdlet is the counterpart of [`Compress-GzipArchive`](Compress-GzipArchive.md).
 
 ## EXAMPLES
 
@@ -79,7 +79,7 @@ Wildcard characters allow you to add all files in a directory to your archive fi
 
 ```yaml
 Type: String[]
-Parameter Sets: Path, PathToFile
+Parameter Sets: PathDestination, Path
 Aliases:
 
 Required: True
@@ -97,7 +97,7 @@ No characters are interpreted as wildcards
 
 ```yaml
 Type: String[]
-Parameter Sets: LiteralPath, LiteralPathToFile
+Parameter Sets: LiteralPathDestination, LiteralPath
 Aliases: PSPath
 
 Required: True
@@ -115,10 +115,10 @@ This parameter is Optional, if not used, this cmdlet outputs to the Success Stre
 
 ```yaml
 Type: String
-Parameter Sets: PathToFile, LiteralPathToFile
+Parameter Sets: PathDestination, LiteralPathDestination
 Aliases:
 
-Required: False
+Required: True
 Position: 2
 Default value: None
 Accept pipeline input: False
@@ -127,8 +127,7 @@ Accept wildcard characters: False
 
 ### -Encoding
 
-Character encoding used when expanding the Gzip content.
-This parameter is only available when expanding to the Success Stream.
+Character encoding used when expanding the Gzip content. This parameter is only available when expanding to the Success Stream. The default encoding is __`utf8NoBOM`.__
 
 ```yaml
 Type: Encoding
@@ -137,7 +136,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: Utf8
+Default value: utf8NoBOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -167,7 +166,7 @@ This parameter is only available when expanding to a File.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: PathToFile, LiteralPathToFile
+Parameter Sets: PathDestination, LiteralPathDestination
 Aliases:
 
 Required: False

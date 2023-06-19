@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-PowerShell function that overcomes the limitations of [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) while keeping similar pipeline capabilities.
+The `Compress-ZipArchive` cmdlet creates a compressed, or zipped, archive file from one or more specified files or directories. It aims to overcome a few limitations of [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) while keeping similar pipeline capabilities.
 
 ## SYNTAX
 
@@ -57,7 +57,7 @@ Compress-ZipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-Compre
 
 ## DESCRIPTION
 
-PowerShell function that overcomes the limitation that the built-in cmdlet `Compress-Archive` has:
+PowerShell cmdlet that overcomes the limitation that the built-in cmdlet `Compress-Archive` has:
 
 > The `Compress-Archive` cmdlet uses the Microsoft .NET API [`System.IO.Compression.ZipArchive`](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive?view=net-6.0) to compress files. The maximum file size is 2 GB because there's a limitation of the underlying API.
 

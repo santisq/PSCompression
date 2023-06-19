@@ -20,7 +20,7 @@ ConvertTo-GzipString [-InputObject] <String[]> [[-Encoding] <Encoding>]
 
 ## DESCRIPTION
 
-PowerShell cmdlet aimed to compress input strings into Base64 encoded Gzip strings or raw bytes using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion of Base64 Gzip strings, see `ConvertFrom-GzipString`.
+The `ConvertTo-GzipString` cmdlet aims to compress input strings into Base64 encoded Gzip strings or raw bytes using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion of Base64 Gzip strings, see [`ConvertFrom-GzipString`](ConvertFrom-GzipString.md).
 
 ## EXAMPLES
 

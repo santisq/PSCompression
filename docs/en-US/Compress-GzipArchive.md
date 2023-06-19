@@ -78,7 +78,7 @@ Compress-GzipArchive -InputBytes <Byte[]> [-DestinationPath] <String> [-Compress
 
 ## DESCRIPTION
 
-PowerShell cmdlet aimed to compress multiple files into a single Gzip file using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion see `Expand-GzipArchive`.
+The `Compress-GzipArchive` cmdlet can compress one or more specified file paths into a single Gzip file using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion see [`Expand-GzipArchive`](Expand-ZipEntry.md).
 
 ## EXAMPLES
 

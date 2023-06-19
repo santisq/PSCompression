@@ -29,7 +29,7 @@ Get-ZipEntryContent -ZipEntry <ZipEntryFile[]> [-Raw] [-AsByteStream] [-BufferSi
 
 The `Get-ZipEntryContent` cmdlet gets the content of one or more `ZipEntryFile` instances.
 This cmdlet is meant to be used with `Get-ZipEntry` as your entry point.
-The output entries from `Get-ZipEntry` cmdlet can be passed through the pipeline to this cmdlet.
+The outputted entries from `Get-ZipEntry` cmdlet can be passed through the pipeline to this cmdlet.
 
 ## EXAMPLES
 

@@ -1,4 +1,8 @@
-<h1 align="center">PSCompression</h1>
+<div align="center">
+
+# PSCompression
+
+</div>
 
 <div align="center">
     <sub>
@@ -7,14 +11,21 @@
     <br /><br />
 
 [![build](https://github.com/santisq/PSCompression/actions/workflows/ci.yml/badge.svg)](https://github.com/santisq/PSCompression/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/santisq/PSCompression/branch/main/graph/badge.svg?token=b51IOhpLfQ)](https://codecov.io/gh/santisq/PSCompression)
 [![PSTree on PowerShell Gallery](https://img.shields.io/powershellgallery/v/PSCompression?label=gallery)](https://www.powershellgallery.com/packages/PSCompression)
 [![LICENSE](https://img.shields.io/github/license/santisq/PSCompression)](https://github.com/santisq/PSCompression/blob/main/LICENSE)
 
 </div>
 
-PSCompression is a PowerShell Module aimed to provide Gzip utilities for compression and expansion as well as to solve a few issues with Zip compression existing in _built-in PowerShell_.
+PSCompression is a PowerShell Module aimed to provide Zip and Gzip utilities for compression, expansion and management as well as to solve a few issues with Zip compression existing in _built-in PowerShell_.
+
+## Documentation
+
+Check out [__the docs__](./docs/en-US/PSCompression.md) for information about how to use this Module.
 
 ## Installation
+
+### Gallery
 
 The module is available through the [PowerShell Gallery](https://www.powershellgallery.com/):
 
@@ -22,27 +33,17 @@ The module is available through the [PowerShell Gallery](https://www.powershellg
 Install-Module PSCompression -Scope CurrentUser
 ```
 
-## Documentation
+### Source
 
-### [`Compress-ZipArchive`](/docs/Compress-ZipArchive.md)
+```powershell
+git clone 'https://github.com/santisq/PSCompression.git'
+Set-Location ./PSCompression
+./build.ps1
+```
 
-PowerShell function that overcomes the limitations of [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) while keeping similar pipeline capabilities.
+## Requirements
 
-### [`Compress-GzipArchive`](/docs/Compress-GzipArchive.md)
-
-PowerShell function aimed to compress multiple files into a single Gzip compressed file using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
-
-### [`Expand-GzipArchive`](/docs/Expand-GzipArchive.md)
-
-PowerShell function aimed to expand Gzip files using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
-
-### [`ConvertTo-GzipString`](/docs/ConvertTo-GzipString.md)
-
-PowerShell function aimed to compress input strings into Base64 Gzip compressed strings or raw bytes using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
-
-### [`ConvertFrom-GzipString`](/docs/ConvertFrom-GzipString.md)
-
-PowerShell function aimed to expand Base64 Gzip compressed input strings using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
+Compatible with __Windows PowerShell 5.1__ and [__PowerShell 7+__](https://github.com/PowerShell/PowerShell).
 
 ## Contributing
 
