@@ -1,47 +1,15 @@
-﻿Describe PSCompression {
+﻿$ErrorActionPreference = 'Stop'
+
+Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
+
+if (-not (Get-Module -Name $moduleName -ErrorAction SilentlyContinue)) {
+    Import-Module $manifestPath -ErrorAction Stop
+}
+
+Describe PSCompression {
     BeforeAll {
-        $ErrorActionPreference = 'Stop'
-
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
-
-        $moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'Module', '*.psd1'))).BaseName
-        $manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
-
-        if (-not (Get-Module -Name $moduleName -ErrorAction SilentlyContinue)) {
-            Import-Module $manifestPath -ErrorAction Stop
-        }
-
-        $decoder = {
-            param([byte[]] $bytes)
-
-            try {
-                $gzip = [System.IO.Compression.GZipStream]::new(
-                    ($mem = [System.IO.MemoryStream]::new($bytes)),
-                    [System.IO.Compression.CompressionMode]::Decompress)
-
-                $out = [System.IO.MemoryStream]::new()
-                $gzip.CopyTo($out)
-            }
-            finally {
-                if ($gzip -is [System.IDisposable]) {
-                    $gzip.Dispose()
-                }
-
-                if ($mem -is [System.IDisposable]) {
-                    $mem.Dispose()
-                }
-
-                if ($out -is [System.IDisposable]) {
-                    $out.Dispose()
-                    [System.Text.UTF8Encoding]::new().GetString($out.ToArray())
-                }
-            }
-        }
-
-        $osIsWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform(
-            [System.Runtime.InteropServices.OSPlatform]::Windows)
-
-        $zip, $decoder, $osIsWindows | Out-Null # Analyzer Rule is annoying :(
+        $zip | Out-Null
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -288,7 +256,7 @@
 
         It 'Can compress strings to gzip and output raw bytes' {
             [byte[]] $bytes = $content | ConvertTo-GzipString -AsByteStream
-            $result = $decoder.InvokeReturnAsIs($bytes)
+            $result = Decode $bytes
             $result.TrimEnd() | Should -BeExactly ($content -join [System.Environment]::NewLine)
         }
 
@@ -400,18 +368,18 @@
                 $transform.Transform($ExecutionContext, $_.Key) |
                     Should -BeExactly $_.Value
                 }
+        }
+
+        It 'Transforms CodePage to their Encoding Representations' {
+            [System.Text.Encoding]::GetEncodings() | ForEach-Object {
+                $transform.Transform($ExecutionContext, $_.CodePage) |
+                    Should -BeExactly $_.GetEncoding()
             }
+        }
 
-            It 'Transforms CodePage to their Encoding Representations' {
-                [System.Text.Encoding]::GetEncodings() | ForEach-Object {
-                    $transform.Transform($ExecutionContext, $_.CodePage) |
-                        Should -BeExactly $_.GetEncoding()
-                    }
-                }
-
-                It 'Throws if it cant transform' {
-                    { $transform.Transform($ExecutionContext, 'doesnotexist') } |
-                        Should -Throw
+        It 'Throws if it cant transform' {
+            { $transform.Transform($ExecutionContext, 'doesnotexist') } |
+                Should -Throw
         }
 
         It 'Throws if the input value type is not Encoding, string or int' {
@@ -421,41 +389,16 @@
     }
 
     Context 'EncodingCompleter Class' {
-        BeforeAll {
-            function global:Test-Completer {
-                param(
-                    [ArgumentCompleter([PSCompression.EncodingCompleter])]
-                    [string] $Test
-                )
-            }
-
-            $set = @(
-                'ascii'
-                'bigendianUtf32'
-                'unicode'
-                'utf8'
-                'utf8NoBOM'
-                'bigendianUnicode'
-                'oem'
-                'utf8BOM'
-                'utf32'
-                if ($osIsWindows) {
-                    'ansi'
-                }
-            )
-            $set | Out-Null
-        }
-
         It 'Completes results from a completion set' {
             (TabExpansion2 -inputScript ($len = 'Test-Completer ') -cursorColumn $len.Length).
                 CompletionMatches.
-                CompletionText | Should -BeExactly $set
+                CompletionText | Should -BeExactly $encodingSet
         }
 
         It 'Completes results from a word to complete' {
             (TabExpansion2 -inputScript ($len = 'Test-Completer utf') -cursorColumn $len.Length).
                 CompletionMatches.
-                CompletionText | Should -BeExactly $set.Where({ $_ -match '^utf' })
+                CompletionText | Should -BeExactly $encodingSet.Where({ $_ -match '^utf' })
         }
 
         It 'Should not offer ansi as a completion result if the OS is not Windows' {
