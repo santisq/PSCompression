@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Management.Automation;
 using System.Management.Automation.Language;
+using System;
 
 namespace PSCompression;
 
@@ -30,7 +31,10 @@ public class EncodingCompleter : IArgumentCompleter
     {
         foreach (string encoding in s_encodingSet)
         {
-            yield return new CompletionResult(encoding);
+            if (encoding.StartsWith(wordToComplete, StringComparison.InvariantCultureIgnoreCase))
+            {
+                yield return new CompletionResult(encoding);
+            }
         }
     }
 }

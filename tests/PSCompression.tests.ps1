@@ -361,4 +361,91 @@
                 Should -BeExactly ($content | Get-Content)
         }
     }
+
+    Context 'EncodingTransformation Class' {
+        BeforeAll {
+            Add-Type -TypeDefinition '
+            public static class Acp
+            {
+                [System.Runtime.InteropServices.DllImport("Kernel32.dll")]
+                public static extern int GetACP();
+            }
+            '
+
+            $transform = [PSCompression.EncodingTransformation]::new()
+            $transform | Out-Null
+        }
+
+        It 'Transform a completion set to their Encoding Representations' {
+            @{
+                'ascii'            = [System.Text.ASCIIEncoding]::new()
+                'bigendianunicode' = [System.Text.UnicodeEncoding]::new($true, $true)
+                'bigendianutf32'   = [System.Text.UTF32Encoding]::new($true, $true)
+                'oem'              = [Console]::OutputEncoding
+                'unicode'          = [System.Text.UnicodeEncoding]::new()
+                'utf8'             = [System.Text.UTF8Encoding]::new($false)
+                'utf8bom'          = [System.Text.UTF8Encoding]::new($true)
+                'utf8nobom'        = [System.Text.UTF8Encoding]::new($false)
+                'utf32'            = [System.Text.UTF32Encoding]::new()
+                'ansi'             = [System.Text.Encoding]::GetEncoding([Acp]::GetACP())
+            }.GetEnumerator() | ForEach-Object {
+                $transform.Transform($ExecutionContext, $_.Key) |
+                    Should -BeExactly $_.Value
+            }
+        }
+
+        It 'Transforms CodePage to their Encoding Representations' {
+            [System.Text.Encoding]::GetEncodings() | ForEach-Object {
+                $transform.Transform($ExecutionContext, $_.CodePage) |
+                    Should -BeExactly $_.GetEncoding()
+            }
+        }
+
+        It 'Throws if it cant transform' {
+            { $transform.Transform($ExecutionContext, 'doesnotexist') } |
+                Should -Throw
+        }
+
+        It 'Throws if the input value type is not Encoding, string or int' {
+            { $transform.Transform($ExecutionContext, [type]) } |
+                Should -Throw
+        }
+    }
+
+    Context 'EncodingCompleter Class' {
+        BeforeAll {
+            function global:Test-Completer {
+                param(
+                    [ArgumentCompleter([PSCompression.EncodingCompleter])]
+                    [string] $Test
+                )
+            }
+
+            $set = @(
+                'ascii'
+                'bigendianUtf32'
+                'unicode'
+                'utf8'
+                'utf8NoBOM'
+                'bigendianUnicode'
+                'oem'
+                'utf8BOM'
+                'utf32'
+                'ansi'
+            )
+            $set | Out-Null
+        }
+
+        It 'Completes results from a completion set' {
+            (TabExpansion2 -inputScript ($len = 'Test-Completer ') -cursorColumn $len.Length).
+                CompletionMatches.
+                CompletionText | Should -BeExactly $set
+        }
+
+        It 'Completes results from a word to complete' {
+            (TabExpansion2 -inputScript ($len = 'Test-Completer utf') -cursorColumn $len.Length).
+                CompletionMatches.
+                CompletionText | Should -BeExactly $set.Where({ $_ -match '^utf' })
+        }
+    }
 }
