@@ -3,24 +3,36 @@ using System.Collections.Generic;
 using System.Management.Automation;
 using System.Management.Automation.Language;
 using System;
+using System.Runtime.InteropServices;
 
 namespace PSCompression;
 
 public class EncodingCompleter : IArgumentCompleter
 {
-    private static readonly string[] s_encodingSet =
+    private static readonly string[] s_encodingSet;
+
+    static EncodingCompleter()
     {
-        "ascii",
-        "bigendianUtf32",
-        "unicode",
-        "utf8",
-        "utf8NoBOM",
-        "bigendianUnicode",
-        "oem",
-        "utf8BOM",
-        "utf32",
-        "ansi"
-    };
+        List<string> set = new(new string[]
+        {
+            "ascii",
+            "bigendianUtf32",
+            "unicode",
+            "utf8",
+            "utf8NoBOM",
+            "bigendianUnicode",
+            "oem",
+            "utf8BOM",
+            "utf32"
+        });
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            set.Add("ansi");
+        }
+
+        s_encodingSet = set.ToArray();
+    }
 
     public IEnumerable<CompletionResult> CompleteArgument(
         string commandName,

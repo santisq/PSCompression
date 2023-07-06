@@ -23,22 +23,25 @@
                 $gzip.CopyTo($out)
             }
             finally {
-                if($gzip -is [System.IDisposable]) {
+                if ($gzip -is [System.IDisposable]) {
                     $gzip.Dispose()
                 }
 
-                if($mem -is [System.IDisposable]) {
+                if ($mem -is [System.IDisposable]) {
                     $mem.Dispose()
                 }
 
-                if($out -is [System.IDisposable]) {
+                if ($out -is [System.IDisposable]) {
                     $out.Dispose()
                     [System.Text.UTF8Encoding]::new().GetString($out.ToArray())
                 }
             }
         }
 
-        $zip, $decoder | Out-Null # Analyzer Rule is annoying :(
+        $osWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform(
+            [System.Runtime.InteropServices.OSPlatform]::Windows)
+
+        $zip, $decoder, $osWindows | Out-Null # Analyzer Rule is annoying :(
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -221,10 +224,10 @@
             $destination = New-Item (Join-Path $TestDrive -ChildPath 'ExtractTests') -ItemType Directory
             $zip | Get-ZipEntry | Remove-ZipEntry
 
-            $structure = foreach($folder in 0..5) {
+            $structure = foreach ($folder in 0..5) {
                 $folder = 'testfolder{0:D2}/' -f $folder
                 $folder
-                foreach($file in 0..5) {
+                foreach ($file in 0..5) {
                     [System.IO.Path]::Combine($folder, 'testfile{0:D2}.txt' -f $file)
                 }
             }
@@ -323,7 +326,7 @@
             $appendedContent |
                 Compress-GzipArchive -DestinationPath $destination -PassThru -Update |
                 Expand-GzipArchive |
-                Should -BeExactly (-join @($content, $appendedContent | Get-Content))
+                Should -BeExactly ( -join @($content, $appendedContent | Get-Content))
         }
 
         It 'Can expand Gzip files with appended content to a destination file' {
@@ -334,7 +337,7 @@
             }
 
             Get-Content -LiteralPath (Expand-GzipArchive @expandGzipArchiveSplat).FullName |
-                Should -BeExactly (-join @($content, $appendedContent | Get-Content))
+                Should -BeExactly ( -join @($content, $appendedContent | Get-Content))
         }
 
         It 'Should not overwrite an existing Gzip file without -Force' {
@@ -372,12 +375,7 @@
             }
             '
 
-            $transform = [PSCompression.EncodingTransformation]::new()
-            $transform | Out-Null
-        }
-
-        It 'Transform a completion set to their Encoding Representations' {
-            @{
+            $encodings = @{
                 'ascii'            = [System.Text.ASCIIEncoding]::new()
                 'bigendianunicode' = [System.Text.UnicodeEncoding]::new($true, $true)
                 'bigendianutf32'   = [System.Text.UTF32Encoding]::new($true, $true)
@@ -387,23 +385,33 @@
                 'utf8bom'          = [System.Text.UTF8Encoding]::new($true)
                 'utf8nobom'        = [System.Text.UTF8Encoding]::new($false)
                 'utf32'            = [System.Text.UTF32Encoding]::new()
-                'ansi'             = [System.Text.Encoding]::GetEncoding([Acp]::GetACP())
-            }.GetEnumerator() | ForEach-Object {
+            }
+
+            if ($osWindows) {
+                $encodings['ansi'] = [System.Text.Encoding]::GetEncoding([Acp]::GetACP())
+            }
+
+            $transform = [PSCompression.EncodingTransformation]::new()
+            $transform | Out-Null
+        }
+
+        It 'Transform a completion set to their Encoding Representations' {
+            $encodings.GetEnumerator() | ForEach-Object {
                 $transform.Transform($ExecutionContext, $_.Key) |
                     Should -BeExactly $_.Value
+                }
             }
-        }
 
-        It 'Transforms CodePage to their Encoding Representations' {
-            [System.Text.Encoding]::GetEncodings() | ForEach-Object {
-                $transform.Transform($ExecutionContext, $_.CodePage) |
-                    Should -BeExactly $_.GetEncoding()
-            }
-        }
+            It 'Transforms CodePage to their Encoding Representations' {
+                [System.Text.Encoding]::GetEncodings() | ForEach-Object {
+                    $transform.Transform($ExecutionContext, $_.CodePage) |
+                        Should -BeExactly $_.GetEncoding()
+                    }
+                }
 
-        It 'Throws if it cant transform' {
-            { $transform.Transform($ExecutionContext, 'doesnotexist') } |
-                Should -Throw
+                It 'Throws if it cant transform' {
+                    { $transform.Transform($ExecutionContext, 'doesnotexist') } |
+                        Should -Throw
         }
 
         It 'Throws if the input value type is not Encoding, string or int' {
@@ -446,6 +454,16 @@
             (TabExpansion2 -inputScript ($len = 'Test-Completer utf') -cursorColumn $len.Length).
                 CompletionMatches.
                 CompletionText | Should -BeExactly $set.Where({ $_ -match '^utf' })
+        }
+
+        It 'Should not offer ansi as a completion result if the OS is not Windows' {
+            if ($osWindows) {
+                return
+            }
+
+            (TabExpansion2 -inputScript ($len = 'Test-Completer ansi') -cursorColumn $len.Length).
+                CompletionMatches.
+                CompletionText | Should -BeNullOrEmpty
         }
     }
 }
