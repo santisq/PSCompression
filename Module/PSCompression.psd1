@@ -11,7 +11,7 @@
     RootModule         = 'PSCompression.psm1'
 
     # Version number of this module.
-    ModuleVersion      = '2.0.0'
+    ModuleVersion      = '2.0.1'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -75,7 +75,6 @@
         'Compress-ZipArchive'
         'Compress-GzipArchive'
         'Expand-GzipArchive'
-        'ConvertTo-GzipString'
         'ConvertFrom-GzipString'
     )
 
@@ -87,6 +86,7 @@
         'Remove-ZipEntry'
         'New-ZipEntry'
         'Expand-ZipEntry'
+        'ConvertTo-GzipString'
     )
 
     # Variables to export from this module
