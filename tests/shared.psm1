@@ -49,9 +49,7 @@ function Test-Completer {
 $osIsWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform(
     [System.Runtime.InteropServices.OSPlatform]::Windows)
 
-$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'Module', '*.psd1'))).BaseName
-$manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
-$osIsWindows, $manifestPath | Out-Null
+$osIsWindows | Out-Null
 
 $exportModuleMemberSplat = @{
     Variable = 'moduleName', 'manifestPath', 'osIsWindows'

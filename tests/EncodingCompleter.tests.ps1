@@ -1,4 +1,12 @@
-﻿BeforeAll {
+﻿$ErrorActionPreference = 'Stop'
+
+$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'Module', '*.psd1'))).BaseName
+$manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
+
+Import-Module $manifestPath
+Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
+
+BeforeAll {
     $encodingSet = @(
         'ascii'
         'bigendianUtf32'
@@ -25,9 +33,8 @@ Describe 'EncodingCompleter Class' {
     }
 
     It 'Completes results from a word to complete' {
-        (Complete 'Test-Completer utf').CompletionText
-        CompletionMatches.
-        CompletionText | Should -BeExactly $encodingSet.Where({ $_ -match '^utf' })
+        (Complete 'Test-Completer utf').CompletionText |
+            Should -BeExactly ($encodingSet -match '^utf')
     }
 
     It 'Should not offer ansi as a completion result if the OS is not Windows' {
@@ -35,8 +42,7 @@ Describe 'EncodingCompleter Class' {
             return
         }
 
-            (TabExpansion2 -inputScript ($len = 'Test-Completer ansi') -cursorColumn $len.Length).
-        CompletionMatches.
-        CompletionText | Should -BeNullOrEmpty
+        (Complete 'Test-Completer ansi').CompletionText |
+            Should -BeNullOrEmpty
     }
 }
