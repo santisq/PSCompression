@@ -54,7 +54,6 @@ Describe 'Gzip Cmdlets' {
             $content = 'hello world!' | New-Item (Join-Path $TestDrive content.txt)
             $appendedContent = 'this is appended content...' | New-Item (Join-Path $TestDrive appendedContent.txt)
             $destination = Join-Path $TestDrive -ChildPath test.gz
-
             $content, $appendedContent, $destination | Out-Null
         }
 
