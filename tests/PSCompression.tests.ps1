@@ -38,10 +38,10 @@
             }
         }
 
-        $osWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform(
+        $osIsWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform(
             [System.Runtime.InteropServices.OSPlatform]::Windows)
 
-        $zip, $decoder, $osWindows | Out-Null # Analyzer Rule is annoying :(
+        $zip, $decoder, $osIsWindows | Out-Null # Analyzer Rule is annoying :(
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -387,7 +387,7 @@
                 'utf32'            = [System.Text.UTF32Encoding]::new()
             }
 
-            if ($osWindows) {
+            if ($osIsWindows) {
                 $encodings['ansi'] = [System.Text.Encoding]::GetEncoding([Acp]::GetACP())
             }
 
@@ -439,7 +439,9 @@
                 'oem'
                 'utf8BOM'
                 'utf32'
-                'ansi'
+                if ($osIsWindows) {
+                    'ansi'
+                }
             )
             $set | Out-Null
         }
@@ -457,7 +459,7 @@
         }
 
         It 'Should not offer ansi as a completion result if the OS is not Windows' {
-            if ($osWindows) {
+            if ($osIsWindows) {
                 return
             }
 
