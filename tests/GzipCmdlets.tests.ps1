@@ -7,6 +7,13 @@ Import-Module $manifestPath
 Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
 Describe 'Gzip Cmdlets' {
+    Context 'ConvertFrom-GzipString' -Tag 'ConvertFrom-GzipString' {
+        It 'Should throw on a non b64 encoded input' {
+            { 'foo' | ConvertFrom-GzipString } |
+                Should -Throw
+        }
+    }
+
     Context 'ConvertTo & ConvertFrom GzipString' -Tag 'ConvertTo & ConvertFrom GzipString' {
         BeforeAll {
             $content = 'hello', 'world', '!'

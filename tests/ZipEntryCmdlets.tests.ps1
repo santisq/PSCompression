@@ -9,10 +9,21 @@ Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
 Describe 'ZipEntry Cmdlets' {
     BeforeAll {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
-        $zip | Out-Null
+        $file = New-Item ([System.IO.Path]::Combine($TestDrive, 'someFile.txt')) -ItemType File -Value 'foo'
+        $zip, $file | Out-Null
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
+        It 'Should throw if -Destination is not a zip file' {
+            { New-ZipEntry -Destination $file.FullName -EntryPath foo } |
+                Should -Throw
+        }
+
+        It 'Should throw if -Source is not a valid file path' {
+            { New-ZipEntry -Destination $zip.FullName -EntryPath foo -SourcePath doesnotexist } |
+                Should -Throw
+        }
+
         It 'Can create new zip file entries' {
             New-ZipEntry $zip.FullName -EntryPath test\newentry.txt |
                 Should -BeOfType ([PSCompression.ZipEntryFile])
@@ -72,8 +83,11 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw when not targetting a FileSystem Provider Path' {
-            { Get-ZipEntry function:\* } |
-                Should -Throw
+            { Get-ZipEntry function:\* } | Should -Throw
+        }
+
+        It 'Should throw when the path is not a Zip' {
+            { $file | Get-ZipEntry } | Should -Throw
         }
 
         It 'Can list zip file entries' {
@@ -219,6 +233,11 @@ Describe 'ZipEntry Cmdlets' {
         It 'Can extract entries to a destination directory' {
             { $zip | Get-ZipEntry | Expand-ZipEntry -Destination $destination } |
                 Should -Not -Throw
+        }
+
+        It 'Should throw when -Destination is an invalid path' {
+            { $zip | Get-ZipEntry | Expand-ZipEntry -Destination function: } |
+                Should -Throw
         }
 
         It 'Should not overwrite files without -Force' {
