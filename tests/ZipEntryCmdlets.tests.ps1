@@ -254,6 +254,11 @@ Describe 'ZipEntry Cmdlets' {
                 Should -Throw
         }
 
+        It 'Should throw if the destination path argument belongs to a file' {
+            { $zip | Get-ZipEntry | Expand-ZipEntry -Destination $zip.FullName } |
+                Should -Throw
+        }
+
         It 'Should not overwrite files without -Force' {
             { $zip | Get-ZipEntry | Expand-ZipEntry -Destination $destination } |
                 Should -Throw

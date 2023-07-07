@@ -10,7 +10,7 @@ internal static class ExceptionHelpers
             "NotArchivePath", ErrorCategory.InvalidArgument, path);
 
     internal static ErrorRecord NotDirectoryPathError(string path) =>
-        new(new ArgumentException($"Destination must be an existing directory: '{path}'."),
+        new(new ArgumentException($"Destination path is an existing file: '{path}'."),
             "NotDirectoryPath", ErrorCategory.InvalidArgument, path);
 
     internal static ErrorRecord InvalidProviderError(string path, ProviderInfo provider) =>

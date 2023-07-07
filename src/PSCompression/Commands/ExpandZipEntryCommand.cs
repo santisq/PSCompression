@@ -30,6 +30,12 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
         try
         {
             Destination = Destination.NormalizePath(isLiteral: true, this);
+
+            if (File.Exists(Destination))
+            {
+                ThrowTerminatingError(
+                    ExceptionHelpers.NotDirectoryPathError(Destination));
+            }
         }
         catch (PipelineStoppedException)
         {
