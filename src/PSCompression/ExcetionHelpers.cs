@@ -16,7 +16,7 @@ internal static class ExceptionHelpers
     internal static ErrorRecord InvalidPathError(string path, Exception e) =>
         new(e, "InvalidPath", ErrorCategory.InvalidArgument, path);
 
-    internal static ErrorRecord NotFileSystemPathError(string path, ProviderInfo provider) =>
+    internal static ErrorRecord InvalidProviderError(string path, ProviderInfo provider) =>
         new(new ArgumentException($"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
             "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
 

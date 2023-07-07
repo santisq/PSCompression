@@ -51,21 +51,14 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void BeginProcessing()
     {
-        (string? path, ProviderInfo? provider) = Destination
-            .NormalizePath(isLiteral: true, this);
+        string? path = Destination.NormalizePath(isLiteral: true, this);
 
-        if (path is null || provider is null)
+        if (path is null)
         {
             return;
         }
 
-        if (!provider.AssertFileSystem())
-        {
-            ThrowTerminatingError(
-                ExceptionHelpers.NotFileSystemPathError(path, provider));
-        }
-
-        if (!path.AssertArchive())
+        if (!path.IsArchive())
         {
             ThrowTerminatingError(
                 ExceptionHelpers.NotArchivePathError(path));
@@ -104,21 +97,14 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             }
 
             // Create Entries from file here
-            (string? sourcePath, ProviderInfo? sourceProvider) = SourcePath
-                .NormalizePath(isLiteral: true, this);
+            string? sourcePath = SourcePath.NormalizePath(isLiteral: true, this);
 
-            if (sourcePath is null || sourceProvider is null)
+            if (sourcePath is null)
             {
                 return;
             }
 
-            if (!sourceProvider.AssertFileSystem())
-            {
-                ThrowTerminatingError(
-                    ExceptionHelpers.NotFileSystemPathError(sourcePath, sourceProvider));
-            }
-
-            if (!sourcePath.AssertArchive())
+            if (!sourcePath.IsArchive())
             {
                 ThrowTerminatingError(
                     ExceptionHelpers.NotArchivePathError(sourcePath));

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Management.Automation;
 
 namespace PSCompression;
 
@@ -71,14 +72,14 @@ public abstract class ZipEntryBase
     public FileSystemInfo ExtractTo(string destination, bool overwrite)
     {
         using ZipArchive zip = ZipFile.OpenRead(Source);
-        (string path, bool isdir) = ExtractTo(zip, destination, overwrite);
+        (string path, bool isArchive) = ExtractTo(zip, destination, overwrite);
 
-        if (isdir)
+        if (isArchive)
         {
-            return new DirectoryInfo(destination);
+            return new FileInfo(path);
         }
 
-        return new FileInfo(destination);
+        return new DirectoryInfo(path);
     }
 
     public override string ToString() => EntryRelativePath;
