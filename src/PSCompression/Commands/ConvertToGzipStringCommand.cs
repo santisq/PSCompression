@@ -18,7 +18,7 @@ public sealed class ConvertToGzipStringCommand : PSCmdlet, IDisposable
 
     private readonly MemoryStream _outstream = new();
 
-    [Parameter(Mandatory = true, ValueFromPipeline = true)]
+    [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
     [AllowEmptyString]
     public string[] InputObject { get; set; } = null!;
 

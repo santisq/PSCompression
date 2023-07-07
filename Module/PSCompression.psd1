@@ -75,7 +75,6 @@
         'Compress-ZipArchive'
         'Compress-GzipArchive'
         'Expand-GzipArchive'
-        'ConvertFrom-GzipString'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -87,6 +86,7 @@
         'New-ZipEntry'
         'Expand-ZipEntry'
         'ConvertTo-GzipString'
+        'ConvertFrom-GzipString'
     )
 
     # Variables to export from this module
