@@ -100,15 +100,9 @@ public sealed class GetZipEntryCommand : PSCmdlet
 
     protected override void ProcessRecord()
     {
-        foreach ((string path, ProviderInfo provider) in _paths.NormalizePath(_isLiteral, this))
+        foreach (string path in _paths.NormalizePath(_isLiteral, this))
         {
-            if (!provider.AssertFileSystem())
-            {
-                WriteError(ExceptionHelpers.NotFileSystemPathError(path, provider));
-                continue;
-            }
-
-            if (!path.AssertArchive())
+            if (!path.IsArchive())
             {
                 WriteError(ExceptionHelpers.NotArchivePathError(path));
                 continue;

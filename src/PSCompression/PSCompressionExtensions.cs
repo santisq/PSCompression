@@ -18,7 +18,7 @@ public static class Extensions
     private static readonly Regex s_reEntryDir = new(@"[\\/]$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    private static readonly List<(string, ProviderInfo)> s_normalizedPaths = new();
+    private static readonly List<string> s_normalizedPaths = new();
 
     private const string _pathChar = "/";
 
@@ -35,8 +35,10 @@ public static class Extensions
         s_reEntryDir.IsMatch(path) ? NormalizeEntryPath(path) :
             NormalizeFileEntryPath(path);
 
-    internal static (string, ProviderInfo)[] NormalizePath(
-        this string[] paths, bool isLiteral, PSCmdlet cmdlet)
+    internal static string[] NormalizePath(
+        this string[] paths,
+        bool isLiteral,
+        PSCmdlet cmdlet)
     {
         Collection<string> resolvedPaths;
         ProviderInfo provider;
@@ -49,7 +51,13 @@ public static class Extensions
                 string resolvedPath = cmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath(
                     path, out provider, out _);
 
-                s_normalizedPaths.Add((resolvedPath, provider));
+                if (!provider.IsFileSystem())
+                {
+                    cmdlet.WriteError(ExceptionHelpers.InvalidProviderError(path, provider));
+                    continue;
+                }
+
+                s_normalizedPaths.Add(resolvedPath);
                 continue;
             }
 
@@ -59,7 +67,14 @@ public static class Extensions
 
                 foreach (string resolvedPath in resolvedPaths)
                 {
-                    s_normalizedPaths.Add((resolvedPath, provider));
+                    if (!provider.IsFileSystem())
+                    {
+                        cmdlet.WriteError(ExceptionHelpers.InvalidProviderError(
+                            resolvedPath, provider));
+                        continue;
+                    }
+
+                    s_normalizedPaths.Add(resolvedPath);
                 }
             }
             catch (Exception e)
@@ -71,18 +86,15 @@ public static class Extensions
         return s_normalizedPaths.ToArray();
     }
 
-    internal static (string?, ProviderInfo?) NormalizePath(
+    internal static string NormalizePath(
         this string path, bool isLiteral, PSCmdlet cmdlet) =>
         NormalizePath(new string[1] { path }, isLiteral, cmdlet).FirstOrDefault();
 
-    internal static bool AssertFileSystem(this ProviderInfo provider) =>
+    internal static bool IsFileSystem(this ProviderInfo provider) =>
         provider.ImplementingType == typeof(FileSystemProvider);
 
-    internal static bool AssertArchive(this string path) =>
+    internal static bool IsArchive(this string path) =>
         !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
-
-    internal static bool AssertDirectory(this string path) =>
-        File.GetAttributes(path).HasFlag(FileAttributes.Directory);
 
     internal static ZipArchiveEntry CreateEntryFromFile(
         this ZipArchive zip,

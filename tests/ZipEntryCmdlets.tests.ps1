@@ -71,6 +71,11 @@ Describe 'ZipEntry Cmdlets' {
                 Should -BeGreaterThan 0
         }
 
+        It 'Should throw when not targetting a FileSystem Provider Path' {
+            { Get-ZipEntry function:\* } |
+                Should -Throw
+        }
+
         It 'Can list zip file entries' {
             $zip | Get-ZipEntry -EntryType Archive |
                 Should -BeOfType ([PSCompression.ZipEntryFile])
@@ -184,6 +189,11 @@ Describe 'ZipEntry Cmdlets' {
             $bytes | Set-ZipEntryContent $entry -AsByteStream -Append
             $entry | Get-ZipEntryContent -AsByteStream |
                 Should -BeExactly $newByteArray
+        }
+
+        It 'Outputs the source entry with -PassThru' {
+            'hello world!' | Set-ZipEntryContent $entry -PassThru |
+                Should -BeOfType ([PSCompression.ZipEntryFile])
         }
     }
 

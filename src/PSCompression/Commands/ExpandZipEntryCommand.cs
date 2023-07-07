@@ -29,27 +29,7 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            (string? path, ProviderInfo? provider) = Destination
-                .NormalizePath(isLiteral: true, this);
-
-            if (path is null || provider is null)
-            {
-                return;
-            }
-
-            if (!provider.AssertFileSystem())
-            {
-                ThrowTerminatingError(
-                    ExceptionHelpers.NotFileSystemPathError(Destination, provider));
-            }
-
-            if (!path.AssertDirectory())
-            {
-                ThrowTerminatingError(
-                    ExceptionHelpers.NotDirectoryPathError(path));
-            }
-
-            Destination = path;
+            Destination = Destination.NormalizePath(isLiteral: true, this);
         }
         catch (PipelineStoppedException)
         {
