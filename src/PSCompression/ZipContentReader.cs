@@ -9,8 +9,6 @@ namespace PSCompression;
 
 internal sealed class ZipContentReader : ZipContentOpsBase
 {
-    private readonly List<string> _content = new();
-
     internal ZipContentReader(ZipArchive zip) : base(zip)
     { }
 
@@ -56,20 +54,5 @@ internal sealed class ZipContentReader : ZipContentOpsBase
         using StreamReader reader = new(entryStream, encoding);
 
         return reader.ReadToEnd();
-    }
-
-    internal string[] ReadAllLines(string entry, Encoding encoding)
-    {
-        using Stream entryStream = GetStream(entry);
-        using StreamReader reader = new(entryStream, encoding);
-
-        _content.Clear();
-
-        while (!reader.EndOfStream)
-        {
-            _content.Add(reader.ReadLine());
-        }
-
-        return _content.ToArray();
     }
 }

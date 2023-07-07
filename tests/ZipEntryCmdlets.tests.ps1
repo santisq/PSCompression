@@ -19,6 +19,16 @@ Describe 'ZipEntry Cmdlets' {
                 Should -Throw
         }
 
+        It 'Should throw if -Destination is a Directory' {
+            { New-ZipEntry -Destination $pwd -EntryPath foo } |
+                Should -Throw
+        }
+
+        It 'Should throw if -Source is a Directory' {
+            { New-ZipEntry -Destination $zip.FullName -EntryPath foo -SourcePath $pwd } |
+                Should -Throw
+        }
+
         It 'Should throw if -Source is not a valid file path' {
             { New-ZipEntry -Destination $zip.FullName -EntryPath foo -SourcePath doesnotexist } |
                 Should -Throw
@@ -88,6 +98,10 @@ Describe 'ZipEntry Cmdlets' {
 
         It 'Should throw when the path is not a Zip' {
             { $file | Get-ZipEntry } | Should -Throw
+        }
+
+        It 'Should throw if the path is not a file' {
+            { $pwd | Get-ZipEntry } | Should -Throw
         }
 
         It 'Can list zip file entries' {
