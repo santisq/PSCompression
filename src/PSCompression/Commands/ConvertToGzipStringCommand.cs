@@ -7,8 +7,7 @@ using System.Text;
 namespace PSCompression;
 
 [Cmdlet(VerbsData.ConvertTo, "GzipString")]
-[OutputType(typeof(byte), ParameterSetName = new string[1] { "ByteStream" })]
-[OutputType(typeof(string))]
+[OutputType(typeof(byte[]), typeof(string))]
 [Alias("gziptostring")]
 public sealed class ConvertToGzipStringCommand : PSCmdlet, IDisposable
 {
@@ -31,7 +30,7 @@ public sealed class ConvertToGzipStringCommand : PSCmdlet, IDisposable
     [Parameter]
     public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;
 
-    [Parameter(ParameterSetName = "ByteStream")]
+    [Parameter]
     [Alias("Raw")]
     public SwitchParameter AsByteStream { get; set; }
 
@@ -79,7 +78,7 @@ public sealed class ConvertToGzipStringCommand : PSCmdlet, IDisposable
 
             if (AsByteStream.IsPresent)
             {
-                WriteObject(_outstream.ToArray(), enumerateCollection: true);
+                WriteObject(_outstream.ToArray(), enumerateCollection: false);
                 return;
             }
 

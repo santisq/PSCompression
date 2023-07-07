@@ -127,7 +127,7 @@ Accept wildcard characters: False
 
 ### -Encoding
 
-Character encoding used when expanding the Gzip content. This parameter is only available when expanding to the Success Stream. The default encoding is __`utf8NoBOM`.__
+Character encoding used when expanding the Gzip content. This parameter is only available when expanding to the Success Stream. The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding

@@ -19,7 +19,7 @@ ConvertFrom-GzipString [-InputObject] <String[]> [[-Encoding] <Encoding>] [-Raw]
 
 ## DESCRIPTION
 
-The `ConvertFrom-GzipString` cmdlet aims to expand Base64 encoded Gzip compressed input strings using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). This cmdlet is the counterpart of [`ConvertTo-GzipString`](ConvertTo-GzipString.md).
+The `ConvertFrom-GzipString` cmdlet can expand Base64 encoded Gzip compressed strings using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). This cmdlet is the counterpart of [`ConvertTo-GzipString`](ConvertTo-GzipString.md).
 
 ## EXAMPLES
 
@@ -53,25 +53,9 @@ helloworld!
 
 ## PARAMETERS
 
-### -InputObject
-
-The Base64 Gzip compressed string or strings to expand.
-
-```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 1
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
 ### -Encoding
 
-Character encoding used when expanding the Gzip strings.
+Determines the character encoding used when expanding the input strings. The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding
@@ -79,9 +63,25 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 2
+Position: Named
 Default value: Utf8
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputObject
+
+Specifies the input string or strings to expand.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -106,8 +106,14 @@ Accept wildcard characters: False
 
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
+## INPUTS
+
+### String
+
+You can pipe strings to this cmdlet.
+
 ## OUTPUTS
 
 ### String
 
-By default, this cmdlet outputs an array of strings. When the `-Raw` switch is used, it returns a single multi-line string.
+By default, this cmdlet streams strings. When the `-Raw` switch is used, it returns a single multi-line string.

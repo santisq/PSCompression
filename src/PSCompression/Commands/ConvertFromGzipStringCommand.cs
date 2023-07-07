@@ -11,7 +11,7 @@ namespace PSCompression;
 [OutputType(typeof(string))]
 public sealed class ConvertFromGzipStringCommand : PSCmdlet
 {
-    [Parameter(Mandatory = true, ValueFromPipeline = true)]
+    [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
     public string[] InputObject { get; set; } = null!;
 
     [Parameter]
