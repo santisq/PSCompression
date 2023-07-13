@@ -23,7 +23,7 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
                     entry.RemoveEntry(_cache.GetOrAdd(entry));
                 }
             }
-            catch (PipelineStoppedException)
+            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
             {
                 throw;
             }

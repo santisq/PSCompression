@@ -148,5 +148,26 @@ Describe 'Gzip Cmdlets' {
             Get-Content -LiteralPath (Expand-GzipArchive @expandGzipArchiveSplat).FullName |
                 Should -BeExactly $testString
         }
+
+        It 'Should throw if the Path is not an Archive' {
+            { Expand-GzipArchive $pwd } | Should -Throw
+        }
+
+        It 'Should throw if the Path is not a Gzip Archive' {
+            { Expand-GzipArchive -LiteralPath (Join-Path $TestDrive content.txt) } |
+                Should -Throw
+        }
+
+        It 'Can create folders when the destination directory does not exist' {
+            $expandGzipArchiveSplat = @{
+                LiteralPath     = $destination
+                DestinationPath = [IO.Path]::Combine($TestDrive, 'does', 'not', 'exist', 'extract.txt')
+                PassThru        = $true
+                Force           = $true
+            }
+
+            { Expand-GzipArchive @expandGzipArchiveSplat } |
+                Should -Not -Throw
+        }
     }
 }

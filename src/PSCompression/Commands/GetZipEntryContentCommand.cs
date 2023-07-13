@@ -41,7 +41,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
                 ZipContentReader reader = new(GetOrAdd(entry));
                 ReadEntry(entry, reader);
             }
-            catch (PipelineStoppedException)
+            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
             {
                 throw;
             }

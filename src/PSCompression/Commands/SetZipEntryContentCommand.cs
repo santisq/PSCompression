@@ -46,7 +46,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
 
             _zipWriter = new ZipContentWriter(SourceEntry, Append.IsPresent, Encoding);
         }
-        catch (PipelineStoppedException)
+        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
             throw;
         }
@@ -73,7 +73,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
 
             _zipWriter.WriteLines(LanguagePrimitives.ConvertTo<string[]>(Value));
         }
-        catch (PipelineStoppedException)
+        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
             throw;
         }

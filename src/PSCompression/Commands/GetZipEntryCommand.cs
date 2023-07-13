@@ -102,7 +102,10 @@ public sealed class GetZipEntryCommand : PSCmdlet
         {
             if (!path.IsArchive())
             {
-                WriteError(ExceptionHelpers.NotArchivePathError(path));
+                WriteError(ExceptionHelpers.NotArchivePathError(
+                    path,
+                    _isLiteral ? nameof(LiteralPath) : nameof(Path)));
+
                 continue;
             }
 
@@ -110,7 +113,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
             {
                 WriteObject(GetEntries(path), enumerateCollection: true);
             }
-            catch (PipelineStoppedException)
+            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
             {
                 throw;
             }

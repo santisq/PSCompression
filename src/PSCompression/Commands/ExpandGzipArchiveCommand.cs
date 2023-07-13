@@ -112,7 +112,7 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
 
                 _destination = File.Open(Destination, GetMode());
             }
-            catch (PipelineStoppedException)
+            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
             {
                 throw;
             }
@@ -129,7 +129,10 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
         {
             if (!path.IsArchive())
             {
-                WriteError(ExceptionHelpers.NotArchivePathError(path));
+                WriteError(ExceptionHelpers.NotArchivePathError(
+                    path,
+                    _isLiteral ? nameof(LiteralPath) : nameof(Path)));
+
                 continue;
             }
 
@@ -152,7 +155,7 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
                     encoding: Encoding,
                     cmdlet: this);
             }
-            catch (PipelineStoppedException)
+            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
             {
                 throw;
             }

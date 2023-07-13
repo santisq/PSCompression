@@ -52,7 +52,7 @@ public sealed class ConvertToGzipStringCommand : PSCmdlet, IDisposable
 
             WriteLines(_writer, InputObject);
         }
-        catch (PipelineStoppedException)
+        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
             throw;
         }
@@ -84,7 +84,7 @@ public sealed class ConvertToGzipStringCommand : PSCmdlet, IDisposable
 
             WriteObject(Convert.ToBase64String(_outstream.ToArray()));
         }
-        catch (PipelineStoppedException)
+        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
             throw;
         }

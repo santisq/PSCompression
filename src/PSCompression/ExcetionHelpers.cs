@@ -5,12 +5,12 @@ namespace PSCompression;
 
 internal static class ExceptionHelpers
 {
-    internal static ErrorRecord NotArchivePathError(string path) =>
-        new(new ArgumentException($"Unable to get zip content because it is a directory: '{path}'."),
+    internal static ErrorRecord NotArchivePathError(string path, string paramname) =>
+        new(new ArgumentException($"The specified path is a Directory: '{path}'.", paramname),
             "NotArchivePath", ErrorCategory.InvalidArgument, path);
 
-    internal static ErrorRecord NotDirectoryPathError(string path) =>
-        new(new ArgumentException($"Destination path is an existing file: '{path}'."),
+    internal static ErrorRecord NotDirectoryPathError(string path, string paramname) =>
+        new(new ArgumentException($"Destination path is an existing File: '{path}'.", paramname),
             "NotDirectoryPath", ErrorCategory.InvalidArgument, path);
 
     internal static ErrorRecord InvalidProviderError(string path, ProviderInfo provider) =>
