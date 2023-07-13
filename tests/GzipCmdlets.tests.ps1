@@ -132,7 +132,7 @@ Describe 'Gzip Cmdlets' {
                 Update          = $true
             }
 
-            $appendedContent = $testString, $testString
+            $appendedContent = $testString + $testString
             Get-Content -LiteralPath (Expand-GzipArchive @expandGzipArchiveSplat).FullName |
                 Should -BeExactly $appendedContent
         }
