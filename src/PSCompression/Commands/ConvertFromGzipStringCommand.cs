@@ -7,8 +7,8 @@ using System.Text;
 namespace PSCompression;
 
 [Cmdlet(VerbsData.ConvertFrom, "GzipString")]
-[Alias("gzipfromstring")]
 [OutputType(typeof(string))]
+[Alias("gzipfromstring")]
 public sealed class ConvertFromGzipStringCommand : PSCmdlet
 {
     [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]

@@ -114,7 +114,7 @@ Demonstrates how `-Update` works.
 ```powershell
 PS ..\pwsh> $lorem = Invoke-RestMethod loripsum.net/api/10/long/plaintext
 PS ..\pwsh> $lorem | ConvertTo-GzipString -AsByteStream |
-    Compress-GzipArchive -DestinationPath .\files\file.gzip -Force
+    Compress-GzipArchive -DestinationPath .\files\file.gz -Force
 ```
 
 Demonstrates how `-Force` works.
@@ -131,7 +131,7 @@ PS ..\pwsh> (Get-Content .\files\lorem*.txt | Measure-Object Length -Sum).Sum / 
 86.787109375
 
 # Check the total Length after compression
-PS ..\pwsh> (Compress-GzipArchive .\files\lorem*.txt -DestinationPath .\files\mergedLorem.gzip -PassThru).Length / 1kb
+PS ..\pwsh> (Compress-GzipArchive .\files\lorem*.txt -DestinationPath .\files\mergedLorem.gz -PassThru).Length / 1kb
 27.6982421875
 ```
 

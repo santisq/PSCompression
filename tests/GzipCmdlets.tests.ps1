@@ -58,10 +58,11 @@ Describe 'Gzip Cmdlets' {
 
     Context 'Compress & Expand GzipArchive' -Tag 'Compress & Expand GzipArchive' {
         BeforeAll {
-            $content = 'hello world!' | New-Item (Join-Path $TestDrive content.txt)
+            $testString = 'hello world!'
+            $content = $testString | New-Item (Join-Path $TestDrive content.txt)
             $appendedContent = 'this is appended content...' | New-Item (Join-Path $TestDrive appendedContent.txt)
             $destination = Join-Path $TestDrive -ChildPath test.gz
-            $content, $appendedContent, $destination | Out-Null
+            $testString, $content, $appendedContent, $destination | Out-Null
         }
 
         It 'Can create a Gzip compressed file from a specified path' {
@@ -111,6 +112,41 @@ Describe 'Gzip Cmdlets' {
 
             Get-Content -LiteralPath (Expand-GzipArchive @expandGzipArchiveSplat).FullName |
                 Should -BeExactly ($content | Get-Content)
+        }
+
+        It 'Should throw if expanding to an existing file' {
+            $expandGzipArchiveSplat = @{
+                LiteralPath     = $destination
+                DestinationPath = (Join-Path $TestDrive extract.txt)
+            }
+
+            { Expand-GzipArchive @expandGzipArchiveSplat } |
+                Should -Throw
+        }
+
+        It 'Can append content with -Update' {
+            $expandGzipArchiveSplat = @{
+                LiteralPath     = $destination
+                DestinationPath = (Join-Path $TestDrive extract.txt)
+                PassThru        = $true
+                Update          = $true
+            }
+
+            $appendedContent = $testString + $testString
+            Get-Content -LiteralPath (Expand-GzipArchive @expandGzipArchiveSplat).FullName |
+                Should -BeExactly $appendedContent
+        }
+
+        It 'Can overwrite the destination file with -Force' {
+            $expandGzipArchiveSplat = @{
+                LiteralPath     = $destination
+                DestinationPath = (Join-Path $TestDrive extract.txt)
+                PassThru        = $true
+                Force           = $true
+            }
+
+            Get-Content -LiteralPath (Expand-GzipArchive @expandGzipArchiveSplat).FullName |
+                Should -BeExactly $testString
         }
     }
 }

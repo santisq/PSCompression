@@ -35,6 +35,9 @@ public static class Extensions
         s_reEntryDir.IsMatch(path) ? NormalizeEntryPath(path) :
             NormalizeFileEntryPath(path);
 
+    internal static string GetParent(this string path) =>
+        Path.GetDirectoryName(path);
+
     internal static string[] NormalizePath(
         this string[] paths,
         bool isLiteral,

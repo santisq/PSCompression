@@ -29,6 +29,9 @@ internal static class ExceptionHelpers
     internal static ErrorRecord StreamOpenError(ZipEntryFile entry, Exception e) =>
         new(e, "StreamOpen", ErrorCategory.NotSpecified, entry);
 
+    internal static ErrorRecord StreamOpenError(string path, Exception e) =>
+        new(e, "StreamOpen", ErrorCategory.NotSpecified, path);
+
     internal static ErrorRecord WriteError(object entry, Exception e) =>
         new(e, "WriteError", ErrorCategory.WriteError, entry);
 

@@ -44,7 +44,7 @@ H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
 
 ```powershell
 PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream |
-    Compress-GzipArchive -DestinationPath .\files\file.gzip
+    Compress-GzipArchive -DestinationPath .\files\file.gz
 ```
 
 Demonstrates how `-AsByteStream` works on `ConvertTo-GzipString`, the cmdlet outputs a byte array that is received by `Compress-GzipArchive` and stored in a file. __Note that the byte array is not enumerated__.
