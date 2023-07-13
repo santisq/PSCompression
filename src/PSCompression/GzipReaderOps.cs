@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PSCompression;
 
-public static class GzipReaderOps
+internal static class GzipReaderOps
 {
     private const byte GzipPreamble1 = 0x1f;
 
@@ -13,7 +13,24 @@ public static class GzipReaderOps
 
     private const byte GzipPreamble3 = 0x08;
 
-    public static void GetContent(
+    internal static void CopyTo(
+        string path,
+        bool isCoreCLR,
+        FileStream destination)
+    {
+        if (isCoreCLR)
+        {
+            using FileStream fs = File.OpenRead(path);
+            using GZipStream gzip = new(fs, CompressionMode.Decompress);
+            gzip.CopyTo(destination);
+            return;
+        }
+
+        using MemoryStream mem = GetFrameworkStream(path);
+        mem.CopyTo(destination);
+    }
+
+    internal static void GetContent(
         string path,
         bool isCoreCLR,
         bool raw,
@@ -102,7 +119,7 @@ public static class GzipReaderOps
 
                 if ((byte)b == GzipPreamble3)
                 {
-                    AppendBytes(path, outmem, fs.Position - 3);
+                    CopyTo(path, outmem, fs.Position - 3);
                 }
             }
         }
@@ -111,7 +128,7 @@ public static class GzipReaderOps
         return outmem;
     }
 
-    private static void AppendBytes(string path, MemoryStream outmem, long pos)
+    private static void CopyTo(string path, MemoryStream outmem, long pos)
     {
         using FileStream substream = File.OpenRead(path);
         substream.Seek(pos, SeekOrigin.Begin);

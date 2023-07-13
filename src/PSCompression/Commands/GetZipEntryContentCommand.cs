@@ -6,8 +6,8 @@ using System.Text;
 namespace PSCompression;
 
 [Cmdlet(VerbsCommon.Get, "ZipEntryContent", DefaultParameterSetName = "Stream")]
-[OutputType(typeof(string), ParameterSetName = new string[1] { "Stream" })]
-[OutputType(typeof(byte), ParameterSetName = new string[1] { "Bytes" })]
+[OutputType(typeof(string), ParameterSetName = new[] { "Stream" })]
+[OutputType(typeof(byte), ParameterSetName = new[] { "Bytes" })]
 [Alias("gczip")]
 public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
 {

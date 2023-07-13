@@ -8,14 +8,12 @@ namespace PSCompression;
 [Cmdlet(VerbsData.Expand, "GzipArchive")]
 [OutputType(
     typeof(string),
-    ParameterSetName = new string[2] { "Path", "LiteralPath" }
-)]
+    ParameterSetName = new[] { "Path", "LiteralPath" })]
 [OutputType(
     typeof(FileInfo),
-    ParameterSetName = new string[2] { "PathDestination", "LiteralPathDestination" }
-)]
+    ParameterSetName = new[] { "PathDestination", "LiteralPathDestination" })]
 [Alias("gzipfromfile")]
-public sealed class ExpandGzipArchiveCommand : PSCmdlet
+public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
 {
     private bool _isLiteral;
 
@@ -27,14 +25,12 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet
         ParameterSetName = "Path",
         Position = 0,
         Mandatory = true,
-        ValueFromPipeline = true
-    )]
+        ValueFromPipeline = true)]
     [Parameter(
         ParameterSetName = "PathDestination",
         Position = 0,
         Mandatory = true,
-        ValueFromPipeline = true
-    )]
+        ValueFromPipeline = true)]
     [SupportsWildcards]
     public string[] Path
     {
@@ -49,13 +45,11 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet
     [Parameter(
         ParameterSetName = "LiteralPath",
         Mandatory = true,
-        ValueFromPipelineByPropertyName = true
-    )]
+        ValueFromPipelineByPropertyName = true)]
     [Parameter(
         ParameterSetName = "LiteralPathDestination",
         Mandatory = true,
-        ValueFromPipelineByPropertyName = true
-    )]
+        ValueFromPipelineByPropertyName = true)]
     [Alias("PSPath")]
     public string[] LiteralPath
     {
@@ -67,12 +61,19 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet
         }
     }
 
-    [Parameter(Mandatory = true, ParameterSetName = "PathDestination")]
-    [Parameter(Mandatory = true, ParameterSetName = "LiteralPathDestination")]
+    [Parameter(
+        Mandatory = true,
+        Position = 1,
+        ParameterSetName = "PathDestination")]
+    [Parameter(
+        Mandatory = true,
+        Position = 1,
+        ParameterSetName = "LiteralPathDestination")]
     [Alias("DestinationPath")]
     public string Destination { get; set; } = null!;
 
-    [Parameter]
+    [Parameter(ParameterSetName = "PathDestination")]
+    [Parameter(ParameterSetName = "LiteralPathDestination")]
     [ArgumentCompleter(typeof(EncodingCompleter))]
     [EncodingTransformation]
     [ValidateNotNullOrEmpty]
@@ -90,6 +91,10 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet
     [Parameter(ParameterSetName = "LiteralPathDestination")]
     public SwitchParameter Force { get; set; }
 
+    [Parameter(ParameterSetName = "PathDestination")]
+    [Parameter(ParameterSetName = "LiteralPathDestination")]
+    public SwitchParameter Update { get; set; }
+
     protected override void BeginProcessing()
     {
         if (Destination is not null && _destination is null)
@@ -98,11 +103,6 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet
             {
                 Destination = Destination.NormalizePath(isLiteral: true, this);
 
-                if (!Force.IsPresent && File.Exists(Destination))
-                {
-                    ThrowTerminatingError(ExceptionHelpers.FileExistsError(Destination));
-                }
-
                 string parent = Destination.GetParent();
 
                 if (!Directory.Exists(parent))
@@ -110,7 +110,7 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet
                     Directory.CreateDirectory(parent);
                 }
 
-                _destination = File.Open(Destination, FileMode.Append);
+                _destination = File.Open(Destination, GetMode());
             }
             catch (PipelineStoppedException)
             {
@@ -135,6 +135,16 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet
 
             try
             {
+                if (_destination is not null)
+                {
+                    GzipReaderOps.CopyTo(
+                        path: path,
+                        isCoreCLR: PSVersionHelper.IsCoreCLR,
+                        destination: _destination);
+
+                    continue;
+                }
+
                 GzipReaderOps.GetContent(
                     path: path,
                     isCoreCLR: PSVersionHelper.IsCoreCLR,
@@ -152,4 +162,31 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet
             }
         }
     }
+
+    protected override void EndProcessing()
+    {
+        _destination?.Dispose();
+
+        if (PassThru.IsPresent && _destination is not null)
+        {
+            WriteObject(new FileInfo(_destination.Name));
+        }
+    }
+
+    private FileMode GetMode()
+    {
+        if (Update.IsPresent)
+        {
+            return FileMode.Append;
+        }
+
+        if (Force.IsPresent)
+        {
+            return FileMode.Create;
+        }
+
+        return FileMode.CreateNew;
+    }
+
+    public void Dispose() => _destination?.Dispose();
 }

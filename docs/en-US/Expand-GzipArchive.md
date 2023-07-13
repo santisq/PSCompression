@@ -16,25 +16,27 @@ Expands a Gzip compressed file from a specified File Path or Paths.
 ### Path
 
 ```powershell
-Expand-GzipArchive [-Path] <String[]> [-Encoding <Encoding>] [-Raw] [<CommonParameters>]
-```
-
-### LiteralPath
-
-```powershell
-Expand-GzipArchive -LiteralPath <String[]> [-Encoding <Encoding>] [-Raw] [<CommonParameters>]
+Expand-GzipArchive [-Path] <String[]> [-Raw] [<CommonParameters>]
 ```
 
 ### PathDestination
 
 ```powershell
-Expand-GzipArchive [-Path] <String[]> [-DestinationPath] <String> [-PassThru] [<CommonParameters>]
+Expand-GzipArchive [-Path] <String[]> -Destination <String> [-Encoding <Encoding>] [-PassThru] [-Force]
+ [-Update] [<CommonParameters>]
+```
+
+### LiteralPath
+
+```powershell
+Expand-GzipArchive -LiteralPath <String[]> [-Raw] [<CommonParameters>]
 ```
 
 ### LiteralPathDestination
 
 ```powershell
-Expand-GzipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-PassThru] [<CommonParameters>]
+Expand-GzipArchive -LiteralPath <String[]> -Destination <String> [-Encoding <Encoding>] [-PassThru] [-Force]
+ [-Update] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,21 +53,33 @@ PS ..\pwsh> Expand-GzipArchive .\files\file.gz
 hello world!
 ```
 
-Output goes to the Success Stream when `-DestinationPath` is not used.
+Output goes to the Success Stream when `-Destination` is not used.
 
 ### Example 2: Expanding a Gzip archive to a new file
 
 ```powershell
-PS ..\pwsh> Expand-GzipArchive .\files\file.gzip -DestinationPath .\files\file.txt
+PS ..\pwsh> Expand-GzipArchive .\files\file.gz -Destination .\files\file.txt
 
 # Checking Length Difference
-PS ..\pwsh> Get-Item -Path .\files\file.gzip, .\files\file.txt |
+PS ..\pwsh> Get-Item -Path .\files\file.gz, .\files\file.txt |
     Select-Object Name, Length
 
 Name      Length
 ----      ------
-file.gzip   3168
+file.gz     3168
 file.txt    6857
+```
+
+### Example 3: Appending content to an existing file
+
+```powershell
+PS ..\pwsh> Expand-GzipArchive *.gz -Destination .\files\file.txt -Update
+```
+
+### Example 4: Expanding a Gzip archive overwritting an existing file
+
+```powershell
+PS ..\pwsh> Expand-GzipArchive *.gz -Destination .\files\file.txt -Force
 ```
 
 ## PARAMETERS
@@ -83,7 +97,7 @@ Parameter Sets: PathDestination, Path
 Aliases:
 
 Required: True
-Position: 1
+Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
@@ -107,19 +121,20 @@ Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
-### -DestinationPath
+### -Destination
 
 The destination path where to expand the Gzip file.
 The target folder is created if it does not exist.
-This parameter is Optional, if not used, this cmdlet outputs to the Success Stream.
+
+> __NOTE:__ This parameter is Optional, if not used, this cmdlet outputs to the Success Stream.
 
 ```yaml
 Type: String
 Parameter Sets: PathDestination, LiteralPathDestination
-Aliases:
+Aliases: DestinationPath
 
 Required: True
-Position: 2
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -145,7 +160,8 @@ Accept wildcard characters: False
 
 Outputs the expanded file as a single string with newlines preserved.
 By default, newline characters in the expanded string are used as delimiters to separate the input into an array of strings.
-This parameter is only available when expanding to the Success Stream.
+
+> __NOTE:__ This parameter is only available when expanding to the Success Stream.
 
 ```yaml
 Type: SwitchParameter
@@ -162,7 +178,6 @@ Accept wildcard characters: False
 ### -PassThru
 
 Outputs the object representing the expanded file.
-This parameter is only available when expanding to a File.
 
 ```yaml
 Type: SwitchParameter
@@ -176,6 +191,42 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Force
+
+The destination file gets overwritten when this switch is used.
+
+> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: PathDestination, LiteralPathDestination
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Update
+
+Contents of the expanded file or files are appended to the destination when this switch is used.
+
+> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: PathDestination, LiteralPathDestination
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
@@ -184,7 +235,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ### String
 
-This cmdlet outputs an array of string to the success stream when `-DestinationPath` is not used and a single multi-line string when used with the `-Raw` switch.
+This cmdlet outputs an array of string to the success stream when `-Destination` is not used and a single multi-line string when used with the `-Raw` switch.
 
 ### None
 

@@ -29,8 +29,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
         ParameterSetName = "Path",
         Position = 0,
         Mandatory = true,
-        ValueFromPipeline = true
-    )]
+        ValueFromPipeline = true)]
     [SupportsWildcards]
     public string[] Path
     {
@@ -45,8 +44,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
     [Parameter(
         ParameterSetName = "LiteralPath",
         Mandatory = true,
-        ValueFromPipelineByPropertyName = true
-    )]
+        ValueFromPipelineByPropertyName = true)]
     [Alias("PSPath")]
     public string[] LiteralPath
     {

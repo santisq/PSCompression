@@ -5,7 +5,7 @@ using System.Management.Automation;
 namespace PSCompression;
 
 [Cmdlet(VerbsData.Expand, "ZipEntry")]
-[OutputType(typeof(FileSystemInfo), ParameterSetName = new string[1] { "PassThru" })]
+[OutputType(typeof(FileSystemInfo), ParameterSetName = new[] { "PassThru" })]
 public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _cache = new();
