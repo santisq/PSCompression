@@ -110,7 +110,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ### String
 
-You can pipe strings to this cmdlet.
+You can pipe Gzip Base64 strings to this cmdlet.
 
 ## OUTPUTS
 

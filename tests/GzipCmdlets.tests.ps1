@@ -169,5 +169,34 @@ Describe 'Gzip Cmdlets' {
             { Expand-GzipArchive @expandGzipArchiveSplat } |
                 Should -Not -Throw
         }
+
+        Context 'Compress-GzipArchive with InputBytes' {
+            BeforeAll {
+                $path = [IO.Path]::Combine($TestDrive, 'this', 'is', 'atest', 'file')
+                $testStrings = 'hello', 'world', '!'
+                $path, $testStrings | Out-Null
+            }
+
+            It 'Can create compressed files from input bytes' {
+                $testStrings | ConvertTo-GzipString -AsByteStream |
+                    Compress-GzipArchive -DestinationPath $path -PassThru |
+                    Expand-GzipArchive |
+                    Should -BeExactly $testStrings
+            }
+
+            It 'Can append to compressed files from input bytes' {
+                $testStrings | ConvertTo-GzipString -AsByteStream |
+                    Compress-GzipArchive -DestinationPath $path -PassThru -Update |
+                    Expand-GzipArchive |
+                    Should -BeExactly ($testStrings + $testStrings)
+            }
+
+            It 'Can overwrite a compressed file from input bytes' {
+                $testStrings | ConvertTo-GzipString -AsByteStream |
+                    Compress-GzipArchive -DestinationPath $path -PassThru -Force |
+                    Expand-GzipArchive |
+                    Should -BeExactly $testStrings
+            }
+        }
     }
 }

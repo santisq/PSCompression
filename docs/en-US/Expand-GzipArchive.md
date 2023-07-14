@@ -231,6 +231,12 @@ Accept wildcard characters: False
 
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
+## INPUTS
+
+### String
+
+You can pipe paths to this cmdlet. Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
+
 ## OUTPUTS
 
 ### String
