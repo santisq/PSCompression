@@ -81,7 +81,7 @@ Describe 'Gzip Cmdlets' {
             $appendedContent |
                 Compress-GzipArchive -DestinationPath $destination -PassThru -Update |
                 Expand-GzipArchive |
-                Should -BeExactly ( -join @($content, $appendedContent | Get-Content))
+                Should -BeExactly (-join @($content, $appendedContent | Get-Content))
         }
 
         It 'Can expand Gzip files with appended content to a destination file' {
@@ -92,7 +92,7 @@ Describe 'Gzip Cmdlets' {
             }
 
             Get-Content -LiteralPath (Expand-GzipArchive @expandGzipArchiveSplat).FullName |
-                Should -BeExactly ( -join @($content, $appendedContent | Get-Content))
+                Should -BeExactly (-join @($content, $appendedContent | Get-Content))
         }
 
         It 'Should not overwrite an existing Gzip file without -Force' {
@@ -106,6 +106,12 @@ Describe 'Gzip Cmdlets' {
 
             Expand-GzipArchive -LiteralPath $destination |
                 Should -BeExactly ($content | Get-Content)
+        }
+
+        It 'Should throw if trying to compress a directory' {
+            { 0..5 | ForEach-Object { New-Item (Join-Path $TestDrive "folder $_") } |
+                Compress-GzipArchive -DestinationPath $destination } |
+                Should -Throw
         }
 
         It 'Can expand Gzip files to a destination file' {
