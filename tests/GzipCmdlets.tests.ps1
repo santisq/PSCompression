@@ -72,6 +72,11 @@ Describe 'Gzip Cmdlets' {
                 Should -BeExactly ($content | Get-Content)
         }
 
+        It 'Outputs a single multiline string when using the -Raw switch' {
+            Expand-GzipArchive $destination -Raw |
+                Should -BeExactly ($content | Get-Content -Raw)
+        }
+
         It 'Can append content to a Gzip compressed file from a specified path' {
             $appendedContent |
                 Compress-GzipArchive -DestinationPath $destination -PassThru -Update |
