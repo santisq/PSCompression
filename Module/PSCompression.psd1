@@ -73,7 +73,6 @@
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport  = @(
         'Compress-ZipArchive'
-        'Compress-GzipArchive'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -87,6 +86,7 @@
         'ConvertTo-GzipString'
         'ConvertFrom-GzipString'
         'Expand-GzipArchive'
+        'Compress-GzipArchive'
     )
 
     # Variables to export from this module
