@@ -7,6 +7,7 @@ param(
     $Configuration = 'Debug',
 
     [Parameter()]
+    [ValidateSet('Build', 'Test')]
     [string[]]
     $Task = 'Build'
 )

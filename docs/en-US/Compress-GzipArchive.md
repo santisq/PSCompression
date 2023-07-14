@@ -16,64 +16,64 @@ Creates a Gzip compressed file from specified File Paths or input Bytes.
 ### Path (Default)
 
 ```powershell
-Compress-GzipArchive [-Path] <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
+Compress-GzipArchive [-Path] <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
  [-PassThru] [<CommonParameters>]
-```
-
-### PathWithForce
-
-```powershell
-Compress-GzipArchive [-Path] <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
- [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ### PathWithUpdate
 
 ```powershell
-Compress-GzipArchive [-Path] <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
+Compress-GzipArchive [-Path] <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
  [-Update] [-PassThru] [<CommonParameters>]
 ```
 
-### LiteralPath
+### PathWithForce
 
 ```powershell
-Compress-GzipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
+Compress-GzipArchive [-Path] <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>] [-Force]
  [-PassThru] [<CommonParameters>]
-```
-
-### LiteralPathWithForce
-
-```powershell
-Compress-GzipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
- [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ### LiteralPathWithUpdate
 
 ```powershell
-Compress-GzipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
+Compress-GzipArchive -LiteralPath <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
  [-Update] [-PassThru] [<CommonParameters>]
 ```
 
-### RawBytes
+### LiteralPathWithForce
 
 ```powershell
-Compress-GzipArchive -InputBytes <Byte[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
- [-PassThru] [<CommonParameters>]
-```
-
-### RawBytesWithForce
-
-```powershell
-Compress-GzipArchive -InputBytes <Byte[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
+Compress-GzipArchive -LiteralPath <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
  [-Force] [-PassThru] [<CommonParameters>]
 ```
 
-### RawBytesWithUpdate
+### LiteralPath
 
 ```powershell
-Compress-GzipArchive -InputBytes <Byte[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
+Compress-GzipArchive -LiteralPath <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
+ [-PassThru] [<CommonParameters>]
+```
+
+### InputBytes
+
+```powershell
+Compress-GzipArchive -InputBytes <Byte[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
+ [-PassThru] [<CommonParameters>]
+```
+
+### InputBytesWithUpdate
+
+```powershell
+Compress-GzipArchive -InputBytes <Byte[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
  [-Update] [-PassThru] [<CommonParameters>]
+```
+
+### InputBytesWithForce
+
+```powershell
+Compress-GzipArchive -InputBytes <Byte[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
+ [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -85,7 +85,7 @@ The `Compress-GzipArchive` cmdlet can compress one or more specified file paths 
 ### Example 1: Create a Gzip compressed file from a File Path
 
 ```powershell
-PS ..\pwsh> Compress-GzipArchive path\to\myFile.ext -DestinationPath myFile.gz
+PS ..\pwsh> Compress-GzipArchive path\to\myFile.ext -Destination myFile.gz
 ```
 
 If the destination does not end with `.gz` the extension is automatically added.
@@ -94,7 +94,7 @@ If the destination does not end with `.gz` the extension is automatically added.
 
 ```powershell
 PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream |
-    Compress-GzipArchive -DestinationPath .\files\file.gz
+    Compress-GzipArchive -Destination .\files\file.gz
 ```
 
 Demonstrates how `-AsByteStream` works on `ConvertTo-GzipString`.
@@ -104,7 +104,7 @@ Sends the compressed bytes to `Compress-GzipArchive`.
 
 ```powershell
 PS ..\pwsh> 'this is new content...' | ConvertTo-GzipString -AsByteStream |
-    Compress-GzipArchive -DestinationPath .\files\file.gz -Update
+    Compress-GzipArchive -Destination .\files\file.gz -Update
 ```
 
 Demonstrates how `-Update` works.
@@ -114,7 +114,7 @@ Demonstrates how `-Update` works.
 ```powershell
 PS ..\pwsh> $lorem = Invoke-RestMethod loripsum.net/api/10/long/plaintext
 PS ..\pwsh> $lorem | ConvertTo-GzipString -AsByteStream |
-    Compress-GzipArchive -DestinationPath .\files\file.gz -Force
+    Compress-GzipArchive -Destination .\files\file.gz -Force
 ```
 
 Demonstrates how `-Force` works.
@@ -131,84 +131,13 @@ PS ..\pwsh> (Get-Content .\files\lorem*.txt | Measure-Object Length -Sum).Sum / 
 86.787109375
 
 # Check the total Length after compression
-PS ..\pwsh> (Compress-GzipArchive .\files\lorem*.txt -DestinationPath .\files\mergedLorem.gz -PassThru).Length / 1kb
+PS ..\pwsh> (Compress-GzipArchive .\files\lorem*.txt -Destination .\files\mergedLorem.gz -PassThru).Length / 1kb
 27.6982421875
 ```
 
 Due to the nature of Gzip without Tar, all file contents are merged into a single file.
 
 ## PARAMETERS
-
-### -Path
-
-Specifies the path or paths to the files that you want to add to the Gzip archive file.
-To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
-This Parameter accepts wildcard characters.
-Wildcard characters allow you to add all files in a directory to your archive file.
-
-```yaml
-Type: String[]
-Parameter Sets: Path, PathWithForce, PathWithUpdate
-Aliases:
-
-Required: True
-Position: 1
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -LiteralPath
-
-Specifies the path or paths to the files that you want to add to the Gzip archive file.
-Unlike the `-Path` Parameter, the value of `-LiteralPath` is used exactly as it's typed.
-No characters are interpreted as wildcards
-
-```yaml
-Type: String[]
-Parameter Sets: LiteralPath, LiteralPathWithForce, LiteralPathWithUpdate
-Aliases: PSPath
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName)
-Accept wildcard characters: False
-```
-
-### -InputBytes
-
-Takes the bytes from pipeline and adds to the Gzip archive file.
-This parameter is meant to be used in combination with `ConvertTo-GzipString -AsByteStream`.
-
-```yaml
-Type: Byte[]
-Parameter Sets: RawBytes, RawBytesWithForce, RawBytesWithUpdate
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -DestinationPath
-
-The destination path to the Gzip compressed file.
-If the file name in DestinationPath doesn't have a `.gz` file name extension, the cmdlet appends the `.gz` file name extension.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 2
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -CompressionLevel
 
@@ -228,18 +157,19 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Update
+### -Destination
 
-Appends content to the existing Gzip file.
+The destination path to the Gzip compressed file.
+If the file name in DestinationPath doesn't have a `.gz` file name extension, the cmdlet appends the `.gz` file name extension.
 
 ```yaml
-Type: SwitchParameter
-Parameter Sets: PathWithUpdate, LiteralPathWithUpdate, RawBytesWithUpdate
-Aliases:
+Type: String
+Parameter Sets: (All)
+Aliases: DestinationPath
 
 Required: True
-Position: Named
-Default value: False
+Position: 1
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -250,13 +180,49 @@ Replaces the content of a Gzip file.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: PathWithForce, LiteralPathWithForce, RawBytesWithForce
+Parameter Sets: PathWithForce, LiteralPathWithForce, InputBytesWithForce
 Aliases:
 
 Required: True
 Position: Named
 Default value: False
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputBytes
+
+This cmdlet can take input bytes from pipeline to create the output `.gz` archive file.
+
+> __NOTE:__ This parameter is meant to be used exclusively in combination with `ConvertTo-GzipString -AsByteStream`.
+
+```yaml
+Type: Byte[]
+Parameter Sets: InputBytesWithUpdate, InputBytesWithForce, InputBytes
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -LiteralPath
+
+Specifies the path or paths to the files that you want to add to the Gzip archive file.
+Unlike the `-Path` Parameter, the value of `-LiteralPath` is used exactly as it's typed.
+No characters are interpreted as wildcards
+
+```yaml
+Type: String[]
+Parameter Sets: LiteralPathWithUpdate, LiteralPathWithForce, LiteralPath
+Aliases: PSPath
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
@@ -277,9 +243,50 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Path
+
+Specifies the path or paths to the files that you want to add to the Gzip archive file.
+To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
+This Parameter accepts wildcard characters.
+Wildcard characters allow you to add all files in a directory to your archive file.
+
+```yaml
+Type: String[]
+Parameter Sets: Path, PathWithUpdate, PathWithForce
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: True
+```
+
+### -Update
+
+Appends content to the existing Gzip file.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: PathWithUpdate, LiteralPathWithUpdate, InputBytesWithUpdate
+Aliases:
+
+Required: True
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+### String
+
+You can pipe paths to this cmdlet. Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
 
 ## OUTPUTS
 

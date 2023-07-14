@@ -68,15 +68,15 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
     }
 
     [Parameter(
-        ParameterSetName = "RawBytesWithUpdate",
+        ParameterSetName = "InputBytesWithUpdate",
         Mandatory = true,
         ValueFromPipeline = true)]
     [Parameter(
-        ParameterSetName = "RawBytesWithForce",
+        ParameterSetName = "InputBytesWithForce",
         Mandatory = true,
         ValueFromPipeline = true)]
     [Parameter(
-        ParameterSetName = "RawBytes",
+        ParameterSetName = "InputBytes",
         Mandatory = true,
         ValueFromPipeline = true)]
     public byte[]? InputBytes { get; set; }
@@ -88,12 +88,12 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
     [Parameter]
     public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;
 
-    [Parameter(ParameterSetName = "RawBytesWithUpdate", Mandatory = true)]
+    [Parameter(ParameterSetName = "InputBytesWithUpdate", Mandatory = true)]
     [Parameter(ParameterSetName = "PathWithUpdate", Mandatory = true)]
     [Parameter(ParameterSetName = "LiteralPathWithUpdate", Mandatory = true)]
     public SwitchParameter Update { get; set; }
 
-    [Parameter(ParameterSetName = "RawBytesWithForce", Mandatory = true)]
+    [Parameter(ParameterSetName = "InputBytesWithForce", Mandatory = true)]
     [Parameter(ParameterSetName = "PathWithForce", Mandatory = true)]
     [Parameter(ParameterSetName = "LiteralPathWithForce", Mandatory = true)]
     public SwitchParameter Force { get; set; }
