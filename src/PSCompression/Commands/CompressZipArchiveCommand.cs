@@ -1,22 +1,27 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsData.Compress, "GzipArchive", DefaultParameterSetName = "Path")]
+[Cmdlet(VerbsData.Compress, "ZipArchive")]
 [OutputType(typeof(FileInfo))]
-[Alias("gziptofile")]
-public sealed class CompressGzipArchive : PSCmdlet, IDisposable
+[Alias("ziparchive")]
+public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
 {
+    private const FileShare s_fsmode = FileShare.ReadWrite | FileShare.Delete;
+
     private bool _isLiteral;
 
     private string[] _paths = Array.Empty<string>();
 
+    private ZipArchive? _zip;
+
     private FileStream? _destination;
 
-    private GZipStream? _gzip;
+    private readonly Queue<DirectoryInfo> _queue = new();
 
     [Parameter(
         ParameterSetName = "PathWithUpdate",
@@ -103,9 +108,9 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
 
     protected override void BeginProcessing()
     {
-        if (!HasGZipExtension(Destination))
+        if (!HasZipExtension(Destination))
         {
-            Destination += ".gz";
+            Destination += ".zip";
         }
 
         try
@@ -119,7 +124,8 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
                 Directory.CreateDirectory(parent);
             }
 
-            _destination = File.Open(Destination, GetMode());
+            _destination = File.Open(Destination, GetFileMode());
+            _zip = new ZipArchive(_destination, GetZipMode());
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
@@ -133,65 +139,33 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
 
     protected override void ProcessRecord()
     {
-        if (InputBytes is not null && _destination is not null)
-        {
-            try
-            {
-                _destination.Write(InputBytes, 0, InputBytes.Length);
-            }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(ExceptionHelpers.WriteError(InputBytes, e));
-            }
-
-            return;
-        }
-
-        _gzip ??= new GZipStream(_destination, CompressionLevel);
-
         foreach (string path in _paths.NormalizePath(_isLiteral, this))
         {
-            if (!path.IsArchive())
+            if (path.IsArchive())
             {
-                WriteError(ExceptionHelpers.NotArchivePathError(
-                    path,
-                    _isLiteral ? nameof(LiteralPath) : nameof(Path)));
-
-                continue;
+                path.GetParent();
             }
 
-            try
-            {
-                using FileStream stream = File.OpenRead(path);
-                stream.CopyTo(_gzip);
-            }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(ExceptionHelpers.WriteError(path, e));
-            }
+            Traverse(new DirectoryInfo(path));
         }
     }
 
-    protected override void EndProcessing()
+    private void Traverse(DirectoryInfo item)
     {
-        _gzip?.Dispose();
-        _destination?.Dispose();
-
-        if (PassThru.IsPresent && _destination is not null)
-        {
-            WriteObject(new FileInfo(_destination.Name));
-        }
+        _queue.Clear();
     }
 
-    private FileMode GetMode()
+    private void CreateEntry(
+        FileInfo file,
+        ZipArchive zip,
+        string relativepath)
+    {
+        using Stream stream = zip.CreateEntry(relativepath).Open();
+        using FileStream fileStream = file.Open(FileMode.Open, FileAccess.Read, s_fsmode);
+        fileStream.CopyTo(stream);
+    }
+
+    private FileMode GetFileMode()
     {
         if (Update.IsPresent)
         {
@@ -206,13 +180,23 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
         return FileMode.CreateNew;
     }
 
-    private bool HasGZipExtension(string path) =>
+    private ZipArchiveMode GetZipMode()
+    {
+        if (!Force.IsPresent && !Update.IsPresent)
+        {
+            return ZipArchiveMode.Create;
+        }
+
+        return ZipArchiveMode.Update;
+    }
+
+    private bool HasZipExtension(string path) =>
         System.IO.Path.GetExtension(path)
-            .Equals(".gz", StringComparison.InvariantCultureIgnoreCase);
+            .Equals(".zip", StringComparison.InvariantCultureIgnoreCase);
 
     public void Dispose()
     {
-        _gzip?.Dispose();
+        _zip?.Dispose();
         _destination?.Dispose();
     }
 }
