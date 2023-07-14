@@ -1,17 +1,19 @@
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace PSCompression;
 
 internal static class GzipReaderOps
 {
-    private const byte GzipPreamble1 = 0x1f;
-
-    private const byte GzipPreamble2 = 0x8b;
-
-    private const byte GzipPreamble3 = 0x08;
+    private static readonly byte[] gzipPreamble = new byte[3]
+    {
+        0x1f,
+        0x8b,
+        0x08
+    };
 
     internal static void CopyTo(
         string path,
@@ -92,11 +94,26 @@ internal static class GzipReaderOps
         int marker = 0;
         int b;
         using FileStream fs = File.OpenRead(path);
+
+        byte[] preamble = new byte[3];
+        fs.Read(preamble, 0, 3);
+
+        for (int i = 0; i < 3; i++)
+        {
+            if(preamble[i] != gzipPreamble[i])
+            {
+                throw new InvalidDataContractException(
+                    "The archive entry was compressed using an unsupported compression method.");
+            }
+        }
+
+        fs.Seek(0, SeekOrigin.Begin);
+
         MemoryStream outmem = new();
 
         while ((b = fs.ReadByte()) != -1)
         {
-            if (marker == 0 && (byte)b == GzipPreamble1)
+            if (marker == 0 && (byte)b == gzipPreamble[marker])
             {
                 marker++;
                 continue;
@@ -104,7 +121,7 @@ internal static class GzipReaderOps
 
             if (marker == 1)
             {
-                if ((byte)b == GzipPreamble2)
+                if ((byte)b == gzipPreamble[marker])
                 {
                     marker++;
                     continue;
@@ -115,12 +132,12 @@ internal static class GzipReaderOps
 
             if (marker == 2)
             {
-                marker = 0;
-
-                if ((byte)b == GzipPreamble3)
+                if ((byte)b == gzipPreamble[marker])
                 {
                     CopyTo(path, outmem, fs.Position - 3);
                 }
+
+                marker = 0;
             }
         }
 
