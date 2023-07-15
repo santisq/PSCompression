@@ -21,7 +21,7 @@ param (
 
 $ErrorActionPreference = 'Stop'
 $requirements = Import-PowerShellDataFile ([IO.Path]::Combine($PSScriptRoot, 'requiredModules.psd1'))
-foreach ($req in $requirements.GetEnumerator() | Sort-Object { $_.Value['Priority'] }) {
+foreach ($req in $requirements.GetEnumerator()) {
     $importModuleSplat = @{
         Name                = ([IO.Path]::Combine($PSScriptRoot, 'Modules', $req.Key))
         Force               = $true
@@ -33,11 +33,19 @@ foreach ($req in $requirements.GetEnumerator() | Sort-Object { $_.Value['Priorit
 }
 
 [PSCustomObject] $PSVersionTable |
-    Select-Object -Property *, @{N = 'Architecture'; E = {
+    Select-Object -Property *, @{
+        Name       = 'Architecture'
+        Expression = {
             switch ([IntPtr]::Size) {
-                4 { 'x86' }
-                8 { 'x64' }
-                default { 'Unknown' }
+                4 {
+                    'x86'
+                }
+                8 {
+                    'x64'
+                }
+                default {
+                    'Unknown'
+                }
             }
         }
     } |

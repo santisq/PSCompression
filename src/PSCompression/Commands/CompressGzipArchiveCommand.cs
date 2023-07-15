@@ -19,16 +19,6 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
     private GZipStream? _gzip;
 
     [Parameter(
-        ParameterSetName = "PathWithUpdate",
-        Mandatory = true,
-        Position = 0,
-        ValueFromPipeline = true)]
-    [Parameter(
-        ParameterSetName = "PathWithForce",
-        Mandatory = true,
-        Position = 0,
-        ValueFromPipeline = true)]
-    [Parameter(
         ParameterSetName = "Path",
         Mandatory = true,
         Position = 0,
@@ -45,14 +35,6 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
     }
 
     [Parameter(
-        ParameterSetName = "LiteralPathWithUpdate",
-        Mandatory = true,
-        ValueFromPipelineByPropertyName = true)]
-    [Parameter(
-        ParameterSetName = "LiteralPathWithForce",
-        Mandatory = true,
-        ValueFromPipelineByPropertyName = true)]
-    [Parameter(
         ParameterSetName = "LiteralPath",
         Mandatory = true,
         ValueFromPipelineByPropertyName = true)]
@@ -68,14 +50,6 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
     }
 
     [Parameter(
-        ParameterSetName = "InputBytesWithUpdate",
-        Mandatory = true,
-        ValueFromPipeline = true)]
-    [Parameter(
-        ParameterSetName = "InputBytesWithForce",
-        Mandatory = true,
-        ValueFromPipeline = true)]
-    [Parameter(
         ParameterSetName = "InputBytes",
         Mandatory = true,
         ValueFromPipeline = true)]
@@ -88,14 +62,10 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
     [Parameter]
     public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;
 
-    [Parameter(ParameterSetName = "InputBytesWithUpdate", Mandatory = true)]
-    [Parameter(ParameterSetName = "PathWithUpdate", Mandatory = true)]
-    [Parameter(ParameterSetName = "LiteralPathWithUpdate", Mandatory = true)]
+    [Parameter]
     public SwitchParameter Update { get; set; }
 
-    [Parameter(ParameterSetName = "InputBytesWithForce", Mandatory = true)]
-    [Parameter(ParameterSetName = "PathWithForce", Mandatory = true)]
-    [Parameter(ParameterSetName = "LiteralPathWithForce", Mandatory = true)]
+    [Parameter]
     public SwitchParameter Force { get; set; }
 
     [Parameter]

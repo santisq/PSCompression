@@ -17,68 +17,26 @@ Creates a Gzip compressed file from specified File Paths or input Bytes.
 
 ```powershell
 Compress-GzipArchive [-Path] <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-PassThru] [<CommonParameters>]
-```
-
-### PathWithUpdate
-
-```powershell
-Compress-GzipArchive [-Path] <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-Update] [-PassThru] [<CommonParameters>]
-```
-
-### PathWithForce
-
-```powershell
-Compress-GzipArchive [-Path] <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>] [-Force]
- [-PassThru] [<CommonParameters>]
-```
-
-### LiteralPathWithUpdate
-
-```powershell
-Compress-GzipArchive -LiteralPath <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-Update] [-PassThru] [<CommonParameters>]
-```
-
-### LiteralPathWithForce
-
-```powershell
-Compress-GzipArchive -LiteralPath <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-Force] [-PassThru] [<CommonParameters>]
+ [-Update] [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```powershell
 Compress-GzipArchive -LiteralPath <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-PassThru] [<CommonParameters>]
+ [-Update] [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ### InputBytes
 
 ```powershell
 Compress-GzipArchive -InputBytes <Byte[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-PassThru] [<CommonParameters>]
-```
-
-### InputBytesWithUpdate
-
-```powershell
-Compress-GzipArchive -InputBytes <Byte[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-Update] [-PassThru] [<CommonParameters>]
-```
-
-### InputBytesWithForce
-
-```powershell
-Compress-GzipArchive -InputBytes <Byte[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-Force] [-PassThru] [<CommonParameters>]
+ [-Update] [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-The `Compress-GzipArchive` cmdlet can compress one or more specified file paths into a single Gzip file using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion see [`Expand-GzipArchive`](Expand-ZipEntry.md).
+The `Compress-GzipArchive` cmdlet can compress one or more specified file paths into a single Gzip archive using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion see [`Expand-GzipArchive`](Expand-ZipEntry.md).
 
 ## EXAMPLES
 
@@ -100,7 +58,7 @@ PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream |
 Demonstrates how `-AsByteStream` works on `ConvertTo-GzipString`.
 Sends the compressed bytes to `Compress-GzipArchive`.
 
-### Example 3: Append content to a Gzip file
+### Example 3: Append content to a Gzip archive
 
 ```powershell
 PS ..\pwsh> 'this is new content...' | ConvertTo-GzipString -AsByteStream |
@@ -109,7 +67,7 @@ PS ..\pwsh> 'this is new content...' | ConvertTo-GzipString -AsByteStream |
 
 Demonstrates how `-Update` works.
 
-### Example 4: Replace a Gzip file with new content
+### Example 4: Replace a Gzip archive with new content
 
 ```powershell
 PS ..\pwsh> $lorem = Invoke-RestMethod loripsum.net/api/10/long/plaintext
@@ -119,7 +77,7 @@ PS ..\pwsh> $lorem | ConvertTo-GzipString -AsByteStream |
 
 Demonstrates how `-Force` works.
 
-### Example 5: Compressing multiple files into one Gzip file
+### Example 5: Compressing multiple files into one Gzip archive
 
 ```powershell
 PS ..\pwsh> 0..10 | ForEach-Object {
@@ -159,8 +117,9 @@ Accept wildcard characters: False
 
 ### -Destination
 
-The destination path to the Gzip compressed file.
-If the file name in DestinationPath doesn't have a `.gz` file name extension, the cmdlet appends the `.gz` file name extension.
+The path where to store the Gzip compressed file. The parent directory is created if it does not exist.
+
+> __NOTE:__ If the path does not end with `.gz`, the cmdlet appends the `.gz` file name extension.
 
 ```yaml
 Type: String
@@ -176,14 +135,14 @@ Accept wildcard characters: False
 
 ### -Force
 
-Replaces the content of a Gzip file.
+Replaces the content of a Gzip archive.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: PathWithForce, LiteralPathWithForce, InputBytesWithForce
+Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: False
 Accept pipeline input: False
@@ -268,10 +227,10 @@ Appends content to the existing Gzip file.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: PathWithUpdate, LiteralPathWithUpdate, InputBytesWithUpdate
+Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: False
 Accept pipeline input: False

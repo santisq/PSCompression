@@ -24,8 +24,14 @@ public static class ZipEntryExtensions
         s_reEntryDir.IsMatch(path);
 
     public static string NormalizePath(this string path) =>
-    s_reEntryDir.IsMatch(path) ? NormalizeEntryPath(path) :
-        NormalizeFileEntryPath(path);
+        s_reEntryDir.IsMatch(path) ? NormalizeEntryPath(path) :
+            NormalizeFileEntryPath(path);
+
+    internal static string RelativeTo(this DirectoryInfo directory, int length) =>
+        directory.FullName.Substring(length) + _pathChar;
+
+    internal static string RelativeTo(this FileInfo directory, int length) =>
+        directory.FullName.Substring(length);
 
     internal static ZipArchiveEntry CreateEntryFromFile(
         this ZipArchive zip,

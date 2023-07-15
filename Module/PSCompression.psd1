@@ -8,10 +8,10 @@
 
 @{
     # Script module or binary module file associated with this manifest.
-    RootModule         = 'PSCompression.psm1'
+    RootModule         = 'bin/netstandard2.0/PSCompression.dll'
 
     # Version number of this module.
-    ModuleVersion      = '2.0.1'
+    ModuleVersion      = '2.0.2'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -71,9 +71,7 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport  = @(
-        'Compress-ZipArchive'
-    )
+    FunctionsToExport  = @()
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport    = @(
@@ -87,6 +85,7 @@
         'ConvertFrom-GzipString'
         'Expand-GzipArchive'
         'Compress-GzipArchive'
+        'Compress-ZipArchive'
     )
 
     # Variables to export from this module

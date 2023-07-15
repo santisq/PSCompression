@@ -6,12 +6,12 @@ using System.Management.Automation;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsData.Compress, "ZipArchive")]
+[Cmdlet(VerbsData.Compress, "ZipArchive", DefaultParameterSetName = "Path")]
 [OutputType(typeof(FileInfo))]
 [Alias("ziparchive")]
 public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
 {
-    private const FileShare s_fsmode = FileShare.ReadWrite | FileShare.Delete;
+    private const FileShare s_sharemode = FileShare.ReadWrite | FileShare.Delete;
 
     private bool _isLiteral;
 
@@ -72,20 +72,6 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         }
     }
 
-    [Parameter(
-        ParameterSetName = "InputBytesWithUpdate",
-        Mandatory = true,
-        ValueFromPipeline = true)]
-    [Parameter(
-        ParameterSetName = "InputBytesWithForce",
-        Mandatory = true,
-        ValueFromPipeline = true)]
-    [Parameter(
-        ParameterSetName = "InputBytes",
-        Mandatory = true,
-        ValueFromPipeline = true)]
-    public byte[]? InputBytes { get; set; }
-
     [Parameter(Mandatory = true, Position = 1)]
     [Alias("DestinationPath")]
     public string Destination { get; set; } = null!;
@@ -93,14 +79,12 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
     [Parameter]
     public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;
 
-    [Parameter(ParameterSetName = "InputBytesWithUpdate", Mandatory = true)]
-    [Parameter(ParameterSetName = "PathWithUpdate", Mandatory = true)]
-    [Parameter(ParameterSetName = "LiteralPathWithUpdate", Mandatory = true)]
+    [Parameter(ParameterSetName = "PathWithUpdate")]
+    [Parameter(ParameterSetName = "LiteralPathWithUpdate")]
     public SwitchParameter Update { get; set; }
 
-    [Parameter(ParameterSetName = "InputBytesWithForce", Mandatory = true)]
-    [Parameter(ParameterSetName = "PathWithForce", Mandatory = true)]
-    [Parameter(ParameterSetName = "LiteralPathWithForce", Mandatory = true)]
+    [Parameter(ParameterSetName = "PathWithForce")]
+    [Parameter(ParameterSetName = "LiteralPathWithForce")]
     public SwitchParameter Force { get; set; }
 
     [Parameter]
@@ -139,20 +123,95 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
 
     protected override void ProcessRecord()
     {
+        if (_zip is null)
+        {
+            return;
+        }
+
         foreach (string path in _paths.NormalizePath(_isLiteral, this))
         {
             if (path.IsArchive())
             {
-                path.GetParent();
+                FileInfo file = new(path);
+                CreateEntry(file, _zip, file.Name);
+                continue;
             }
 
-            Traverse(new DirectoryInfo(path));
+            Traverse(new DirectoryInfo(path), _zip);
         }
     }
 
-    private void Traverse(DirectoryInfo item)
+    protected override void EndProcessing()
+    {
+        _zip?.Dispose();
+        _destination?.Dispose();
+
+        if (PassThru.IsPresent && _destination is not null)
+        {
+            WriteObject(new FileInfo(_destination.Name));
+        }
+    }
+
+    private void Traverse(DirectoryInfo parent, ZipArchive zip)
     {
         _queue.Clear();
+        IEnumerable<FileSystemInfo> enumerator;
+        int length = parent.Parent.FullName.Length + 1;
+
+        while (_queue.Count > 0)
+        {
+            DirectoryInfo current = _queue.Dequeue();
+
+            if (CurrentIsDestination(current, Destination))
+            {
+                continue;
+            }
+
+            string relative = current.RelativeTo(length);
+
+            if (zip.GetEntry(relative) is null)
+            {
+                zip.CreateEntry(current.RelativeTo(length));
+            }
+
+            try
+            {
+                enumerator = current.EnumerateFileSystemInfos();
+            }
+            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                WriteError(ExceptionHelpers.EnumerationError(current, e));
+                continue;
+            }
+
+            foreach (FileSystemInfo item in enumerator)
+            {
+                if (item is DirectoryInfo directory)
+                {
+                    _queue.Enqueue(directory);
+                    continue;
+                }
+
+                FileInfo file = (FileInfo)item;
+                relative = file.RelativeTo(length);
+
+                ZipArchiveEntry? entry;
+                if ((entry = zip.GetEntry(relative)) is null)
+                {
+                    CreateEntry(file, zip, relative);
+                    continue;
+                }
+
+                if (Update.IsPresent)
+                {
+                    UpdateEntry(file, entry);
+                }
+            }
+        }
     }
 
     private void CreateEntry(
@@ -160,16 +219,56 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         ZipArchive zip,
         string relativepath)
     {
-        using Stream stream = zip.CreateEntry(relativepath).Open();
-        using FileStream fileStream = file.Open(FileMode.Open, FileAccess.Read, s_fsmode);
-        fileStream.CopyTo(stream);
+        try
+        {
+            using FileStream fileStream = Open(file);
+            using Stream stream = zip.CreateEntry(
+                entryName: relativepath,
+                compressionLevel: CompressionLevel).Open();
+
+            fileStream.CopyTo(stream);
+        }
+        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            WriteError(ExceptionHelpers.StreamOpenError(file.FullName, e));
+        }
+    }
+
+    private static FileStream Open(FileInfo file) =>
+        file.Open(
+            mode: FileMode.Open,
+            access: FileAccess.Read,
+            share: s_sharemode);
+
+    private void UpdateEntry(
+        FileInfo file,
+        ZipArchiveEntry entry)
+    {
+        try
+        {
+            using FileStream fileStream = Open(file);
+            using Stream stream = entry.Open();
+            fileStream.CopyTo(stream);
+        }
+        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            WriteError(ExceptionHelpers.StreamOpenError(file.FullName, e));
+        }
     }
 
     private FileMode GetFileMode()
     {
         if (Update.IsPresent)
         {
-            return FileMode.Append;
+            return FileMode.OpenOrCreate;
         }
 
         if (Force.IsPresent)
@@ -193,6 +292,9 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
     private bool HasZipExtension(string path) =>
         System.IO.Path.GetExtension(path)
             .Equals(".zip", StringComparison.InvariantCultureIgnoreCase);
+
+    private bool CurrentIsDestination(DirectoryInfo source, string destination) =>
+        source.FullName.Equals(destination, StringComparison.InvariantCultureIgnoreCase);
 
     public void Dispose()
     {
