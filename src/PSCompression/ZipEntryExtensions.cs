@@ -28,10 +28,10 @@ public static class ZipEntryExtensions
             NormalizeFileEntryPath(path);
 
     internal static string RelativeTo(this DirectoryInfo directory, int length) =>
-        directory.FullName.Substring(length) + _pathChar;
+        NormalizeEntryPath(directory.FullName.Substring(length) + _pathChar);
 
     internal static string RelativeTo(this FileInfo directory, int length) =>
-        directory.FullName.Substring(length);
+        NormalizeFileEntryPath(directory.FullName.Substring(length));
 
     internal static ZipArchiveEntry CreateEntryFromFile(
         this ZipArchive zip,

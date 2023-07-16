@@ -13,46 +13,18 @@ The `Compress-ZipArchive` cmdlet creates a compressed, or zipped, archive file f
 
 ## SYNTAX
 
-### Path (Default)
+### Path
 
 ```powershell
-Compress-ZipArchive [-Path] <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
- [-PassThru] [<CommonParameters>]
-```
-
-### PathWithForce
-
-```powershell
-Compress-ZipArchive [-Path] <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
+Compress-ZipArchive [-Path] <String[]> -Destination <String> [-CompressionLevel <CompressionLevel>] [-Update]
  [-Force] [-PassThru] [<CommonParameters>]
-```
-
-### PathWithUpdate
-
-```powershell
-Compress-ZipArchive [-Path] <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
- [-Update] [-PassThru] [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```powershell
-Compress-ZipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
- [-PassThru] [<CommonParameters>]
-```
-
-### LiteralPathWithForce
-
-```powershell
-Compress-ZipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
- [-Force] [-PassThru] [<CommonParameters>]
-```
-
-### LiteralPathWithUpdate
-
-```powershell
-Compress-ZipArchive -LiteralPath <String[]> [-DestinationPath] <String> [-CompressionLevel <CompressionLevel>]
- [-Update] [-PassThru] [<CommonParameters>]
+Compress-ZipArchive -LiteralPath <String[]> -Destination <String> [-CompressionLevel <CompressionLevel>]
+ [-Update] [-Force] [-PassThru] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -124,21 +96,26 @@ Get-ChildItem .\path -Recurse -Directory |
 
 ### -Path
 
-Specifies the path or paths to the files to add to the archive zipped file.
-To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
-This Parameter accepts wildcard characters.
-Wildcard characters allow you to add all files in a directory to your archive file.
+Specifies the path or paths to the files that you want to add to the archive zipped file. To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
+
+This parameter accepts wildcard characters. Wildcard characters allow you to add all files in a directory to your archive file.
+
+Using wildcards with a root directory affects the archive's contents:
+
+  - To create an archive that includes the root directory, and all its files and subdirectories, specify the root directory in the Path without wildcards. For example: `-Path C:\Reference`
+  - To create an archive that excludes the root directory, but zips all its files and subdirectories, use the asterisk (`*`) wildcard. For example: `-Path C:\Reference\*`
+  - To create an archive that only zips the files in the root directory, use the star-dot-star (`*.*`) wildcard. Subdirectories of the root aren't included in the archive. For example: `-Path C:\Reference\*.*`
 
 ```yaml
 Type: String[]
-Parameter Sets: Path, PathWithForce, PathWithUpdate
+Parameter Sets: Path
 Aliases:
 
 Required: True
-Position: 1
+Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
+Accept wildcard characters: True
 ```
 
 ### -LiteralPath
@@ -149,7 +126,7 @@ No characters are interpreted as wildcards
 
 ```yaml
 Type: String[]
-Parameter Sets: LiteralPath, LiteralPathWithForce, LiteralPathWithUpdate
+Parameter Sets: LiteralPath
 Aliases: PSPath
 
 Required: True
@@ -159,18 +136,19 @@ Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
-### -DestinationPath
+### -Destination
 
-The destination path to the Zip file.
-If the file name in DestinationPath doesn't have a `.zip` file name extension, the function appends the `.zip` file name extension.
+This parameter is required and specifies the path to the archive output file. The DestinationPath should include the name of the zipped file, and either the absolute or relative path to the zipped file.
+
+If the file name in DestinationPath doesn't have a `.zip` file name extension, the cmdlet adds the `.zip` file name extension.
 
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: DestinationPath
 
 Required: True
-Position: 2
+Position: 1
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -195,14 +173,16 @@ Accept wildcard characters: False
 
 ### -Update
 
-Updates Zip entries and adds new entries to an existing Zip file.
+Updates the specified archive by replacing older file versions in the archive with newer file versions that have the same names. You can also add this parameter to add files to an existing archive.
+
+> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will add or update entries.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: PathWithUpdate, LiteralPathWithUpdate
+Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: False
 Accept pipeline input: False
@@ -211,8 +191,9 @@ Accept wildcard characters: False
 
 ### -Force
 
-Replaces an existing Zip file with a new one.
-All Zip contents will be lost.
+Overwrites the destination archive if exists otherwise it creates a new one. All Zip entries are lost.
+
+> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will add or update entries.
 
 ```yaml
 Type: SwitchParameter
@@ -228,8 +209,7 @@ Accept wildcard characters: False
 
 ### -PassThru
 
-Outputs the object representing the compressed file.
-The function produces no output by default.
+Outputs the object representing the compressed file. The cmdlet produces no output by default.
 
 ```yaml
 Type: SwitchParameter
@@ -251,7 +231,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ### String
 
-You can pipe a string that contains a path to one or more files.
+You can pipe a string that contains a path to one or more files. Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
 
 ## OUTPUTS
 

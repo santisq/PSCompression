@@ -229,18 +229,9 @@ Describe 'ZipEntry Cmdlets' {
         BeforeAll {
             $destination = New-Item (Join-Path $TestDrive -ChildPath 'ExtractTests') -ItemType Directory
             $zip | Get-ZipEntry | Remove-ZipEntry
-
-            $structure = foreach ($folder in 0..5) {
-                $folder = 'testfolder{0:D2}/' -f $folder
-                $folder
-                foreach ($file in 0..5) {
-                    [System.IO.Path]::Combine($folder, 'testfile{0:D2}.txt' -f $file)
-                }
-            }
-
+            $structure = Get-Structure
             $content = 'hello world!'
             $content | New-ZipEntry $zip.FullName -EntryPath $structure
-
             $destination, $structure, $content | Out-Null
         }
 

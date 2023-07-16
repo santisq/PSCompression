@@ -6,7 +6,7 @@ using System.Management.Automation;
 
 namespace PSCompression;
 
-[Cmdlet(VerbsData.Compress, "ZipArchive", DefaultParameterSetName = "Path")]
+[Cmdlet(VerbsData.Compress, "ZipArchive")]
 [OutputType(typeof(FileInfo))]
 [Alias("ziparchive")]
 public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
@@ -24,16 +24,6 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
     private readonly Queue<DirectoryInfo> _queue = new();
 
     [Parameter(
-        ParameterSetName = "PathWithUpdate",
-        Mandatory = true,
-        Position = 0,
-        ValueFromPipeline = true)]
-    [Parameter(
-        ParameterSetName = "PathWithForce",
-        Mandatory = true,
-        Position = 0,
-        ValueFromPipeline = true)]
-    [Parameter(
         ParameterSetName = "Path",
         Mandatory = true,
         Position = 0,
@@ -49,14 +39,6 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         }
     }
 
-    [Parameter(
-        ParameterSetName = "LiteralPathWithUpdate",
-        Mandatory = true,
-        ValueFromPipelineByPropertyName = true)]
-    [Parameter(
-        ParameterSetName = "LiteralPathWithForce",
-        Mandatory = true,
-        ValueFromPipelineByPropertyName = true)]
     [Parameter(
         ParameterSetName = "LiteralPath",
         Mandatory = true,
@@ -79,12 +61,10 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
     [Parameter]
     public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;
 
-    [Parameter(ParameterSetName = "PathWithUpdate")]
-    [Parameter(ParameterSetName = "LiteralPathWithUpdate")]
+    [Parameter]
     public SwitchParameter Update { get; set; }
 
-    [Parameter(ParameterSetName = "PathWithForce")]
-    [Parameter(ParameterSetName = "LiteralPathWithForce")]
+    [Parameter]
     public SwitchParameter Force { get; set; }
 
     [Parameter]
@@ -128,48 +108,40 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
             return;
         }
 
+        _queue.Clear();
+
         foreach (string path in _paths.NormalizePath(_isLiteral, this))
         {
-            if (path.IsArchive())
+            if (!path.IsArchive())
             {
-                FileInfo file = new(path);
-                CreateEntry(file, _zip, file.Name);
+                Traverse(new DirectoryInfo(path), _zip);
                 continue;
             }
 
-            Traverse(new DirectoryInfo(path), _zip);
+            FileInfo file = new(path);
+            if (Update.IsPresent && TryGetEntry(_zip, file.Name, out ZipArchiveEntry? entry))
+            {
+                UpdateEntry(file, entry);
+                continue;
+            }
+
+            CreateEntry(file, _zip, file.Name);
         }
     }
 
-    protected override void EndProcessing()
+    private void Traverse(DirectoryInfo dir, ZipArchive zip)
     {
-        _zip?.Dispose();
-        _destination?.Dispose();
-
-        if (PassThru.IsPresent && _destination is not null)
-        {
-            WriteObject(new FileInfo(_destination.Name));
-        }
-    }
-
-    private void Traverse(DirectoryInfo parent, ZipArchive zip)
-    {
-        _queue.Clear();
+        _queue.Enqueue(dir);
         IEnumerable<FileSystemInfo> enumerator;
-        int length = parent.Parent.FullName.Length + 1;
+        int length = dir.Parent.FullName.Length + 1;
 
         while (_queue.Count > 0)
         {
             DirectoryInfo current = _queue.Dequeue();
 
-            if (CurrentIsDestination(current, Destination))
-            {
-                continue;
-            }
-
             string relative = current.RelativeTo(length);
 
-            if (zip.GetEntry(relative) is null)
+            if (!Update.IsPresent || !TryGetEntry(zip, relative, out _))
             {
                 zip.CreateEntry(current.RelativeTo(length));
             }
@@ -197,22 +169,27 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
                 }
 
                 FileInfo file = (FileInfo)item;
-                relative = file.RelativeTo(length);
 
-                ZipArchiveEntry? entry;
-                if ((entry = zip.GetEntry(relative)) is null)
+                if (ItemIsDestination(file, Destination))
                 {
-                    CreateEntry(file, zip, relative);
                     continue;
                 }
 
-                if (Update.IsPresent)
+                relative = file.RelativeTo(length);
+
+                if (Update.IsPresent && TryGetEntry(zip, relative, out ZipArchiveEntry? entry))
                 {
                     UpdateEntry(file, entry);
+                    continue;
                 }
+
+                CreateEntry(file, zip, relative);
             }
         }
     }
+
+    private bool TryGetEntry(ZipArchive zip, string path, out ZipArchiveEntry entry) =>
+        (entry = zip.GetEntry(path)) is not null;
 
     private void CreateEntry(
         FileInfo file,
@@ -252,6 +229,7 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         {
             using FileStream fileStream = Open(file);
             using Stream stream = entry.Open();
+            stream.SetLength(0);
             fileStream.CopyTo(stream);
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
@@ -293,8 +271,19 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         System.IO.Path.GetExtension(path)
             .Equals(".zip", StringComparison.InvariantCultureIgnoreCase);
 
-    private bool CurrentIsDestination(DirectoryInfo source, string destination) =>
+    private bool ItemIsDestination(FileInfo source, string destination) =>
         source.FullName.Equals(destination, StringComparison.InvariantCultureIgnoreCase);
+
+    protected override void EndProcessing()
+    {
+        _zip?.Dispose();
+        _destination?.Dispose();
+
+        if (PassThru.IsPresent && _destination is not null)
+        {
+            WriteObject(new FileInfo(_destination.Name));
+        }
+    }
 
     public void Dispose()
     {

@@ -135,7 +135,9 @@ Accept wildcard characters: False
 
 ### -Force
 
-Replaces the content of a Gzip archive.
+Overwrites the Gzip archive if exists, otherwise it creates it.
+
+> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
 
 ```yaml
 Type: SwitchParameter
@@ -157,7 +159,7 @@ This cmdlet can take input bytes from pipeline to create the output `.gz` archiv
 
 ```yaml
 Type: Byte[]
-Parameter Sets: InputBytesWithUpdate, InputBytesWithForce, InputBytes
+Parameter Sets: InputBytes
 Aliases:
 
 Required: True
@@ -175,7 +177,7 @@ No characters are interpreted as wildcards
 
 ```yaml
 Type: String[]
-Parameter Sets: LiteralPathWithUpdate, LiteralPathWithForce, LiteralPath
+Parameter Sets: LiteralPath
 Aliases: PSPath
 
 Required: True
@@ -211,7 +213,7 @@ Wildcard characters allow you to add all files in a directory to your archive fi
 
 ```yaml
 Type: String[]
-Parameter Sets: Path, PathWithUpdate, PathWithForce
+Parameter Sets: Path
 Aliases:
 
 Required: True
@@ -223,7 +225,9 @@ Accept wildcard characters: True
 
 ### -Update
 
-Appends content to the existing Gzip file.
+Appends content to the existing Gzip file if exists, otherwise it creates it.
+
+> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
 
 ```yaml
 Type: SwitchParameter
