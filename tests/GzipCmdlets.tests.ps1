@@ -109,8 +109,8 @@ Describe 'Gzip Cmdlets' {
         }
 
         It 'Should throw if trying to compress a directory' {
-            { 0..5 | ForEach-Object { New-Item (Join-Path $TestDrive "folder $_") } |
-                Compress-GzipArchive -DestinationPath $destination } |
+            $folders = 0..5 | ForEach-Object { New-Item (Join-Path $TestDrive "folder $_") }
+            { Compress-GzipArchive $folders.FullName -Destination $destination } |
                 Should -Throw
         }
 

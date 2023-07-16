@@ -20,7 +20,7 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw if -Destination is a Directory' {
-            { New-ZipEntry -Destination $pwd -EntryPath foo } |
+            { New-ZipEntry -Destination $pwd.Path -EntryPath foo } |
                 Should -Throw
         }
 
