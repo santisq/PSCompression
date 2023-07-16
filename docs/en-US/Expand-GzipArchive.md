@@ -193,7 +193,7 @@ Accept wildcard characters: False
 
 ### -Force
 
-The destination file gets overwritten when this switch is used.
+The destination file gets overwritten if exists, otherwise created when this switch is used.
 
 > __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
 
@@ -211,7 +211,7 @@ Accept wildcard characters: False
 
 ### -Update
 
-Contents of the expanded file or files are appended to the destination when this switch is used.
+Contents of the expanded file or files are appended to the destination path if exists, otherwise the destination is created.
 
 > __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
 

@@ -1,6 +1,6 @@
 ﻿$ErrorActionPreference = 'Stop'
 
-$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'Module', '*.psd1'))).BaseName
+$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
 $manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 
 Import-Module $manifestPath
@@ -72,11 +72,16 @@ Describe 'Gzip Cmdlets' {
                 Should -BeExactly ($content | Get-Content)
         }
 
+        It 'Outputs a single multiline string when using the -Raw switch' {
+            Expand-GzipArchive $destination -Raw |
+                Should -BeExactly ($content | Get-Content -Raw)
+        }
+
         It 'Can append content to a Gzip compressed file from a specified path' {
             $appendedContent |
                 Compress-GzipArchive -DestinationPath $destination -PassThru -Update |
                 Expand-GzipArchive |
-                Should -BeExactly ( -join @($content, $appendedContent | Get-Content))
+                Should -BeExactly (-join @($content, $appendedContent | Get-Content))
         }
 
         It 'Can expand Gzip files with appended content to a destination file' {
@@ -87,7 +92,7 @@ Describe 'Gzip Cmdlets' {
             }
 
             Get-Content -LiteralPath (Expand-GzipArchive @expandGzipArchiveSplat).FullName |
-                Should -BeExactly ( -join @($content, $appendedContent | Get-Content))
+                Should -BeExactly (-join @($content, $appendedContent | Get-Content))
         }
 
         It 'Should not overwrite an existing Gzip file without -Force' {
@@ -101,6 +106,12 @@ Describe 'Gzip Cmdlets' {
 
             Expand-GzipArchive -LiteralPath $destination |
                 Should -BeExactly ($content | Get-Content)
+        }
+
+        It 'Should throw if trying to compress a directory' {
+            { 0..5 | ForEach-Object { New-Item (Join-Path $TestDrive "folder $_") } |
+                Compress-GzipArchive -DestinationPath $destination } |
+                Should -Throw
         }
 
         It 'Can expand Gzip files to a destination file' {

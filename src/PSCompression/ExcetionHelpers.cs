@@ -38,4 +38,7 @@ internal static class ExceptionHelpers
     internal static ErrorRecord DuplicatedEntryError(string entry, string source) =>
         new(new Exception($"An entry with path '{entry}' already exists in '{source}'."),
             "DuplicatedEntry", ErrorCategory.WriteError, entry);
+
+    internal static ErrorRecord EnumerationError(object item, Exception exception) =>
+        new(exception, "EnumerationError", ErrorCategory.ReadError, item);
 }

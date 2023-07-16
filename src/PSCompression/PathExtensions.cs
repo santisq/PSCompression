@@ -2,41 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
-using System.Text.RegularExpressions;
 using Microsoft.PowerShell.Commands;
 
 namespace PSCompression;
 
-public static class Extensions
+internal static class PathExtensions
 {
-    private static readonly Regex s_reNormalize = new(@"[\\/]+|(?<![\\/])$",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-    private static readonly Regex s_reEntryDir = new(@"[\\/]$",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
     private static readonly List<string> s_normalizedPaths = new();
-
-    private const string _pathChar = "/";
-
-    internal static string NormalizeEntryPath(this string path) =>
-        s_reNormalize.Replace(path, _pathChar).TrimStart('/');
-
-    internal static string NormalizeFileEntryPath(this string path) =>
-        NormalizeEntryPath(path).TrimEnd('/');
-
-    internal static bool IsDirectoryPath(this string path) =>
-        s_reEntryDir.IsMatch(path);
-
-    public static string NormalizePath(this string path) =>
-        s_reEntryDir.IsMatch(path) ? NormalizeEntryPath(path) :
-            NormalizeFileEntryPath(path);
 
     internal static string GetParent(this string path) =>
         Path.GetDirectoryName(path);
+
+    internal static string GetLeaf(this string path) =>
+        Path.GetFileName(path);
 
     internal static string[] NormalizePath(
         this string[] paths,
@@ -91,33 +71,12 @@ public static class Extensions
 
     internal static string NormalizePath(
         this string path, bool isLiteral, PSCmdlet cmdlet) =>
-        NormalizePath(new string[1] { path }, isLiteral, cmdlet).FirstOrDefault();
+        NormalizePath(new[] { path }, isLiteral, cmdlet)
+            .FirstOrDefault();
 
     internal static bool IsFileSystem(this ProviderInfo provider) =>
         provider.ImplementingType == typeof(FileSystemProvider);
 
     internal static bool IsArchive(this string path) =>
         !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
-
-    internal static ZipArchiveEntry CreateEntryFromFile(
-        this ZipArchive zip,
-        string entry,
-        FileStream fileStream,
-        CompressionLevel compressionLevel)
-    {
-        if (entry.IsDirectoryPath())
-        {
-            return zip.CreateEntry(entry);
-        }
-
-        fileStream.Seek(0, SeekOrigin.Begin);
-        ZipArchiveEntry newentry = zip.CreateEntry(entry, compressionLevel);
-
-        using (Stream stream = newentry.Open())
-        {
-            fileStream.CopyTo(stream);
-        }
-
-        return newentry;
-    }
 }

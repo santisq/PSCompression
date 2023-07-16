@@ -46,6 +46,16 @@ function Test-Completer {
     )
 }
 
+function Get-Structure {
+    foreach ($folder in 0..5) {
+        $folder = 'testfolder{0:D2}/' -f $folder
+        $folder
+        foreach ($file in 0..5) {
+            [System.IO.Path]::Combine($folder, 'testfile{0:D2}.txt' -f $file)
+        }
+    }
+}
+
 $osIsWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform(
     [System.Runtime.InteropServices.OSPlatform]::Windows)
 
@@ -53,7 +63,7 @@ $osIsWindows | Out-Null
 
 $exportModuleMemberSplat = @{
     Variable = 'moduleName', 'manifestPath', 'osIsWindows'
-    Function = 'Decode', 'Complete', 'Test-Completer'
+    Function = 'Decode', 'Complete', 'Test-Completer', 'Get-Structure'
 }
 
 Export-ModuleMember @exportModuleMemberSplat
