@@ -108,15 +108,6 @@ Describe 'Gzip Cmdlets' {
                 Should -BeExactly ($content | Get-Content)
         }
 
-        It 'Should throw if trying to compress a directory' {
-            $folders = 0..5 | ForEach-Object {
-                New-Item (Join-Path $TestDrive "folder $_") -ItemType Directory
-            }
-
-            { Compress-GzipArchive $folders.FullName -Destination $destination -Force } |
-                Should -Throw
-        }
-
         It 'Can expand Gzip files to a destination file' {
             $expandGzipArchiveSplat = @{
                 LiteralPath     = $destination
@@ -182,6 +173,15 @@ Describe 'Gzip Cmdlets' {
 
             { Expand-GzipArchive @expandGzipArchiveSplat } |
                 Should -Not -Throw
+        }
+
+        It 'Should throw if trying to compress a directory' {
+            $folders = 0..5 | ForEach-Object {
+                New-Item (Join-Path $TestDrive "folder $_") -ItemType Directory
+            }
+
+            { Compress-GzipArchive $folders.FullName -Destination $destination -Force } |
+                Should -Throw
         }
 
         Context 'Compress-GzipArchive with InputBytes' {
