@@ -20,7 +20,7 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw if -Destination is a Directory' {
-            { New-ZipEntry -Destination $pwd.Path -EntryPath foo } |
+            { New-ZipEntry -Destination $pwd.Path -EntryPath bar } |
                 Should -Throw
         }
 
@@ -50,12 +50,12 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should not create an entry with the same path' {
-            { New-ZipEntry $zip.FullName -EntryPath test\newentry.txt } |
+            { New-ZipEntry $zip.FullName -EntryPath foo.txt, bar.txt, baz.txt } |
                 Should -Throw
         }
 
         It 'Can replace an existing entry with -Force' {
-            { New-ZipEntry $zip.FullName -EntryPath test\newentry.txt -Force } |
+            { New-ZipEntry $zip.FullName -EntryPath foo.txt, bar.txt, baz.txt -Force } |
                 Should -Not -Throw
         }
 
