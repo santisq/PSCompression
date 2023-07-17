@@ -24,8 +24,13 @@ Describe 'ZipEntry Cmdlets' {
                 Should -Throw
         }
 
+        It 'Should throw if -Destination is a provider path' {
+            { New-ZipEntry -Destination function: -EntryPath bar } |
+                Should -Throw
+        }
+
         It 'Should throw if -Source is a Directory' {
-            { New-ZipEntry -Destination $zip.FullName -EntryPath foo -SourcePath $pwd } |
+            { New-ZipEntry -Destination $zip.FullName -EntryPath baz -SourcePath $pwd.FullName } |
                 Should -Throw
         }
 

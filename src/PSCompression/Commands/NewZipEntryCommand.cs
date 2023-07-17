@@ -51,17 +51,15 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void BeginProcessing()
     {
-        string? path = Destination.NormalizePath(isLiteral: true, this);
-
-        if (path is null)
-        {
-            return;
-        }
+        string path = Destination.NormalizePath(
+            isLiteral: true,
+            cmdlet: this,
+            shouldthrow: true);
 
         if (!path.IsArchive())
         {
-            ThrowTerminatingError(
-                ExceptionHelpers.NotArchivePathError(path, nameof(Destination)));
+            ThrowTerminatingError(ExceptionHelpers
+                .NotArchivePathError(path, nameof(Destination)));
         }
 
         Destination = path;
@@ -97,12 +95,10 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             }
 
             // Create Entries from file here
-            string? sourcePath = SourcePath.NormalizePath(isLiteral: true, this);
-
-            if (sourcePath is null)
-            {
-                return;
-            }
+            string sourcePath = SourcePath.NormalizePath(
+                isLiteral: true,
+                cmdlet: this,
+                shouldthrow: true);
 
             if (!sourcePath.IsArchive())
             {
@@ -119,14 +115,13 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
             foreach (string entry in EntryPath)
             {
-                ZipArchiveEntry? zipEntry = _zip.GetEntry(entry);
-
-                if (zipEntry is not null)
+                ZipArchiveEntry? zipEntry;
+                if ((zipEntry = _zip.GetEntry(entry)) is not null)
                 {
                     if (!Force.IsPresent)
                     {
-                        WriteError(ExceptionHelpers.DuplicatedEntryError(
-                            entry, Destination));
+                        WriteError(ExceptionHelpers
+                            .DuplicatedEntryError(entry, Destination));
 
                         continue;
                     }

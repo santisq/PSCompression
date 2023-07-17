@@ -21,7 +21,8 @@ internal static class PathExtensions
     internal static string[] NormalizePath(
         this string[] paths,
         bool isLiteral,
-        PSCmdlet cmdlet)
+        PSCmdlet cmdlet,
+        bool shouldthrow = false)
     {
         Collection<string> resolvedPaths;
         ProviderInfo provider;
@@ -36,7 +37,15 @@ internal static class PathExtensions
 
                 if (!provider.IsFileSystem())
                 {
-                    cmdlet.WriteError(ExceptionHelpers.InvalidProviderError(path, provider));
+                    if (shouldthrow)
+                    {
+                        cmdlet.ThrowTerminatingError(ExceptionHelpers
+                            .InvalidProviderError(path, provider));
+                    }
+
+                    cmdlet.WriteError(ExceptionHelpers
+                        .InvalidProviderError(path, provider));
+
                     continue;
                 }
 
@@ -70,8 +79,11 @@ internal static class PathExtensions
     }
 
     internal static string NormalizePath(
-        this string path, bool isLiteral, PSCmdlet cmdlet) =>
-        NormalizePath(new[] { path }, isLiteral, cmdlet)
+        this string path,
+        bool isLiteral,
+        PSCmdlet cmdlet,
+        bool shouldthrow = false) =>
+        NormalizePath(new[] { path }, isLiteral, cmdlet, shouldthrow)
             .FirstOrDefault();
 
     internal static bool IsFileSystem(this ProviderInfo provider) =>
