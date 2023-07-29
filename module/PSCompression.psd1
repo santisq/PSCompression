@@ -11,7 +11,7 @@
     RootModule         = 'bin/netstandard2.0/PSCompression.dll'
 
     # Version number of this module.
-    ModuleVersion      = '2.0.2'
+    ModuleVersion      = '2.0.3'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
