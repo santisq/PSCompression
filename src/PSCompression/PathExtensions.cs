@@ -77,8 +77,8 @@ internal static class PathExtensions
         this string path,
         bool isLiteral,
         PSCmdlet cmdlet,
-        bool shouldthrow = false) =>
-        NormalizePath(new[] { path }, isLiteral, cmdlet, shouldthrow)
+        bool throwOnInvalidProvider = false) =>
+        NormalizePath(new[] { path }, isLiteral, cmdlet, throwOnInvalidProvider)
             .FirstOrDefault();
 
     internal static bool IsFileSystem(this ProviderInfo provider) =>
