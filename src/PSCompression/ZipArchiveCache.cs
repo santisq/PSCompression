@@ -4,7 +4,7 @@ using System.IO.Compression;
 
 namespace PSCompression;
 
-internal class ZipArchiveCache : IDisposable
+internal sealed class ZipArchiveCache : IDisposable
 {
     private readonly Dictionary<string, ZipArchive> _cache;
 

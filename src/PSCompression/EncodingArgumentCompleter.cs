@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace PSCompression;
 
-public class EncodingCompleter : IArgumentCompleter
+public sealed class EncodingCompleter : IArgumentCompleter
 {
     private static readonly string[] s_encodingSet;
 

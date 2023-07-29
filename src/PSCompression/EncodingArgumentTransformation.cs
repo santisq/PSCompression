@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PSCompression;
 
-public class EncodingTransformation : ArgumentTransformationAttribute
+public sealed class EncodingTransformation : ArgumentTransformationAttribute
 {
     public override object Transform(EngineIntrinsics engineIntrinsics, object inputData)
     {

@@ -10,19 +10,14 @@ namespace PSCompression;
 
 internal static class PathExtensions
 {
+    [ThreadStatic]
     private static readonly List<string> s_normalizedPaths = new();
-
-    internal static string GetParent(this string path) =>
-        Path.GetDirectoryName(path);
-
-    internal static string GetLeaf(this string path) =>
-        Path.GetFileName(path);
 
     internal static string[] NormalizePath(
         this string[] paths,
         bool isLiteral,
         PSCmdlet cmdlet,
-        bool shouldthrow = false)
+        bool throwOnInvalidProvider = false)
     {
         Collection<string> resolvedPaths;
         ProviderInfo provider;
@@ -37,7 +32,7 @@ internal static class PathExtensions
 
                 if (!provider.IsFileSystem())
                 {
-                    if (shouldthrow)
+                    if (throwOnInvalidProvider)
                     {
                         cmdlet.ThrowTerminatingError(ExceptionHelpers
                             .InvalidProviderError(path, provider));
@@ -91,4 +86,10 @@ internal static class PathExtensions
 
     internal static bool IsArchive(this string path) =>
         !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+
+    internal static string GetParent(this string path) =>
+        Path.GetDirectoryName(path);
+
+    internal static string GetLeaf(this string path) =>
+        Path.GetFileName(path);
 }

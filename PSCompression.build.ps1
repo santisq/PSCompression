@@ -26,12 +26,6 @@ $UseNativeArguments = $PSVersionTable.PSVersion -gt '7.0'
 ($csharpProjectInfo = [xml]::new()).Load((Get-Item ([IO.Path]::Combine($CSharpPath, '*.csproj'))).FullName)
 $TargetFrameworks = @(@($csharpProjectInfo.Project.PropertyGroup)[0].
     TargetFrameworks.Split(';', [StringSplitOptions]::RemoveEmptyEntries))
-
-$PSFramework = $TargetFrameworks[0]
-
-[xml] $csharpProjectInfo = Get-Content ([IO.Path]::Combine($CSharpPath, '*.csproj'))
-$TargetFrameworks = @(@($csharpProjectInfo.Project.PropertyGroup)[0].TargetFrameworks.Split(
-        ';', [StringSplitOptions]::RemoveEmptyEntries))
 $PSFramework = $TargetFrameworks[0]
 
 task Clean {
