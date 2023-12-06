@@ -73,7 +73,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 // We can create the entries here and go the process block
                 foreach (string entry in EntryPath)
                 {
-                    if (TryGetEntry(_zip, entry, out ZipArchiveEntry zipentry))
+                    if (_zip.TryGetEntry(entry, out ZipArchiveEntry zipentry))
                     {
                         if (!Force.IsPresent)
                         {
@@ -113,7 +113,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
             foreach (string entry in EntryPath)
             {
-                if (TryGetEntry(_zip, entry, out ZipArchiveEntry? zipentry))
+                if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
                 {
                     if (!Force.IsPresent)
                     {
@@ -187,7 +187,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
             _zip?.Dispose();
 
-            WriteObject(CreateOutput(), enumerateCollection: true);
+            WriteObject(GetResult(), enumerateCollection: true);
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
@@ -199,7 +199,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
     }
 
-    private ZipEntryBase[] CreateOutput()
+    private IEnumerable<ZipEntryBase> GetResult()
     {
         using ZipArchive zip = ZipFile.OpenRead(Destination);
 
@@ -220,11 +220,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 Destination));
         }
 
-        return _result
-            .OrderBy(SortingOps.SortByParent)
-            .ThenBy(SortingOps.SortByLength)
-            .ThenBy(SortingOps.SortByName)
-            .ToArray();
+        return _result.ZipEntrySort();
     }
 
     public void Dispose()
@@ -239,7 +235,4 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         _zip?.Dispose();
     }
-
-    private bool TryGetEntry(ZipArchive zip, string path, out ZipArchiveEntry entry) =>
-        (entry = zip.GetEntry(path)) is not null;
 }

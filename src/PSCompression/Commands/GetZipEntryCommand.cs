@@ -124,7 +124,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
         }
     }
 
-    private ZipEntryBase[] GetEntries(string path)
+    private IEnumerable<ZipEntryBase> GetEntries(string path)
     {
         using ZipArchive zip = ZipFile.OpenRead(path);
         _output.Clear();
@@ -157,11 +157,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
             _output.Add(new ZipEntryFile(entry, path));
         }
 
-        return _output
-            .OrderBy(SortingOps.SortByParent)
-            .ThenBy(SortingOps.SortByLength)
-            .ThenBy(SortingOps.SortByName)
-            .ToArray();
+        return _output.ZipEntrySort();
     }
 
     private bool SkipInclude(string path) =>

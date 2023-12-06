@@ -54,4 +54,10 @@ public static class ZipEntryExtensions
 
         return newentry;
     }
+
+    internal static bool TryGetEntry(
+        this ZipArchive zip,
+        string path,
+        out ZipArchiveEntry entry) =>
+        (entry = zip.GetEntry(path)) is not null;
 }

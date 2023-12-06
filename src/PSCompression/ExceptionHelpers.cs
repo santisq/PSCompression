@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Management.Automation;
 
 namespace PSCompression;
@@ -36,7 +37,7 @@ internal static class ExceptionHelpers
         new(e, "WriteError", ErrorCategory.WriteError, entry);
 
     internal static ErrorRecord DuplicatedEntryError(string entry, string source) =>
-        new(new Exception($"An entry with path '{entry}' already exists in '{source}'."),
+        new(new IOException($"An entry with path '{entry}' already exists in '{source}'."),
             "DuplicatedEntry", ErrorCategory.WriteError, entry);
 
     internal static ErrorRecord EnumerationError(object item, Exception exception) =>

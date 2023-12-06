@@ -20,7 +20,7 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
             {
                 if (ShouldProcess(entry.ToString(), "Remove"))
                 {
-                    entry.RemoveEntry(_cache.GetOrAdd(entry));
+                    entry.Remove(_cache.GetOrAdd(entry));
                 }
             }
             catch (Exception e) when (e is PipelineStoppedException or FlowControlException)

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Management.Automation;
 
 namespace PSCompression;
 
@@ -34,21 +35,30 @@ public abstract class ZipEntryBase
         CompressedLength = entry.CompressedLength;
     }
 
-    public void RemoveEntry()
+    public void Remove()
     {
         using ZipArchive zip = ZipFile.Open(Source, ZipArchiveMode.Update);
         zip.GetEntry(EntryRelativePath)?.Delete();
     }
 
-    internal void RemoveEntry(ZipArchive zip) =>
+    protected abstract void Move(
+        string destination,
+        ZipArchive zip,
+        PSCmdlet cmdlet);
+
+    internal void Remove(ZipArchive zip) =>
         zip.GetEntry(EntryRelativePath)?.Delete();
 
-    internal ZipArchive OpenZip(ZipArchiveMode mode) =>
+    internal ZipArchive Open(ZipArchiveMode mode) =>
         ZipFile.Open(Source, mode);
 
-    internal (string, bool) ExtractTo(ZipArchive zip, string destination, bool overwrite)
+    internal (string, bool) ExtractTo(
+        ZipArchive zip,
+        string destination,
+        bool overwrite)
     {
-        destination = Path.GetFullPath(Path.Combine(destination, EntryRelativePath));
+        destination = Path.GetFullPath(
+            Path.Combine(destination, EntryRelativePath));
 
         if (string.IsNullOrEmpty(EntryName))
         {

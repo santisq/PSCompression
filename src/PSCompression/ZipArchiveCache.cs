@@ -22,7 +22,7 @@ internal sealed class ZipArchiveCache : IDisposable
     {
         if (!_cache.ContainsKey(entry.Source))
         {
-            _cache[entry.Source] = entry.OpenZip(_mode);
+            _cache[entry.Source] = entry.Open(_mode);
         }
 
         return _cache[entry.Source];
