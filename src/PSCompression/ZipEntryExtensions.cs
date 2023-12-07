@@ -12,7 +12,12 @@ public static class ZipEntryExtensions
     private static readonly Regex s_reEntryDir = new(@"[\\/]$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly char[] s_InvalidFileNameChar = Path.GetInvalidFileNameChars();
+
     private const string _pathChar = "/";
+
+    internal static bool HasInvalidFileNameChar(this string name) =>
+        name.IndexOfAny(s_InvalidFileNameChar) != -1;
 
     internal static string NormalizeEntryPath(this string path) =>
         s_reNormalize.Replace(path, _pathChar).TrimStart('/');

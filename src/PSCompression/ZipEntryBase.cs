@@ -15,9 +15,9 @@ public abstract class ZipEntryBase
 {
     public string Source { get; }
 
-    public string EntryName { get; }
+    public string Name { get; }
 
-    public string EntryRelativePath { get; }
+    public string RelativePath { get; }
 
     public DateTime LastWriteTime { get; }
 
@@ -25,11 +25,13 @@ public abstract class ZipEntryBase
 
     public long? CompressedLength { get; internal set; }
 
+    public abstract ZipEntryType Type { get; }
+
     protected ZipEntryBase(ZipArchiveEntry entry, string source)
     {
         Source = source;
-        EntryName = entry.Name;
-        EntryRelativePath = entry.FullName;
+        Name = entry.Name;
+        RelativePath = entry.FullName;
         LastWriteTime = entry.LastWriteTime.LocalDateTime;
         Length = entry.Length;
         CompressedLength = entry.CompressedLength;
@@ -38,16 +40,22 @@ public abstract class ZipEntryBase
     public void Remove()
     {
         using ZipArchive zip = ZipFile.Open(Source, ZipArchiveMode.Update);
-        zip.GetEntry(EntryRelativePath)?.Delete();
+        zip.GetEntry(RelativePath)?.Delete();
     }
 
-    protected abstract void Move(
+    internal void Remove(ZipArchive zip) =>
+        zip.GetEntry(RelativePath)?
+        .Delete();
+
+    internal abstract ZipEntryBase? Move(
         string destination,
         ZipArchive zip,
-        PSCmdlet cmdlet);
+        bool passthru);
 
-    internal void Remove(ZipArchive zip) =>
-        zip.GetEntry(EntryRelativePath)?.Delete();
+    internal abstract ZipEntryBase? Rename(
+        string newname,
+        ZipArchive zip,
+        bool passthru);
 
     internal ZipArchive Open(ZipArchiveMode mode) =>
         ZipFile.Open(Source, mode);
@@ -58,9 +66,9 @@ public abstract class ZipEntryBase
         bool overwrite)
     {
         destination = Path.GetFullPath(
-            Path.Combine(destination, EntryRelativePath));
+            Path.Combine(destination, RelativePath));
 
-        if (string.IsNullOrEmpty(EntryName))
+        if (string.IsNullOrEmpty(Name))
         {
             Directory.CreateDirectory(destination);
             return (destination, false);
@@ -73,7 +81,7 @@ public abstract class ZipEntryBase
             Directory.CreateDirectory(parent);
         }
 
-        ZipArchiveEntry entry = zip.GetEntry(EntryRelativePath);
+        ZipArchiveEntry entry = zip.GetEntry(RelativePath);
         entry.ExtractToFile(destination, overwrite);
         return (destination, true);
     }
@@ -91,5 +99,5 @@ public abstract class ZipEntryBase
         return new DirectoryInfo(path);
     }
 
-    public override string ToString() => EntryRelativePath;
+    public override string ToString() => RelativePath;
 }

@@ -29,10 +29,10 @@ public static class _Format
     {
         if (entry is ZipEntryDirectory)
         {
-            return entry.EntryRelativePath.NormalizeEntryPath();
+            return entry.RelativePath.NormalizeEntryPath();
         }
 
-        string path = Path.GetDirectoryName(entry.EntryRelativePath)
+        string path = Path.GetDirectoryName(entry.RelativePath)
             .NormalizeEntryPath();
 
         if (string.IsNullOrEmpty(path))

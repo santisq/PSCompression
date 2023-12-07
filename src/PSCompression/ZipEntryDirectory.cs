@@ -5,18 +5,27 @@ namespace PSCompression;
 
 public sealed class ZipEntryDirectory : ZipEntryBase
 {
-    public ZipEntryType EntryType => ZipEntryType.Directory;
+    public override ZipEntryType Type => ZipEntryType.Directory;
 
-    internal ZipEntryDirectory(ZipArchiveEntry entry, string source) :
-        base(entry, source)
-    { }
-
-    protected override void Move(
-        string newname,
-        ZipArchive zip,
-        PSCmdlet cmdlet)
+    internal ZipEntryDirectory(ZipArchiveEntry entry, string source)
+        : base(entry, source)
     {
 
+    }
+
+    internal override ZipEntryBase? Move(
+        string newname,
+        ZipArchive zip,
+        bool passthru)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    internal override ZipEntryBase? Rename(
+        string newname,
+        ZipArchive zip,
+        bool passthru)
+    {
         throw new System.NotImplementedException();
     }
 }

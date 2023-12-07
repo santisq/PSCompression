@@ -19,7 +19,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
     internal ZipContentWriter(ZipEntryFile entry, bool append, int bufferSize)
     {
         ZipArchive = entry.OpenWrite();
-        Stream = ZipArchive.GetEntry(entry.EntryRelativePath).Open();
+        Stream = ZipArchive.GetEntry(entry.RelativePath).Open();
         _buffer = new byte[bufferSize];
 
         if (append)
@@ -41,7 +41,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
     internal ZipContentWriter(ZipEntryFile entry, bool append, Encoding encoding)
     {
         ZipArchive = entry.OpenWrite();
-        Stream = ZipArchive.GetEntry(entry.EntryRelativePath).Open();
+        Stream = ZipArchive.GetEntry(entry.RelativePath).Open();
         _writer = new StreamWriter(Stream, encoding);
 
         if (append)

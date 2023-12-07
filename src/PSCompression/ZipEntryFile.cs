@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
@@ -6,11 +7,13 @@ namespace PSCompression;
 
 public sealed class ZipEntryFile : ZipEntryBase
 {
-    public ZipEntryType EntryType => ZipEntryType.Archive;
+    public override ZipEntryType Type => ZipEntryType.Archive;
 
-    internal ZipEntryFile(ZipArchiveEntry entry, string source) :
-        base(entry, source)
-    { }
+    internal ZipEntryFile(ZipArchiveEntry entry, string source)
+        : base(entry, source)
+    {
+
+    }
 
     public ZipArchive OpenRead() => ZipFile.OpenRead(Source);
 
@@ -19,35 +22,59 @@ public sealed class ZipEntryFile : ZipEntryBase
     internal void Refresh()
     {
         using ZipArchive zip = OpenRead();
-        ZipArchiveEntry entry = zip.GetEntry(EntryRelativePath);
+        ZipArchiveEntry entry = zip.GetEntry(RelativePath);
         Length = entry.Length;
         CompressedLength = entry.CompressedLength;
     }
 
-    protected override void Move(
+    internal override ZipEntryBase? Move(
         string destination,
         ZipArchive zip,
-        PSCmdlet cmdlet)
+        bool passthru)
     {
-        if (!zip.TryGetEntry(EntryRelativePath, out ZipArchiveEntry sourceEntry))
+        if (!zip.TryGetEntry(RelativePath, out ZipArchiveEntry sourceEntry))
         {
-            return;
+            throw EntryNotFoundException.Create(RelativePath, Source);
         }
 
         destination = destination.NormalizeFileEntryPath();
-        if (zip.TryGetEntry(destination, out ZipArchiveEntry destinationEntry))
+        if (zip.TryGetEntry(destination, out ZipArchiveEntry _))
         {
-            cmdlet.WriteError(
-                ExceptionHelpers.DuplicatedEntryError(entry: destination, source: Source));
-            return;
+            throw DuplicatedEntryException.Create(destination, Source);
         }
 
-        destinationEntry = zip.CreateEntry(destination);
+        ZipArchiveEntry destinationEntry = zip.CreateEntry(destination);
         using (Stream sourceStream = sourceEntry.Open())
         using (Stream destinationStream = destinationEntry.Open())
         {
             sourceStream.CopyTo(destinationStream);
         }
         sourceEntry.Delete();
+
+        if (!passthru)
+        {
+            return null;
+        }
+
+        return new ZipEntryFile(destinationEntry, Source);
+    }
+
+    internal override ZipEntryBase? Rename(
+        string newname,
+        ZipArchive zip,
+        bool passthru)
+    {
+        if (newname.HasInvalidFileNameChar())
+        {
+            throw new ArgumentException(
+                "Cannot rename the specified target, because it represents a path, " +
+                "device name or contains invalid File Name characters.",
+                nameof(newname));
+        }
+
+        return Move(
+            destination: RelativePath.Replace(Name, newname),
+            zip,
+            passthru);
     }
 }

@@ -58,8 +58,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         if (!path.IsArchive())
         {
-            ThrowTerminatingError(ExceptionHelpers
-                .NotArchivePathError(path, nameof(Destination)));
+            ThrowTerminatingError(ExceptionHelpers.NotArchivePathError(
+                path, nameof(Destination)));
         }
 
         Destination = path;
@@ -78,8 +78,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                         if (!Force.IsPresent)
                         {
                             WriteError(ExceptionHelpers.DuplicatedEntryError(
-                                entry: entry,
-                                source: Destination));
+                                DuplicatedEntryException.Create(
+                                    path: entry,
+                                    source: Destination)));
                             continue;
                         }
 
@@ -118,8 +119,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                     if (!Force.IsPresent)
                     {
                         WriteError(ExceptionHelpers.DuplicatedEntryError(
-                            entry: entry,
-                            source: Destination));
+                            DuplicatedEntryException.Create(
+                                path: entry,
+                                source: Destination)));
                         continue;
                     }
 

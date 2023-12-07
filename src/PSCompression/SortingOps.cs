@@ -7,17 +7,17 @@ namespace PSCompression;
 internal static class SortingOps
 {
     private static string SortByParent(ZipEntryBase entry) =>
-        Path.GetDirectoryName(entry.EntryRelativePath)
+        Path.GetDirectoryName(entry.RelativePath)
             .NormalizeEntryPath();
 
     private static int SortByLength(ZipEntryBase entry) =>
-        entry.EntryRelativePath.Count(e => e == '/');
+        entry.RelativePath.Count(e => e == '/');
 
     private static string SortByName(ZipEntryBase entry) =>
-        entry.EntryName;
+        entry.Name;
 
-    internal static IEnumerable<ZipEntryBase> ZipEntrySort(this IEnumerable<ZipEntryBase> zip) =>
-        zip
+    internal static IEnumerable<ZipEntryBase> ZipEntrySort(
+        this IEnumerable<ZipEntryBase> zip) => zip
             .OrderBy(SortByParent)
             .ThenBy(SortByLength)
             .ThenBy(SortByName);

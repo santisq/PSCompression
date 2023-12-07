@@ -18,28 +18,65 @@ internal static class ExceptionHelpers
         new(new ArgumentException($"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
             "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
 
-    internal static ErrorRecord ZipOpenError(string path, Exception e) =>
-        new(e, "ZipOpen", ErrorCategory.OpenError, path);
+    internal static ErrorRecord ZipOpenError(string path, Exception exception) =>
+        new(exception, "ZipOpen", ErrorCategory.OpenError, path);
 
-    internal static ErrorRecord ResolvePathError(string path, Exception e) =>
-        new(e, "ResolvePath", ErrorCategory.NotSpecified, path);
+    internal static ErrorRecord ResolvePathError(string path, Exception exception) =>
+        new(exception, "ResolvePath", ErrorCategory.NotSpecified, path);
 
-    internal static ErrorRecord ExtractEntryError(ZipEntryBase entry, Exception e) =>
-        new(e, "ExtractEntry", ErrorCategory.NotSpecified, entry);
+    internal static ErrorRecord ExtractEntryError(ZipEntryBase entry, Exception exception) =>
+        new(exception, "ExtractEntry", ErrorCategory.NotSpecified, entry);
 
-    internal static ErrorRecord StreamOpenError(ZipEntryFile entry, Exception e) =>
-        new(e, "StreamOpen", ErrorCategory.NotSpecified, entry);
+    internal static ErrorRecord StreamOpenError(ZipEntryFile entry, Exception exception) =>
+        new(exception, "StreamOpen", ErrorCategory.NotSpecified, entry);
 
-    internal static ErrorRecord StreamOpenError(string path, Exception e) =>
-        new(e, "StreamOpen", ErrorCategory.NotSpecified, path);
+    internal static ErrorRecord StreamOpenError(string path, Exception exception) =>
+        new(exception, "StreamOpen", ErrorCategory.NotSpecified, path);
 
-    internal static ErrorRecord WriteError(object entry, Exception e) =>
-        new(e, "WriteError", ErrorCategory.WriteError, entry);
+    internal static ErrorRecord WriteError(object entry, Exception exception) =>
+        new(exception, "WriteError", ErrorCategory.WriteError, entry);
 
-    internal static ErrorRecord DuplicatedEntryError(string entry, string source) =>
-        new(new IOException($"An entry with path '{entry}' already exists in '{source}'."),
-            "DuplicatedEntry", ErrorCategory.WriteError, entry);
+    internal static ErrorRecord DuplicatedEntryError(DuplicatedEntryException exception) =>
+        new(exception, "DuplicatedEntry", ErrorCategory.WriteError, exception._path);
+
+    internal static ErrorRecord InvalidNameError(string name, ArgumentException exception) =>
+        new(exception, "InvalidName", ErrorCategory.InvalidArgument, name);
+
+    internal static ErrorRecord EntryNotFoundError(EntryNotFoundException exception) =>
+        new(exception, "EntryNotFound", ErrorCategory.ObjectNotFound, exception._path);
 
     internal static ErrorRecord EnumerationError(object item, Exception exception) =>
         new(exception, "EnumerationError", ErrorCategory.ReadError, item);
+}
+
+public sealed class DuplicatedEntryException : IOException
+{
+    internal string _path;
+
+    private DuplicatedEntryException(string message, string path)
+        : base(message: message)
+    {
+        _path = path;
+    }
+
+    internal static DuplicatedEntryException Create(string path, string source) =>
+        new DuplicatedEntryException(
+            $"An entry with path '{path}' already exists in '{source}'.",
+            path: path);
+}
+
+public sealed class EntryNotFoundException : IOException
+{
+    internal string _path;
+
+    private EntryNotFoundException(string message, string path)
+        : base(message: message)
+    {
+        _path = path;
+    }
+
+    internal static EntryNotFoundException Create(string path, string source) =>
+        new EntryNotFoundException(
+            $"Cannot find '{path}' in '{source}'.",
+            path: path);
 }
