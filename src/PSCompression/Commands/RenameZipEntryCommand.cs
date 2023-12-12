@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Management.Automation;
 
@@ -8,6 +9,10 @@ namespace PSCompression;
 public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _cache = new(ZipArchiveMode.Update);
+
+    private ZipArchiveCache? _cacheOut;
+
+    private List<ZipEntryBase>? _output;
 
     [Parameter(
         Mandatory = true,
@@ -24,6 +29,15 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
     [Parameter]
     public SwitchParameter PassThru { get; set; }
 
+    protected override void BeginProcessing()
+    {
+        if (PassThru.IsPresent)
+        {
+            _output = new();
+            _cacheOut = new(ZipArchiveMode.Read);
+        }
+    }
+
     protected override void ProcessRecord()
     {
         if (!ShouldProcess(target: ZipEntry.ToString(), action: "Rename"))
@@ -38,9 +52,9 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
                 zip: _cache.GetOrAdd(ZipEntry),
                 passthru: PassThru.IsPresent);
 
-            if (entry is not null)
+            if (entry is not null && _output is not null)
             {
-                WriteObject(entry);
+                _output.Add(entry);
             }
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
@@ -65,5 +79,29 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         }
     }
 
-    public void Dispose() => _cache?.Dispose();
+    protected override void EndProcessing()
+    {
+        if (!PassThru.IsPresent || _output is null || _cacheOut is null)
+        {
+            return;
+        }
+
+        _cache?.Dispose();
+
+        foreach (ZipEntryBase entry in _output)
+        {
+            if (entry is ZipEntryFile entryFile)
+            {
+                entryFile.Refresh(_cacheOut.GetOrAdd(entry));
+            }
+
+            WriteObject(entry);
+        }
+    }
+
+    public void Dispose()
+    {
+        _cache?.Dispose();
+        _cacheOut?.Dispose();
+    }
 }

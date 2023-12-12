@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using System.Management.Automation;
 
 namespace PSCompression;
 
@@ -22,6 +21,11 @@ public sealed class ZipEntryFile : ZipEntryBase
     internal void Refresh()
     {
         using ZipArchive zip = OpenRead();
+        Refresh(zip);
+    }
+
+    internal void Refresh(ZipArchive zip)
+    {
         ZipArchiveEntry entry = zip.GetEntry(RelativePath);
         Length = entry.Length;
         CompressedLength = entry.CompressedLength;
