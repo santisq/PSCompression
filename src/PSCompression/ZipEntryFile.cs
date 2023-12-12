@@ -8,6 +8,8 @@ public sealed class ZipEntryFile : ZipEntryBase
 {
     public override ZipEntryType Type => ZipEntryType.Archive;
 
+    public string Extension => Path.GetExtension(RelativePath);
+
     internal ZipEntryFile(ZipArchiveEntry entry, string source)
         : base(entry, source)
     {
@@ -35,16 +37,15 @@ public sealed class ZipEntryFile : ZipEntryBase
         string destination,
         ZipArchive zip)
     {
-        if (!zip.TryGetEntry(RelativePath, out ZipArchiveEntry sourceEntry))
-        {
-            throw EntryNotFoundException.Create(RelativePath, Source);
-        }
+        zip.ThrowIfNotFound(
+            path: RelativePath,
+            source: Source,
+            entry: out ZipArchiveEntry sourceEntry);
 
-        destination = destination.NormalizeFileEntryPath();
-        if (zip.TryGetEntry(destination, out ZipArchiveEntry _))
-        {
-            throw DuplicatedEntryException.Create(destination, Source);
-        }
+        zip.ThrowIfDuplicate(
+            path: destination,
+            source: Source,
+            normalizedPath: out destination);
 
         ZipArchiveEntry destinationEntry = zip.CreateEntry(destination);
         using (Stream sourceStream = sourceEntry.Open())
