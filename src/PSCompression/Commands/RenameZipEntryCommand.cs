@@ -1,16 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.IO.Compression;
 using System.Management.Automation;
 
 namespace PSCompression;
 
 [Cmdlet(VerbsCommon.Rename, "ZipEntry", SupportsShouldProcess = true)]
+[OutputType(typeof(ZipEntryFile), typeof(ZipEntryDirectory))]
 public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _cache = new(ZipArchiveMode.Update);
 
-    private Dictionary<string, List<string>>? _output;
+    private ZipEntryCache? _zipEntryCache;
 
     [Parameter(
         Mandatory = true,
@@ -31,7 +31,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
     {
         if (PassThru.IsPresent)
         {
-            _output = new();
+            _zipEntryCache = new();
         }
     }
 
@@ -48,17 +48,15 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
                 newname: NewName,
                 zip: _cache.GetOrAdd(ZipEntry));
 
-            if (!PassThru.IsPresent || _output is null)
+            if (!PassThru.IsPresent || _zipEntryCache is null)
             {
                 return;
             }
 
-            if (!_output.ContainsKey(ZipEntry.Source))
-            {
-                _output[ZipEntry.Source] = new();
-            }
-
-            _output[ZipEntry.Source].Add(destination);
+            _zipEntryCache.Add(
+                source: ZipEntry.Source,
+                path: destination,
+                type: ZipEntry.Type);
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
@@ -84,27 +82,16 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void EndProcessing()
     {
-        if (!PassThru.IsPresent || _output is null)
+        _cache?.Dispose();
+        if (!PassThru.IsPresent || _zipEntryCache is null)
         {
             return;
         }
 
-        _cache?.Dispose();
-
-        foreach (ZipEntryBase entry in _output)
-        {
-            if (entry is ZipEntryFile entryFile)
-            {
-                entryFile.Refresh(_cacheOut.GetOrAdd(entry));
-            }
-
-            WriteObject(entry);
-        }
+        WriteObject(
+            _zipEntryCache.GetEntries(),
+            enumerateCollection: true);
     }
 
-    public void Dispose()
-    {
-        _cache?.Dispose();
-        _cacheOut?.Dispose();
-    }
+    public void Dispose() => _cache?.Dispose();
 }

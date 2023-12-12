@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using System.Management.Automation;
 
 namespace PSCompression;
 
