@@ -31,10 +31,9 @@ public sealed class ZipEntryFile : ZipEntryBase
         CompressedLength = entry.CompressedLength;
     }
 
-    internal override ZipEntryBase? Move(
+    internal override string Move(
         string destination,
-        ZipArchive zip,
-        bool passthru)
+        ZipArchive zip)
     {
         if (!zip.TryGetEntry(RelativePath, out ZipArchiveEntry sourceEntry))
         {
@@ -55,18 +54,12 @@ public sealed class ZipEntryFile : ZipEntryBase
         }
         sourceEntry.Delete();
 
-        if (!passthru)
-        {
-            return null;
-        }
-
-        return new ZipEntryFile(destinationEntry, Source);
+        return destination;
     }
 
-    internal override ZipEntryBase? Rename(
+    internal override string Rename(
         string newname,
-        ZipArchive zip,
-        bool passthru)
+        ZipArchive zip)
     {
         if (newname.HasInvalidFileNameChar())
         {
@@ -76,9 +69,6 @@ public sealed class ZipEntryFile : ZipEntryBase
                 nameof(newname));
         }
 
-        return Move(
-            destination: RelativePath.Replace(Name, newname),
-            zip,
-            passthru);
+        return Move(destination: RelativePath.Replace(Name, newname), zip);
     }
 }

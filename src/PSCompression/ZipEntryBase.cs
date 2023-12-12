@@ -46,15 +46,13 @@ public abstract class ZipEntryBase
         zip.GetEntry(RelativePath)?
         .Delete();
 
-    internal abstract ZipEntryBase? Move(
+    internal abstract string Move(
         string destination,
-        ZipArchive zip,
-        bool passthru);
+        ZipArchive zip);
 
-    internal abstract ZipEntryBase? Rename(
+    internal abstract string Rename(
         string newname,
-        ZipArchive zip,
-        bool passthru);
+        ZipArchive zip);
 
     internal ZipArchive Open(ZipArchiveMode mode) =>
         ZipFile.Open(Source, mode);

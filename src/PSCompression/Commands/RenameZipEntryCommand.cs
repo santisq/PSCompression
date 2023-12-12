@@ -10,9 +10,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _cache = new(ZipArchiveMode.Update);
 
-    private ZipArchiveCache? _cacheOut;
-
-    private List<ZipEntryBase>? _output;
+    private Dictionary<string, List<string>>? _output;
 
     [Parameter(
         Mandatory = true,
@@ -34,7 +32,6 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         if (PassThru.IsPresent)
         {
             _output = new();
-            _cacheOut = new(ZipArchiveMode.Read);
         }
     }
 
@@ -47,15 +44,21 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            ZipEntryBase? entry = ZipEntry.Rename(
+            string destination = ZipEntry.Rename(
                 newname: NewName,
-                zip: _cache.GetOrAdd(ZipEntry),
-                passthru: PassThru.IsPresent);
+                zip: _cache.GetOrAdd(ZipEntry));
 
-            if (entry is not null && _output is not null)
+            if (!PassThru.IsPresent || _output is null)
             {
-                _output.Add(entry);
+                return;
             }
+
+            if (!_output.ContainsKey(ZipEntry.Source))
+            {
+                _output[ZipEntry.Source] = new();
+            }
+
+            _output[ZipEntry.Source].Add(destination);
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
@@ -81,7 +84,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void EndProcessing()
     {
-        if (!PassThru.IsPresent || _output is null || _cacheOut is null)
+        if (!PassThru.IsPresent || _output is null)
         {
             return;
         }

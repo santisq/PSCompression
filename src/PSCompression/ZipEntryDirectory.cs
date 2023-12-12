@@ -13,18 +13,16 @@ public sealed class ZipEntryDirectory : ZipEntryBase
 
     }
 
-    internal override ZipEntryBase? Move(
+    internal override string Move(
         string newname,
-        ZipArchive zip,
-        bool passthru)
+        ZipArchive zip)
     {
         throw new System.NotImplementedException();
     }
 
-    internal override ZipEntryBase? Rename(
+    internal override string Rename(
         string newname,
-        ZipArchive zip,
-        bool passthru)
+        ZipArchive zip)
     {
         throw new System.NotImplementedException();
     }
