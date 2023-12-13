@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.IO.Compression;
 
@@ -33,38 +32,14 @@ public sealed class ZipEntryFile : ZipEntryBase
         CompressedLength = entry.CompressedLength;
     }
 
-    internal override string Move(
-        string destination,
-        ZipArchive zip)
-    {
-        zip.ThrowIfNotFound(
-            path: RelativePath,
-            source: Source,
-            entry: out ZipArchiveEntry sourceEntry);
-
-        zip.ThrowIfDuplicate(
-            path: destination,
-            source: Source,
-            normalizedPath: out destination);
-
-        ZipArchiveEntry destinationEntry = zip.CreateEntry(destination);
-        using (Stream sourceStream = sourceEntry.Open())
-        using (Stream destinationStream = destinationEntry.Open())
-        {
-            sourceStream.CopyTo(destinationStream);
-        }
-        sourceEntry.Delete();
-
-        return destination;
-    }
-
-    internal override string Rename(
-        string newname,
-        ZipArchive zip)
+    internal string Rename(string newname, ZipArchive zip)
     {
         newname.ThrowIfInvalidFileNameChar(nameof(newname));
+
         return Move(
-            destination: RelativePath.Replace(Name, newname),
+            path: RelativePath,
+            destination: this.ChangeName(newname),
+            source: Source,
             zip: zip);
     }
 }

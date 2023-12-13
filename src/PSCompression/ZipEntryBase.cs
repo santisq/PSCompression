@@ -46,47 +46,68 @@ public abstract class ZipEntryBase
         zip.GetEntry(RelativePath)?
         .Delete();
 
-    internal abstract string Move(
+    internal static string Move(
+        string path,
         string destination,
-        ZipArchive zip);
+        string source,
+        ZipArchive zip)
+    {
+        zip.ThrowIfNotFound(
+            path: path,
+            source: source,
+            entry: out ZipArchiveEntry sourceEntry);
 
-    internal abstract string Rename(
-        string newname,
-        ZipArchive zip);
+        zip.ThrowIfDuplicate(
+            path: destination,
+            source: source);
+
+        destination.ThrowIfInvalidPathChar();
+
+        ZipArchiveEntry destinationEntry = zip.CreateEntry(destination);
+        using (Stream sourceStream = sourceEntry.Open())
+        using (Stream destinationStream = destinationEntry.Open())
+        {
+            sourceStream.CopyTo(destinationStream);
+        }
+        sourceEntry.Delete();
+
+        return destination;
+    }
 
     internal ZipArchive Open(ZipArchiveMode mode) =>
         ZipFile.Open(Source, mode);
 
-    internal (string, bool) ExtractTo(
-        ZipArchive zip,
-        string destination,
-        bool overwrite)
-    {
-        destination = Path.GetFullPath(
-            Path.Combine(destination, RelativePath));
+    // internal static (string, bool) ExtractTo(
+    //     this ZipEntryBase entry,
+    //     ZipArchive zip,
+    //     string destination,
+    //     bool overwrite)
+    // {
+    //     destination = Path.GetFullPath(
+    //         Path.Combine(destination, entry.RelativePath));
 
-        if (string.IsNullOrEmpty(Name))
-        {
-            Directory.CreateDirectory(destination);
-            return (destination, false);
-        }
+    //     if (string.IsNullOrEmpty(Name))
+    //     {
+    //         Directory.CreateDirectory(destination);
+    //         return (destination, false);
+    //     }
 
-        string parent = Path.GetDirectoryName(destination);
+    //     string parent = Path.GetDirectoryName(destination);
 
-        if (!Directory.Exists(parent))
-        {
-            Directory.CreateDirectory(parent);
-        }
+    //     if (!Directory.Exists(parent))
+    //     {
+    //         Directory.CreateDirectory(parent);
+    //     }
 
-        ZipArchiveEntry entry = zip.GetEntry(RelativePath);
-        entry.ExtractToFile(destination, overwrite);
-        return (destination, true);
-    }
+    //     ZipArchiveEntry entry = zip.GetEntry(RelativePath);
+    //     entry.ExtractToFile(destination, overwrite);
+    //     return (destination, true);
+    // }
 
     public FileSystemInfo ExtractTo(string destination, bool overwrite)
     {
         using ZipArchive zip = ZipFile.OpenRead(Source);
-        (string path, bool isArchive) = ExtractTo(zip, destination, overwrite);
+        (string path, bool isArchive) = this.ExtractTo(zip, destination, overwrite);
 
         if (isArchive)
         {

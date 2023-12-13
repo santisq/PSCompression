@@ -17,18 +17,33 @@ public sealed class ZipEntryDirectory : ZipEntryBase
 
     }
 
-    internal override string Move(
-        string destination,
-        ZipArchive zip)
-    {
+    // internal override string Move(
+    //     string destination,
+    //     ZipArchive zip)
+    // {
 
-    }
+    // }
 
-    internal override string Rename(
+    internal string Rename(
         string newname,
         ZipArchive zip)
     {
-        throw new NotImplementedException();
+        string destination = this.ChangeName(newname);
+
+        foreach (ZipArchiveEntry entry in GetChilds(zip))
+        {
+            Move(
+                path: entry.FullName,
+                destination: entry.FullName.Replace(RelativePath, destination),
+                source: Source,
+                zip: zip);
+        }
+
+        return Move(
+            path: RelativePath,
+            destination: destination,
+            source: Source,
+            zip: zip);
     }
 
     internal IEnumerable<ZipArchiveEntry> GetChilds(ZipArchive zip) =>

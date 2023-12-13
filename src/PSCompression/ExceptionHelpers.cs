@@ -68,13 +68,11 @@ internal static class ExceptionHelpers
     internal static void ThrowIfDuplicate(
         this ZipArchive zip,
         string path,
-        string source,
-        out string normalizedPath)
+        string source)
     {
-        normalizedPath = path.NormalizeFileEntryPath();
-        if (zip.TryGetEntry(normalizedPath, out ZipArchiveEntry _))
+        if (zip.TryGetEntry(path, out ZipArchiveEntry _))
         {
-            throw DuplicatedEntryException.Create(normalizedPath, source);
+            throw DuplicatedEntryException.Create(path, source);
         }
     }
 

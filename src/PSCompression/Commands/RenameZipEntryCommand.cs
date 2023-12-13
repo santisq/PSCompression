@@ -44,9 +44,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            string destination = ZipEntry.Rename(
-                newname: NewName,
-                zip: _cache.GetOrAdd(ZipEntry));
+            string destination = Rename(ZipEntry);
 
             if (!PassThru.IsPresent || _zipEntryCache is null)
             {
@@ -92,6 +90,11 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             _zipEntryCache.GetEntries(),
             enumerateCollection: true);
     }
+
+    private string Rename(ZipEntryBase entry) =>
+        entry is ZipEntryFile file
+        ? file.Rename(NewName, _cache.GetOrAdd(file))
+        : ((ZipEntryDirectory)entry).Rename(NewName, _cache.GetOrAdd(entry));
 
     public void Dispose() => _cache?.Dispose();
 }
