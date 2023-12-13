@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
@@ -12,17 +13,7 @@ public static class ZipEntryExtensions
     private static readonly Regex s_reEntryDir = new(@"[\\/]$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    private static readonly char[] s_InvalidFileNameChar = Path.GetInvalidFileNameChars();
-
-    private static readonly char[] s_InvalidPathChar = Path.GetInvalidPathChars();
-
     private const string _pathChar = "/";
-
-    internal static bool HasInvalidFileNameChar(this string name) =>
-        name.IndexOfAny(s_InvalidFileNameChar) != -1;
-
-    internal static bool HasInvalidPathChar(this string name) =>
-        name.IndexOfAny(s_InvalidPathChar) != -1;
 
     internal static string NormalizeEntryPath(this string path) =>
         s_reNormalize.Replace(path, _pathChar).TrimStart('/');
@@ -71,28 +62,5 @@ public static class ZipEntryExtensions
         out ZipArchiveEntry entry) =>
         (entry = zip.GetEntry(path)) is not null;
 
-    internal static void ThrowIfNotFound(
-        this ZipArchive zip,
-        string path,
-        string source,
-        out ZipArchiveEntry entry)
-    {
-        if (!zip.TryGetEntry(path, out entry))
-        {
-            throw EntryNotFoundException.Create(path, source);
-        }
-    }
 
-    internal static void ThrowIfDuplicate(
-        this ZipArchive zip,
-        string path,
-        string source,
-        out string normalizedPath)
-    {
-        normalizedPath = path.NormalizeFileEntryPath();
-        if (zip.TryGetEntry(normalizedPath, out ZipArchiveEntry _))
-        {
-            throw DuplicatedEntryException.Create(normalizedPath, source);
-        }
-    }
 }

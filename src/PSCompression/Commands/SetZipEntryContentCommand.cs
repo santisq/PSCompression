@@ -40,11 +40,17 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         {
             if (AsByteStream.IsPresent)
             {
-                _zipWriter = new ZipContentWriter(SourceEntry, Append.IsPresent, BufferSize);
+                _zipWriter = new ZipContentWriter(
+                    entry: SourceEntry,
+                    append: Append.IsPresent,
+                    bufferSize: BufferSize);
                 return;
             }
 
-            _zipWriter = new ZipContentWriter(SourceEntry, Append.IsPresent, Encoding);
+            _zipWriter = new ZipContentWriter(
+                entry: SourceEntry,
+                append: Append.IsPresent,
+                encoding: Encoding);
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
@@ -52,7 +58,8 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.StreamOpenError(SourceEntry, e));
+            ThrowTerminatingError(
+                ExceptionHelpers.StreamOpenError(SourceEntry, e));
         }
     }
 
@@ -71,7 +78,8 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
                 return;
             }
 
-            _zipWriter.WriteLines(LanguagePrimitives.ConvertTo<string[]>(Value));
+            _zipWriter.WriteLines(
+                LanguagePrimitives.ConvertTo<string[]>(Value));
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
@@ -79,7 +87,8 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.WriteError(SourceEntry, e));
+            ThrowTerminatingError(
+                ExceptionHelpers.WriteError(SourceEntry, e));
         }
     }
 
@@ -98,7 +107,8 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.StreamOpenError(SourceEntry, e));
+            ThrowTerminatingError(
+                ExceptionHelpers.StreamOpenError(SourceEntry, e));
         }
     }
 

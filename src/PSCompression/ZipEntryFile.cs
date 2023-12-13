@@ -62,14 +62,9 @@ public sealed class ZipEntryFile : ZipEntryBase
         string newname,
         ZipArchive zip)
     {
-        if (newname.HasInvalidFileNameChar())
-        {
-            throw new ArgumentException(
-                "Cannot rename the specified target, because it represents a path, " +
-                "device name or contains invalid File Name characters.",
-                nameof(newname));
-        }
-
-        return Move(destination: RelativePath.Replace(Name, newname), zip);
+        newname.ThrowIfInvalidFileNameChar(nameof(newname));
+        return Move(
+            destination: RelativePath.Replace(Name, newname),
+            zip: zip);
     }
 }

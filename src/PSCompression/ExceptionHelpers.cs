@@ -1,11 +1,16 @@
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Management.Automation;
 
 namespace PSCompression;
 
 internal static class ExceptionHelpers
 {
+    private static readonly char[] s_InvalidFileNameChar = Path.GetInvalidFileNameChars();
+
+    private static readonly char[] s_InvalidPathChar = Path.GetInvalidPathChars();
+
     internal static ErrorRecord NotArchivePathError(string path, string paramname) =>
         new(new ArgumentException($"The specified path is a Directory: '{path}'.", paramname),
             "NotArchivePath", ErrorCategory.InvalidArgument, path);
@@ -47,36 +52,49 @@ internal static class ExceptionHelpers
 
     internal static ErrorRecord EnumerationError(object item, Exception exception) =>
         new(exception, "EnumerationError", ErrorCategory.ReadError, item);
-}
 
-public sealed class DuplicatedEntryException : IOException
-{
-    internal string _path;
-
-    private DuplicatedEntryException(string message, string path)
-        : base(message: message)
+    internal static void ThrowIfNotFound(
+    this ZipArchive zip,
+    string path,
+    string source,
+    out ZipArchiveEntry entry)
     {
-        _path = path;
+        if (!zip.TryGetEntry(path, out entry))
+        {
+            throw EntryNotFoundException.Create(path, source);
+        }
     }
 
-    internal static DuplicatedEntryException Create(string path, string source) =>
-        new DuplicatedEntryException(
-            $"An entry with path '{path}' already exists in '{source}'.",
-            path: path);
-}
-
-public sealed class EntryNotFoundException : IOException
-{
-    internal string _path;
-
-    private EntryNotFoundException(string message, string path)
-        : base(message: message)
+    internal static void ThrowIfDuplicate(
+        this ZipArchive zip,
+        string path,
+        string source,
+        out string normalizedPath)
     {
-        _path = path;
+        normalizedPath = path.NormalizeFileEntryPath();
+        if (zip.TryGetEntry(normalizedPath, out ZipArchiveEntry _))
+        {
+            throw DuplicatedEntryException.Create(normalizedPath, source);
+        }
     }
 
-    internal static EntryNotFoundException Create(string path, string source) =>
-        new EntryNotFoundException(
-            $"Cannot find '{path}' in '{source}'.",
-            path: path);
+    internal static void ThrowIfInvalidFileNameChar(this string name, string newname)
+    {
+        if (name.IndexOfAny(s_InvalidFileNameChar) != -1)
+        {
+            throw new ArgumentException(
+                "Cannot rename the specified target, because it represents a path, " +
+                "device name or contains invalid File Name characters.",
+                newname);
+        }
+    }
+
+    internal static void ThrowIfInvalidPathChar(this string path)
+    {
+        if (path.IndexOfAny(s_InvalidPathChar) != -1)
+        {
+            throw new ArgumentException(
+                $"Path: '{path}' contains invalid path characters.");
+        }
+    }
 }

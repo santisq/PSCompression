@@ -18,10 +18,10 @@ public sealed class ZipEntryDirectory : ZipEntryBase
     }
 
     internal override string Move(
-        string newname,
+        string destination,
         ZipArchive zip)
     {
-        throw new NotImplementedException();
+
     }
 
     internal override string Rename(
