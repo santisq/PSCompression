@@ -12,7 +12,11 @@ public static class ZipEntryExtensions
 
     private static readonly Regex s_reEntryDir = new(
         @"[\\/]$",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        RegexOptions.Compiled | RegexOptions.RightToLeft);
+
+    private static readonly Regex s_reChangeDirName = new(
+        @"[^/]+(?=/$)",
+        RegexOptions.Compiled | RegexOptions.RightToLeft);
 
     private const string _pathChar = "/";
 
@@ -100,7 +104,9 @@ public static class ZipEntryExtensions
         return (destination, true);
     }
 
-    internal static string ChangeName(this ZipEntryFile file, string newname)
+    internal static string ChangeName(
+        this ZipEntryFile file,
+        string newname)
     {
         string normalized = file.RelativePath.NormalizePath();
         return string.Join(
@@ -109,14 +115,11 @@ public static class ZipEntryExtensions
             newname);
     }
 
-    internal static string ChangeName(this ZipEntryDirectory directory, string newname)
+    internal static string ChangeName(
+        this ZipEntryDirectory directory,
+        string newname)
     {
         string normalized = directory.RelativePath.NormalizePath();
-        int idx = normalized.LastIndexOf(_pathChar);
-
-        return string.Join(
-            _pathChar,
-            normalized.Substring(0, normalized.LastIndexOf(_pathChar, idx - 1)),
-            newname);
+        return s_reChangeDirName.Replace(normalized, newname);
     }
 }

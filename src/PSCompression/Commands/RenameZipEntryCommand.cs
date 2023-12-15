@@ -91,10 +91,19 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             enumerateCollection: true);
     }
 
-    private string Rename(ZipEntryBase entry) =>
-        entry is ZipEntryFile file
-        ? file.Rename(NewName, _cache.GetOrAdd(file))
-        : ((ZipEntryDirectory)entry).Rename(NewName, _cache.GetOrAdd(entry));
+    private string Rename(ZipEntryBase entry)
+    {
+        if (entry is ZipEntryFile file)
+        {
+            return file.Rename(
+                newname: NewName,
+                zip: _cache.GetOrAdd(file));
+        }
+
+        return ((ZipEntryDirectory)entry).Rename(
+            newname: NewName,
+            zip: _cache.GetOrAdd(entry));
+    }
 
     public void Dispose() => _cache?.Dispose();
 }
