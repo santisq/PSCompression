@@ -77,33 +77,6 @@ public abstract class ZipEntryBase
     internal ZipArchive Open(ZipArchiveMode mode) =>
         ZipFile.Open(Source, mode);
 
-    // internal static (string, bool) ExtractTo(
-    //     this ZipEntryBase entry,
-    //     ZipArchive zip,
-    //     string destination,
-    //     bool overwrite)
-    // {
-    //     destination = Path.GetFullPath(
-    //         Path.Combine(destination, entry.RelativePath));
-
-    //     if (string.IsNullOrEmpty(Name))
-    //     {
-    //         Directory.CreateDirectory(destination);
-    //         return (destination, false);
-    //     }
-
-    //     string parent = Path.GetDirectoryName(destination);
-
-    //     if (!Directory.Exists(parent))
-    //     {
-    //         Directory.CreateDirectory(parent);
-    //     }
-
-    //     ZipArchiveEntry entry = zip.GetEntry(RelativePath);
-    //     entry.ExtractToFile(destination, overwrite);
-    //     return (destination, true);
-    // }
-
     public FileSystemInfo ExtractTo(string destination, bool overwrite)
     {
         using ZipArchive zip = ZipFile.OpenRead(Source);

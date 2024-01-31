@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Management.Automation;
 
@@ -11,6 +12,8 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
     private readonly ZipArchiveCache _cache = new(ZipArchiveMode.Update);
 
     private ZipEntryCache? _zipEntryCache;
+
+    private Dictionary<string, string>? _pathChanges;
 
     [Parameter(
         Mandatory = true,
@@ -27,11 +30,19 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
     [Parameter]
     public SwitchParameter PassThru { get; set; }
 
+    [Parameter]
+    public SwitchParameter Recurse { get; set; }
+
     protected override void BeginProcessing()
     {
         if (PassThru.IsPresent)
         {
             _zipEntryCache = new();
+        }
+
+        if (Recurse.IsPresent)
+        {
+            _pathChanges = new(StringComparer.InvariantCultureIgnoreCase);
         }
     }
 
@@ -80,6 +91,15 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void EndProcessing()
     {
+        if (_pathChanges is not null)
+        {
+            foreach (string path in _pathChanges.Keys)
+            {
+
+            }
+        }
+
+
         _cache?.Dispose();
         if (!PassThru.IsPresent || _zipEntryCache is null)
         {
@@ -100,9 +120,16 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
                 zip: _cache.GetOrAdd(file));
         }
 
-        return ((ZipEntryDirectory)entry).Rename(
+        string destination = ((ZipEntryDirectory)entry).Rename(
             newname: NewName,
             zip: _cache.GetOrAdd(entry));
+
+        if (_pathChanges is not null)
+        {
+            _pathChanges[destination] = ZipEntry.RelativePath;
+        }
+
+        return destination;
     }
 
     public void Dispose() => _cache?.Dispose();

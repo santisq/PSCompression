@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 
@@ -18,31 +19,26 @@ public sealed class ZipEntryDirectory : ZipEntryBase
 
     internal string Rename(
         string newname,
-        ZipArchive zip)
-    {
-        string destination = this.ChangeName(newname);
-
-        foreach (ZipArchiveEntry entry in GetChilds(zip))
-        {
-            Move(
-                path: entry.FullName,
-                destination: string.Concat(
-                    destination,
-                    entry.FullName.Remove(0, RelativePath.Length)),
-                source: Source,
-                zip: zip);
-        }
-
-        return Move(
+        ZipArchive zip) =>
+        Move(
             path: RelativePath,
-            destination: destination,
+            destination: this.ChangeName(newname),
             source: Source,
             zip: zip);
-    }
 
-    internal ZipArchiveEntry[] GetChilds(ZipArchive zip) =>
-        zip.Entries
-            .Where(e => !string.Equals(e.FullName, RelativePath, _comparer)
-                && e.FullName.StartsWith(RelativePath, _comparer))
-            .ToArray();
+        // foreach (ZipArchiveEntry entry in GetChilds(zip))
+        // {
+        //     Move(
+        //         path: entry.FullName,
+        //         destination: string.Concat(
+        //             destination,
+        //             entry.FullName.Remove(0, RelativePath.Length)),
+        //         source: Source,
+        //         zip: zip);
+        // }
+
+    internal IEnumerable<ZipArchiveEntry> GetChilds(ZipArchive zip) =>
+        zip.Entries.Where(e =>
+            !string.Equals(e.FullName, RelativePath, _comparer)
+            && e.FullName.StartsWith(RelativePath, _comparer));
 }

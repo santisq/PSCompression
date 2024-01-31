@@ -117,9 +117,14 @@ public static class ZipEntryExtensions
 
     internal static string ChangeName(
         this ZipEntryDirectory directory,
-        string newname)
-    {
-        string normalized = directory.RelativePath.NormalizePath();
-        return s_reChangeDirName.Replace(normalized, newname);
-    }
+        string newname) =>
+        s_reChangeDirName.Replace(
+            directory.RelativePath.NormalizePath(),
+            newname);
+
+    internal static string ChangePath(
+        this ZipArchiveEntry entry,
+        string oldPath,
+        string newPath) =>
+        string.Concat(newPath, entry.FullName.Remove(0, oldPath.Length));
 }
