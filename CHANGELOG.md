@@ -6,5 +6,8 @@
         - Renamed Method `RemoveEntry()` to `Remove()`.
     - `ZipEntryFile` Type:
         - Added Property `Extension`.
+        - Added Property `BaseName`.
+    - `ZipEntryDirectory` Type:
+        - `.Name` Property now reflects the directory entries name instead of an empty string.
     - Added Cmdlet `Rename-ZipEntry`.
 

@@ -14,7 +14,7 @@ public abstract class ZipEntryBase
 {
     public string Source { get; }
 
-    public string Name { get; }
+    public string Name { get; protected set; }
 
     public string RelativePath { get; }
 

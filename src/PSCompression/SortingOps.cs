@@ -16,9 +16,13 @@ internal static class SortingOps
     private static string SortByName(ZipEntryBase entry) =>
         entry.Name;
 
+    private static ZipEntryType SortByType(ZipEntryBase entry) =>
+        entry.Type;
+
     internal static IEnumerable<ZipEntryBase> ZipEntrySort(
         this IEnumerable<ZipEntryBase> zip) => zip
             .OrderBy(SortByParent)
+            .ThenBy(SortByType)
             .ThenBy(SortByLength)
             .ThenBy(SortByName);
 }

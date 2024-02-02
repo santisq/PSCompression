@@ -5,7 +5,7 @@ namespace PSCompression;
 
 public sealed class ZipEntryCache
 {
-    private Dictionary<string, List<(string, ZipEntryType)>> _cache;
+    private readonly Dictionary<string, List<(string, ZipEntryType)>> _cache;
 
     internal ZipEntryCache() => _cache = new();
 

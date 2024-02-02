@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using System.Linq;
 using System.Management.Automation;
+using System.Text.RegularExpressions;
 
 namespace PSCompression;
 
@@ -9,11 +11,11 @@ namespace PSCompression;
 [OutputType(typeof(ZipEntryFile), typeof(ZipEntryDirectory))]
 public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 {
-    private readonly ZipArchiveCache _cache = new(ZipArchiveMode.Update);
+    private readonly ZipArchiveCache _zipArchiveCache = new(ZipArchiveMode.Update);
 
     private ZipEntryCache? _zipEntryCache;
 
-    private Dictionary<string, string>? _pathChanges;
+    private Dictionary<string, (ZipEntryBase, string)>? _pathChanges;
 
     [Parameter(
         Mandatory = true,
@@ -25,7 +27,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         Mandatory = true,
         Position = 1,
         ValueFromPipeline = true)]
-    public string NewName { get; set; } = null!;
+    public string newname { get; set; } = null!;
 
     [Parameter]
     public SwitchParameter PassThru { get; set; }
@@ -55,17 +57,28 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            string destination = Rename(ZipEntry);
+            // string destination = Rename(ZipEntry);
+            _zipArchiveCache.TryAdd(ZipEntry);
+            if (_pathChanges is not null)
+            {
+                _pathChanges[ZipEntry.RelativePath] = (ZipEntry, newname);
+            }
 
             if (!PassThru.IsPresent || _zipEntryCache is null)
             {
                 return;
             }
 
-            _zipEntryCache.Add(
-                source: ZipEntry.Source,
-                path: destination,
-                type: ZipEntry.Type);
+            // _zipEntryCache.Add(
+            //     source: ZipEntry.Source,
+            //     path: destination,
+            //     type: ZipEntry.Type);
+
+            if (_pathChanges is null)
+            {
+                return;
+            }
+
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
@@ -81,7 +94,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (ArgumentException e)
         {
-            WriteError(ExceptionHelpers.InvalidNameError(NewName, e));
+            WriteError(ExceptionHelpers.InvalidNameError(newname, e));
         }
         catch (Exception e)
         {
@@ -93,14 +106,11 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
     {
         if (_pathChanges is not null)
         {
-            foreach (string path in _pathChanges.Keys)
-            {
-
-            }
+            WriteObject(NewMethod());
+            return;
         }
 
-
-        _cache?.Dispose();
+        _zipArchiveCache?.Dispose();
         if (!PassThru.IsPresent || _zipEntryCache is null)
         {
             return;
@@ -111,26 +121,60 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             enumerateCollection: true);
     }
 
-    private string Rename(ZipEntryBase entry)
+    private Dictionary<string, string> NewMethod()
     {
-        if (entry is ZipEntryFile file)
+        Dictionary<string, string> _pathResults = new(StringComparer.InvariantCultureIgnoreCase);
+        string newpath;
+        foreach (var pair in _pathChanges.OrderByDescending(e => e.Key))
         {
-            return file.Rename(
-                newname: NewName,
-                zip: _cache.GetOrAdd(file));
+            (ZipEntryBase entry, string newname) = pair.Value;
+            if (entry.Type is ZipEntryType.Archive)
+            {
+                newpath = ((ZipEntryFile)entry).ChangeName(newname);
+                _pathResults[pair.Key] = newpath;
+                continue;
+            }
+
+            ZipEntryDirectory dir = (ZipEntryDirectory)entry;
+            newpath = dir.ChangeName(newname);
+            _pathResults[pair.Key] = newpath;
+            Regex re = new(
+                Regex.Escape(dir.RelativePath),
+                RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+            foreach (ZipArchiveEntry key in dir.GetChilds(_zipArchiveCache[dir.Source]))
+            {
+                string child = _pathResults.ContainsKey(key.FullName)
+                    ? _pathResults[key.FullName]
+                    : key.FullName;
+
+                _pathResults[key.FullName] = re.Replace(child, newpath);
+            }
         }
 
-        string destination = ((ZipEntryDirectory)entry).Rename(
-            newname: NewName,
-            zip: _cache.GetOrAdd(entry));
-
-        if (_pathChanges is not null)
-        {
-            _pathChanges[destination] = ZipEntry.RelativePath;
-        }
-
-        return destination;
+        return _pathResults;
     }
 
-    public void Dispose() => _cache?.Dispose();
+    // private string Rename(ZipEntryBase entry)
+    // {
+    //     if (entry is ZipEntryFile file)
+    //     {
+    //         return file.Rename(
+    //             newname: NewName,
+    //             zip: _zipArchiveCache.GetOrAdd(file));
+    //     }
+
+    //     string destination = ((ZipEntryDirectory)entry).Rename(
+    //         newname: NewName,
+    //         zip: _zipArchiveCache.GetOrAdd(entry));
+
+    //     if (_pathChanges is not null)
+    //     {
+    //         _pathChanges[destination] = ZipEntry.RelativePath;
+    //     }
+
+    //     return destination;
+    // }
+
+    public void Dispose() => _zipArchiveCache?.Dispose();
 }

@@ -7,21 +7,21 @@ namespace PSCompression;
 public static class ZipEntryExtensions
 {
     private static readonly Regex s_reNormalize = new(
-        @"(?:^[A-Za-z]:)?[\\/]+|(?<![\\/])$",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        @"(?:^[a-z]:)?[\\/]+|(?<![\\/])$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex s_reEntryDir = new(
         @"[\\/]$",
         RegexOptions.Compiled | RegexOptions.RightToLeft);
 
-    private static readonly Regex s_reChangeDirName = new(
+    private static readonly Regex s_reGetDirName = new(
         @"[^/]+(?=/$)",
         RegexOptions.Compiled | RegexOptions.RightToLeft);
 
-    private const string _pathChar = "/";
+    private const string _directorySeparator = "/";
 
     internal static string NormalizeEntryPath(this string path) =>
-        s_reNormalize.Replace(path, _pathChar).TrimStart('/');
+        s_reNormalize.Replace(path, _directorySeparator).TrimStart('/');
 
     internal static string NormalizeFileEntryPath(this string path) =>
         NormalizeEntryPath(path).TrimEnd('/');
@@ -30,11 +30,12 @@ public static class ZipEntryExtensions
         s_reEntryDir.IsMatch(path);
 
     public static string NormalizePath(this string path) =>
-        s_reEntryDir.IsMatch(path) ? NormalizeEntryPath(path) :
-            NormalizeFileEntryPath(path);
+        s_reEntryDir.IsMatch(path)
+            ? NormalizeEntryPath(path)
+            : NormalizeFileEntryPath(path);
 
     internal static string RelativeTo(this DirectoryInfo directory, int length) =>
-        NormalizeEntryPath(directory.FullName.Substring(length) + _pathChar);
+        NormalizeEntryPath(directory.FullName.Substring(length) + _directorySeparator);
 
     internal static string RelativeTo(this FileInfo directory, int length) =>
         NormalizeFileEntryPath(directory.FullName.Substring(length));
@@ -109,16 +110,22 @@ public static class ZipEntryExtensions
         string newname)
     {
         string normalized = file.RelativePath.NormalizePath();
+
+        if (normalized.IndexOf(_directorySeparator) == -1)
+        {
+            return newname;
+        }
+
         return string.Join(
-            _pathChar,
-            normalized.Substring(0, normalized.Length - file.Name.Length),
+            _directorySeparator,
+            normalized.Substring(0, normalized.Length - file.Name.Length - 1),
             newname);
     }
 
     internal static string ChangeName(
         this ZipEntryDirectory directory,
         string newname) =>
-        s_reChangeDirName.Replace(
+        s_reGetDirName.Replace(
             directory.RelativePath.NormalizePath(),
             newname);
 
@@ -127,4 +134,7 @@ public static class ZipEntryExtensions
         string oldPath,
         string newPath) =>
         string.Concat(newPath, entry.FullName.Remove(0, oldPath.Length));
+
+    internal static string GetDirectoryName(this ZipArchiveEntry entry) =>
+        s_reGetDirName.Match(entry.FullName).Value;
 }

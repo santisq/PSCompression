@@ -14,7 +14,7 @@ public sealed class ZipEntryDirectory : ZipEntryBase
     internal ZipEntryDirectory(ZipArchiveEntry entry, string source)
         : base(entry, source)
     {
-
+        Name = entry.GetDirectoryName();
     }
 
     internal string Rename(

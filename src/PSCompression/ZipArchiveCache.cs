@@ -18,6 +18,17 @@ internal sealed class ZipArchiveCache : IDisposable
         _mode = mode;
     }
 
+    internal ZipArchive this[string source] =>
+        _cache[source];
+
+    internal void TryAdd(ZipEntryBase entry)
+    {
+        if (!_cache.ContainsKey(entry.Source))
+        {
+            _cache[entry.Source] = entry.Open(_mode);
+        }
+    }
+
     internal ZipArchive GetOrAdd(ZipEntryBase entry)
     {
         if (!_cache.ContainsKey(entry.Source))

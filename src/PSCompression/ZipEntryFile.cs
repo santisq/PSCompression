@@ -7,6 +7,8 @@ public sealed class ZipEntryFile : ZipEntryBase
 {
     public override ZipEntryType Type => ZipEntryType.Archive;
 
+    public string BaseName => Path.GetFileNameWithoutExtension(Name);
+
     public string Extension => Path.GetExtension(RelativePath);
 
     internal ZipEntryFile(ZipArchiveEntry entry, string source)
