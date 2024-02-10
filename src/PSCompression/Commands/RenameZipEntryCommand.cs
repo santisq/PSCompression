@@ -15,7 +15,8 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     private ZipEntryCache? _zipEntryCache;
 
-    private Dictionary<string, (ZipEntryBase, string)>? _pathChanges;
+    private Dictionary<string, (ZipEntryBase, string)> _pathChanges =
+        new(StringComparer.InvariantCultureIgnoreCase);
 
     [Parameter(
         Mandatory = true,
@@ -32,19 +33,11 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
     [Parameter]
     public SwitchParameter PassThru { get; set; }
 
-    [Parameter]
-    public SwitchParameter Recurse { get; set; }
-
     protected override void BeginProcessing()
     {
         if (PassThru.IsPresent)
         {
             _zipEntryCache = new();
-        }
-
-        if (Recurse.IsPresent)
-        {
-            _pathChanges = new(StringComparer.InvariantCultureIgnoreCase);
         }
     }
 
@@ -59,10 +52,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         {
             // string destination = Rename(ZipEntry);
             _zipArchiveCache.TryAdd(ZipEntry);
-            if (_pathChanges is not null)
-            {
-                _pathChanges[ZipEntry.RelativePath] = (ZipEntry, NewName);
-            }
+            _pathChanges[ZipEntry.RelativePath] = (ZipEntry, NewName);
 
             if (!PassThru.IsPresent || _zipEntryCache is null)
             {
@@ -73,11 +63,6 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             //     source: ZipEntry.Source,
             //     path: destination,
             //     type: ZipEntry.Type);
-
-            if (_pathChanges is null)
-            {
-                return;
-            }
 
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
@@ -104,21 +89,18 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void EndProcessing()
     {
-        if (_pathChanges is not null)
-        {
-            WriteObject(NewMethod());
-            return;
-        }
+        WriteObject(NewMethod());
+        return;
 
-        _zipArchiveCache?.Dispose();
-        if (!PassThru.IsPresent || _zipEntryCache is null)
-        {
-            return;
-        }
+        // _zipArchiveCache?.Dispose();
+        // if (!PassThru.IsPresent || _zipEntryCache is null)
+        // {
+        //     return;
+        // }
 
-        WriteObject(
-            _zipEntryCache.GetEntries(),
-            enumerateCollection: true);
+        // WriteObject(
+        //     _zipEntryCache.GetEntries(),
+        //     enumerateCollection: true);
     }
 
     private Dictionary<string, string> NewMethod()
