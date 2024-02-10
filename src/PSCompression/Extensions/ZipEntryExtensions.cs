@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace PSCompression.Extensions;
 
-public static class ZipEntryExtensions
+internal static class ZipEntryExtensions
 {
     private static readonly Regex s_reGetDirName = new(
         @"[^/]+(?=/$)",

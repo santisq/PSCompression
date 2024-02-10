@@ -39,7 +39,7 @@ Entry paths (arguments of the `-EntryPath` parameter) are always normalized, a f
 | `\path\to\newdirectory\` | `path/to/newdirectory/` |
 | `path\to\very/\random\/path\\` | `path/to/very/random/path/` |
 
-The `[PSCompression.Extensions]::NormalizePath(string path)` static method is available as a public API if you would like to normalize your paths before creating new entries.
+The `[PSCompression.Extensions.PathExtensions]::NormalizePath(string path)` static method is available as a public API if you would like to normalize your paths before creating new entries.
 
 In addition, `New-ZipEntry` can set the content of the entries that it creates from string input or by specifying a source file path.
 

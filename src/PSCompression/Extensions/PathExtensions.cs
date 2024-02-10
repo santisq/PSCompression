@@ -9,7 +9,7 @@ using Microsoft.PowerShell.Commands;
 
 namespace PSCompression.Extensions;
 
-internal static class PathExtensions
+public static class PathExtensions
 {
     private static readonly Regex s_reNormalize = new(
         @"(?:^[a-z]:)?[\\/]+|(?<![\\/])$",
