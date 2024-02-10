@@ -27,7 +27,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         Mandatory = true,
         Position = 1,
         ValueFromPipeline = true)]
-    public string newname { get; set; } = null!;
+    public string NewName { get; set; } = null!;
 
     [Parameter]
     public SwitchParameter PassThru { get; set; }
@@ -61,7 +61,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             _zipArchiveCache.TryAdd(ZipEntry);
             if (_pathChanges is not null)
             {
-                _pathChanges[ZipEntry.RelativePath] = (ZipEntry, newname);
+                _pathChanges[ZipEntry.RelativePath] = (ZipEntry, NewName);
             }
 
             if (!PassThru.IsPresent || _zipEntryCache is null)
@@ -94,7 +94,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (ArgumentException e)
         {
-            WriteError(ExceptionHelpers.InvalidNameError(newname, e));
+            WriteError(ExceptionHelpers.InvalidNameError(NewName, e));
         }
         catch (Exception e)
         {

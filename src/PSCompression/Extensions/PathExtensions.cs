@@ -11,7 +11,7 @@ namespace PSCompression;
 internal static class PathExtensions
 {
     [ThreadStatic]
-    private static readonly List<string> s_normalizedPaths = new();
+    private static List<string>? s_normalizedPaths;
 
     internal static string[] NormalizePath(
         this string[] paths,
@@ -19,6 +19,7 @@ internal static class PathExtensions
         PSCmdlet cmdlet,
         bool throwOnInvalidProvider = false)
     {
+        s_normalizedPaths ??= new();
         Collection<string> resolvedPaths;
         ProviderInfo provider;
         s_normalizedPaths.Clear();
@@ -27,19 +28,19 @@ internal static class PathExtensions
         {
             if (isLiteral)
             {
-                string resolvedPath = cmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath(
-                    path, out provider, out _);
+                string resolvedPath = cmdlet.SessionState.Path
+                    .GetUnresolvedProviderPathFromPSPath(path, out provider, out _);
 
                 if (!provider.IsFileSystem())
                 {
                     if (throwOnInvalidProvider)
                     {
-                        cmdlet.ThrowTerminatingError(ExceptionHelpers
-                            .InvalidProviderError(path, provider));
+                        cmdlet.ThrowTerminatingError(
+                            ExceptionHelpers.InvalidProviderError(path, provider));
                     }
 
-                    cmdlet.WriteError(ExceptionHelpers
-                        .InvalidProviderError(path, provider));
+                    cmdlet.WriteError(
+                        ExceptionHelpers.InvalidProviderError(path, provider));
 
                     continue;
                 }
@@ -56,8 +57,11 @@ internal static class PathExtensions
                 {
                     if (!provider.IsFileSystem())
                     {
-                        cmdlet.WriteError(ExceptionHelpers.InvalidProviderError(
-                            resolvedPath, provider));
+                        cmdlet.WriteError(
+                            ExceptionHelpers.InvalidProviderError(
+                                resolvedPath,
+                                provider));
+
                         continue;
                     }
 
