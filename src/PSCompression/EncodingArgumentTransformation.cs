@@ -7,7 +7,9 @@ namespace PSCompression;
 
 public sealed class EncodingTransformation : ArgumentTransformationAttribute
 {
-    public override object Transform(EngineIntrinsics engineIntrinsics, object inputData)
+    public override object Transform(
+        EngineIntrinsics engineIntrinsics,
+        object inputData)
     {
         return inputData switch
         {

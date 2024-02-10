@@ -4,6 +4,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
+using PSCompression.Exceptions;
+using PSCompression.Extensions;
 
 namespace PSCompression;
 

@@ -5,6 +5,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
+using PSCompression.Extensions;
+using PSCompression.Exceptions;
 
 namespace PSCompression;
 

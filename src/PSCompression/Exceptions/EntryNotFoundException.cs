@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace PSCompression;
+namespace PSCompression.Exceptions;
 
 public sealed class EntryNotFoundException : IOException
 {
@@ -13,7 +13,5 @@ public sealed class EntryNotFoundException : IOException
     }
 
     internal static EntryNotFoundException Create(string path, string source) =>
-        new EntryNotFoundException(
-            $"Cannot find '{path}' in '{source}'.",
-            path: path);
+        new($"Cannot find '{path}' in '{source}'.", path);
 }
