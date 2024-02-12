@@ -82,7 +82,6 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         try
         {
             Destination = Destination.NormalizePath(isLiteral: true, this);
-
             string parent = Destination.GetParent();
 
             if (!Directory.Exists(parent))
