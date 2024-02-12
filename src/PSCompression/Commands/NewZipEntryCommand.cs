@@ -7,6 +7,7 @@ using System.Management.Automation;
 using System.Text;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
 namespace PSCompression;
 
@@ -60,8 +61,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         if (!path.IsArchive())
         {
-            ThrowTerminatingError(ExceptionHelpers.NotArchivePathError(
-                path, nameof(Destination)));
+            ThrowTerminatingError(NotArchivePathError(path, nameof(Destination)));
         }
 
         Destination = path;
@@ -79,10 +79,11 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                     {
                         if (!Force.IsPresent)
                         {
-                            WriteError(ExceptionHelpers.DuplicatedEntryError(
+                            WriteError(DuplicatedEntryError(
                                 DuplicatedEntryException.Create(
                                     path: entry,
                                     source: Destination)));
+
                             continue;
                         }
 
@@ -103,7 +104,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
             if (!sourcePath.IsArchive())
             {
-                ThrowTerminatingError(ExceptionHelpers.NotArchivePathError(
+                ThrowTerminatingError(NotArchivePathError(
                     path: sourcePath,
                     paramname: nameof(SourcePath)));
             }
@@ -120,10 +121,11 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 {
                     if (!Force.IsPresent)
                     {
-                        WriteError(ExceptionHelpers.DuplicatedEntryError(
+                        WriteError(DuplicatedEntryError(
                             DuplicatedEntryException.Create(
                                 path: entry,
                                 source: Destination)));
+
                         continue;
                     }
 
@@ -142,15 +144,16 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.ZipOpenError(
-                Destination, e));
+            ThrowTerminatingError(ZipOpenError(Destination, e));
         }
     }
 
     protected override void ProcessRecord()
     {
+        Dbg.Assert(_zip is not null);
+
         // no input from pipeline, go to end block
-        if (Value is null || _zip is null)
+        if (Value is null)
         {
             return;
         }
@@ -173,7 +176,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.WriteError(_zip, e));
+            ThrowTerminatingError(ZipWriteError(_zip, e));
         }
     }
 
@@ -199,7 +202,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.ZipOpenError(Destination, e));
+            ThrowTerminatingError(ZipOpenError(Destination, e));
         }
     }
 
@@ -208,7 +211,6 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         using ZipArchive zip = ZipFile.OpenRead(Destination);
 
         List<ZipEntryBase> _result = new(_entries.Count);
-
         foreach (ZipArchiveEntry entry in _entries)
         {
             if (string.IsNullOrEmpty(entry.Name))

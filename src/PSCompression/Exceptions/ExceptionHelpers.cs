@@ -2,10 +2,9 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
-using PSCompression.Exceptions;
 using PSCompression.Extensions;
 
-namespace PSCompression;
+namespace PSCompression.Exceptions;
 
 internal static class ExceptionHelpers
 {
@@ -40,7 +39,7 @@ internal static class ExceptionHelpers
     internal static ErrorRecord StreamOpenError(string path, Exception exception) =>
         new(exception, "StreamOpen", ErrorCategory.NotSpecified, path);
 
-    internal static ErrorRecord WriteError(object entry, Exception exception) =>
+    internal static ErrorRecord ZipWriteError(object entry, Exception exception) =>
         new(exception, "WriteError", ErrorCategory.WriteError, entry);
 
     internal static ErrorRecord DuplicatedEntryError(DuplicatedEntryException exception) =>

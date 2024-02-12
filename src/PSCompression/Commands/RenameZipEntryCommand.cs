@@ -4,8 +4,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
-using PSCompression.Exceptions;
 using PSCompression.Extensions;
+using PSCompression.Exceptions;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
 namespace PSCompression;
 
@@ -73,19 +74,19 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (DuplicatedEntryException e)
         {
-            WriteError(ExceptionHelpers.DuplicatedEntryError(e));
+            WriteError(DuplicatedEntryError(e));
         }
         catch (EntryNotFoundException e)
         {
-            WriteError(ExceptionHelpers.EntryNotFoundError(e));
+            WriteError(EntryNotFoundError(e));
         }
         catch (ArgumentException e)
         {
-            WriteError(ExceptionHelpers.InvalidNameError(NewName, e));
+            WriteError(InvalidNameError(NewName, e));
         }
         catch (Exception e)
         {
-            WriteError(ExceptionHelpers.WriteError(ZipEntry, e));
+            WriteError(ZipWriteError(ZipEntry, e));
         }
     }
 

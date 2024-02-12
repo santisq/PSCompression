@@ -10,4 +10,5 @@
     - `ZipEntryDirectory` Type:
         - `.Name` Property now reflects the directory entries name instead of an empty string.
     - Added Cmdlet `Rename-ZipEntry`.
-
+    - `NormalizePath` Method:
+        - Moved from `[PSCompression.ZipEntryExtensions]::NormalizePath` to `[PSCompression.Extensions.PathExtensions]::NormalizePath`.

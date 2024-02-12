@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
 using PSCompression.Extensions;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
 namespace PSCompression;
 
@@ -103,7 +104,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
         {
             if (!path.IsArchive())
             {
-                WriteError(ExceptionHelpers.NotArchivePathError(
+                WriteError(NotArchivePathError(
                     path,
                     _isLiteral ? nameof(LiteralPath) : nameof(Path)));
 
@@ -120,7 +121,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
             }
             catch (Exception e)
             {
-                WriteError(ExceptionHelpers.ZipOpenError(path, e));
+                WriteError(ZipOpenError(path, e));
             }
         }
     }

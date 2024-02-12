@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using PSCompression.Extensions;
+using PSCompression.Exceptions;
 
 namespace PSCompression;
 
@@ -44,8 +45,7 @@ public abstract class ZipEntryBase
     }
 
     internal void Remove(ZipArchive zip) =>
-        zip.GetEntry(RelativePath)?
-        .Delete();
+        zip.GetEntry(RelativePath)?.Delete();
 
     internal static string Move(
         string path,

@@ -2,6 +2,7 @@ using System;
 using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
 namespace PSCompression;
 
@@ -47,7 +48,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
             }
             catch (Exception e)
             {
-                WriteError(ExceptionHelpers.ZipOpenError(entry.Source, e));
+                WriteError(ZipOpenError(entry.Source, e));
             }
         }
     }

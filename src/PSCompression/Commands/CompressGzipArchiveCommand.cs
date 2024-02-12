@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using PSCompression.Extensions;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
 namespace PSCompression;
 
@@ -98,13 +99,15 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.StreamOpenError(Destination, e));
+            ThrowTerminatingError(StreamOpenError(Destination, e));
         }
     }
 
     protected override void ProcessRecord()
     {
-        if (InputBytes is not null && _destination is not null)
+        Dbg.Assert(_destination is not null);
+
+        if (InputBytes is not null)
         {
             try
             {
@@ -116,7 +119,7 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
             }
             catch (Exception e)
             {
-                WriteError(ExceptionHelpers.WriteError(InputBytes, e));
+                WriteError(ZipWriteError(InputBytes, e));
             }
 
             return;
@@ -128,7 +131,7 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
         {
             if (!path.IsArchive())
             {
-                WriteError(ExceptionHelpers.NotArchivePathError(
+                WriteError(NotArchivePathError(
                     path,
                     _isLiteral ? nameof(LiteralPath) : nameof(Path)));
 
@@ -146,7 +149,7 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
             }
             catch (Exception e)
             {
-                WriteError(ExceptionHelpers.WriteError(path, e));
+                WriteError(ZipWriteError(path, e));
             }
         }
     }

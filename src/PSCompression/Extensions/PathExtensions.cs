@@ -6,6 +6,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
 using Microsoft.PowerShell.Commands;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
 namespace PSCompression.Extensions;
 
@@ -46,12 +47,10 @@ public static class PathExtensions
                 {
                     if (throwOnInvalidProvider)
                     {
-                        cmdlet.ThrowTerminatingError(
-                            ExceptionHelpers.InvalidProviderError(path, provider));
+                        cmdlet.ThrowTerminatingError(InvalidProviderError(path, provider));
                     }
 
-                    cmdlet.WriteError(
-                        ExceptionHelpers.InvalidProviderError(path, provider));
+                    cmdlet.WriteError(InvalidProviderError(path, provider));
 
                     continue;
                 }
@@ -68,10 +67,9 @@ public static class PathExtensions
                 {
                     if (!provider.IsFileSystem())
                     {
-                        cmdlet.WriteError(
-                            ExceptionHelpers.InvalidProviderError(
-                                resolvedPath,
-                                provider));
+                        cmdlet.WriteError(InvalidProviderError(
+                            resolvedPath,
+                            provider));
 
                         continue;
                     }
@@ -81,7 +79,7 @@ public static class PathExtensions
             }
             catch (Exception e)
             {
-                cmdlet.WriteError(ExceptionHelpers.ResolvePathError(path, e));
+                cmdlet.WriteError(ResolvePathError(path, e));
             }
         }
 
