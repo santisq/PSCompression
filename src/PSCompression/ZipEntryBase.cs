@@ -48,19 +48,19 @@ public abstract class ZipEntryBase
         zip.GetEntry(RelativePath)?.Delete();
 
     internal static string Move(
-        string path,
+        string sourceRelativePath,
         string destination,
-        string source,
+        string sourceZipPath,
         ZipArchive zip)
     {
         zip.ThrowIfNotFound(
-            path: path,
-            source: source,
+            path: sourceRelativePath,
+            source: sourceZipPath,
             entry: out ZipArchiveEntry sourceEntry);
 
         zip.ThrowIfDuplicate(
             path: destination,
-            source: source);
+            source: sourceZipPath);
 
         destination.ThrowIfInvalidPathChar();
 

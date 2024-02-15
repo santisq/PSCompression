@@ -5,7 +5,7 @@ namespace PSCompression;
 
 public sealed class ZipEntryCache
 {
-    private readonly Dictionary<string, List<(string, ZipEntryType)>> _cache;
+    private readonly Dictionary<string, List<PathWithType>> _cache;
 
     internal ZipEntryCache() => _cache = new();
 
@@ -19,12 +19,12 @@ public sealed class ZipEntryCache
             _cache[source] = new();
         }
 
-        _cache[source].Add((path, type));
+        _cache[source].Add(new(path, type));
     }
 
     internal IEnumerable<ZipEntryBase> GetEntries()
     {
-        foreach (KeyValuePair<string, List<(string, ZipEntryType)>> entry in _cache)
+        foreach (var entry in _cache)
         {
             using ZipArchive zip = ZipFile.OpenRead(entry.Key);
             foreach ((string path, ZipEntryType type) in entry.Value)

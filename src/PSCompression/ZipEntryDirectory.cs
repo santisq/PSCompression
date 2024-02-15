@@ -22,9 +22,9 @@ public sealed class ZipEntryDirectory : ZipEntryBase
         string newname,
         ZipArchive zip) =>
         Move(
-            path: RelativePath,
+            sourceRelativePath: RelativePath,
             destination: this.ChangeName(newname),
-            source: Source,
+            sourceZipPath: Source,
             zip: zip);
 
         // foreach (ZipArchiveEntry entry in GetChilds(zip))

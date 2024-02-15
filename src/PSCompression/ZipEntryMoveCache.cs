@@ -9,7 +9,7 @@ namespace PSCompression;
 
 internal sealed class ZipEntryMoveCache
 {
-    private readonly Dictionary<string, Dictionary<string, (ZipEntryBase, string)>> _cache;
+    private readonly Dictionary<string, Dictionary<string, EntryWithPath>> _cache;
 
     private readonly Dictionary<string, Dictionary<string, string>> _mappings;
 
@@ -19,7 +19,7 @@ internal sealed class ZipEntryMoveCache
         _mappings = new();
     }
 
-    private Dictionary<string, (ZipEntryBase, string)> WithSource(ZipEntryBase entry)
+    private Dictionary<string, EntryWithPath> WithSource(ZipEntryBase entry)
     {
         if (!_cache.ContainsKey(entry.Source))
         {
@@ -30,7 +30,7 @@ internal sealed class ZipEntryMoveCache
     }
 
     internal void AddEntry(ZipEntryBase entry, string newname) =>
-        WithSource(entry).Add(entry.RelativePath, (entry, newname));
+        WithSource(entry).Add(entry.RelativePath, new(entry, newname));
 
     internal Dictionary<string, Dictionary<string, string>> GetMappings(
         ZipArchiveCache cache)
@@ -45,7 +45,7 @@ internal sealed class ZipEntryMoveCache
 
     private Dictionary<string, string> GetChildMappings(
         ZipArchiveCache cache,
-        Dictionary<string, (ZipEntryBase, string)> pathChanges)
+        Dictionary<string, EntryWithPath> pathChanges)
     {
         string newpath;
         Dictionary<string, string> result = new();

@@ -41,9 +41,9 @@ public sealed class ZipEntryFile : ZipEntryBase
         newname.ThrowIfInvalidFileNameChar(nameof(newname));
 
         return Move(
-            path: RelativePath,
+            sourceRelativePath: RelativePath,
             destination: this.ChangeName(newname),
-            source: Source,
+            sourceZipPath: Source,
             zip: zip);
     }
 }

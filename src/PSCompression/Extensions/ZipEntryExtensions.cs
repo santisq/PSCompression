@@ -51,9 +51,9 @@ internal static class ZipEntryExtensions
         string destination,
         ZipArchive zip) =>
         ZipEntryBase.Move(
-            path: entry.RelativePath,
+            sourceRelativePath: entry.RelativePath,
             destination: destination,
-            source: entry.Source,
+            sourceZipPath: entry.Source,
             zip: zip);
 
     internal static (string, bool) ExtractTo(
