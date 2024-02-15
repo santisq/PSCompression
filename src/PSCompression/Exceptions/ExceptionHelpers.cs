@@ -45,7 +45,7 @@ internal static class ExceptionHelpers
     internal static ErrorRecord DuplicatedEntryError(DuplicatedEntryException exception) =>
         new(exception, "DuplicatedEntry", ErrorCategory.WriteError, exception._path);
 
-    internal static ErrorRecord InvalidNameError(string name, ArgumentException exception) =>
+    internal static ErrorRecord InvalidNameError(string name, InvalidNameException exception) =>
         new(exception, "InvalidName", ErrorCategory.InvalidArgument, name);
 
     internal static ErrorRecord EntryNotFoundError(EntryNotFoundException exception) =>
@@ -77,14 +77,11 @@ internal static class ExceptionHelpers
         }
     }
 
-    internal static void ThrowIfInvalidFileNameChar(this string name, string newname)
+    internal static void ThrowIfInvalidNameChar(this string name, string newname)
     {
         if (name.IndexOfAny(s_InvalidFileNameChar) != -1)
         {
-            throw new ArgumentException(
-                "Cannot rename the specified target, because it represents a path, " +
-                "device name or contains invalid File Name characters.",
-                newname);
+            throw InvalidNameException.Create(newname);
         }
     }
 

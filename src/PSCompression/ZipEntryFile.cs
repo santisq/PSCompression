@@ -38,7 +38,7 @@ public sealed class ZipEntryFile : ZipEntryBase
 
     internal string Rename(string newname, ZipArchive zip)
     {
-        newname.ThrowIfInvalidFileNameChar(nameof(newname));
+        newname.ThrowIfInvalidNameChar(nameof(newname));
 
         return Move(
             sourceRelativePath: RelativePath,

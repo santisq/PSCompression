@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Management.Automation;
 using PSCompression.Exceptions;
@@ -77,50 +78,53 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
     {
         foreach (var mapping in _moveCache.GetMappings(_zipArchiveCache))
         {
-            foreach ((string source, string destination) in mapping.Value)
-            {
-                try
-                {
-                    ZipEntryBase.Move(
-                        sourceRelativePath: source,
-                        destination: destination,
-                        sourceZipPath: mapping.Key,
-                        _zipArchiveCache[mapping.Key]);
-                }
-                catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
-                {
-                    throw;
-                }
-                catch (DuplicatedEntryException e)
-                {
-                    WriteError(DuplicatedEntryError(e));
-                }
-                catch (EntryNotFoundException e)
-                {
-                    WriteError(EntryNotFoundError(e));
-                }
-                catch (ArgumentException e)
-                {
-                    WriteError(InvalidNameError(NewName, e));
-                }
-                catch (Exception e)
-                {
-                    WriteError(ZipWriteError(ZipEntry, e));
-                }
-            }
+            Rename(mapping);
         }
 
-        return;
-
-        // _zipArchiveCache?.Dispose();
-        // if (!PassThru.IsPresent || _zipEntryCache is null)
-        // {
-        //     return;
-        // }
+        _zipArchiveCache?.Dispose();
+        if (!PassThru.IsPresent || _zipEntryCache is null)
+        {
+            return;
+        }
 
         // WriteObject(
         //     _zipEntryCache.GetEntries(),
         //     enumerateCollection: true);
+    }
+
+    private void Rename(KeyValuePair<string, Dictionary<string, string>> mapping)
+    {
+        foreach ((string source, string destination) in mapping.Value)
+        {
+            try
+            {
+                ZipEntryBase.Move(
+                    sourceRelativePath: source,
+                    destination: destination,
+                    sourceZipPath: mapping.Key,
+                    _zipArchiveCache[mapping.Key]);
+            }
+            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            {
+                throw;
+            }
+            catch (DuplicatedEntryException e)
+            {
+                WriteError(DuplicatedEntryError(e));
+            }
+            catch (EntryNotFoundException e)
+            {
+                WriteError(EntryNotFoundError(e));
+            }
+            catch (InvalidNameException e)
+            {
+                WriteError(InvalidNameError(NewName, e));
+            }
+            catch (Exception e)
+            {
+                WriteError(ZipWriteError(ZipEntry, e));
+            }
+        }
     }
 
     public void Dispose() => _zipArchiveCache?.Dispose();
