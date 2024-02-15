@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
-using System.Linq;
 using System.Management.Automation;
-using System.Text.RegularExpressions;
-using PSCompression.Extensions;
 using PSCompression.Exceptions;
 using static PSCompression.Exceptions.ExceptionHelpers;
 
@@ -18,8 +15,10 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     private ZipEntryCache? _zipEntryCache;
 
-    private Dictionary<string, (ZipEntryBase, string)> _pathChanges =
+    private readonly Dictionary<string, (ZipEntryBase, string)> _pathChanges =
         new(StringComparer.InvariantCultureIgnoreCase);
+
+    private readonly ZipEntryMoveCache _moveCache = new();
 
     [Parameter(
         Mandatory = true,
@@ -55,6 +54,9 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         {
             // string destination = Rename(ZipEntry);
             _zipArchiveCache.TryAdd(ZipEntry);
+
+            _moveCache.AddEntry(ZipEntry, NewName);
+
             _pathChanges[ZipEntry.RelativePath] = (ZipEntry, NewName);
 
             if (!PassThru.IsPresent || _zipEntryCache is null)
@@ -92,7 +94,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void EndProcessing()
     {
-        WriteObject(NewMethod());
+        WriteObject(_moveCache.GetMappings(_zipArchiveCache));
         return;
 
         // _zipArchiveCache?.Dispose();
@@ -106,39 +108,41 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         //     enumerateCollection: true);
     }
 
-    private Dictionary<string, string> NewMethod()
-    {
-        Dictionary<string, string> _pathResults = new(StringComparer.InvariantCultureIgnoreCase);
-        string newpath;
-        foreach (var pair in _pathChanges.OrderByDescending(e => e.Key))
-        {
-            (ZipEntryBase entry, string newname) = pair.Value;
-            if (entry.Type is ZipEntryType.Archive)
-            {
-                newpath = ((ZipEntryFile)entry).ChangeName(newname);
-                _pathResults[pair.Key] = newpath;
-                continue;
-            }
+    // private Dictionary<string, (string, string)> NewMethod()
+    // {
+    //     Dictionary<string, (string, string)> _pathResults =
+    //         new(StringComparer.InvariantCultureIgnoreCase);
 
-            ZipEntryDirectory dir = (ZipEntryDirectory)entry;
-            newpath = dir.ChangeName(newname);
-            _pathResults[pair.Key] = newpath;
-            Regex re = new(
-                Regex.Escape(dir.RelativePath),
-                RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    //     string newpath;
+    //     foreach (var pair in _pathChanges.OrderByDescending(e => e.Key))
+    //     {
+    //         (ZipEntryBase entry, string newname) = pair.Value;
+    //         if (entry.Type is ZipEntryType.Archive)
+    //         {
+    //             newpath = ((ZipEntryFile)entry).ChangeName(newname);
+    //             _pathResults[pair.Key] = (entry.Source, newpath);
+    //             continue;
+    //         }
 
-            foreach (ZipArchiveEntry key in dir.GetChilds(_zipArchiveCache[dir.Source]))
-            {
-                string child = _pathResults.ContainsKey(key.FullName)
-                    ? _pathResults[key.FullName]
-                    : key.FullName;
+    //         ZipEntryDirectory dir = (ZipEntryDirectory)entry;
+    //         newpath = dir.ChangeName(newname);
+    //         _pathResults[pair.Key] = (entry.Source, newpath);
+    //         Regex re = new(
+    //             Regex.Escape(dir.RelativePath),
+    //             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-                _pathResults[key.FullName] = re.Replace(child, newpath);
-            }
-        }
+    //         foreach (ZipArchiveEntry key in dir.GetChilds(_zipArchiveCache[dir.Source]))
+    //         {
+    //             (string source, string child) = _pathResults.ContainsKey(key.FullName)
+    //                 ? _pathResults[key.FullName]
+    //                 : (dir.Source, key.FullName);
 
-        return _pathResults;
-    }
+    //             _pathResults[key.FullName] = (source, re.Replace(child, newpath));
+    //         }
+    //     }
+
+    //     return _pathResults;
+    // }
 
     // private string Rename(ZipEntryBase entry)
     // {
