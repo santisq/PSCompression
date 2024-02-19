@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 
@@ -7,19 +8,29 @@ public sealed class ZipEntryCache
 {
     private readonly Dictionary<string, List<PathWithType>> _cache;
 
-    internal ZipEntryCache() => _cache = new();
+    internal ZipEntryCache() => _cache = new(StringComparer.InvariantCultureIgnoreCase);
 
-    internal void Add(
-        string source,
-        string path,
-        ZipEntryType type)
+    internal List<PathWithType> WithSource(string source)
     {
         if (!_cache.ContainsKey(source))
         {
             _cache[source] = new();
         }
 
-        _cache[source].Add(new(path, type));
+        return _cache[source];
+    }
+
+    internal void Add(string source, PathWithType pathWithType) =>
+        WithSource(source).Add(pathWithType);
+
+    internal ZipEntryCache AddRange(IEnumerable<(string, PathWithType)> values)
+    {
+        foreach ((string source, PathWithType pathWithType) in values)
+        {
+            Add(source, pathWithType);
+        }
+
+        return this;
     }
 
     internal IEnumerable<ZipEntryBase> GetEntries()

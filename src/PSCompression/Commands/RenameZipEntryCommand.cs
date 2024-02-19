@@ -57,12 +57,6 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             {
                 return;
             }
-
-            // _zipEntryCache.Add(
-            //     source: ZipEntry.Source,
-            //     path: destination,
-            //     type: ZipEntry.Type);
-
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
@@ -87,9 +81,11 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             return;
         }
 
-        // WriteObject(
-        //     _zipEntryCache.GetEntries(),
-        //     enumerateCollection: true);
+        WriteObject(
+            _zipEntryCache
+                .AddRange(_moveCache.GetPassThruMappings())
+                .GetEntries(),
+            enumerateCollection: true);
     }
 
     private void Rename(KeyValuePair<string, Dictionary<string, string>> mapping)

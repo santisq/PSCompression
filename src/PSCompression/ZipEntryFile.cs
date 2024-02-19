@@ -1,7 +1,5 @@
 using System.IO;
 using System.IO.Compression;
-using PSCompression.Extensions;
-using PSCompression.Exceptions;
 
 namespace PSCompression;
 
@@ -34,16 +32,5 @@ public sealed class ZipEntryFile : ZipEntryBase
         ZipArchiveEntry entry = zip.GetEntry(RelativePath);
         Length = entry.Length;
         CompressedLength = entry.CompressedLength;
-    }
-
-    internal string Rename(string newname, ZipArchive zip)
-    {
-        newname.ThrowIfInvalidNameChar(nameof(newname));
-
-        return Move(
-            sourceRelativePath: RelativePath,
-            destination: this.ChangeName(newname),
-            sourceZipPath: Source,
-            zip: zip);
     }
 }

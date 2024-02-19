@@ -13,5 +13,5 @@ public sealed class EntryNotFoundException : IOException
     }
 
     internal static EntryNotFoundException Create(string path, string source) =>
-        new($"Cannot find '{path}' in '{source}'.", path);
+        new($"Cannot find an entry with path: '{path}' in '{source}'.", path);
 }

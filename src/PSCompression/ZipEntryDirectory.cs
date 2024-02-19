@@ -18,26 +18,6 @@ public sealed class ZipEntryDirectory : ZipEntryBase
         Name = entry.GetDirectoryName();
     }
 
-    internal string Rename(
-        string newname,
-        ZipArchive zip) =>
-        Move(
-            sourceRelativePath: RelativePath,
-            destination: this.ChangeName(newname),
-            sourceZipPath: Source,
-            zip: zip);
-
-        // foreach (ZipArchiveEntry entry in GetChilds(zip))
-        // {
-        //     Move(
-        //         path: entry.FullName,
-        //         destination: string.Concat(
-        //             destination,
-        //             entry.FullName.Remove(0, RelativePath.Length)),
-        //         source: Source,
-        //         zip: zip);
-        // }
-
     internal IEnumerable<ZipArchiveEntry> GetChilds(ZipArchive zip) =>
         zip.Entries.Where(e =>
             !string.Equals(e.FullName, RelativePath, _comparer)

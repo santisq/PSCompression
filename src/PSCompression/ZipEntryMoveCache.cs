@@ -32,6 +32,17 @@ internal sealed class ZipEntryMoveCache
     internal void AddEntry(ZipEntryBase entry, string newname) =>
         WithSource(entry).Add(entry.RelativePath, new(entry, newname));
 
+    internal IEnumerable<(string, PathWithType)> GetPassThruMappings()
+    {
+        foreach (var source in _cache)
+        {
+            foreach ((string path, EntryWithPath entryWithPath) in source.Value)
+            {
+                yield return (source.Key, new(_mappings[source.Key][path], entryWithPath.ZipEntry.Type));
+            }
+        }
+    }
+
     internal Dictionary<string, Dictionary<string, string>> GetMappings(
         ZipArchiveCache cache)
     {
