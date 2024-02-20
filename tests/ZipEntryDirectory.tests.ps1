@@ -11,6 +11,6 @@ Describe 'ZipEntryDirectory Class' {
     }
 
     It 'Should be of type Directory' {
-        ($zip | Get-ZipEntry).EntryType | Should -BeExactly ([PSCompression.ZipEntryType]::Directory)
+        ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.ZipEntryType]::Directory)
     }
 }

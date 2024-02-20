@@ -65,7 +65,7 @@ internal static class ZipEntryExtensions
         destination = Path.GetFullPath(
             Path.Combine(destination, entryBase.RelativePath));
 
-        if (string.IsNullOrEmpty(entryBase.Name))
+        if (entryBase.Type is ZipEntryType.Directory)
         {
             Directory.CreateDirectory(destination);
             return (destination, false);

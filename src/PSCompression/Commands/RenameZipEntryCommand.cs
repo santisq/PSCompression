@@ -84,7 +84,8 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         WriteObject(
             _zipEntryCache
                 .AddRange(_moveCache.GetPassThruMappings())
-                .GetEntries(),
+                .GetEntries()
+                .ZipEntrySort(),
             enumerateCollection: true);
     }
 

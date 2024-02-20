@@ -28,11 +28,11 @@ Describe 'ZipEntryBase Class' {
             [System.IO.Path]::Combine($TestDrive, 'myTestFolder'),
             $false)
 
-        $file.FullName | Should -BeExactly ([System.IO.Path]::Combine($TestDrive, 'myTestFolder', $entry.EntryName))
+        $file.FullName | Should -BeExactly ([System.IO.Path]::Combine($TestDrive, 'myTestFolder', $entry.Name))
     }
 
     It 'Can remove an entry in the source zip' {
-        { ($zip | Get-ZipEntry).RemoveEntry() } |
+        { ($zip | Get-ZipEntry).Remove() } |
             Should -Not -Throw
 
         $zip | Get-ZipEntry | Should -BeNullOrEmpty

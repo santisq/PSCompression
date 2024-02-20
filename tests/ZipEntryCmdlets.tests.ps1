@@ -126,7 +126,7 @@ Describe 'ZipEntry Cmdlets' {
 
         It 'Can exclude entries using the -Exclude parameter' {
             $zip | Get-ZipEntry -Exclude *.txt |
-                ForEach-Object { [System.IO.Path]::GetExtension($_.EntryRelativePath) } |
+                ForEach-Object { [System.IO.Path]::GetExtension($_.RelativePath) } |
                 Should -Not -Be '.txt'
         }
     }
@@ -153,6 +153,33 @@ Describe 'ZipEntry Cmdlets' {
         It 'Should not attempt to read a directory entry' {
             { $zip | Get-ZipEntry -EntryType Directory | Get-ZipEntry } |
                 Should -Throw
+        }
+    }
+
+    Context 'Rename-ZipEntry' -Tag 'Rename-ZipEntry' {
+        It 'Can rename file entries' {
+            { $zip | Get-ZipEntry -EntryType Archive | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
+                Should -Not -Throw
+
+            $zip | Get-ZipEntry -EntryType Archive |
+                ForEach-Object Name |
+                Should -Match '^test'
+        }
+
+        It 'Produces output with -PassThru' {
+            $zip | Get-ZipEntry -EntryType Archive |
+                Rename-ZipEntry -NewName { $_.Name -replace 'test' } -PassThru |
+                Should -BeOfType ([PSCompression.ZipEntryFile])
+        }
+
+        It 'Can rename directory entries and all childs' {
+            $dir = $zip | Get-ZipEntry -EntryType Directory | Select-Object -First 1
+            $childs = $zip | Get-ZipEntry -Include "$($dir.RelativePath)*"
+            Rename-ZipEntry $dir -NewName 'myNameName'
+
+            $zip | Get-ZipEntry -Include "$($dir.RelativePath.Replace($dir.Name, 'myNameName'))*" |
+                ForEach-Object RelativePath |
+                Should -HaveCount $childs.Count
         }
     }
 
