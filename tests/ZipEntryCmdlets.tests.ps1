@@ -172,7 +172,7 @@ Describe 'ZipEntry Cmdlets' {
                 Should -BeOfType ([PSCompression.ZipEntryFile])
         }
 
-        It 'Can rename directory entries and all childs' {
+        It 'Can rename directory entries and all its child entries' {
             $dir = $zip | Get-ZipEntry -EntryType Directory | Select-Object -First 1
             $childs = $zip | Get-ZipEntry -Include "$($dir.RelativePath)*"
             Rename-ZipEntry $dir -NewName 'myNameName'

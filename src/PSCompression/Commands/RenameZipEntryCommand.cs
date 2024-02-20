@@ -107,6 +107,11 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             }
             catch (DuplicatedEntryException e)
             {
+                if (_moveCache.IsDirectoryEntry(mapping.Key, source))
+                {
+                    ThrowTerminatingError(DuplicatedEntryError(e));
+                }
+
                 WriteError(DuplicatedEntryError(e));
             }
             catch (EntryNotFoundException e)

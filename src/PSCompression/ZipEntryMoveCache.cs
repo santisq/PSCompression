@@ -29,6 +29,11 @@ internal sealed class ZipEntryMoveCache
         return _cache[entry.Source];
     }
 
+    internal bool IsDirectoryEntry(string source, string path) =>
+        _cache[source].TryGetValue(path, out EntryWithPath entryWithPath)
+            ? entryWithPath.ZipEntry.Type is ZipEntryType.Directory
+            : false;
+
     internal void AddEntry(ZipEntryBase entry, string newname) =>
         WithSource(entry).Add(entry.RelativePath, new(entry, newname));
 
