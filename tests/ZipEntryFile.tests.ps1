@@ -16,6 +16,16 @@ Describe 'ZipEntryFile Class' {
         ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.ZipEntryType]::Archive)
     }
 
+    It 'Should Have a BaseName Property' {
+        ($zip | Get-ZipEntry).BaseName | Should -BeOfType ([string])
+        ($zip | Get-ZipEntry).BaseName | Should -BeExactly helloworld
+    }
+
+    It 'Should Have an Extension Property' {
+        ($zip | Get-ZipEntry).Extension | Should -BeOfType ([string])
+        ($zip | Get-ZipEntry).Extension | Should -BeExactly .txt
+    }
+
     It 'Should Open the source zip' {
         try {
             $stream = ($zip | Get-ZipEntry).OpenRead()

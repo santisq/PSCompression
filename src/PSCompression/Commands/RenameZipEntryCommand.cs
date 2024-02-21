@@ -50,17 +50,17 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
+            NewName.ThrowIfInvalidNameChar();
             _zipArchiveCache.TryAdd(ZipEntry);
             _moveCache.AddEntry(ZipEntry, NewName);
-
-            if (!PassThru.IsPresent || _zipEntryCache is null)
-            {
-                return;
-            }
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
             throw;
+        }
+        catch (InvalidNameException e)
+        {
+            WriteError(InvalidNameError(NewName, e));
         }
         catch (Exception e)
         {
@@ -117,10 +117,6 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             catch (EntryNotFoundException e)
             {
                 WriteError(EntryNotFoundError(e));
-            }
-            catch (InvalidNameException e)
-            {
-                WriteError(InvalidNameError(NewName, e));
             }
             catch (Exception e)
             {

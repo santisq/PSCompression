@@ -77,9 +77,9 @@ internal static class ExceptionHelpers
         }
     }
 
-    internal static void ThrowIfInvalidNameChar(this string name, string newname)
+    internal static void ThrowIfInvalidNameChar(this string newname)
     {
-        if (name.IndexOfAny(s_InvalidFileNameChar) != -1)
+        if (newname.IndexOfAny(s_InvalidFileNameChar) != -1)
         {
             throw InvalidNameException.Create(newname);
         }

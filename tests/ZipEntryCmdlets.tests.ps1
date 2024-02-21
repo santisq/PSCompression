@@ -126,7 +126,7 @@ Describe 'ZipEntry Cmdlets' {
 
         It 'Can exclude entries using the -Exclude parameter' {
             $zip | Get-ZipEntry -Exclude *.txt |
-                ForEach-Object { [System.IO.Path]::GetExtension($_.RelativePath) } |
+                ForEach-Object Extension |
                 Should -Not -Be '.txt'
         }
     }
@@ -156,33 +156,6 @@ Describe 'ZipEntry Cmdlets' {
         }
     }
 
-    Context 'Rename-ZipEntry' -Tag 'Rename-ZipEntry' {
-        It 'Can rename file entries' {
-            { $zip | Get-ZipEntry -EntryType Archive | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
-                Should -Not -Throw
-
-            $zip | Get-ZipEntry -EntryType Archive |
-                ForEach-Object Name |
-                Should -Match '^test'
-        }
-
-        It 'Produces output with -PassThru' {
-            $zip | Get-ZipEntry -EntryType Archive |
-                Rename-ZipEntry -NewName { $_.Name -replace 'test' } -PassThru |
-                Should -BeOfType ([PSCompression.ZipEntryFile])
-        }
-
-        It 'Can rename directory entries and all its child entries' {
-            $dir = $zip | Get-ZipEntry -EntryType Directory | Select-Object -First 1
-            $childs = $zip | Get-ZipEntry -Include "$($dir.RelativePath)*"
-            Rename-ZipEntry $dir -NewName 'myNameName'
-
-            $zip | Get-ZipEntry -Include "$($dir.RelativePath.Replace($dir.Name, 'myNameName'))*" |
-                ForEach-Object RelativePath |
-                Should -HaveCount $childs.Count
-        }
-    }
-
     Context 'Remove-ZipEntry' -Tag 'Remove-ZipEntry' {
         It 'Can remove file entries' {
             { $zip | Get-ZipEntry -EntryType Archive | Remove-ZipEntry } |
@@ -205,7 +178,6 @@ Describe 'ZipEntry Cmdlets' {
         It 'Should be empty after all entries have been removed' {
             $zip | Get-ZipEntry | Should -BeNullOrEmpty
         }
-
     }
 
     Context 'Set-ZipEntryContent' -Tag 'Set-ZipEntryContent' {
@@ -257,10 +229,81 @@ Describe 'ZipEntry Cmdlets' {
         }
     }
 
+    Context 'Rename-ZipEntry' -Tag 'Rename-ZipEntry' {
+        BeforeAll {
+            $zip | Get-ZipEntry | Remove-ZipEntry
+            $structure = Get-Structure
+            $content = 'hello world!'
+            $content | New-ZipEntry $zip -EntryPath $structure
+            $structure, $content | Out-Null
+        }
+
+        It 'Can rename file entries using a delay-bind ScriptBlock' {
+            { $zip | Get-ZipEntry -EntryType Archive | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
+                Should -Not -Throw
+
+            $zip | Get-ZipEntry -EntryType Archive |
+                ForEach-Object Name |
+                Should -Match '^test'
+        }
+
+        It 'Produces output with -PassThru' {
+            $zip | Get-ZipEntry -EntryType Archive |
+                Rename-ZipEntry -NewName { $_.Name -replace 'test' } -PassThru |
+                Should -BeOfType ([PSCompression.ZipEntryFile])
+        }
+
+        It 'Can rename directory entries and all its child entries' {
+            $dir = $zip | Get-ZipEntry -EntryType Directory -Include testfolder00/
+            $childs = $zip | Get-ZipEntry -Include testfolder00/*
+            Rename-ZipEntry $dir -NewName myNewName
+            $zip | Get-ZipEntry -Include myNewName/* | Should -HaveCount $childs.Count
+        }
+
+        It 'Should throw if an entry with the same Name already exists' {
+            { $zip | Get-ZipEntry -EntryType Directory -Include testfolder01/ |
+                Rename-ZipEntry -NewName testfolder02 } |
+                Should -Throw
+
+            { $zip | Get-ZipEntry -EntryType Archive -Include testfolder01/file00.txt |
+                Rename-ZipEntry -NewName file01.txt } |
+                Should -Throw
+        }
+
+        It 'Should throw if renaming an entry that no longer exists' {
+            $entry = $zip | Get-ZipEntry -EntryType Archive -Include testfolder01/file00.txt
+            $entry | Remove-ZipEntry
+            { $entry | Rename-ZipEntry -NewName test } | Should -Throw
+
+            $entry = $zip | Get-ZipEntry -EntryType Directory -Include testfolder01/
+            $entry | Remove-ZipEntry
+            { $entry | Rename-ZipEntry -NewName test } | Should -Throw
+        }
+
+        It 'Should throw if using invalid FileName chars' {
+            $invalidChars = [System.IO.Path]::GetInvalidFileNameChars()
+
+            { $zip | Get-ZipEntry -EntryType Archive |
+                Rename-ZipEntry -NewName { $_.Name + $invalidChars[0] } } |
+                Should -Throw
+
+            { $zip | Get-ZipEntry -EntryType Directory |
+                Rename-ZipEntry -NewName { $_.Name + $invalidChars[0] } } |
+                Should -Throw
+        }
+
+        It 'Should throw if the source zip no longer exists' {
+            $entry = $zip | Get-ZipEntry | Select-Object -First 1
+            $zip | Remove-Item
+            { $entry | Rename-ZipEntry -NewName 'testing123' } |
+                Should -Throw
+        }
+    }
+
     Context 'Expand-ZipEntry' -Tag 'Expand-ZipEntry' {
         BeforeAll {
+            $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
             $destination = New-Item (Join-Path $TestDrive -ChildPath 'ExtractTests') -ItemType Directory
-            $zip | Get-ZipEntry | Remove-ZipEntry
             $structure = Get-Structure
             $content = 'hello world!'
             $content | New-ZipEntry $zip.FullName -EntryPath $structure
