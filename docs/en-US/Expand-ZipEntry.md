@@ -14,12 +14,17 @@ Expands Zip Archive Entries to a destination directory.
 ## SYNTAX
 
 ```powershell
-Expand-ZipEntry -InputObject <ZipEntryBase[]> [[-Destination] <String>] [-Force] [-PassThru] [<CommonParameters>]
+Expand-ZipEntry
+    -InputObject <ZipEntryBase[]>
+    [[-Destination] <String>]
+    [-Force]
+    [-PassThru]
+    [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-The `Expand-ZipEntry` cmdlet can expand Zip Archive Entries outputted by the `Get-ZipEntry` command to a destination directory. This is useful when there is a need to extract a few entries from a Zip File as opposed to expanding the whole file. Expanded entries maintain their original folder structure based on their relative zip path.
+The `Expand-ZipEntry` cmdlet can expand Zip Archive Entries outputted by the `Get-ZipEntry` command to a destination directory. Expanded entries maintain their original folder structure based on their relative path.
 
 ## EXAMPLES
 
@@ -109,7 +114,12 @@ Accept wildcard characters: False
 
 ### -InputObject
 
-The zip entries to expand. Note that this parameter is meant to be bound from pipeline however can be used manually if you want. __The input object must be an instance of `ZipEntryBase` or their descendant types, `ZipEntryFile` or `ZipEntryDirectory`.__
+The zip entries to expand.
+
+> [!NOTE]
+>
+> - This parameter takes input from pipeline, however binding by name is also possible.
+> - The input are instances inheriting from `ZipEntryBase` (`ZipEntryFile` or `ZipEntryDirectory`) outputed by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
 
 ```yaml
 Type: ZipEntryBase[]
@@ -131,7 +141,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ### ZipEntryBase
 
-You can pipe instances of `ZipEntryFile` to this cmdlet. These instances are produced by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
+You can pipe instances of `ZipEntryFile` or `ZipEntryDirectory` to this cmdlet. These instances are produced by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
 
 ## OUTPUTS
 

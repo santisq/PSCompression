@@ -9,34 +9,55 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Creates a Gzip compressed file from specified File Paths or input Bytes.
+Creates a Gzip compressed file from specified paths or input bytes.
 
 ## SYNTAX
 
 ### Path (Default)
 
 ```powershell
-Compress-GzipArchive [-Path] <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-Update] [-Force] [-PassThru] [<CommonParameters>]
+Compress-GzipArchive
+    [-Path] <String[]>
+    [-Destination] <String>
+    [-CompressionLevel <CompressionLevel>]
+    [-Update]
+    [-Force]
+    [-PassThru]
+    [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```powershell
-Compress-GzipArchive -LiteralPath <String[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-Update] [-Force] [-PassThru] [<CommonParameters>]
+Compress-GzipArchive
+    -LiteralPath <String[]>
+    [-Destination] <String>
+    [-CompressionLevel <CompressionLevel>]
+    [-Update]
+    [-Force]
+    [-PassThru]
+    [<CommonParameters>]
 ```
 
 ### InputBytes
 
 ```powershell
-Compress-GzipArchive -InputBytes <Byte[]> [-Destination] <String> [-CompressionLevel <CompressionLevel>]
- [-Update] [-Force] [-PassThru] [<CommonParameters>]
+Compress-GzipArchive
+    -InputBytes <Byte[]>
+    [-Destination] <String>
+    [-CompressionLevel <CompressionLevel>]
+    [-Update]
+    [-Force]
+    [-PassThru]
+    [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-The `Compress-GzipArchive` cmdlet can compress one or more specified file paths into a single Gzip archive using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion see [`Expand-GzipArchive`](Expand-ZipEntry.md).
+The `Compress-GzipArchive` cmdlet can compress one or more specified file paths into a single Gzip archive using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). 
+
+> [!TIP]
+> For expansion see [`Expand-GzipArchive`](Expand-ZipEntry.md).
 
 ## EXAMPLES
 
