@@ -119,7 +119,7 @@ The zip entries to expand.
 > [!NOTE]
 >
 > - This parameter takes input from pipeline, however binding by name is also possible.
-> - The input are instances inheriting from `ZipEntryBase` (`ZipEntryFile` or `ZipEntryDirectory`) outputed by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
+> - The input are instances inheriting from `ZipEntryBase` (`ZipEntryFile` or `ZipEntryDirectory`) outputted by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
 
 ```yaml
 Type: ZipEntryBase[]

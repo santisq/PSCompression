@@ -54,7 +54,7 @@ Compress-GzipArchive
 
 ## DESCRIPTION
 
-The `Compress-GzipArchive` cmdlet can compress one or more specified file paths into a single Gzip archive using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). 
+The `Compress-GzipArchive` cmdlet can compress one or more specified file paths into a single Gzip archive using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream).
 
 > [!TIP]
 > For expansion see [`Expand-GzipArchive`](Expand-ZipEntry.md).
@@ -144,7 +144,7 @@ The path where to store the Gzip compressed file.
 > [!NOTE]
 >
 > - The parent directory is created if it does not exist.
-> - If the path does not end with `.gz`, the cmdlet appends the `.gz` file name extension.
+> - If the path does not have an extension, the cmdlet appends the `.gz` file name extension.
 
 ```yaml
 Type: String
