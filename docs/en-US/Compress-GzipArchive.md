@@ -114,7 +114,8 @@ PS ..\pwsh> (Compress-GzipArchive .\files\lorem*.txt -Destination .\files\merged
 27.6982421875
 ```
 
-Due to the nature of Gzip without Tar, all file contents are merged into a single file.
+> [!NOTE]
+> Due to the nature of Gzip without Tar, all file contents are merged into a single file.
 
 ## PARAMETERS
 
@@ -138,9 +139,12 @@ Accept wildcard characters: False
 
 ### -Destination
 
-The path where to store the Gzip compressed file. The parent directory is created if it does not exist.
+The path where to store the Gzip compressed file.
 
-> __NOTE:__ If the path does not end with `.gz`, the cmdlet appends the `.gz` file name extension.
+> [!NOTE]
+>
+> - The parent directory is created if it does not exist.
+> - If the path does not end with `.gz`, the cmdlet appends the `.gz` file name extension.
 
 ```yaml
 Type: String
@@ -158,7 +162,8 @@ Accept wildcard characters: False
 
 Overwrites the Gzip archive if exists, otherwise it creates it.
 
-> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
+> [!NOTE]
+> If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
 
 ```yaml
 Type: SwitchParameter
@@ -176,7 +181,8 @@ Accept wildcard characters: False
 
 This cmdlet can take input bytes from pipeline to create the output `.gz` archive file.
 
-> __NOTE:__ This parameter is meant to be used exclusively in combination with `ConvertTo-GzipString -AsByteStream`.
+> [!NOTE]
+> This parameter is meant to be used exclusively in combination with [`ConvertTo-GzipString -AsByteStream`](./ConvertTo-GzipString.md#example-2-create-a-gzip-compressed-file-from-a-string).
 
 ```yaml
 Type: Byte[]
@@ -248,7 +254,8 @@ Accept wildcard characters: True
 
 Appends content to the existing Gzip file if exists, otherwise it creates it.
 
-> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
+> [!NOTE]
+> If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
 
 ```yaml
 Type: SwitchParameter
