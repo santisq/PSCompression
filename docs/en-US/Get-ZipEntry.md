@@ -16,20 +16,28 @@ Lists Zip Archive Entries from one or more specified Zip Archive paths.
 ### Path (Default)
 
 ```powershell
-Get-ZipEntry [-Path] <String[]> [-EntryType <String>] [-Include <String[]>] [-Exclude <String[]>]
- [<CommonParameters>]
+Get-ZipEntry
+   [-Path] <String[]>
+   [-EntryType <String>]
+   [-Include <String[]>]
+   [-Exclude <String[]>]
+   [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```powershell
-Get-ZipEntry -LiteralPath <String[]> [-EntryType <String>] [-Include <String[]>] [-Exclude <String[]>]
- [<CommonParameters>]
+Get-ZipEntry
+   -LiteralPath <String[]> 
+   [-EntryType <String>]
+   [-Include <String[]>]
+   [-Exclude <String[]>]
+   [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-The `Get-ZipEntry` cmdlet lists entries from specified Zip paths. It has built-in functionalities to filter entries and is the main entry point for the ZipEntry cmdlets in this module.
+The `Get-ZipEntry` cmdlet lists entries from specified Zip paths. It has built-in functionalities to filter entries and is the main entry point for the `*-ZipEntry` cmdlets in this module.
 
 ## EXAMPLES
 
@@ -58,41 +66,44 @@ The `-EntryType` parameter supports filtering by `Archive` or `Directory`.
 ### Example 4: Filtering entries with `-Include` and `-Exclude` parameters
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry .\test.zip -Include docs/en-us*
+PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-us*
 
-   Directory: docs/en-US/
+   Directory: PSCompression/docs/en-US/
 
-EntryType               LastWriteTime  CompressedSize            Size EntryName
----------               -------------  --------------            ---- ---------
-Directory          5/30/2023 12:34 AM         0.00  B         0.00  B
-Archive            5/30/2023 12:32 AM         1.92 KB         7.58 KB Compress-GzipArchive.md
-Archive            5/30/2023 12:33 AM         1.99 KB         7.26 KB Compress-ZipArchive.md
-Archive            5/30/2023 12:32 AM         1.02 KB         2.52 KB ConvertFrom-GzipString.md
-Archive            5/30/2023 12:32 AM         1.53 KB         4.36 KB ConvertTo-GzipString.md
-Archive            5/30/2023 12:32 AM         1.47 KB         4.77 KB Expand-GzipArchive.md
-Archive            5/30/2023 12:13 PM         1.20 KB         3.89 KB Expand-ZipEntry.md
-Archive            5/31/2023 10:54 AM         1.02 KB         3.29 KB Get-ZipEntry.md
-Archive            5/29/2023  3:49 PM       800.00  B         2.69 KB Get-ZipEntryContent.md
-Archive            5/29/2023  3:49 PM       736.00  B         1.83 KB New-ZipEntry.md
-Archive            5/29/2023  3:11 PM       411.00  B         1.30 KB PSCompression.md
-Archive            5/29/2023  3:49 PM       643.00  B         1.19 KB Remove-ZipEntry.md
-Archive            5/29/2023  3:49 PM       842.00  B         2.88 KB Set-ZipEntryContent.md
+Type                    LastWriteTime  CompressedSize            Size Name
+----                    -------------  --------------            ---- ----
+Directory          2/22/2024  1:19 PM         0.00  B         0.00  B en-US
+Archive            2/22/2024  1:19 PM         2.08 KB         6.98 KB Compress-GzipArchive.md
+Archive            2/22/2024  1:19 PM         2.74 KB         8.60 KB Compress-ZipArchive.md
+Archive            2/22/2024  1:19 PM         1.08 KB         2.67 KB ConvertFrom-GzipString.md
+Archive            2/22/2024  1:19 PM         1.67 KB         4.63 KB ConvertTo-GzipString.md
+Archive            2/22/2024  1:19 PM         1.74 KB         6.28 KB Expand-GzipArchive.md
+Archive            2/22/2024  1:19 PM         1.23 KB         4.07 KB Expand-ZipEntry.md
+Archive            2/22/2024  1:19 PM         1.53 KB         6.38 KB Get-ZipEntry.md
+Archive            2/22/2024  1:19 PM         1.67 KB         5.06 KB Get-ZipEntryContent.md
+Archive            2/22/2024  1:19 PM         2.20 KB         7.35 KB New-ZipEntry.md
+Archive            2/22/2024  1:19 PM       961.00  B         2.62 KB PSCompression.md
+Archive            2/22/2024  1:19 PM         1.14 KB         2.95 KB Remove-ZipEntry.md
+Archive            2/22/2024  1:19 PM       741.00  B         2.16 KB Rename-ZipEntry.md
+Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEntryContent.md
 
-PS ..\pwsh> Get-ZipEntry .\test.zip -Include docs/en-us* -Exclude *Compress*, *Remove*
+PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-us* -Exclude *en-US/Compress*, *en-US/Remove*
 
-   Directory: docs/en-US/
+   Directory: PSCompression/docs/en-US/
 
-EntryType               LastWriteTime  CompressedSize            Size EntryName
----------               -------------  --------------            ---- ---------
-Directory          5/30/2023 12:34 AM         0.00  B         0.00  B
-Archive            5/30/2023 12:32 AM         1.02 KB         2.52 KB ConvertFrom-GzipString.md
-Archive            5/30/2023 12:32 AM         1.53 KB         4.36 KB ConvertTo-GzipString.md
-Archive            5/30/2023 12:32 AM         1.47 KB         4.77 KB Expand-GzipArchive.md
-Archive            5/30/2023 12:13 PM         1.20 KB         3.89 KB Expand-ZipEntry.md
-Archive            5/31/2023 10:54 AM         1.02 KB         3.29 KB Get-ZipEntry.md
-Archive            5/29/2023  3:49 PM       800.00  B         2.69 KB Get-ZipEntryContent.md
-Archive            5/29/2023  3:49 PM       736.00  B         1.83 KB New-ZipEntry.md
-Archive            5/29/2023  3:49 PM       842.00  B         2.88 KB Set-ZipEntryContent.md
+Type                    LastWriteTime  CompressedSize            Size Name
+----                    -------------  --------------            ---- ----
+Directory          2/22/2024  1:19 PM         0.00  B         0.00  B en-US
+Archive            2/22/2024  1:19 PM         1.08 KB         2.67 KB ConvertFrom-GzipString.md
+Archive            2/22/2024  1:19 PM         1.67 KB         4.63 KB ConvertTo-GzipString.md
+Archive            2/22/2024  1:19 PM         1.74 KB         6.28 KB Expand-GzipArchive.md
+Archive            2/22/2024  1:19 PM         1.23 KB         4.07 KB Expand-ZipEntry.md
+Archive            2/22/2024  1:19 PM         1.53 KB         6.38 KB Get-ZipEntry.md
+Archive            2/22/2024  1:19 PM         1.67 KB         5.06 KB Get-ZipEntryContent.md
+Archive            2/22/2024  1:19 PM         2.20 KB         7.35 KB New-ZipEntry.md
+Archive            2/22/2024  1:19 PM       961.00  B         2.62 KB PSCompression.md
+Archive            2/22/2024  1:19 PM       741.00  B         2.16 KB Rename-ZipEntry.md
+Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEntryContent.md
 ```
 
 Inclusion and Exclusion patterns are applied to the entries relative path.
@@ -121,8 +132,9 @@ Accept wildcard characters: False
 
 Specifies an array of one or more string patterns to be matched as the cmdlet lists entries. Any matching item is excluded from the output. Wildcard characters are accepted.
 
-__Inclusion and Exclusion patterns are applied to the entries relative path.
-Exclusions are applied after the inclusions.__
+> [!NOTE]
+> Inclusion and Exclusion patterns are applied to the entries relative path.
+Exclusions are applied after the inclusions.
 
 ```yaml
 Type: String[]
@@ -140,8 +152,9 @@ Accept wildcard characters: True
 
 Specifies an array of one or more string patterns to be matched as the cmdlet lists entries. Any matching item is included in the output. Wildcard characters are accepted.
 
-__Inclusion and Exclusion patterns are applied to the entries relative path.
-Exclusions are applied after the inclusions.__
+> [!NOTE]
+> Inclusion and Exclusion patterns are applied to the entries relative path.
+Exclusions are applied after the inclusions.
 
 ```yaml
 Type: String[]

@@ -16,20 +16,31 @@ Gets the content of a Zip Archive Entry.
 ### Stream (Default)
 
 ```powershell
-Get-ZipEntryContent -ZipEntry <ZipEntryFile[]> [-Encoding <Encoding>] [-Raw] [<CommonParameters>]
+Get-ZipEntryContent
+    -ZipEntry <ZipEntryFile[]>
+    [-Encoding <Encoding>]
+    [-Raw]
+    [<CommonParameters>]
 ```
 
 ### Bytes
 
 ```powershell
-Get-ZipEntryContent -ZipEntry <ZipEntryFile[]> [-Raw] [-AsByteStream] [-BufferSize <Int32>] [<CommonParameters>]
+Get-ZipEntryContent
+    -ZipEntry <ZipEntryFile[]>
+    [-Raw]
+    [-AsByteStream]
+    [-BufferSize <Int32>]
+    [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
 The `Get-ZipEntryContent` cmdlet gets the content of one or more `ZipEntryFile` instances.
-This cmdlet is meant to be used with `Get-ZipEntry` as your entry point.
-The outputted entries from `Get-ZipEntry` cmdlet can be passed through the pipeline to this cmdlet.
+This cmdlet is meant to be used with [`Get-ZipEntry`](./Get-ZipEntry.md) as your entry point.
+
+> [!TIP]
+> Entries outputted by `Get-ZipEntry` can be piped to this cmdlet.
 
 ## EXAMPLES
 

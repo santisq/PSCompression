@@ -24,7 +24,7 @@ Expand-ZipEntry
 
 ## DESCRIPTION
 
-The `Expand-ZipEntry` cmdlet can expand Zip Archive Entries outputted by the `Get-ZipEntry` command to a destination directory. Expanded entries maintain their original folder structure based on their relative path.
+The `Expand-ZipEntry` cmdlet can expand Zip Archive Entries outputted by the [`Get-ZipEntry`](./Get-ZipEntry.md) command to a destination directory. Expanded entries maintain their original folder structure based on their relative path.
 
 ## EXAMPLES
 
@@ -66,7 +66,7 @@ By default this cmdlet produces no output. When `-PassThru` is used, this cmdlet
 
 ### -Destination
 
-The destination directory where to extract the Zip Entries. This parameter is optional, when not used, the entries are extracted to the their relative zip path to the current directory.
+The destination directory where to extract the Zip Entries. This parameter is optional, when not used, the entries are extracted to the their relative zip path in the current directory.
 
 ```yaml
 Type: String
@@ -98,7 +98,7 @@ Accept wildcard characters: False
 
 ### -PassThru
 
-The cmdlet outputs the `FileInfo` and `DirectoryInfo` instances of the extracted entries when this switch is used.
+The cmdlet outputs the `FileInfo` and `DirectoryInfo` instances representing the extracted entries when this switch is used.
 
 ```yaml
 Type: SwitchParameter

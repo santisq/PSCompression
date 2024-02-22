@@ -59,7 +59,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
     }
 
     [Parameter]
-    public ZipEntryType? EntryType { get; set; }
+    public ZipEntryType? Type { get; set; }
 
     [Parameter]
     [SupportsWildcards]
@@ -169,6 +169,5 @@ public sealed class GetZipEntryCommand : PSCmdlet
         _withExclude && _excludePatterns.Any(e => e.IsMatch(path));
 
     private bool SkipEntryType(bool isdir) =>
-        (isdir && EntryType == ZipEntryType.Archive)
-        || (!isdir && EntryType == ZipEntryType.Directory);
+        (isdir && Type is ZipEntryType.Archive) || (!isdir && Type is ZipEntryType.Directory);
 }
