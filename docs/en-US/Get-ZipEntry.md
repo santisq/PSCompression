@@ -18,7 +18,7 @@ Lists Zip Archive Entries from one or more specified Zip Archive paths.
 ```powershell
 Get-ZipEntry
    [-Path] <String[]>
-   [-EntryType <String>]
+   [-Type <String>]
    [-Include <String[]>]
    [-Exclude <String[]>]
    [<CommonParameters>]
@@ -29,7 +29,7 @@ Get-ZipEntry
 ```powershell
 Get-ZipEntry
    -LiteralPath <String[]> 
-   [-EntryType <String>]
+   [-Type <String>]
    [-Include <String[]>]
    [-Exclude <String[]>]
    [<CommonParameters>]
@@ -58,10 +58,10 @@ The `-Path` parameter supports wildcards.
 ### Example 3: List all `Archive` entries from a Zip file
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -EntryType Archive
+PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Type Archive
 ```
 
-The `-EntryType` parameter supports filtering by `Archive` or `Directory`.
+The `-Type` parameter supports filtering by `Archive` or `Directory`.
 
 ### Example 4: Filtering entries with `-Include` and `-Exclude` parameters
 
@@ -111,7 +111,7 @@ Exclusions are applied after the inclusions.
 
 ## PARAMETERS
 
-### -EntryType
+### -Type
 
 Lists entries of a specified type, `Archive` or `Directory`.
 

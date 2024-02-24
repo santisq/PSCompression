@@ -16,15 +16,26 @@ Writes or appends content to an existing Zip Archive Entry.
 ### StringValue (Default)
 
 ```powershell
-Set-ZipEntryContent -Value <Object[]> [-SourceEntry] <ZipEntryFile> [-Encoding <Encoding>] [-Append]
- [-PassThru] [<CommonParameters>]
+Set-ZipEntryContent
+    -Value <Object[]>
+    [-SourceEntry] <ZipEntryFile>
+    [-Encoding <Encoding>]
+    [-Append]
+    [-PassThru]
+    [<CommonParameters>]
 ```
 
 ### ByteStream
 
 ```powershell
-Set-ZipEntryContent -Value <Object[]> [-SourceEntry] <ZipEntryFile> [-AsByteStream] [-Append]
- [-BufferSize <Int32>] [-PassThru] [<CommonParameters>]
+Set-ZipEntryContent
+    -Value <Object[]>
+    [-SourceEntry] <ZipEntryFile>
+    [-AsByteStream]
+    [-Append]
+    [-BufferSize <Int32>]
+    [-PassThru]
+    [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -119,7 +130,11 @@ Accept wildcard characters: False
 
 ### -BufferSize
 
-For efficiency purposes this cmdlet buffers bytes before writing them to the Zip Archive Entry. This parameter determines how many bytes are buffered before being written to the stream. __This parameter is applicable only when `-AsByteStream` is used.__ The buffer default value is __128 KiB.__
+For efficiency purposes this cmdlet buffers bytes before writing them to the Zip Archive Entry. This parameter determines how many bytes are buffered before being written to the stream.
+> [!NOTE]
+>
+> - __This parameter is applicable only when `-AsByteStream` is used.__
+> The buffer default value is __128 KiB.__
 
 ```yaml
 Type: Int32
@@ -135,7 +150,12 @@ Accept wildcard characters: False
 
 ### -Encoding
 
-The character encoding used to read the entry content. __This parameter is applicable only when `-AsByteStream` is not used.__ The default encoding is __`utf8NoBOM`__.
+The character encoding used to read the entry content.
+
+> [!NOTE]
+>
+> - __This parameter is applicable only when `-AsByteStream` is not used.__
+> - The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding

@@ -16,27 +16,45 @@ Expands a Gzip compressed file from a specified File Path or Paths.
 ### Path
 
 ```powershell
-Expand-GzipArchive [-Path] <String[]> [-Raw] [<CommonParameters>]
+Expand-GzipArchive
+    [-Path] <String[]>
+    [-Raw]
+    [<CommonParameters>]
 ```
 
 ### PathDestination
 
 ```powershell
-Expand-GzipArchive [-Path] <String[]> -Destination <String> [-Encoding <Encoding>] [-PassThru] [-Force]
- [-Update] [<CommonParameters>]
+Expand-GzipArchive
+    [-Path] <String[]>
+    -Destination <String>
+    [-Encoding <Encoding>]
+    [-PassThru]
+    [-Force]
+    [-Update]
+    [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```powershell
-Expand-GzipArchive -LiteralPath <String[]> [-Raw] [<CommonParameters>]
+Expand-GzipArchive
+    -LiteralPath <String[]>
+    [-Raw]
+    [<CommonParameters>]
 ```
 
 ### LiteralPathDestination
 
 ```powershell
-Expand-GzipArchive -LiteralPath <String[]> -Destination <String> [-Encoding <Encoding>] [-PassThru] [-Force]
- [-Update] [<CommonParameters>]
+Expand-GzipArchive
+    -LiteralPath <String[]>
+    -Destination <String>
+    [-Encoding <Encoding>]
+    [-PassThru]
+    [-Force]
+    [-Update]
+    [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -126,7 +144,8 @@ Accept wildcard characters: False
 The destination path where to expand the Gzip file.
 The target folder is created if it does not exist.
 
-> __NOTE:__ This parameter is Optional, if not used, this cmdlet outputs to the Success Stream.
+> [!NOTE]
+> This parameter is Optional, if not used, this cmdlet outputs to the Success Stream.
 
 ```yaml
 Type: String
@@ -142,7 +161,10 @@ Accept wildcard characters: False
 
 ### -Encoding
 
-Character encoding used when expanding the Gzip content. This parameter is only available when expanding to the Success Stream. The default encoding is __`utf8NoBOM`__.
+Character encoding used when expanding the Gzip content. This parameter is only available when expanding to the Success Stream.
+
+> [!NOTE]
+> The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding
@@ -161,7 +183,8 @@ Accept wildcard characters: False
 Outputs the expanded file as a single string with newlines preserved.
 By default, newline characters in the expanded string are used as delimiters to separate the input into an array of strings.
 
-> __NOTE:__ This parameter is only available when expanding to the Success Stream.
+> [!NOTE]
+> This parameter is only available when expanding to the Success Stream.
 
 ```yaml
 Type: SwitchParameter
@@ -195,7 +218,8 @@ Accept wildcard characters: False
 
 The destination file gets overwritten if exists, otherwise created when this switch is used.
 
-> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
+> [!NOTE]
+> If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
 
 ```yaml
 Type: SwitchParameter
@@ -213,7 +237,8 @@ Accept wildcard characters: False
 
 Contents of the expanded file or files are appended to the destination path if exists, otherwise the destination is created.
 
-> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
+> [!NOTE]
+> If `-Force` and `-Update` are used together this cmdlet will append content to the destination file.
 
 ```yaml
 Type: SwitchParameter

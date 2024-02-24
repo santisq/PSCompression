@@ -123,7 +123,12 @@ Accept wildcard characters: False
 
 ### -Encoding
 
-The character encoding used to read the entry content. __This parameter is applicable only when `-AsByteStream` is not used.__ The default encoding is __`utf8NoBOM`__.
+The character encoding used to read the entry content.
+
+> [!NOTE]
+>
+> - __This parameter is applicable only when `-AsByteStream` is not used.__
+> - The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding
