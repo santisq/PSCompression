@@ -36,6 +36,10 @@ The `New-ZipEntry` cmdlet can create one or more Zip Archive Entries from specif
 
 The `Remove-ZipEntry` cmdlet can remove Zip Archive Entries from one or more Zip Archives.
 
+#### [Rename-ZipEntry](Rename-ZipEntry.md)
+
+The `Rename-ZipEntry` cmdlet can rename Zip Archive Entries from one or more Zip Archives.
+
 #### [Set-ZipEntryContent](Set-ZipEntryContent.md)
 
 The `Set-ZipEntryContent` cmdlet can write or append content to a Zip Archive Entry.
