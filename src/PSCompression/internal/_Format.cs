@@ -48,8 +48,8 @@ public static class _Format
     }
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
-    public static string GetFormattedDate(ZipEntryBase entry) =>
-        string.Format(_culture, "{0,10:d} {0,8:t}", entry.LastWriteTime);
+    public static string GetFormattedDate(DateTime dateTime) =>
+        string.Format(_culture, "{0,10:d} {0,8:t}", dateTime);
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetFormattedLength(long length)

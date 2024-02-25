@@ -44,7 +44,7 @@
                 <PropertyName>Type</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedDate($_)</ScriptBlock>
+                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedDate($_.LastWriteTime)</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
