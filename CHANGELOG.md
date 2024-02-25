@@ -1,4 +1,4 @@
-- 12/12/2023
+- 02/25/2024
     - `ZipEntryBase` Type:
         - Renamed Property `EntryName` to `Name`.
         - Renamed Property `EntryRelativePath` to `RelativePath`.
