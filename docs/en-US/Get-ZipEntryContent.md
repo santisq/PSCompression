@@ -16,20 +16,31 @@ Gets the content of a Zip Archive Entry.
 ### Stream (Default)
 
 ```powershell
-Get-ZipEntryContent -ZipEntry <ZipEntryFile[]> [-Encoding <Encoding>] [-Raw] [<CommonParameters>]
+Get-ZipEntryContent
+    -ZipEntry <ZipEntryFile[]>
+    [-Encoding <Encoding>]
+    [-Raw]
+    [<CommonParameters>]
 ```
 
 ### Bytes
 
 ```powershell
-Get-ZipEntryContent -ZipEntry <ZipEntryFile[]> [-Raw] [-AsByteStream] [-BufferSize <Int32>] [<CommonParameters>]
+Get-ZipEntryContent
+    -ZipEntry <ZipEntryFile[]>
+    [-Raw]
+    [-AsByteStream]
+    [-BufferSize <Int32>]
+    [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
 The `Get-ZipEntryContent` cmdlet gets the content of one or more `ZipEntryFile` instances.
-This cmdlet is meant to be used with `Get-ZipEntry` as your entry point.
-The outputted entries from `Get-ZipEntry` cmdlet can be passed through the pipeline to this cmdlet.
+This cmdlet is meant to be used with [`Get-ZipEntry`](./Get-ZipEntry.md) as your entry point.
+
+> [!TIP]
+> Entries outputted by `Get-ZipEntry` can be piped to this cmdlet.
 
 ## EXAMPLES
 
@@ -112,7 +123,12 @@ Accept wildcard characters: False
 
 ### -Encoding
 
-The character encoding used to read the entry content. __This parameter is applicable only when `-AsByteStream` is not used.__ The default encoding is __`utf8NoBOM`__.
+The character encoding used to read the entry content.
+
+> [!NOTE]
+>
+> - __This parameter is applicable only when `-AsByteStream` is not used.__
+> - The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding

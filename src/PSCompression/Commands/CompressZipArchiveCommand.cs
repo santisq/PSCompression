@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
+using PSCompression.Extensions;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
 namespace PSCompression;
 
@@ -80,7 +82,6 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         try
         {
             Destination = Destination.NormalizePath(isLiteral: true, this);
-
             string parent = Destination.GetParent();
 
             if (!Directory.Exists(parent))
@@ -97,19 +98,15 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.StreamOpenError(Destination, e));
+            ThrowTerminatingError(StreamOpenError(Destination, e));
         }
     }
 
     protected override void ProcessRecord()
     {
-        if (_zip is null)
-        {
-            return;
-        }
+        Dbg.Assert(_zip is not null);
 
         _queue.Clear();
-
         foreach (string path in _paths.NormalizePath(_isLiteral, this))
         {
             if (!path.IsArchive())
@@ -119,7 +116,7 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
             }
 
             FileInfo file = new(path);
-            if (Update.IsPresent && TryGetEntry(_zip, file.Name, out ZipArchiveEntry? entry))
+            if (Update.IsPresent && _zip.TryGetEntry(file.Name, out ZipArchiveEntry? entry))
             {
                 UpdateEntry(file, entry);
                 continue;
@@ -141,7 +138,7 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
 
             string relative = current.RelativeTo(length);
 
-            if (!Update.IsPresent || !TryGetEntry(zip, relative, out _))
+            if (!Update.IsPresent || !zip.TryGetEntry(relative, out _))
             {
                 zip.CreateEntry(current.RelativeTo(length));
             }
@@ -156,7 +153,7 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
             }
             catch (Exception e)
             {
-                WriteError(ExceptionHelpers.EnumerationError(current, e));
+                WriteError(EnumerationError(current, e));
                 continue;
             }
 
@@ -177,7 +174,7 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
 
                 relative = file.RelativeTo(length);
 
-                if (Update.IsPresent && TryGetEntry(zip, relative, out ZipArchiveEntry? entry))
+                if (Update.IsPresent && zip.TryGetEntry(relative, out ZipArchiveEntry? entry))
                 {
                     UpdateEntry(file, entry);
                     continue;
@@ -187,9 +184,6 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
             }
         }
     }
-
-    private bool TryGetEntry(ZipArchive zip, string path, out ZipArchiveEntry entry) =>
-        (entry = zip.GetEntry(path)) is not null;
 
     private void CreateEntry(
         FileInfo file,
@@ -211,7 +205,7 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            WriteError(ExceptionHelpers.StreamOpenError(file.FullName, e));
+            WriteError(StreamOpenError(file.FullName, e));
         }
     }
 
@@ -238,7 +232,7 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            WriteError(ExceptionHelpers.StreamOpenError(file.FullName, e));
+            WriteError(StreamOpenError(file.FullName, e));
         }
     }
 

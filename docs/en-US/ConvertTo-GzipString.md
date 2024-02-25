@@ -14,8 +14,13 @@ Creates a Gzip Base64 compressed string from a specified input string or strings
 ## SYNTAX
 
 ```powershell
-ConvertTo-GzipString [-InputObject] <String[]> [-Encoding <Encoding>] [-CompressionLevel <CompressionLevel>]
- [-AsByteStream] [-NoNewLine] [<CommonParameters>]
+ConvertTo-GzipString
+    [-InputObject] <String[]>
+    [-Encoding <Encoding>]
+    [-CompressionLevel <CompressionLevel>]
+    [-AsByteStream]
+    [-NoNewLine]
+    [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -83,7 +88,8 @@ PS ..\pwsh> (Get-Content .\files\lorem*.txt | ConvertTo-GzipString).Length / 1kb
 
 Outputs the compressed byte array to the Success Stream.
 
-> __NOTE:__ This parameter is meant to be used in combination with `Compress-GzipArchive`.
+> [!NOTE]
+> This parameter is meant to be used in combination with [`Compress-GzipArchive`](./Compress-GzipArchive.md).
 
 ```yaml
 Type: SwitchParameter
@@ -117,7 +123,10 @@ Accept wildcard characters: False
 
 ### -Encoding
 
-Determines the character encoding used when compressing the input strings. The default encoding is __`utf8NoBOM`__.
+Determines the character encoding used when compressing the input strings.
+
+> [!NOTE]
+> The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding

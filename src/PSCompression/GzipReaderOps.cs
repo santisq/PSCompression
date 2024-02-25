@@ -8,7 +8,7 @@ namespace PSCompression;
 
 internal static class GzipReaderOps
 {
-    private static readonly byte[] gzipPreamble = new byte[3]
+    private static readonly byte[] gzipPreamble = new byte[]
     {
         0x1f,
         0x8b,

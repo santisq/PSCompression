@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Management.Automation;
+using PSCompression.Extensions;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
 namespace PSCompression;
 
@@ -33,7 +35,7 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
 
             if (File.Exists(Destination))
             {
-                ThrowTerminatingError(ExceptionHelpers.NotDirectoryPathError(
+                ThrowTerminatingError(NotDirectoryPathError(
                     Destination,
                     nameof(Destination)));
             }
@@ -44,17 +46,13 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.ResolvePathError(
-                Destination, e));
+            ThrowTerminatingError(ResolvePathError(Destination, e));
         }
     }
 
     protected override void ProcessRecord()
     {
-        if (Destination is null)
-        {
-            return;
-        }
+        Dbg.Assert(Destination is not null);
 
         foreach (ZipEntryBase entry in InputObject)
         {
@@ -82,7 +80,7 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
             }
             catch (Exception e)
             {
-                WriteError(ExceptionHelpers.ExtractEntryError(entry, e));
+                WriteError(ExtractEntryError(entry, e));
             }
         }
     }

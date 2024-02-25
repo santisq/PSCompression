@@ -1,6 +1,7 @@
 using System;
 using System.Management.Automation;
 using System.Text;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
 namespace PSCompression;
 
@@ -40,11 +41,17 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         {
             if (AsByteStream.IsPresent)
             {
-                _zipWriter = new ZipContentWriter(SourceEntry, Append.IsPresent, BufferSize);
+                _zipWriter = new ZipContentWriter(
+                    entry: SourceEntry,
+                    append: Append.IsPresent,
+                    bufferSize: BufferSize);
                 return;
             }
 
-            _zipWriter = new ZipContentWriter(SourceEntry, Append.IsPresent, Encoding);
+            _zipWriter = new ZipContentWriter(
+                entry: SourceEntry,
+                append: Append.IsPresent,
+                encoding: Encoding);
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
@@ -52,7 +59,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.StreamOpenError(SourceEntry, e));
+            ThrowTerminatingError(StreamOpenError(SourceEntry, e));
         }
     }
 
@@ -60,10 +67,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (_zipWriter is null)
-            {
-                return;
-            }
+            Dbg.Assert(_zipWriter is not null);
 
             if (AsByteStream.IsPresent)
             {
@@ -71,7 +75,8 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
                 return;
             }
 
-            _zipWriter.WriteLines(LanguagePrimitives.ConvertTo<string[]>(Value));
+            _zipWriter.WriteLines(
+                LanguagePrimitives.ConvertTo<string[]>(Value));
         }
         catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
         {
@@ -79,13 +84,15 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.WriteError(SourceEntry, e));
+            ThrowTerminatingError(ZipWriteError(SourceEntry, e));
         }
     }
 
     protected override void EndProcessing()
     {
-        if (!PassThru.IsPresent || _zipWriter is null)
+        Dbg.Assert(_zipWriter is not null);
+
+        if (!PassThru.IsPresent)
         {
             return;
         }
@@ -98,7 +105,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
         catch (Exception e)
         {
-            ThrowTerminatingError(ExceptionHelpers.StreamOpenError(SourceEntry, e));
+            ThrowTerminatingError(StreamOpenError(SourceEntry, e));
         }
     }
 

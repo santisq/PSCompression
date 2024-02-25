@@ -1,17 +1,29 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using PSCompression.Extensions;
 
 namespace PSCompression;
 
 internal static class SortingOps
 {
-    internal static string SortByParent(ZipEntryBase entry) =>
-        Path.GetDirectoryName(entry.EntryRelativePath)
+    private static string SortByParent(ZipEntryBase entry) =>
+        Path.GetDirectoryName(entry.RelativePath)
             .NormalizeEntryPath();
 
-    internal static int SortByLength(ZipEntryBase entry) =>
-        entry.EntryRelativePath.Count(e => e == '/');
+    private static int SortByLength(ZipEntryBase entry) =>
+        entry.RelativePath.Count(e => e == '/');
 
-    internal static string SortByName(ZipEntryBase entry) =>
-        entry.EntryName;
+    private static string SortByName(ZipEntryBase entry) =>
+        entry.Name;
+
+    private static ZipEntryType SortByType(ZipEntryBase entry) =>
+        entry.Type;
+
+    internal static IEnumerable<ZipEntryBase> ZipEntrySort(
+        this IEnumerable<ZipEntryBase> zip) => zip
+            .OrderBy(SortByParent)
+            .ThenBy(SortByType)
+            .ThenBy(SortByLength)
+            .ThenBy(SortByName);
 }

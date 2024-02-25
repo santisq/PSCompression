@@ -8,8 +8,11 @@ namespace PSCompression;
 
 internal sealed class ZipContentReader : ZipContentOpsBase
 {
-    internal ZipContentReader(ZipArchive zip) : base(zip)
-    { }
+    internal ZipContentReader(ZipArchive zip)
+        : base(zip)
+    {
+
+    }
 
     private Stream GetStream(string entry) =>
         ZipArchive.GetEntry(entry).Open();

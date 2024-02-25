@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using PSCompression.Extensions;
+using PSCompression.Exceptions;
 
 namespace PSCompression;
 
@@ -14,64 +16,72 @@ public abstract class ZipEntryBase
 {
     public string Source { get; }
 
-    public string EntryName { get; }
+    public string Name { get; protected set; }
 
-    public string EntryRelativePath { get; }
+    public string RelativePath { get; }
 
     public DateTime LastWriteTime { get; }
 
-    public long? Length { get; internal set; }
+    public long Length { get; internal set; }
 
-    public long? CompressedLength { get; internal set; }
+    public long CompressedLength { get; internal set; }
+
+    public abstract ZipEntryType Type { get; }
 
     protected ZipEntryBase(ZipArchiveEntry entry, string source)
     {
         Source = source;
-        EntryName = entry.Name;
-        EntryRelativePath = entry.FullName;
+        Name = entry.Name;
+        RelativePath = entry.FullName;
         LastWriteTime = entry.LastWriteTime.LocalDateTime;
         Length = entry.Length;
         CompressedLength = entry.CompressedLength;
     }
 
-    public void RemoveEntry()
+    public void Remove()
     {
         using ZipArchive zip = ZipFile.Open(Source, ZipArchiveMode.Update);
-        zip.GetEntry(EntryRelativePath)?.Delete();
+        zip.GetEntry(RelativePath)?.Delete();
     }
 
-    internal void RemoveEntry(ZipArchive zip) =>
-        zip.GetEntry(EntryRelativePath)?.Delete();
+    internal void Remove(ZipArchive zip) =>
+        zip.GetEntry(RelativePath)?.Delete();
 
-    internal ZipArchive OpenZip(ZipArchiveMode mode) =>
-        ZipFile.Open(Source, mode);
-
-    internal (string, bool) ExtractTo(ZipArchive zip, string destination, bool overwrite)
+    internal static string Move(
+        string sourceRelativePath,
+        string destination,
+        string sourceZipPath,
+        ZipArchive zip)
     {
-        destination = Path.GetFullPath(Path.Combine(destination, EntryRelativePath));
+        zip.ThrowIfNotFound(
+            path: sourceRelativePath,
+            source: sourceZipPath,
+            entry: out ZipArchiveEntry sourceEntry);
 
-        if (string.IsNullOrEmpty(EntryName))
+        zip.ThrowIfDuplicate(
+            path: destination,
+            source: sourceZipPath);
+
+        destination.ThrowIfInvalidPathChar();
+
+        ZipArchiveEntry destinationEntry = zip.CreateEntry(destination);
+        using (Stream sourceStream = sourceEntry.Open())
+        using (Stream destinationStream = destinationEntry.Open())
         {
-            Directory.CreateDirectory(destination);
-            return (destination, false);
+            sourceStream.CopyTo(destinationStream);
         }
+        sourceEntry.Delete();
 
-        string parent = Path.GetDirectoryName(destination);
-
-        if (!Directory.Exists(parent))
-        {
-            Directory.CreateDirectory(parent);
-        }
-
-        ZipArchiveEntry entry = zip.GetEntry(EntryRelativePath);
-        entry.ExtractToFile(destination, overwrite);
-        return (destination, true);
+        return destination;
     }
+
+    internal ZipArchive Open(ZipArchiveMode mode) =>
+        ZipFile.Open(Source, mode);
 
     public FileSystemInfo ExtractTo(string destination, bool overwrite)
     {
         using ZipArchive zip = ZipFile.OpenRead(Source);
-        (string path, bool isArchive) = ExtractTo(zip, destination, overwrite);
+        (string path, bool isArchive) = this.ExtractTo(zip, destination, overwrite);
 
         if (isArchive)
         {
@@ -81,5 +91,5 @@ public abstract class ZipEntryBase
         return new DirectoryInfo(path);
     }
 
-    public override string ToString() => EntryRelativePath;
+    public override string ToString() => RelativePath;
 }

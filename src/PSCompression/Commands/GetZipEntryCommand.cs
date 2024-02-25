@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
+using PSCompression.Extensions;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
 namespace PSCompression;
 
@@ -57,7 +59,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
     }
 
     [Parameter]
-    public ZipEntryType? EntryType { get; set; }
+    public ZipEntryType? Type { get; set; }
 
     [Parameter]
     [SupportsWildcards]
@@ -102,7 +104,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
         {
             if (!path.IsArchive())
             {
-                WriteError(ExceptionHelpers.NotArchivePathError(
+                WriteError(NotArchivePathError(
                     path,
                     _isLiteral ? nameof(LiteralPath) : nameof(Path)));
 
@@ -119,12 +121,12 @@ public sealed class GetZipEntryCommand : PSCmdlet
             }
             catch (Exception e)
             {
-                WriteError(ExceptionHelpers.ZipOpenError(path, e));
+                WriteError(ZipOpenError(path, e));
             }
         }
     }
 
-    private ZipEntryBase[] GetEntries(string path)
+    private IEnumerable<ZipEntryBase> GetEntries(string path)
     {
         using ZipArchive zip = ZipFile.OpenRead(path);
         _output.Clear();
@@ -157,11 +159,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
             _output.Add(new ZipEntryFile(entry, path));
         }
 
-        return _output
-            .OrderBy(SortingOps.SortByParent)
-            .ThenBy(SortingOps.SortByLength)
-            .ThenBy(SortingOps.SortByName)
-            .ToArray();
+        return _output.ZipEntrySort();
     }
 
     private bool SkipInclude(string path) =>
@@ -171,6 +169,5 @@ public sealed class GetZipEntryCommand : PSCmdlet
         _withExclude && _excludePatterns.Any(e => e.IsMatch(path));
 
     private bool SkipEntryType(bool isdir) =>
-        (isdir && EntryType == ZipEntryType.Archive)
-        || (!isdir && EntryType == ZipEntryType.Directory);
+        (isdir && Type is ZipEntryType.Archive) || (!isdir && Type is ZipEntryType.Directory);
 }

@@ -14,7 +14,11 @@ Expands Base64 Gzip compressed input strings.
 ## SYNTAX
 
 ```powershell
-ConvertFrom-GzipString [-InputObject] <String[]> [[-Encoding] <Encoding>] [-Raw] [<CommonParameters>]
+ConvertFrom-GzipString
+    [-InputObject] <String[]>
+    [[-Encoding] <Encoding>]
+    [-Raw]
+    [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -55,7 +59,10 @@ helloworld!
 
 ### -Encoding
 
-Determines the character encoding used when expanding the input strings. The default encoding is __`utf8NoBOM`__.
+Determines the character encoding used when expanding the input strings.
+
+> [!NOTE]
+> The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding

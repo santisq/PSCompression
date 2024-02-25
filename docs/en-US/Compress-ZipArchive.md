@@ -16,15 +16,27 @@ The `Compress-ZipArchive` cmdlet creates a compressed, or zipped, archive file f
 ### Path
 
 ```powershell
-Compress-ZipArchive [-Path] <String[]> -Destination <String> [-CompressionLevel <CompressionLevel>] [-Update]
- [-Force] [-PassThru] [<CommonParameters>]
+Compress-ZipArchive
+    [-Path] <String[]>
+    -Destination <String>
+    [-CompressionLevel <CompressionLevel>]
+    [-Update]
+    [-Force]
+    [-PassThru]
+    [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```powershell
-Compress-ZipArchive -LiteralPath <String[]> -Destination <String> [-CompressionLevel <CompressionLevel>]
- [-Update] [-Force] [-PassThru] [<CommonParameters>]
+Compress-ZipArchive
+    -LiteralPath <String[]>
+    -Destination <String>
+    [-CompressionLevel <CompressionLevel>]
+    [-Update]
+    [-Force]
+    [-PassThru]
+    [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,13 +45,15 @@ PowerShell cmdlet that overcomes the limitation that the built-in cmdlet `Compre
 
 > The `Compress-Archive` cmdlet uses the Microsoft .NET API [`System.IO.Compression.ZipArchive`](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive?view=net-6.0) to compress files. The maximum file size is 2 GB because there's a limitation of the underlying API.
 
-The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.zipfile.createfromdirectory?view=net-6.0#system-io-compression-zipfile-createfromdirectory(system-string-system-string)). However, there are 3 limitations while using this static method:
+The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.zipfile.createfromdirectory?view=net-6.0#system-io-compression-zipfile-createfromdirectory(system-string-system-string)).
+
+However, there are 3 limitations while using this method:
 
    1. The source __must be a directory__, a single file cannot be compressed.
    2. All files (recursively) on the source folder __will be compressed__, we can't pick / filter files to compress.
    3. It's not possible to __Update__ the entries of an existing Zip Archive.
 
-This function should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure untouched__.
+This cmdlet should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure untouched__.
 
 ## EXAMPLES
 
@@ -100,11 +114,12 @@ Specifies the path or paths to the files that you want to add to the archive zip
 
 This parameter accepts wildcard characters. Wildcard characters allow you to add all files in a directory to your archive file.
 
-Using wildcards with a root directory affects the archive's contents:
-
-  - To create an archive that includes the root directory, and all its files and subdirectories, specify the root directory in the Path without wildcards. For example: `-Path C:\Reference`
-  - To create an archive that excludes the root directory, but zips all its files and subdirectories, use the asterisk (`*`) wildcard. For example: `-Path C:\Reference\*`
-  - To create an archive that only zips the files in the root directory, use the star-dot-star (`*.*`) wildcard. Subdirectories of the root aren't included in the archive. For example: `-Path C:\Reference\*.*`
+> [!TIP]
+> Using wildcards with a root directory affects the archive's contents:
+>
+>  - To create an archive that includes the root directory, and all its files and subdirectories, specify the root directory in the Path without wildcards. For example: `-Path C:\Reference`
+>  - To create an archive that excludes the root directory, but zips all its files and subdirectories, use the asterisk (`*`) wildcard. For example: `-Path C:\Reference\*`
+>  - To create an archive that only zips the files in the root directory, use the star-dot-star (`*.*`) wildcard. Subdirectories of the root aren't included in the archive. For example: `-Path C:\Reference\*.*`
 
 ```yaml
 Type: String[]
@@ -138,9 +153,10 @@ Accept wildcard characters: False
 
 ### -Destination
 
-This parameter is required and specifies the path to the archive output file. The DestinationPath should include the name of the zipped file, and either the absolute or relative path to the zipped file.
+This parameter is required and specifies the path to the archive output file. The destination should include the name of the zipped file, and either the absolute or relative path to the zipped file.
 
-If the file name in DestinationPath doesn't have a `.zip` file name extension, the cmdlet adds the `.zip` file name extension.
+> [!NOTE]
+> If the file name does not have an extension, the cmdlet appends the `.zip` file name extension.
 
 ```yaml
 Type: String
@@ -173,9 +189,10 @@ Accept wildcard characters: False
 
 ### -Update
 
-Updates the specified archive by replacing older file versions in the archive with newer file versions that have the same names. You can also add this parameter to add files to an existing archive.
+Updates the specified archive by replacing older file versions in the archive with newer file versions that have the same names. You can also use this parameter to add files to an existing archive.
 
-> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will add or update entries.
+> [!NOTE]
+> If `-Force` and `-Update` are used together this cmdlet will add or update entries.
 
 ```yaml
 Type: SwitchParameter
@@ -193,7 +210,8 @@ Accept wildcard characters: False
 
 Overwrites the destination archive if exists otherwise it creates a new one. All Zip entries are lost.
 
-> __NOTE:__ If `-Force` and `-Update` are used together this cmdlet will add or update entries.
+> [!NOTE]
+> If `-Force` and `-Update` are used together this cmdlet will add or update entries.
 
 ```yaml
 Type: SwitchParameter
@@ -245,4 +263,4 @@ When the `-PassThru` switch is used this cmdlet outputs the `FileInfo` instance 
 
 ## NOTES
 
-This function was initially posted to address [this Stack Overflow question](https://stackoverflow.com/a/72611161/15339544). [Another question](https://stackoverflow.com/q/74129754/15339544) in the same site pointed out another limitation with the native cmdlet, it can't compress if another process has a handle on a file. To overcome this issue, and also to emulate explorer's behavior when compressing files used by another process, the function posted below will default to __[`[FileShare] 'ReadWrite, Delete'`](https://learn.microsoft.com/en-us/dotnet/api/system.io.fileshare?view=net-6.0)__ when opening a [`FileStream`](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.open?view=net-7.0).
+This cmdlet was initially posted to address [this Stack Overflow question](https://stackoverflow.com/a/72611161/15339544). [Another question](https://stackoverflow.com/q/74129754/15339544) in the same site pointed out another limitation with the native cmdlet, it can't compress if another process has a handle on a file. To overcome this issue, and also to emulate explorer's behavior when compressing files used by another process, the cmdlet defaults to __[`FileShare 'ReadWrite, Delete'`](https://learn.microsoft.com/en-us/dotnet/api/system.io.fileshare?view=net-6.0)__ when opening a [`FileStream`](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.open?view=net-7.0).

@@ -16,30 +16,42 @@ Creates Zip Archive Entries from one or more specified entry relative paths.
 ### Value (Default)
 
 ```powershell
-New-ZipEntry [-Value <String[]>] -Destination <String> -EntryPath <String[]>
- [-CompressionLevel <CompressionLevel>] [-Encoding <Encoding>] [-Force] [<CommonParameters>]
+New-ZipEntry
+   [-Value <String[]>]
+   -Destination <String>
+   -EntryPath <String[]>
+   [-CompressionLevel <CompressionLevel>]
+   [-Encoding <Encoding>]
+   [-Force]
+   [<CommonParameters>]
 ```
 
 ### File
 
 ```powershell
-New-ZipEntry -Destination <String> -EntryPath <String[]> [-SourcePath <String>]
- [-CompressionLevel <CompressionLevel>] [-Force] [<CommonParameters>]
+New-ZipEntry
+   -Destination <String>
+   -EntryPath <String[]>
+   [-SourcePath <String>]
+   [-CompressionLevel <CompressionLevel>]
+   [-Force]
+   [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
 The `New-ZipEntry` cmdlet can create one or more Zip Archive Entries from specified paths. The type of the created entries is determined by their path, for example, if a path ends with `\` or `/`, the entry will be created as a `Directory` entry, otherwise it will be an `Archive` entry.
 
-Entry paths (arguments of the `-EntryPath` parameter) are always normalized, a few examples of how paths are normalized:
+Entry paths, _arguments of the `-EntryPath` parameter_, are always normalized, a few examples of how paths are normalized:
 
-| Input | Normalized As |
-| --- | --- |
-| `path\to\mynewentry.ext` | `path/to/mynewentry.ext` |
-| `\path\to\newdirectory\` | `path/to/newdirectory/` |
+| Input                          | Normalized As               |
+| ------------------------------ | --------------------------- |
+| `path\to\mynewentry.ext`       | `path/to/mynewentry.ext`    |
+| `\path\to\newdirectory\`       | `path/to/newdirectory/`     |
 | `path\to\very/\random\/path\\` | `path/to/very/random/path/` |
 
-The `[PSCompression.Extensions]::NormalizePath(string path)` static method is available as a public API if you would like to normalize your paths before creating new entries.
+> [!TIP]
+> The `[PSCompression.Extensions.PathExtensions]::NormalizePath(string path)` static method is available as a public API if you would like to normalize your paths before creating new entries.
 
 In addition, `New-ZipEntry` can set the content of the entries that it creates from string input or by specifying a source file path.
 
@@ -52,15 +64,15 @@ PS ..\pwsh> New-ZipEntry .\test.zip -EntryPath test\entry, newfolder\
 
    Directory: newfolder/
 
-EntryType               LastWriteTime  CompressedSize            Size EntryName
----------               -------------  --------------            ---- ---------
-Directory          6/11/2023  6:55 PM         0.00  B         0.00  B
+Type                    LastWriteTime  CompressedSize            Size Name
+----                    -------------  --------------            ---- ----
+Directory          2/24/2024  3:22 PM         0.00  B         0.00  B newfolder
 
    Directory: test/
 
-EntryType               LastWriteTime  CompressedSize            Size EntryName
----------               -------------  --------------            ---- ---------
-Archive            6/11/2023  6:55 PM         0.00  B         0.00  B entry
+Type                    LastWriteTime  CompressedSize            Size Name
+----                    -------------  --------------            ---- ----
+Archive            2/24/2024  3:22 PM         0.00  B         0.00  B entry
 ```
 
 ### Example 2: Create entries with content from input strings
@@ -144,7 +156,12 @@ Accept wildcard characters: False
 
 ### -Encoding
 
-The character encoding used to set the entry content. __This parameter is applicable only when `-SourcePath` is not used.__ The default encoding is __`utf8NoBOM`__.
+The character encoding used to set the entry content.
+
+> [!NOTE]
+>
+> - __This parameter is applicable only when `-SourcePath` is not used.__
+> - The default encoding is __`utf8NoBOM`__.
 
 ```yaml
 Type: Encoding

@@ -13,7 +13,7 @@
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
-            <Label>EntryType</Label>
+            <Label>Type</Label>
             <Width>10</Width>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -33,7 +33,7 @@
             <Alignment>Right</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>EntryName</Label>
+            <Label>Name</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -41,19 +41,27 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <PropertyName>EntryType</PropertyName>
+                <PropertyName>Type</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedDate($_.LastWriteTime)</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedLength($_.CompressedLength)</ScriptBlock>
+                <ScriptBlock>
+                  if ($_ -is [PSCompression.ZipEntryFile]) {
+                    [PSCompression.Internal._Format]::GetFormattedLength($_.CompressedLength)
+                  }
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedLength($_.Length)</ScriptBlock>
+                <ScriptBlock>
+                  if ($_ -is [PSCompression.ZipEntryFile]) {
+                    [PSCompression.Internal._Format]::GetFormattedLength($_.Length)
+                  }
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>EntryName</PropertyName>
+                <PropertyName>Name</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

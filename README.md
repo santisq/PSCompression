@@ -1,7 +1,7 @@
 <h1 align="center">PSCompression</h1>
 <div align="center">
-    <sub>Zip and GZip utilities for PowerShell</sub>
-    <br/><br/>
+<sub>Zip and GZip utilities for PowerShell</sub>
+<br/><br/>
 
 [![build](https://github.com/santisq/PSCompression/actions/workflows/ci.yml/badge.svg)](https://github.com/santisq/PSCompression/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/santisq/PSCompression/branch/main/graph/badge.svg)](https://codecov.io/gh/santisq/PSCompression)

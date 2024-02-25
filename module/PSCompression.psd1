@@ -11,7 +11,7 @@
     RootModule         = 'bin/netstandard2.0/PSCompression.dll'
 
     # Version number of this module.
-    ModuleVersion      = '2.0.3'
+    ModuleVersion      = '2.0.4'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -86,6 +86,7 @@
         'Expand-GzipArchive'
         'Compress-GzipArchive'
         'Compress-ZipArchive'
+        'Rename-ZipEntry'
     )
 
     # Variables to export from this module

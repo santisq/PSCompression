@@ -4,14 +4,26 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
+using System.Text.RegularExpressions;
 using Microsoft.PowerShell.Commands;
+using static PSCompression.Exceptions.ExceptionHelpers;
 
-namespace PSCompression;
+namespace PSCompression.Extensions;
 
-internal static class PathExtensions
+public static class PathExtensions
 {
+    private static readonly Regex s_reNormalize = new(
+        @"(?:^[a-z]:)?[\\/]+|(?<![\\/])$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static readonly Regex s_reEntryDir = new(
+        @"[\\/]$",
+        RegexOptions.Compiled | RegexOptions.RightToLeft);
+
+    private const string _directorySeparator = "/";
+
     [ThreadStatic]
-    private static readonly List<string> s_normalizedPaths = new();
+    private static List<string>? s_normalizedPaths;
 
     internal static string[] NormalizePath(
         this string[] paths,
@@ -19,6 +31,7 @@ internal static class PathExtensions
         PSCmdlet cmdlet,
         bool throwOnInvalidProvider = false)
     {
+        s_normalizedPaths ??= new();
         Collection<string> resolvedPaths;
         ProviderInfo provider;
         s_normalizedPaths.Clear();
@@ -27,19 +40,17 @@ internal static class PathExtensions
         {
             if (isLiteral)
             {
-                string resolvedPath = cmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath(
-                    path, out provider, out _);
+                string resolvedPath = cmdlet.SessionState.Path
+                    .GetUnresolvedProviderPathFromPSPath(path, out provider, out _);
 
                 if (!provider.IsFileSystem())
                 {
                     if (throwOnInvalidProvider)
                     {
-                        cmdlet.ThrowTerminatingError(ExceptionHelpers
-                            .InvalidProviderError(path, provider));
+                        cmdlet.ThrowTerminatingError(InvalidProviderError(path, provider));
                     }
 
-                    cmdlet.WriteError(ExceptionHelpers
-                        .InvalidProviderError(path, provider));
+                    cmdlet.WriteError(InvalidProviderError(path, provider));
 
                     continue;
                 }
@@ -56,8 +67,10 @@ internal static class PathExtensions
                 {
                     if (!provider.IsFileSystem())
                     {
-                        cmdlet.WriteError(ExceptionHelpers.InvalidProviderError(
-                            resolvedPath, provider));
+                        cmdlet.WriteError(InvalidProviderError(
+                            resolvedPath,
+                            provider));
+
                         continue;
                     }
 
@@ -66,7 +79,7 @@ internal static class PathExtensions
             }
             catch (Exception e)
             {
-                cmdlet.WriteError(ExceptionHelpers.ResolvePathError(path, e));
+                cmdlet.WriteError(ResolvePathError(path, e));
             }
         }
 
@@ -90,6 +103,17 @@ internal static class PathExtensions
     internal static string GetParent(this string path) =>
         Path.GetDirectoryName(path);
 
-    internal static string GetLeaf(this string path) =>
-        Path.GetFileName(path);
+    internal static string NormalizeEntryPath(this string path) =>
+        s_reNormalize.Replace(path, _directorySeparator).TrimStart('/');
+
+    internal static string NormalizeFileEntryPath(this string path) =>
+        NormalizeEntryPath(path).TrimEnd('/');
+
+    internal static bool IsDirectoryPath(this string path) =>
+        s_reEntryDir.IsMatch(path);
+
+    public static string NormalizePath(this string path) =>
+        s_reEntryDir.IsMatch(path)
+        ? NormalizeEntryPath(path)
+        : NormalizeFileEntryPath(path);
 }

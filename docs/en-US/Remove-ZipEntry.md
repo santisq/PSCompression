@@ -14,12 +14,16 @@ Removes Zip Archive Entries from one or more Zip Archives.
 ## SYNTAX
 
 ```powershell
-Remove-ZipEntry -InputObject <ZipEntryBase[]> [-WhatIf] [-Confirm] [<CommonParameters>]
+Remove-ZipEntry
+    -InputObject <ZipEntryBase[]>
+    [-WhatIf]
+    [-Confirm]
+    [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-The `Remove-ZipEntry` cmdlet can remove Zip Archive Entries from one or more Zip Archives. This cmdlet takes input from and is intended to be used in combination with the `Get-ZipEntry` cmdlet.
+The `Remove-ZipEntry` cmdlet can remove Zip Archive Entries from one or more Zip Archives. This cmdlet takes input from and is intended to be used in combination with the [`Get-ZipEntry`](./Get-ZipEntry.md) cmdlet.
 
 ## EXAMPLES
 

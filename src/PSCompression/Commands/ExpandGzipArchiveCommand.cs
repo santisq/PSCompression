@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Management.Automation;
 using System.Text;
+using static PSCompression.Exceptions.ExceptionHelpers;
+using PSCompression.Extensions;
 
 namespace PSCompression;
 
@@ -118,7 +120,7 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
             }
             catch (Exception e)
             {
-                ThrowTerminatingError(ExceptionHelpers.StreamOpenError(Destination, e));
+                ThrowTerminatingError(StreamOpenError(Destination, e));
             }
         }
     }
@@ -129,7 +131,7 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
         {
             if (!path.IsArchive())
             {
-                WriteError(ExceptionHelpers.NotArchivePathError(
+                WriteError(NotArchivePathError(
                     path,
                     _isLiteral ? nameof(LiteralPath) : nameof(Path)));
 
@@ -161,7 +163,7 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
             }
             catch (Exception e)
             {
-                WriteError(ExceptionHelpers.ZipOpenError(path, e));
+                WriteError(ZipOpenError(path, e));
             }
         }
     }
