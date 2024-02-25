@@ -4,22 +4,27 @@ namespace System.Diagnostics.CodeAnalysis;
 
 /// <summary>Specifies that null is allowed as an input even if the corresponding type disallows it.</summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property, Inherited = false)]
+[ExcludeFromCodeCoverage]
 internal sealed class AllowNullAttribute : Attribute { }
 
 /// <summary>Specifies that null is disallowed as an input even if the corresponding type allows it.</summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property, Inherited = false)]
+[ExcludeFromCodeCoverage]
 internal sealed class DisallowNullAttribute : Attribute { }
 
 /// <summary>Specifies that an output may be null even if the corresponding type disallows it.</summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false)]
+[ExcludeFromCodeCoverage]
 internal sealed class MaybeNullAttribute : Attribute { }
 
 /// <summary>Specifies that an output will not be null even if the corresponding type allows it. Specifies that an input argument was not null when the call returns.</summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false)]
+[ExcludeFromCodeCoverage]
 internal sealed class NotNullAttribute : Attribute { }
 
 /// <summary>Specifies that when a method returns <see cref="ReturnValue"/>, the parameter may be null even if the corresponding type disallows it.</summary>
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false)]
+[ExcludeFromCodeCoverage]
 internal sealed class MaybeNullWhenAttribute : Attribute
 {
     /// <summary>Initializes the attribute with the specified return value condition.</summary>
@@ -34,6 +39,7 @@ internal sealed class MaybeNullWhenAttribute : Attribute
 
 /// <summary>Specifies that when a method returns <see cref="ReturnValue"/>, the parameter will not be null even if the corresponding type allows it.</summary>
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false)]
+[ExcludeFromCodeCoverage]
 internal sealed class NotNullWhenAttribute : Attribute
 {
     /// <summary>Initializes the attribute with the specified return value condition.</summary>
@@ -48,6 +54,7 @@ internal sealed class NotNullWhenAttribute : Attribute
 
 /// <summary>Specifies that the output will be non-null if the named parameter is non-null.</summary>
 [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple = true, Inherited = false)]
+[ExcludeFromCodeCoverage]
 internal sealed class NotNullIfNotNullAttribute : Attribute
 {
     /// <summary>Initializes the attribute with the associated parameter name.</summary>
@@ -62,10 +69,12 @@ internal sealed class NotNullIfNotNullAttribute : Attribute
 
 /// <summary>Applied to a method that will never return under any circumstance.</summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false)]
+[ExcludeFromCodeCoverage]
 internal sealed class DoesNotReturnAttribute : Attribute { }
 
 /// <summary>Specifies that the method will not return if the associated Boolean parameter is passed the specified value.</summary>
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false)]
+[ExcludeFromCodeCoverage]
 internal sealed class DoesNotReturnIfAttribute : Attribute
 {
     /// <summary>Initializes the attribute with the specified parameter value.</summary>
@@ -81,6 +90,7 @@ internal sealed class DoesNotReturnIfAttribute : Attribute
 
 /// <summary>Specifies that the method or property will ensure that the listed field and property members have not-null values.</summary>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
+[ExcludeFromCodeCoverage]
 internal sealed class MemberNotNullAttribute : Attribute
 {
     /// <summary>Initializes the attribute with a field or property member.</summary>
@@ -101,6 +111,7 @@ internal sealed class MemberNotNullAttribute : Attribute
 
 /// <summary>Specifies that the method or property will ensure that the listed field and property members have not-null values when returning with the specified return value condition.</summary>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
+[ExcludeFromCodeCoverage]
 internal sealed class MemberNotNullWhenAttribute : Attribute
 {
     /// <summary>Initializes the attribute with the specified return value condition and a field or property member.</summary>
