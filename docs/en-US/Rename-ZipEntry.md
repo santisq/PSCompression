@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Renames Zip Archive Entries from one or more Zip Archives.
 
 ## SYNTAX
 
@@ -25,7 +25,17 @@ Rename-ZipEntry
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+The `Rename-ZipEntry` cmdlet changes the name of a specified item.
+This cmdlet does not affect the content of the item being renamed.
+
+> [!NOTE]
+>
+> - It's important to note that there is no API in the
+[`System.IO.Compression` Namespace](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression) to rename Zip
+Archive Entries, renaming an entry means creating a copy of the entry with a new name and deleting the old one.
+__This is why the renaming operations can be slow on big Zip Archives.__
+> - When renaming an entry that is of type `Directory` you need to consider that the operation explained in the previous
+point happens to every entry that is considered a child of the directory you are renaming.
 
 ## EXAMPLES
 

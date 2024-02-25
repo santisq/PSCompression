@@ -44,13 +44,21 @@
                 <PropertyName>Type</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedDate($_.LastWriteTime)</ScriptBlock>
+                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedDate($_)</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedLength($_.CompressedLength)</ScriptBlock>
+                <ScriptBlock>
+                  if ($_ -is [PSCompression.ZipEntryFile]) {
+                    [PSCompression.Internal._Format]::GetFormattedLength($_.CompressedLength)
+                  }
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedLength($_.Length)</ScriptBlock>
+                <ScriptBlock>
+                  if ($_ -is [PSCompression.ZipEntryFile]) {
+                    [PSCompression.Internal._Format]::GetFormattedLength($_.Length)
+                  }
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Name</PropertyName>

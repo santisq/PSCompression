@@ -12,6 +12,8 @@ namespace PSCompression.Internal;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class _Format
 {
+    private static CultureInfo _culture = CultureInfo.CurrentCulture;
+
     private readonly static string[] s_suffix =
     {
         "B",
@@ -33,7 +35,8 @@ public static class _Format
             return entry.RelativePath.NormalizeEntryPath();
         }
 
-        string path = Path.GetDirectoryName(entry.RelativePath)
+        string path = Path
+            .GetDirectoryName(entry.RelativePath)
             .NormalizeEntryPath();
 
         if (string.IsNullOrEmpty(path))
@@ -45,8 +48,8 @@ public static class _Format
     }
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
-    public static string GetFormattedDate(DateTime date) =>
-        string.Format(CultureInfo.CurrentCulture, "{0,10:d} {0,8:t}", date);
+    public static string GetFormattedDate(ZipEntryBase entry) =>
+        string.Format(_culture, "{0,10:d} {0,8:t}", entry.LastWriteTime);
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetFormattedLength(long length)

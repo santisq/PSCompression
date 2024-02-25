@@ -26,8 +26,6 @@ public abstract class ZipEntryBase
 
     public long CompressedLength { get; internal set; }
 
-    public string CompressionRatio => GetRatio(Length, CompressedLength);
-
     public abstract ZipEntryType Type { get; }
 
     protected ZipEntryBase(ZipArchiveEntry entry, string source)
@@ -38,18 +36,6 @@ public abstract class ZipEntryBase
         LastWriteTime = entry.LastWriteTime.LocalDateTime;
         Length = entry.Length;
         CompressedLength = entry.CompressedLength;
-    }
-
-    private static string GetRatio(long size, long compressedSize)
-    {
-        float compressedRatio = (float)compressedSize / size;
-
-        if (float.IsNaN(compressedRatio))
-        {
-            return "0.00%";
-        }
-
-        return string.Format("{0:F2}%", 100 - (compressedRatio * 100));
     }
 
     public void Remove()
