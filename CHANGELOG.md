@@ -1,3 +1,7 @@
+# 02/26/2024
+
+- Fixed a bug with `CompressionRatio` property showing always in InvariantCulture format.
+
 # 02/25/2024
 
 - `ZipEntryBase` Type:
