@@ -25,7 +25,7 @@ public sealed class ZipEntryFile : ZipEntryBase
 
         if (float.IsNaN(compressedRatio))
         {
-            return "0.00%";
+            compressedRatio = 0;
         }
 
         return string.Format("{0:F2}%", 100 - (compressedRatio * 100));

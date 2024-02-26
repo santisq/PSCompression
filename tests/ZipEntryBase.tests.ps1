@@ -47,6 +47,7 @@ Describe 'ZipEntryBase Class' {
     }
 
     It 'Has a CompressionRatio Property' {
+        New-ZipEntry $zip.FullName -EntryPath empty.txt
         ($zip | Get-ZipEntry).CompressionRatio | Should -BeOfType ([string])
     }
 

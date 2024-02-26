@@ -157,6 +157,11 @@ Describe 'ZipEntry Cmdlets' {
     }
 
     Context 'Remove-ZipEntry' -Tag 'Remove-ZipEntry' {
+        It 'No entry is removed with -WhatIf' {
+            $zip | Get-ZipEntry | Remove-ZipEntry -WhatIf
+            $zip | Get-ZipEntry | Should -Not -BeNullOrEmpty
+        }
+
         It 'Can remove file entries' {
             { $zip | Get-ZipEntry -Type Archive | Remove-ZipEntry } |
                 Should -Not -Throw
@@ -238,13 +243,21 @@ Describe 'ZipEntry Cmdlets' {
             $structure, $content | Out-Null
         }
 
+        It 'No entry is renamed with -WhatIf' {
+            $zip | Get-ZipEntry |
+                Rename-ZipEntry -NewName { 'test' + $_.Name } -WhatIf
+
+            $zip | Get-ZipEntry |
+                Should -Not -Match '^testtest'
+        }
+
         It 'Can rename file entries using a delay-bind ScriptBlock' {
             { $zip | Get-ZipEntry -Type Archive | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
                 Should -Not -Throw
 
             $zip | Get-ZipEntry -Type Archive |
                 ForEach-Object Name |
-                Should -Match '^test'
+                Should -Match '^testtest'
         }
 
         It 'Produces output with -PassThru' {
