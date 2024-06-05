@@ -1,3 +1,8 @@
+# 06/05/2024
+
+- Update `ci.yml` to use `codecov-action@v4`.
+- Fixed parameter names in `Compress-ZipArchive` documentation. Thanks to @martincostello.
+
 # 02/26/2024
 
 - Fixed a bug with `CompressionRatio` property showing always in InvariantCulture format.
