@@ -25,9 +25,9 @@ $CSharpPath = [Path]::Combine($PSScriptRoot, 'src', $ModuleName)
 $ReleasePath = [Path]::Combine($BuildPath, $ModuleName, $Version)
 $IsUnix = $PSEdition -eq 'Core' -and -not $IsWindows
 $UseNativeArguments = $PSVersionTable.PSVersion -gt '7.0'
-($csharpProjectInfo = [xml]::new()).Load((Get-Item ([Path]::Combine($CSharpPath, '*.csproj'))).FullName)
-$TargetFrameworks = @(@($csharpProjectInfo.Project.PropertyGroup)[0].
-    TargetFrameworks.Split(';', [StringSplitOptions]::RemoveEmptyEntries))
+$csharpProjectInfo = [xml]::new()
+$csharpProjectInfo.Load((Convert-Path ([Path]::Combine($CSharpPath, '*.csproj'))))
+$TargetFrameworks = @(@($csharpProjectInfo.Project.PropertyGroup)[0].TargetFrameworks.Split(';', [StringSplitOptions]::RemoveEmptyEntries))
 $PSFramework = $TargetFrameworks[0]
 
 task Clean {
@@ -223,6 +223,8 @@ task DoTest {
             $watchFolder = '"{0}"' -f ([Path]::Combine($ReleasePath, 'bin', $PSFramework))
         }
 
+        $sourceMappingFile = [Path]::Combine($resultsPath, 'CoverageSourceMapping.txt')
+
         $arguments = @(
             $watchFolder
             '--target', $pwsh
@@ -233,7 +235,7 @@ task DoTest {
                 '--merge-with', $unitCoveragePath
             }
             if ($env:GITHUB_ACTIONS -eq 'true') {
-                Set-Content $sourceMappingFile "|$($Manifest.RepositoryPath)$([Path]::DirectorySeparatorChar)=/_/"
+                Set-Content $sourceMappingFile "|$PSScriptRoot$([Path]::DirectorySeparatorChar)=/_/"
                 '--source-mapping-file', $sourceMappingFile
             }
         )
