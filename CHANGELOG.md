@@ -2,6 +2,7 @@
 
 - Update `ci.yml` to use `codecov-action@v4`.
 - Fixed parameter names in `Compress-ZipArchive` documentation. Thanks to @martincostello.
+- Fixed coverlet.console support for Linux runner tests.
 
 # 02/26/2024
 

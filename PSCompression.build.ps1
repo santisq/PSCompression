@@ -230,6 +230,10 @@ task DoTest {
             if (Test-Path -LiteralPath $unitCoveragePath) {
                 '--merge-with', $unitCoveragePath
             }
+            if ($env:GITHUB_ACTIONS -eq 'true') {
+                Set-Content $sourceMappingFile "|$($Manifest.RepositoryPath)$([Path]::DirectorySeparatorChar)=/_/"
+                '--source-mapping-file', $sourceMappingFile
+            }
         )
         $pwsh = 'coverlet'
     }
