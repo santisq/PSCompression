@@ -1,4 +1,6 @@
-﻿# I might've also stolen this from jborean93 ¯\_(ツ)_/¯
+﻿using namespace System.IO
+
+# I might've also stolen this from jborean93 ¯\_(ツ)_/¯
 [CmdletBinding()]
 param(
     [ValidateSet('Debug', 'Release')]
@@ -6,8 +8,8 @@ param(
     $Configuration = 'Debug'
 )
 
-$modulePath = [IO.Path]::Combine($PSScriptRoot, 'module')
-$manifestItem = Get-Item ([IO.Path]::Combine($modulePath, '*.psd1'))
+$modulePath = [Path]::Combine($PSScriptRoot, 'module')
+$manifestItem = Get-Item ([Path]::Combine($modulePath, '*.psd1'))
 $ModuleName = $manifestItem.BaseName
 
 $testModuleManifestSplat = @{
@@ -17,13 +19,13 @@ $testModuleManifestSplat = @{
 }
 $Manifest = Test-ModuleManifest @testModuleManifestSplat
 $Version = $Manifest.Version
-$BuildPath = [IO.Path]::Combine($PSScriptRoot, 'output')
-$PowerShellPath = [IO.Path]::Combine($PSScriptRoot, 'module')
-$CSharpPath = [IO.Path]::Combine($PSScriptRoot, 'src', $ModuleName)
-$ReleasePath = [IO.Path]::Combine($BuildPath, $ModuleName, $Version)
+$BuildPath = [Path]::Combine($PSScriptRoot, 'output')
+$PowerShellPath = [Path]::Combine($PSScriptRoot, 'module')
+$CSharpPath = [Path]::Combine($PSScriptRoot, 'src', $ModuleName)
+$ReleasePath = [Path]::Combine($BuildPath, $ModuleName, $Version)
 $IsUnix = $PSEdition -eq 'Core' -and -not $IsWindows
 $UseNativeArguments = $PSVersionTable.PSVersion -gt '7.0'
-($csharpProjectInfo = [xml]::new()).Load((Get-Item ([IO.Path]::Combine($CSharpPath, '*.csproj'))).FullName)
+($csharpProjectInfo = [xml]::new()).Load((Get-Item ([Path]::Combine($CSharpPath, '*.csproj'))).FullName)
 $TargetFrameworks = @(@($csharpProjectInfo.Project.PropertyGroup)[0].
     TargetFrameworks.Split(';', [StringSplitOptions]::RemoveEmptyEntries))
 $PSFramework = $TargetFrameworks[0]
@@ -38,8 +40,8 @@ task Clean {
 
 task BuildDocs {
     $helpParams = @{
-        Path       = [IO.Path]::Combine($PSScriptRoot, 'docs', 'en-US')
-        OutputPath = [IO.Path]::Combine($ReleasePath, 'en-US')
+        Path       = [Path]::Combine($PSScriptRoot, 'docs', 'en-US')
+        OutputPath = [Path]::Combine($ReleasePath, 'en-US')
     }
     New-ExternalHelp @helpParams | Out-Null
 }
@@ -71,7 +73,7 @@ task BuildManaged {
 
 task CopyToRelease {
     $copyParams = @{
-        Path        = [IO.Path]::Combine($PowerShellPath, '*')
+        Path        = [Path]::Combine($PowerShellPath, '*')
         Destination = $ReleasePath
         Recurse     = $true
         Force       = $true
@@ -79,17 +81,17 @@ task CopyToRelease {
     Copy-Item @copyParams
 
     foreach ($framework in $TargetFrameworks) {
-        $buildFolder = [IO.Path]::Combine($CSharpPath, 'bin', $Configuration, $framework, 'publish')
-        $binFolder = [IO.Path]::Combine($ReleasePath, 'bin', $framework, $_.Name)
+        $buildFolder = [Path]::Combine($CSharpPath, 'bin', $Configuration, $framework, 'publish')
+        $binFolder = [Path]::Combine($ReleasePath, 'bin', $framework, $_.Name)
         if (-not (Test-Path -LiteralPath $binFolder)) {
             New-Item -Path $binFolder -ItemType Directory | Out-Null
         }
-        Copy-Item ([IO.Path]::Combine($buildFolder, '*')) -Destination $binFolder -Recurse
+        Copy-Item ([Path]::Combine($buildFolder, '*')) -Destination $binFolder -Recurse
     }
 }
 
 task Package {
-    $nupkgPath = [IO.Path]::Combine($BuildPath, "$ModuleName.$Version*.nupkg")
+    $nupkgPath = [Path]::Combine($BuildPath, "$ModuleName.$Version*.nupkg")
     if (Test-Path $nupkgPath) {
         Remove-Item $nupkgPath -Force
     }
@@ -116,7 +118,7 @@ task Package {
 task Analyze {
     $pssaSplat = @{
         Path        = $ReleasePath
-        Settings    = [IO.Path]::Combine($PSScriptRoot, 'ScriptAnalyzerSettings.psd1')
+        Settings    = [Path]::Combine($PSScriptRoot, 'ScriptAnalyzerSettings.psd1')
         Recurse     = $true
         ErrorAction = 'SilentlyContinue'
     }
@@ -128,18 +130,18 @@ task Analyze {
 }
 
 task DoUnitTest {
-    $testsPath = [IO.Path]::Combine($PSScriptRoot, 'tests', 'units')
+    $testsPath = [Path]::Combine($PSScriptRoot, 'tests', 'units')
     if (-not (Test-Path -LiteralPath $testsPath)) {
         Write-Host 'No unit tests found, skipping'
         return
     }
 
-    $resultsPath = [IO.Path]::Combine($BuildPath, 'TestResults')
+    $resultsPath = [Path]::Combine($BuildPath, 'TestResults')
     if (-not (Test-Path -LiteralPath $resultsPath)) {
         New-Item $resultsPath -ItemType Directory -ErrorAction Stop | Out-Null
     }
 
-    $tempResultsPath = [IO.Path]::Combine($resultsPath, 'TempUnit')
+    $tempResultsPath = [Path]::Combine($resultsPath, 'TempUnit')
     if (Test-Path -LiteralPath $tempResultsPath) {
         Remove-Item -LiteralPath $tempResultsPath -Force -Recurse
     }
@@ -181,18 +183,18 @@ task DoUnitTest {
 }
 
 task DoTest {
-    $pesterScript = [IO.Path]::Combine($PSScriptRoot, 'tools', 'PesterTest.ps1')
+    $pesterScript = [Path]::Combine($PSScriptRoot, 'tools', 'PesterTest.ps1')
     if (-not (Test-Path $pesterScript)) {
         Write-Host 'No Pester tests found, skipping'
         return
     }
 
-    $resultsPath = [IO.Path]::Combine($BuildPath, 'TestResults')
+    $resultsPath = [Path]::Combine($BuildPath, 'TestResults')
     if (-not (Test-Path $resultsPath)) {
         New-Item $resultsPath -ItemType Directory -ErrorAction Stop | Out-Null
     }
 
-    $resultsFile = [IO.Path]::Combine($resultsPath, 'Pester.xml')
+    $resultsFile = [Path]::Combine($resultsPath, 'Pester.xml')
     if (Test-Path $resultsFile) {
         Remove-Item $resultsFile -ErrorAction Stop -Force
     }
@@ -205,27 +207,27 @@ task DoTest {
             '-ExecutionPolicy', 'Bypass'
         }
         '-File', $pesterScript
-        '-TestPath', ([IO.Path]::Combine($PSScriptRoot, 'tests'))
+        '-TestPath', ([Path]::Combine($PSScriptRoot, 'tests'))
         '-OutputFile', $resultsFile
     )
 
     if ($Configuration -eq 'Debug') {
-        $unitCoveragePath = [IO.Path]::Combine($resultsPath, 'UnitCoverage.json')
+        $unitCoveragePath = [Path]::Combine($resultsPath, 'UnitCoverage.json')
         $targetArgs = '"' + ($arguments -join '" "') + '"'
 
         if ($UseNativeArguments) {
-            $watchFolder = [IO.Path]::Combine($ReleasePath, 'bin', $PSFramework)
+            $watchFolder = [Path]::Combine($ReleasePath, 'bin', $PSFramework)
         }
         else {
             $targetArgs = '"' + ($targetArgs -replace '"', '\"') + '"'
-            $watchFolder = '"{0}"' -f ([IO.Path]::Combine($ReleasePath, 'bin', $PSFramework))
+            $watchFolder = '"{0}"' -f ([Path]::Combine($ReleasePath, 'bin', $PSFramework))
         }
 
         $arguments = @(
             $watchFolder
             '--target', $pwsh
             '--targetargs', $targetArgs
-            '--output', ([IO.Path]::Combine($resultsPath, 'Coverage.xml'))
+            '--output', ([Path]::Combine($resultsPath, 'Coverage.xml'))
             '--format', 'cobertura'
             if (Test-Path -LiteralPath $unitCoveragePath) {
                 '--merge-with', $unitCoveragePath
