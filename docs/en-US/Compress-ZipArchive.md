@@ -61,19 +61,19 @@ This cmdlet should be able to handle compression same as `ZipFile.CreateFromDire
 
 ```powershell
 Get-ChildItem .\path -Recurse -Filter *.ext |
-    Compress-ZipArchive -DestinationPath dest.zip
+    Compress-ZipArchive -Destination dest.zip
 ```
 
 ### Example 2: Compress all `.txt` files contained in all folders in the Current Directory
 
 ```powershell
-Compress-ZipArchive .\*\*.txt -DestinationPath dest.zip
+Compress-ZipArchive .\*\*.txt -Destination dest.zip
 ```
 
 ### Example 3: Compress all `.ext` and `.ext2` from a specific folder
 
 ```powershell
-Compress-ZipArchive .\*.ext, .\*.ext2 -DestinationPath dest.zip
+Compress-ZipArchive .\*.ext, .\*.ext2 -Destination dest.zip
 ```
 
 ### Example 4: Compress a folder using `Fastest` Compression Level
@@ -86,7 +86,7 @@ Compress-ZipArchive .\path -Destination myPath.zip -CompressionLevel Fastest
 
 ```powershell
 Get-ChildItem .\path -Recurse -Directory |
-    Compress-ZipArchive -DestinationPath dest.zip
+    Compress-ZipArchive -Destination dest.zip
 ```
 
 ### Example 6: Replacing an existing Zip Archive
@@ -94,7 +94,7 @@ Get-ChildItem .\path -Recurse -Directory |
 Demonstrates the use of `-Force` parameter switch.
 
 ```powershell
-Compress-ZipArchive -Path .\path -DestinationPath dest.zip -Force
+Compress-ZipArchive -Path .\path -Destination dest.zip -Force
 ```
 
 ### Example 7: Adding and updating new entries to an existing Zip Archive
@@ -103,7 +103,7 @@ Demonstrates the use of `-Update` parameter switch.
 
 ```powershell
 Get-ChildItem .\path -Recurse -Directory |
-    Compress-ZipArchive -DestinationPath dest.zip -Update
+    Compress-ZipArchive -Destination dest.zip -Update
 ```
 
 ## PARAMETERS
