@@ -153,7 +153,7 @@ Can compress input strings into Base64 encoded Gzip strings or raw bytes.
 </td>
 <td>
 
-Expand Gzip compressed files to a destination path or to the [success stream](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams?view=powershell-7.3#success-stream).
+Expands Gzip compressed files to a destination path or to the [success stream](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams?view=powershell-7.3#success-stream).
 
 </td>
 </tr>
