@@ -17,17 +17,78 @@ PSCompression is a PowerShell Module that provides Zip and Gzip utilities for co
 
 ### Zip Cmdlets
 
-| Cmdlet | Description |
-| --- | --- |
-| [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) | Lists entries from specified Zip paths. It has built-in functionalities to filter entries and is the main entry point for the ZipEntry cmdlets in this module. |
-| [`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md) | Expands Zip Archive Entries outputted by the [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) command to a destination directory. |
-| [`Get-ZipEntryContent`](docs/en-US/Get-ZipEntryContent.md) | Gets the content of one or more `ZipEntryFile` instances. |
-| [`New-ZipEntry`](docs/en-US/New-ZipEntry.md) | Create one or more Zip Archive Entries from specified paths. |
-| [`Remove-ZipEntry`](docs/en-US/Remove-ZipEntry.md) | Remove Zip Archive Entries from one or more Zip Archives. |
-| [`Rename-ZipEntry`](docs/en-US/Rename-ZipEntry.md) | Rename Zip Archive Entries from one or more Zip Archives. |
-| [`Set-ZipEntryContent`](docs/en-US/Set-ZipEntryContent.md) | Sets or appends content to a Zip Archive Entry. |
-| [`Compress-ZipArchive`](docs/en-US/Compress-ZipArchive.md) | Creates a compressed, or zipped, archive file from one or more specified files or directories. It aims to overcome a few [`Compress-Archive`](docs/en-US/https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) limitations while keeping similar capabilities. |
+<!DOCTYPE html>
+<html>
 
+<head>
+  <style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    td,
+    th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="zipcmdlets">
+    <table>
+      <tr>
+        <th>Cmdlet</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>[`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md)</td>
+        <td>Lists entries from specified Zip paths. It has built-in
+          functionalities to filter entries and is the main entry point for the ZipEntry cmdlets in this module.</td>
+      </tr>
+      <tr>
+        <td>[`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md)</td>
+        <td>Expands Zip Archive Entries outputted by the [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) command to a
+          destination directory.</td>
+      </tr>
+      <tr>
+        <td>[`Get-ZipEntryContent`](docs/en-US/Get-ZipEntryContent.md)</td>
+        <td>Gets the content of one or more `ZipEntryFile` instances.</td>
+      </tr>
+      <tr>
+        <td>[`New-ZipEntry`](docs/en-US/New-ZipEntry.md)</td>
+        <td>Create one or more Zip Archive Entries from specified paths.</td>
+      </tr>
+      <tr>
+        <td>[`Remove-ZipEntry`](docs/en-US/Remove-ZipEntry.md)</td>
+        <td>Remove Zip Archive Entries from one or more Zip Archives.</td>
+      </tr>
+      <tr>
+        <td>[`Rename-ZipEntry`](docs/en-US/Rename-ZipEntry.md)</td>
+        <td>Rename Zip Archive Entries from one or more Zip Archives.</td>
+      </tr>
+      <tr>
+        <td>[`Set-ZipEntryContent`](docs/en-US/Set-ZipEntryContent.md)</td>
+        <td>Sets or appends content to a Zip Archive Entry.</td>
+      </tr>
+      <tr>
+        <td>[`Compress-ZipArchive`](docs/en-US/Compress-ZipArchive.md)</td>
+        <td>Similar capabilities as
+          [`Compress-Archive`](docs/en-US/https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2)
+          and overcomes a few issues with the built-in cmdlet.</td>
+      </tr>
+    </table>
+  </div>
+</body>
+
+</html>
 ### Gzip Cmdlets
 
 | Cmdlet | Description |
