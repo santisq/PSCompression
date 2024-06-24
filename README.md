@@ -24,7 +24,7 @@ PSCompression is a PowerShell Module that provides Zip and Gzip utilities for co
 <th>Description</th>
 </tr>
 <tr>
-<td colspan="1" width="200" height="80">
+<td colspan="1" width="200" height="60">
 
 [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md)
 
@@ -32,7 +32,7 @@ PSCompression is a PowerShell Module that provides Zip and Gzip utilities for co
 <td>Lists entries from specified Zip archives. This cmdlet is the main entry point for the ZipEntry cmdlets in this module.</td>
 </tr>
 <tr>
-<td colspan="1" width="200" height="80">
+<td colspan="1" width="200" height="60">
 
 [`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md)
 
@@ -45,7 +45,7 @@ destination directory.
 </td>
 </tr>
 <tr>
-<td colspan="1" width="200" height="80">
+<td colspan="1" width="200" height="60">
 
 [`Get-ZipEntryContent`](docs/en-US/Get-ZipEntryContent.md)
 
@@ -57,7 +57,7 @@ Gets the content of one or more `ZipEntryFile` instances.
 </td>
 </tr>
 <tr>
-<td colspan="1" width="200" height="80">
+<td colspan="1" width="200" height="60">
 
 [`New-ZipEntry`](docs/en-US/New-ZipEntry.md)
 
@@ -65,7 +65,7 @@ Gets the content of one or more `ZipEntryFile` instances.
 <td>Create one or more Zip Archive Entries from specified paths.</td>
 </tr>
 <tr>
-<td colspan="1" width="200" height="80">
+<td colspan="1" width="200" height="60">
 
 [`Remove-ZipEntry`](docs/en-US/Remove-ZipEntry.md)
 
@@ -73,7 +73,7 @@ Gets the content of one or more `ZipEntryFile` instances.
 <td>Remove Zip Archive Entries from one or more Zip Archives.</td>
 </tr>
 <tr>
-<td colspan="1" width="200" height="80">
+<td colspan="1" width="200" height="60">
 
 [`Rename-ZipEntry`](docs/en-US/Rename-ZipEntry.md)
 
@@ -81,7 +81,7 @@ Gets the content of one or more `ZipEntryFile` instances.
 <td>Rename Zip Archive Entries from one or more Zip Archives.</td>
 </tr>
 <tr>
-<td colspan="1" width="200" height="80">
+<td colspan="1" width="200" height="60">
 
 [`Set-ZipEntryContent`](docs/en-US/Set-ZipEntryContent.md)
 
@@ -89,7 +89,7 @@ Gets the content of one or more `ZipEntryFile` instances.
 <td>Sets or appends content to a Zip Archive Entry.</td>
 </tr>
 <tr>
-<td colspan="1" width="200" height="80">
+<td colspan="1" width="200" height="60">
 
 [`Compress-ZipArchive`](docs/en-US/Compress-ZipArchive.md)
 
