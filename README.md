@@ -162,7 +162,7 @@ Expands Gzip compressed files to a destination path or to the [success stream](h
 
 ## Documentation
 
-Check out [__the docs__](docs/en-US/PSCompression.md) for information about how to use this Module.
+Check out [__the docs__](docs/en-US) for information about how to use this Module.
 
 ## Installation
 
