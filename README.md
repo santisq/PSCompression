@@ -105,6 +105,8 @@ and overcomes a few issues with the built-in cmdlet.
 </table>
 </div>
 
+### Gzip Cmdlets
+
 <div class="gzipcmdlets">
 <table>
 <tr>
