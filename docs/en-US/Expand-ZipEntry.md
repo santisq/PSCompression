@@ -24,7 +24,7 @@ Expand-ZipEntry
 
 ## DESCRIPTION
 
-The `Expand-ZipEntry` cmdlet can expand Zip Archive Entries outputted by the [`Get-ZipEntry`](./Get-ZipEntry.md) command to a destination directory. Expanded entries maintain their original folder structure based on their relative path.
+The `Expand-ZipEntry` cmdlet can expand zip entries outputted by the [`Get-ZipEntry`](./Get-ZipEntry.md) command to a destination directory. Expanded entries maintain their original folder structure based on their relative path.
 
 ## EXAMPLES
 

@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Lists Zip Archive Entries from one or more specified Zip Archive paths.
+Lists zip entries from one or more specified Zip Archives.
 
 ## SYNTAX
 

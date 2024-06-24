@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Expands Base64 Gzip compressed input strings.
+Expands Gzip Base64 compressed input strings.
 
 ## SYNTAX
 

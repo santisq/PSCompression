@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Writes or appends content to an existing Zip Archive Entry.
+Sets or appends content to an existing zip entry.
 
 ## SYNTAX
 

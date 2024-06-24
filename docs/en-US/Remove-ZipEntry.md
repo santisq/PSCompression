@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Removes Zip Archive Entries from one or more Zip Archives.
+Removes zip entries from one or more zip archives.
 
 ## SYNTAX
 

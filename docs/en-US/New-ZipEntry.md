@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Creates Zip Archive Entries from one or more specified entry relative paths.
+Creates zip entries from one or more specified entry relative paths.
 
 ## SYNTAX
 

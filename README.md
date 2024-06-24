@@ -17,25 +17,148 @@ PSCompression is a PowerShell Module that provides Zip and Gzip utilities for co
 
 ### Zip Cmdlets
 
-| Cmdlet | Description |
-| --- | --- |
-| [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) | Lists entries from specified Zip paths. It has built-in functionalities to filter entries and is the main entry point for the ZipEntry cmdlets in this module. |
-| [`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md) | Expands Zip Archive Entries outputted by the [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) command to a destination directory. |
-| [`Get-ZipEntryContent`](docs/en-US/Get-ZipEntryContent.md) | Gets the content of one or more `ZipEntryFile` instances. |
-| [`New-ZipEntry`](docs/en-US/New-ZipEntry.md) | Create one or more Zip Archive Entries from specified paths. |
-| [`Remove-ZipEntry`](docs/en-US/Remove-ZipEntry.md) | Remove Zip Archive Entries from one or more Zip Archives. |
-| [`Rename-ZipEntry`](docs/en-US/Rename-ZipEntry.md) | Rename Zip Archive Entries from one or more Zip Archives. |
-| [`Set-ZipEntryContent`](docs/en-US/Set-ZipEntryContent.md) | Sets or appends content to a Zip Archive Entry. |
-| [`Compress-ZipArchive`](docs/en-US/Compress-ZipArchive.md) | Creates a compressed, or zipped, archive file from one or more specified files or directories. It aims to overcome a few [`Compress-Archive`](docs/en-US/https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) limitations while keeping similar capabilities. |
+<div class="zipcmdlets">
+<table>
+<tr>
+<th>Cmdlet</th>
+<th>Description</th>
+</tr>
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md)
+
+</td>
+<td>Lists entries from specified zip archives. This cmdlet is the main entry point for the ZipEntry cmdlets in this module.</td>
+</tr>
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md)
+
+</td>
+<td>
+
+Expands zip entries outputted by the [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) command to a
+destination directory.
+
+</td>
+</tr>
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`Get-ZipEntryContent`](docs/en-US/Get-ZipEntryContent.md)
+
+</td>
+<td>
+
+Gets the content of one or more zip entries.
+
+</td>
+</tr>
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`New-ZipEntry`](docs/en-US/New-ZipEntry.md)
+
+</td>
+<td>Creates zip entries from specified path or paths.</td>
+</tr>
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`Remove-ZipEntry`](docs/en-US/Remove-ZipEntry.md)
+
+</td>
+<td>Removes zip entries from one or more zip archives.</td>
+</tr>
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`Rename-ZipEntry`](docs/en-US/Rename-ZipEntry.md)
+
+</td>
+<td>Renames zip entries from one or more zip archives.</td>
+</tr>
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`Set-ZipEntryContent`](docs/en-US/Set-ZipEntryContent.md)
+
+</td>
+<td>Sets or appends content to a zip entry.</td>
+</tr>
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`Compress-ZipArchive`](docs/en-US/Compress-ZipArchive.md)
+
+</td>
+<td>
+
+Similar capabilities as
+[`Compress-Archive`](docs/en-US/https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2)
+and overcomes a few issues with the built-in cmdlet (2 GB limit and more).
+
+</td>
+</tr>
+</table>
+</div>
 
 ### Gzip Cmdlets
 
-| Cmdlet | Description |
-| --- | --- |
-| [`Compress-GzipArchive`](docs/en-US/Compress-GzipArchive.md) | Can compress one or more specified file paths into a single Gzip file. |
-| [`ConvertFrom-GzipString`](docs/en-US/ConvertFrom-GzipString.md) | Expands Base64 encoded Gzip compressed input strings. |
-| [`ConvertTo-GzipString`](docs/en-US/ConvertTo-GzipString.md) | Can compress input strings into Base64 encoded Gzip strings or raw bytes. |
-| [`Expand-GzipArchive`](docs/en-US/Expand-GzipArchive.md) | Expand Gzip compressed files to a destination path or to the [success stream](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams?view=powershell-7.3#success-stream). |
+<div class="gzipcmdlets">
+<table>
+<tr>
+<th>Cmdlet</th>
+<th>Description</th>
+</tr>
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`Compress-GzipArchive`](docs/en-US/Compress-GzipArchive.md)
+
+</td>
+<td>
+Can compress one or more specified file paths into a Gzip file.
+</td>
+</tr>
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`ConvertFrom-GzipString`](docs/en-US/ConvertFrom-GzipString.md)
+
+</td>
+<td>
+Expands Gzip Base64 input strings.
+</td>
+</tr>
+
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`ConvertTo-GzipString`](docs/en-US/ConvertTo-GzipString.md)
+
+</td>
+<td>
+Can compress input strings into Gzip Base64 strings or raw bytes.
+</td>
+</tr>
+
+<tr>
+<td colspan="1" width="230" height="60">
+
+[`Expand-GzipArchive`](docs/en-US/Expand-GzipArchive.md)
+
+</td>
+<td>
+
+Expands Gzip compressed files to a destination path or to the [success stream](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams?view=powershell-7.3#success-stream).
+
+</td>
+</tr>
+</table>
+</div>
 
 ## Documentation
 
