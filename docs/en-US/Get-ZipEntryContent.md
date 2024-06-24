@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Gets the content of a Zip Archive Entry.
+Gets the content of a zip entry.
 
 ## SYNTAX
 
