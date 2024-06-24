@@ -11,11 +11,35 @@
 
 </div>
 
-PSCompression is a PowerShell Module aimed to provide Zip and Gzip utilities for compression, expansion and management as well as to solve a few issues with Zip compression existing in _built-in PowerShell_.
+PSCompression is a PowerShell Module that provides Zip and Gzip utilities for compression, expansion and management. It also solves a few issues with Zip compression existing in _built-in PowerShell_.
+
+## What does this Module offer?
+
+### Zip Cmdlets
+
+| Cmdlet | Description |
+| --- | --- |
+| [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) | Lists entries from specified Zip paths. It has built-in functionalities to filter entries and is the main entry point for the ZipEntry cmdlets in this module. |
+| [`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md) | Expands Zip Archive Entries outputted by the [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) command to a destination directory. |
+| [`Get-ZipEntryContent`](docs/en-US/Get-ZipEntryContent.md) | Gets the content of one or more `ZipEntryFile` instances. |
+| [`New-ZipEntry`](docs/en-US/New-ZipEntry.md) | Create one or more Zip Archive Entries from specified paths. |
+| [`Remove-ZipEntry`](docs/en-US/Remove-ZipEntry.md) | Remove Zip Archive Entries from one or more Zip Archives. |
+| [`Rename-ZipEntry`](docs/en-US/Rename-ZipEntry.md) | Rename Zip Archive Entries from one or more Zip Archives. |
+| [`Set-ZipEntryContent`](docs/en-US/Set-ZipEntryContent.md) | Sets or appends content to a Zip Archive Entry. |
+| [`Compress-ZipArchive`](docs/en-US/Compress-ZipArchive.md) | Creates a compressed, or zipped, archive file from one or more specified files or directories. It aims to overcome a few [`Compress-Archive`](docs/en-US/https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) limitations while keeping similar capabilities. |
+
+### Gzip Cmdlets
+
+| Cmdlet | Description |
+| --- | --- |
+| [`Compress-GzipArchive`](docs/en-US/Compress-GzipArchive.md) | Can compress one or more specified file paths into a single Gzip file. |
+| [`ConvertFrom-GzipString`](docs/en-US/ConvertFrom-GzipString.md) | Expands Base64 encoded Gzip compressed input strings. |
+| [`ConvertTo-GzipString`](docs/en-US/ConvertTo-GzipString.md) | Can compress input strings into Base64 encoded Gzip strings or raw bytes. |
+| [`Expand-GzipArchive`](docs/en-US/Expand-GzipArchive.md) | Expand Gzip compressed files to a destination path or to the [success stream](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams?view=powershell-7.3#success-stream). |
 
 ## Documentation
 
-Check out [__the docs__](./docs/en-US/PSCompression.md) for information about how to use this Module.
+Check out [__the docs__](docs/en-US/PSCompression.md) for information about how to use this Module.
 
 ## Installation
 
@@ -37,7 +61,7 @@ Set-Location ./PSCompression
 
 ## Requirements
 
-Compatible with __Windows PowerShell 5.1__ and [__PowerShell 7+__](https://github.com/PowerShell/PowerShell).
+This module has no external requirements and is compatible with __Windows PowerShell 5.1__ and [__PowerShell 7+__](https://github.com/PowerShell/PowerShell).
 
 ## Contributing
 

@@ -10,7 +10,7 @@ Locale: en-US
 
 ## Description
 
-PSCompression is a PowerShell Module aimed to provide Zip and Gzip utilities for compression, expansion and management as well as to solve a few issues with Zip compression existing in _built-in PowerShell_.
+PSCompression is a PowerShell Module that provides Zip and Gzip utilities for compression, expansion and management. It also solves a few issues with Zip compression existing in _built-in PowerShell_.
 
 ## PSCompression Cmdlets
 
