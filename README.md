@@ -20,7 +20,7 @@ PSCompression is a PowerShell Module that provides Zip and Gzip utilities for co
 <div class="zipcmdlets">
 <table>
 <tr>
-<th height="60">Cmdlet</th>
+<th>Cmdlet</th>
 <th>Description</th>
 </tr>
 <tr>
@@ -34,7 +34,7 @@ PSCompression is a PowerShell Module that provides Zip and Gzip utilities for co
 <tr>
 <td colspan="1" width="230" height="60">
 
-[`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md)
+[Expand-ZipEntry](docs/en-US/Expand-ZipEntry.md)
 
 </td>
 <td>
