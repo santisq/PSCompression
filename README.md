@@ -26,7 +26,7 @@ PSCompression is a PowerShell Module that provides Zip and Gzip utilities for co
 <tr>
 <td>
 
-`Get-ZipEntry`
+[`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md)
 
 </td>
 <td>Lists entries from specified Zip paths. It has built-in
