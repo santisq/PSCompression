@@ -29,8 +29,7 @@ PSCompression is a PowerShell Module that provides Zip and Gzip utilities for co
 [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md)
 
 </td>
-<td>Lists entries from specified Zip paths. It has built-in
-functionalities to filter entries and is the main entry point for the ZipEntry cmdlets in this module.</td>
+<td>Lists entries from specified Zip archives. This cmdlet is the main entry point for the ZipEntry cmdlets in this module.</td>
 </tr>
 <tr>
 <td>
@@ -38,8 +37,12 @@ functionalities to filter entries and is the main entry point for the ZipEntry c
 [`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md)
 
 </td>
-<td>Expands Zip Archive Entries outputted by the [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) command to a
-destination directory.</td>
+<td>
+
+Expands Zip Archive Entries outputted by the [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) command to a
+destination directory.
+
+</td>
 </tr>
 <tr>
 <td>
@@ -47,7 +50,11 @@ destination directory.</td>
 [`Get-ZipEntryContent`](docs/en-US/Get-ZipEntryContent.md)
 
 </td>
-<td>Gets the content of one or more `ZipEntryFile` instances.</td>
+<td>
+
+Gets the content of one or more `ZipEntryFile` instances.
+
+</td>
 </tr>
 <tr>
 <td>
