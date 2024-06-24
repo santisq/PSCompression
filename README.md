@@ -105,14 +105,44 @@ and overcomes a few issues with the built-in cmdlet.
 </table>
 </div>
 
-### Gzip Cmdlets
+<div class="gzipcmdlets">
+<table>
+<tr>
+<th>Cmdlet</th>
+<th>Description</th>
+</tr>
+<tr>
+<td colspan="1" width="200" height="60">
 
-| Cmdlet | Description |
-| --- | --- |
-| [`Compress-GzipArchive`](docs/en-US/Compress-GzipArchive.md) | Can compress one or more specified file paths into a single Gzip file. |
-| [`ConvertFrom-GzipString`](docs/en-US/ConvertFrom-GzipString.md) | Expands Base64 encoded Gzip compressed input strings. |
-| [`ConvertTo-GzipString`](docs/en-US/ConvertTo-GzipString.md) | Can compress input strings into Base64 encoded Gzip strings or raw bytes. |
-| [`Expand-GzipArchive`](docs/en-US/Expand-GzipArchive.md) | Expand Gzip compressed files to a destination path or to the [success stream](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams?view=powershell-7.3#success-stream). |
+[`Compress-GzipArchive`](docs/en-US/Compress-GzipArchive.md)
+
+</td>
+<td>
+Can compress one or more specified file paths into a single Gzip file.
+</td>
+</tr>
+<tr>
+<td colspan="1" width="200" height="60">
+
+[`ConvertFrom-GzipString`](docs/en-US/ConvertFrom-GzipString.md) | Expands Base64 encoded Gzip compressed input strings.
+</td>
+</tr>
+
+<tr>
+<td colspan="1" width="200" height="60">
+
+[`ConvertTo-GzipString`](docs/en-US/ConvertTo-GzipString.md) | Can compress input strings into Base64 encoded Gzip strings or raw bytes.
+</td>
+</tr>
+
+<tr>
+<td colspan="1" width="200" height="60">
+
+[`Expand-GzipArchive`](docs/en-US/Expand-GzipArchive.md) | Expand Gzip compressed files to a destination path or to the [success stream](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams?view=powershell-7.3#success-stream).
+</td>
+</tr>
+</table>
+</div>
 
 ## Documentation
 
