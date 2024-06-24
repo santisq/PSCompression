@@ -124,21 +124,35 @@ Can compress one or more specified file paths into a single Gzip file.
 <tr>
 <td colspan="1" width="200" height="60">
 
-[`ConvertFrom-GzipString`](docs/en-US/ConvertFrom-GzipString.md) | Expands Base64 encoded Gzip compressed input strings.
+[`ConvertFrom-GzipString`](docs/en-US/ConvertFrom-GzipString.md)
+
+</td>
+<td>
+Expands Base64 encoded Gzip compressed input strings.
 </td>
 </tr>
 
 <tr>
 <td colspan="1" width="200" height="60">
 
-[`ConvertTo-GzipString`](docs/en-US/ConvertTo-GzipString.md) | Can compress input strings into Base64 encoded Gzip strings or raw bytes.
+[`ConvertTo-GzipString`](docs/en-US/ConvertTo-GzipString.md)
+
+</td>
+<td>
+Can compress input strings into Base64 encoded Gzip strings or raw bytes.
 </td>
 </tr>
 
 <tr>
 <td colspan="1" width="200" height="60">
 
-[`Expand-GzipArchive`](docs/en-US/Expand-GzipArchive.md) | Expand Gzip compressed files to a destination path or to the [success stream](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams?view=powershell-7.3#success-stream).
+[`Expand-GzipArchive`](docs/en-US/Expand-GzipArchive.md)
+
+</td>
+<td>
+
+Expand Gzip compressed files to a destination path or to the [success stream](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams?view=powershell-7.3#success-stream).
+
 </td>
 </tr>
 </table>
