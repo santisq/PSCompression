@@ -24,7 +24,7 @@ PSCompression is a PowerShell Module that provides Zip and Gzip utilities for co
 <th>Description</th>
 </tr>
 <tr>
-<td>
+<td colspan="1" width="200">
 
 [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md)
 
@@ -33,35 +33,67 @@ PSCompression is a PowerShell Module that provides Zip and Gzip utilities for co
 functionalities to filter entries and is the main entry point for the ZipEntry cmdlets in this module.</td>
 </tr>
 <tr>
-<td>[`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md)</td>
+<td>
+
+[`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md)
+
+</td>
 <td>Expands Zip Archive Entries outputted by the [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) command to a
 destination directory.</td>
 </tr>
 <tr>
-<td>[`Get-ZipEntryContent`](docs/en-US/Get-ZipEntryContent.md)</td>
+<td>
+
+[`Get-ZipEntryContent`](docs/en-US/Get-ZipEntryContent.md)
+
+</td>
 <td>Gets the content of one or more `ZipEntryFile` instances.</td>
 </tr>
 <tr>
-<td>[`New-ZipEntry`](docs/en-US/New-ZipEntry.md)</td>
+<td>
+
+[`New-ZipEntry`](docs/en-US/New-ZipEntry.md)
+
+</td>
 <td>Create one or more Zip Archive Entries from specified paths.</td>
 </tr>
 <tr>
-<td>[`Remove-ZipEntry`](docs/en-US/Remove-ZipEntry.md)</td>
+<td>
+
+[`Remove-ZipEntry`](docs/en-US/Remove-ZipEntry.md)
+
+</td>
 <td>Remove Zip Archive Entries from one or more Zip Archives.</td>
 </tr>
 <tr>
-<td>[`Rename-ZipEntry`](docs/en-US/Rename-ZipEntry.md)</td>
+<td>
+
+[`Rename-ZipEntry`](docs/en-US/Rename-ZipEntry.md)
+
+</td>
 <td>Rename Zip Archive Entries from one or more Zip Archives.</td>
 </tr>
 <tr>
-<td>[`Set-ZipEntryContent`](docs/en-US/Set-ZipEntryContent.md)</td>
+<td>
+
+[`Set-ZipEntryContent`](docs/en-US/Set-ZipEntryContent.md)
+
+</td>
 <td>Sets or appends content to a Zip Archive Entry.</td>
 </tr>
 <tr>
-<td>[`Compress-ZipArchive`](docs/en-US/Compress-ZipArchive.md)</td>
-<td>Similar capabilities as
+<td>
+
+[`Compress-ZipArchive`](docs/en-US/Compress-ZipArchive.md)
+
+</td>
+<td>
+
+Similar capabilities as
 [`Compress-Archive`](docs/en-US/https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2)
-and overcomes a few issues with the built-in cmdlet.</td>
+and overcomes a few issues with the built-in cmdlet.
+
+</td>
 </tr>
 </table>
 </div>
