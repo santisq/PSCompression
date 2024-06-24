@@ -1,3 +1,7 @@
+# 06/24/2024
+
+- Update build process.
+
 # 06/05/2024
 
 - Update `ci.yml` to use `codecov-action@v4`.
