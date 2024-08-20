@@ -113,7 +113,7 @@ Compress-ZipArchive .\path -Destination myPath.zip -Exclude *.xyz, *\test\*
 ```
 
 This example shows how to compress all items in `path` excluding all files having a `.xyz` extension and excluding
-a folder with name `test` and all folder child items.
+a folder with name `test` and all its child items.
 
 > [!TIP]
 >
