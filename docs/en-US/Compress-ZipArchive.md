@@ -208,8 +208,7 @@ Any matching item is excluded from the created zip archive.
 Wildcard characters are accepted.
 
 > [!NOTE]
->
-> - Patterns are tested against the object's `.FullName` property.
+> Patterns are tested against the object's `.FullName` property.
 
 ```yaml
 Type: String[]
