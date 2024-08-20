@@ -22,6 +22,7 @@ Compress-ZipArchive
     [-CompressionLevel <CompressionLevel>]
     [-Update]
     [-Force]
+    [-Exclude <String[]>]
     [-PassThru]
     [<CommonParameters>]
 ```
@@ -35,6 +36,7 @@ Compress-ZipArchive
     [-CompressionLevel <CompressionLevel>]
     [-Update]
     [-Force]
+    [-Exclude <String[]>]
     [-PassThru]
     [<CommonParameters>]
 ```
