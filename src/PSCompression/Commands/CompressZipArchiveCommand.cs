@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Management.Automation;
 using PSCompression.Extensions;
 using static PSCompression.Exceptions.ExceptionHelpers;
@@ -17,11 +18,13 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
 
     private bool _isLiteral;
 
-    private string[] _paths = Array.Empty<string>();
+    private string[] _paths = [];
 
     private ZipArchive? _zip;
 
     private FileStream? _destination;
+
+    private WildcardPattern[]? _excludePatterns;
 
     private readonly Queue<DirectoryInfo> _queue = new();
 
@@ -72,6 +75,11 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
     [Parameter]
     public SwitchParameter PassThru { get; set; }
 
+    [Parameter]
+    [SupportsWildcards]
+    [ValidateNotNullOrEmpty]
+    public string[]? Exclude { get; set; }
+
     protected override void BeginProcessing()
     {
         if (!HasZipExtension(Destination))
@@ -100,6 +108,17 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         {
             ThrowTerminatingError(StreamOpenError(Destination, e));
         }
+
+        const WildcardOptions wpoptions = WildcardOptions.Compiled
+            | WildcardOptions.CultureInvariant
+            | WildcardOptions.IgnoreCase;
+
+        if (Exclude is not null)
+        {
+            _excludePatterns = Exclude
+                .Select(e => new WildcardPattern(e, wpoptions))
+                .ToArray();
+        }
     }
 
     protected override void ProcessRecord()
@@ -109,6 +128,11 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         _queue.Clear();
         foreach (string path in _paths.NormalizePath(_isLiteral, this))
         {
+            if (ShouldExclude(_excludePatterns, path))
+            {
+                continue;
+            }
+
             if (!path.IsArchive())
             {
                 Traverse(new DirectoryInfo(path), _zip);
@@ -159,6 +183,11 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
 
             foreach (FileSystemInfo item in enumerator)
             {
+                if (ShouldExclude(_excludePatterns, item.FullName))
+                {
+                    continue;
+                }
+
                 if (item is DirectoryInfo directory)
                 {
                     _queue.Enqueue(directory);
@@ -167,7 +196,7 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
 
                 FileInfo file = (FileInfo)item;
 
-                if (ItemIsDestination(file, Destination))
+                if (ItemIsDestination(file.FullName, Destination))
                 {
                     continue;
                 }
@@ -265,8 +294,28 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         System.IO.Path.GetExtension(path)
             .Equals(".zip", StringComparison.InvariantCultureIgnoreCase);
 
-    private bool ItemIsDestination(FileInfo source, string destination) =>
-        source.FullName.Equals(destination, StringComparison.InvariantCultureIgnoreCase);
+    private bool ItemIsDestination(string source, string destination) =>
+        source.Equals(destination, StringComparison.InvariantCultureIgnoreCase);
+
+    private static bool ShouldExclude(
+        WildcardPattern[]? patterns,
+        string path)
+    {
+        if (patterns is null)
+        {
+            return false;
+        }
+
+        foreach (WildcardPattern pattern in patterns)
+        {
+            if (pattern.IsMatch(path))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     protected override void EndProcessing()
     {
