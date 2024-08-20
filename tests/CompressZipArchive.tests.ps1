@@ -104,4 +104,14 @@ Describe 'Compress-ZipArchive' -Tag 'Compress-ZipArchive' {
         Get-ChildItem skipitself -Recurse | ForEach-Object Name |
             Should -Not -Contain $zipname
     }
+
+    It 'Should skip items that match the exclusion patterns' {
+        Remove-Item "$extractpath.zip" -Force
+        Compress-ZipArchive $testpath $extractpath -Exclude *testfile00*, *testfolder05*
+        Expand-Archive "$extractpath.zip" $extractpath
+        Get-ChildItem $extractpath -Recurse | ForEach-Object {
+            $_.FullName | Should -Not -BeLike *testfile00*
+            $_.FullName | Should -Not -BeLike *testfolder05*
+        }
+    }
 }

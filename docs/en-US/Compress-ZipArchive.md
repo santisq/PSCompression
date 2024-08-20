@@ -106,6 +106,20 @@ Get-ChildItem .\path -Recurse -Directory |
     Compress-ZipArchive -Destination dest.zip -Update
 ```
 
+### Example 8: Exclude files and folders from source
+
+```powershell
+Compress-ZipArchive .\path -Destination myPath.zip -Exclude *.xyz, *\test\*
+```
+
+This example shows how to compress all items in `path` excluding all files having a `.xyz` extension and excluding
+a folder with name `test` and all its child items.
+
+> [!TIP]
+>
+> The `-Exclude` parameter supports [wildcard patterns](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_wildcards?view=powershell-7.4&viewFallbackFrom=powershell-7.3),
+exclusion patterns are tested against the items `.FullName` property.
+
 ## PARAMETERS
 
 ### -Path
@@ -117,9 +131,9 @@ This parameter accepts wildcard characters. Wildcard characters allow you to add
 > [!TIP]
 > Using wildcards with a root directory affects the archive's contents:
 >
->  - To create an archive that includes the root directory, and all its files and subdirectories, specify the root directory in the Path without wildcards. For example: `-Path C:\Reference`
->  - To create an archive that excludes the root directory, but zips all its files and subdirectories, use the asterisk (`*`) wildcard. For example: `-Path C:\Reference\*`
->  - To create an archive that only zips the files in the root directory, use the star-dot-star (`*.*`) wildcard. Subdirectories of the root aren't included in the archive. For example: `-Path C:\Reference\*.*`
+> - To create an archive that includes the root directory, and all its files and subdirectories, specify the root directory in the Path without wildcards. For example: `-Path C:\Reference`
+> - To create an archive that excludes the root directory, but zips all its files and subdirectories, use the asterisk (`*`) wildcard. For example: `-Path C:\Reference\*`
+> - To create an archive that only zips the files in the root directory, use the star-dot-star (`*.*`) wildcard. Subdirectories of the root aren't included in the archive. For example: `-Path C:\Reference\*.*`
 
 ```yaml
 Type: String[]
@@ -185,6 +199,27 @@ Position: Named
 Default value: Optimal
 Accept pipeline input: False
 Accept wildcard characters: False
+```
+
+### -Exclude
+
+Specifies an array of one or more string patterns to be matched as the cmdlet gets child items.
+Any matching item is excluded from the created zip archive.
+Wildcard characters are accepted.
+
+> [!NOTE]
+> Patterns are tested against the object's `.FullName` property.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: True
 ```
 
 ### -Update
