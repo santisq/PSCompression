@@ -5,9 +5,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
 using PSCompression.Extensions;
-using static PSCompression.Exceptions.ExceptionHelpers;
+using PSCompression.Exceptions;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Compress, "ZipArchive")]
 [OutputType(typeof(FileInfo))]
@@ -100,13 +100,9 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
             _destination = File.Open(Destination, GetFileMode());
             _zip = new ZipArchive(_destination, GetZipMode());
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            ThrowTerminatingError(StreamOpenError(Destination, e));
+            ThrowTerminatingError(exception.ToStreamOpenError(Destination));
         }
 
         const WildcardOptions wpoptions = WildcardOptions.Compiled
@@ -171,13 +167,9 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
             {
                 enumerator = current.EnumerateFileSystemInfos();
             }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            catch (Exception exception)
             {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(EnumerationError(current, e));
+                WriteError(exception.ToEnumerationError(current));
                 continue;
             }
 
@@ -222,19 +214,15 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         try
         {
             using FileStream fileStream = Open(file);
-            using Stream stream = zip.CreateEntry(
-                entryName: relativepath,
-                compressionLevel: CompressionLevel).Open();
+            using Stream stream = zip
+                .CreateEntry(relativepath, CompressionLevel)
+                .Open();
 
             fileStream.CopyTo(stream);
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            WriteError(StreamOpenError(file.FullName, e));
+            WriteError(exception.ToStreamOpenError(file.FullName));
         }
     }
 
@@ -255,13 +243,9 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
             stream.SetLength(0);
             fileStream.CopyTo(stream);
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            WriteError(StreamOpenError(file.FullName, e));
+            WriteError(exception.ToStreamOpenError(file.FullName));
         }
     }
 

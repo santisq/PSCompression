@@ -3,8 +3,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
+using PSCompression.Exceptions;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.ConvertTo, "GzipString")]
 [OutputType(typeof(byte[]), typeof(string))]
@@ -52,14 +53,9 @@ public sealed class ConvertToGzipStringCommand : PSCmdlet, IDisposable
 
             WriteLines(_writer, InputObject);
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            WriteError(new ErrorRecord(
-                e, "WriteError", ErrorCategory.NotSpecified, InputObject));
+            WriteError(exception.ToWriteError(InputObject));
         }
     }
 
@@ -84,14 +80,9 @@ public sealed class ConvertToGzipStringCommand : PSCmdlet, IDisposable
 
             WriteObject(Convert.ToBase64String(_outstream.ToArray()));
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            WriteError(new ErrorRecord(
-                e, "OutputError", ErrorCategory.NotSpecified, _outstream));
+            WriteError(exception.ToWriteError(_outstream));
         }
     }
 

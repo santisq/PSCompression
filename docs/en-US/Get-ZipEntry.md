@@ -17,7 +17,7 @@ Lists zip entries from one or more specified Zip Archives.
 
 ```powershell
 Get-ZipEntry
-   [-Path] <String[]>
+   -Path <String[]>
    [-Type <String>]
    [-Include <String[]>]
    [-Exclude <String[]>]

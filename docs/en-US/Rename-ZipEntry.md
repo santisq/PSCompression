@@ -15,8 +15,8 @@ Renames zip entries from one or more zip archives.
 
 ```powershell
 Rename-ZipEntry
-    [-ZipEntry] <ZipEntryBase>
-    [-NewName] <String>
+    -ZipEntry <ZipEntryBase>
+    -NewName <String>
     [-PassThru]
     [-WhatIf]
     [-Confirm]

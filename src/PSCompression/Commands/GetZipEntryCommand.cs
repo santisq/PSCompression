@@ -4,9 +4,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
 using PSCompression.Extensions;
-using static PSCompression.Exceptions.ExceptionHelpers;
+using PSCompression.Exceptions;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Get, "ZipEntry", DefaultParameterSetName = "Path")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
@@ -19,7 +19,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
 
     private bool _withExclude;
 
-    private string[] _paths = Array.Empty<string>();
+    private string[] _paths = [];
 
     private readonly List<ZipEntryBase> _output = new();
 
@@ -104,7 +104,7 @@ public sealed class GetZipEntryCommand : PSCmdlet
         {
             if (!path.IsArchive())
             {
-                WriteError(NotArchivePathError(
+                WriteError(ExceptionHelpers.NotArchivePathError(
                     path,
                     _isLiteral ? nameof(LiteralPath) : nameof(Path)));
 
@@ -115,13 +115,9 @@ public sealed class GetZipEntryCommand : PSCmdlet
             {
                 WriteObject(GetEntries(path), enumerateCollection: true);
             }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            catch (Exception exception)
             {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(ZipOpenError(path, e));
+                WriteError(exception.ToOpenError(path));
             }
         }
     }

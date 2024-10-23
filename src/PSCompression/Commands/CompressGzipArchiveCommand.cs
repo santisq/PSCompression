@@ -3,9 +3,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using PSCompression.Extensions;
-using static PSCompression.Exceptions.ExceptionHelpers;
+using PSCompression.Exceptions;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Compress, "GzipArchive", DefaultParameterSetName = "Path")]
 [OutputType(typeof(FileInfo))]
@@ -14,7 +14,7 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
 {
     private bool _isLiteral;
 
-    private string[] _paths = Array.Empty<string>();
+    private string[] _paths = [];
 
     private FileStream? _destination;
 
@@ -83,7 +83,6 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
         try
         {
             Destination = Destination.NormalizePath(isLiteral: true, this);
-
             string parent = Destination.GetParent();
 
             if (!Directory.Exists(parent))
@@ -93,13 +92,9 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
 
             _destination = File.Open(Destination, GetMode());
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            ThrowTerminatingError(StreamOpenError(Destination, e));
+            ThrowTerminatingError(exception.ToStreamOpenError(Destination));
         }
     }
 
@@ -113,13 +108,9 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
             {
                 _destination.Write(InputBytes, 0, InputBytes.Length);
             }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            catch (Exception exception)
             {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(ZipWriteError(InputBytes, e));
+                WriteError(exception.ToWriteError(InputBytes));
             }
 
             return;
@@ -131,7 +122,7 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
         {
             if (!path.IsArchive())
             {
-                WriteError(NotArchivePathError(
+                WriteError(ExceptionHelpers.NotArchivePathError(
                     path,
                     _isLiteral ? nameof(LiteralPath) : nameof(Path)));
 
@@ -143,13 +134,9 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
                 using FileStream stream = File.OpenRead(path);
                 stream.CopyTo(_gzip);
             }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            catch (Exception exception)
             {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(ZipWriteError(path, e));
+                WriteError(exception.ToWriteError(path));
             }
         }
     }

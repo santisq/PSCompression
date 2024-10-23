@@ -17,8 +17,8 @@ Creates a Gzip compressed file from specified paths or input bytes.
 
 ```powershell
 Compress-GzipArchive
-    [-Path] <String[]>
-    [-Destination] <String>
+    -Path <String[]>
+    -Destination <String>
     [-CompressionLevel <CompressionLevel>]
     [-Update]
     [-Force]
@@ -31,7 +31,7 @@ Compress-GzipArchive
 ```powershell
 Compress-GzipArchive
     -LiteralPath <String[]>
-    [-Destination] <String>
+    -Destination <String>
     [-CompressionLevel <CompressionLevel>]
     [-Update]
     [-Force]
@@ -44,7 +44,7 @@ Compress-GzipArchive
 ```powershell
 Compress-GzipArchive
     -InputBytes <Byte[]>
-    [-Destination] <String>
+    -Destination <String>
     [-CompressionLevel <CompressionLevel>]
     [-Update]
     [-Force]

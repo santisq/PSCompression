@@ -17,7 +17,7 @@ Expands a Gzip compressed file from a specified File Path or Paths.
 
 ```powershell
 Expand-GzipArchive
-    [-Path] <String[]>
+    -Path <String[]>
     [-Raw]
     [<CommonParameters>]
 ```
@@ -26,7 +26,7 @@ Expand-GzipArchive
 
 ```powershell
 Expand-GzipArchive
-    [-Path] <String[]>
+    -Path <String[]>
     -Destination <String>
     [-Encoding <Encoding>]
     [-PassThru]

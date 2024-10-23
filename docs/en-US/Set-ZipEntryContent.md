@@ -18,7 +18,7 @@ Sets or appends content to an existing zip entry.
 ```powershell
 Set-ZipEntryContent
     -Value <Object[]>
-    [-SourceEntry] <ZipEntryFile>
+    -SourceEntry <ZipEntryFile>
     [-Encoding <Encoding>]
     [-Append]
     [-PassThru]
@@ -30,7 +30,7 @@ Set-ZipEntryContent
 ```powershell
 Set-ZipEntryContent
     -Value <Object[]>
-    [-SourceEntry] <ZipEntryFile>
+    -SourceEntry <ZipEntryFile>
     [-AsByteStream]
     [-Append]
     [-BufferSize <Int32>]
