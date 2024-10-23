@@ -28,19 +28,7 @@ public static class _Format
     ];
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
-    public static string GetDirectoryPath(ZipEntryBase entry)
-    {
-        if (entry is ZipEntryDirectory)
-        {
-            return $"/{entry.RelativePath.NormalizeEntryPath()}";
-        }
-
-        string path = Path
-            .GetDirectoryName(entry.RelativePath)
-            .NormalizeEntryPath();
-
-        return string.IsNullOrEmpty(path) ? "/" : $"/{path}";
-    }
+    public static string GetDirectoryPath(ZipEntryBase entry) => entry.FormatDirectoryPath;
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetFormattedDate(DateTime dateTime) =>
