@@ -17,9 +17,9 @@ Creates zip entries from one or more specified entry relative paths.
 
 ```powershell
 New-ZipEntry
-   [-Value <String[]>]
    -Destination <String>
    -EntryPath <String[]>
+   [-Value <String[]>]
    [-CompressionLevel <CompressionLevel>]
    [-Encoding <Encoding>]
    [-Force]
@@ -31,8 +31,8 @@ New-ZipEntry
 ```powershell
 New-ZipEntry
    -Destination <String>
-   -EntryPath <String[]>
-   [-SourcePath <String>]
+   -SourcePath <String>
+   [-EntryPath <String[]>]
    [-CompressionLevel <CompressionLevel>]
    [-Force]
    [<CommonParameters>]
@@ -46,12 +46,12 @@ Entry paths, _arguments of the `-EntryPath` parameter_, are always normalized, a
 
 | Input                          | Normalized As               |
 | ------------------------------ | --------------------------- |
-| `path\to\mynewentry.ext`       | `path/to/mynewentry.ext`    |
-| `\path\to\newdirectory\`       | `path/to/newdirectory/`     |
+| `C:\path\to\mynewentry.ext`    | `path/to/mynewentry.ext`    |
+| `\\path\to\newdirectory\`      | `path/to/newdirectory/`     |
 | `path\to\very/\random\/path\\` | `path/to/very/random/path/` |
 
 > [!TIP]
-> The `[PSCompression.Extensions.PathExtensions]::NormalizePath(string path)` static method is available as a public API if you would like to normalize your paths before creating new entries.
+> The `[PSCompression.Extensions.PathExtensions]::NormalizePath(string path)` static method is available as a public API if you want to normalize your paths before creating new entries.
 
 In addition, `New-ZipEntry` can set the content of the entries that it creates from string input or by specifying a source file path.
 
@@ -89,25 +89,26 @@ world
 !
 ```
 
-The cmdlet prevents creating entries in a destination Zip archive if an entry with the same relative path already exists. You can use the `-Force` parameter to overwrite them.
+> [!TIP]
+> The cmdlet prevents creating entries in a destination Zip archive if an entry with the same relative path already exists. You can use the `-Force` parameter to overwrite them.
 
 ### Example 3: Create entries with content from a source file path
 
 ```powershell
 PS ..\pwsh> $file = 'hello world!' | New-Item mytestfile.txt
-PS ..\pwsh> New-ZipEntry .\test.zip -EntryPath newentry.txt -SourcePath $file.FullName
+PS ..\pwsh> New-ZipEntry .\test.zip -SourcePath $file.FullName -EntryPath newentry.txt
 ```
 
 ### Example 4: Archive all files in a specified location
 
 ```powershell
 PS ..\pwsh> $files = Get-ChildItem -File -Recurse
-PS ..\pwsh> $files | ForEach-Object {
-   New-ZipEntry .\test.zip -EntryPath $_.FullName.Remove(0, $pwd.Path.Length) -SourcePath $_.FullName
-}
+PS ..\pwsh> $files | ForEach-Object { New-ZipEntry .\test.zip -SourcePath $_.FullName }
 ```
 
-In this example `$_.FullName.Remove(0, $pwd.Path.Length)` is used to get the file paths relative to the current location. Using `-EntryPath $_.FullName` without getting the relative paths would work too however this would cause issues while attempting to extract the files later.
+> [!TIP]
+> The `-EntryPath` parameter is optional when creating an entry from a source file.
+> If the entry path isn't specified, the cmdlet will using the file's `.FullName` in its normalized form.
 
 ### Example 5: Archive all `.txt` files in a specified location using a specified encoding
 
@@ -115,9 +116,12 @@ In this example `$_.FullName.Remove(0, $pwd.Path.Length)` is used to get the fil
 PS ..\pwsh> $files = Get-ChildItem -File -Recurse -Filter *.txt
 PS ..\pwsh> $files | ForEach-Object {
    $_ | Get-Content -Encoding ascii |
-      New-ZipEntry .\test.zip -EntryPath $_.FullName.Remove(0, $pwd.Path.Length) -Encoding ascii
+      New-ZipEntry .\test.zip -EntryPath $_.FullName -Encoding ascii
 }
 ```
+
+> [!NOTE]
+> As opposed to previous example, when creating entries from input values, __the `-EntryPath` parameter is mandatory__. In this case, when using an absolute path as `-EntryPath` the cmdlet will always create the entries using their normalized form as explained in [__Description__](#description).
 
 ## PARAMETERS
 

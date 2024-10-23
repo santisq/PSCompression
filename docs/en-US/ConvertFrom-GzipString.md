@@ -16,7 +16,7 @@ Expands Gzip Base64 compressed input strings.
 ```powershell
 ConvertFrom-GzipString
     -InputObject <String[]>
-    [[-Encoding] <Encoding>]
+    [-Encoding <Encoding>]
     [-Raw]
     [<CommonParameters>]
 ```

@@ -16,7 +16,7 @@ Expands Zip Archive Entries to a destination directory.
 ```powershell
 Expand-ZipEntry
     -InputObject <ZipEntryBase[]>
-    [[-Destination] <String>]
+    [-Destination <String>]
     [-Force]
     [-PassThru]
     [<CommonParameters>]

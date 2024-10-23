@@ -29,22 +29,17 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     [Parameter(Mandatory = true, Position = 0)]
     public string Destination { get; set; } = null!;
 
-    [Parameter(
-        ParameterSetName = "Value",
-        Mandatory = true,
-        Position = 1)]
-    [Parameter(
-        ParameterSetName = "File",
-        Position = 1)]
+    [Parameter(ParameterSetName = "File", Position = 1)]
+    [ValidateNotNullOrEmpty]
+    public string? SourcePath { get; set; }
+
+    [Parameter(ParameterSetName = "Value", Mandatory = true, Position = 2)]
+    [Parameter(ParameterSetName = "File", Position = 2)]
     public string[]? EntryPath
     {
         get => _entryPath;
         set => _entryPath = value.Select(e => e.NormalizePath()).ToArray();
     }
-
-    [Parameter(ParameterSetName = "File", Position = 2)]
-    [ValidateNotNullOrEmpty]
-    public string? SourcePath { get; set; }
 
     [Parameter]
     public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;

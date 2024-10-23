@@ -89,6 +89,26 @@ Describe 'ZipEntry Cmdlets' {
                 Get-ZipEntryContent |
                 Should -Be 'hello world!'
         }
+
+        It 'Can create entries with content from file without specifying an EntryPath' {
+            $newItemSplat = @{
+                ItemType = 'File'
+                Force    = $true
+                Path     = (Join-Path $TestDrive helloworld.txt)
+            }
+
+            $item = 'hello world!' | New-Item @newItemSplat
+
+            $newZipEntrySplat = @{
+                SourcePath  = $item.FullName
+                Destination = $zip.FullName
+            }
+
+            $entry = New-ZipEntry @newZipEntrySplat
+            $entry | Get-ZipEntryContent | Should -Be 'hello world!'
+            $entry.RelativePath |
+                Should -Be ([PSCompression.Extensions.PathExtensions]::NormalizePath($item.FullName))
+        }
     }
 
     Context 'Get-ZipEntry' -Tag 'Get-ZipEntry' {
