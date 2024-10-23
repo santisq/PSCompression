@@ -20,7 +20,7 @@ internal static class ExceptionHelpers
         new(new ArgumentException($"Destination path is an existing File: '{path}'.", paramname),
             "NotDirectoryPath", ErrorCategory.InvalidArgument, path);
 
-    internal static ErrorRecord InvalidProviderError(string path, ProviderInfo provider) =>
+    internal static ErrorRecord ToInvalidProviderError(this ProviderInfo provider, string path) =>
         new(new ArgumentException($"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
             "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
 

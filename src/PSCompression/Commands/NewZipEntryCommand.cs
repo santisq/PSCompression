@@ -20,7 +20,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     private ZipContentWriter[]? _writers;
 
-    private string[] _entryPath = [];
+    private string[]? _entryPath;
 
     [Parameter(ValueFromPipeline = true, ParameterSetName = "Value")]
     [ValidateNotNull]
@@ -29,8 +29,14 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     [Parameter(Mandatory = true, Position = 0)]
     public string Destination { get; set; } = null!;
 
-    [Parameter(Mandatory = true, Position = 1)]
-    public string[] EntryPath
+    [Parameter(
+        ParameterSetName = "Value",
+        Mandatory = true,
+        Position = 1)]
+    [Parameter(
+        ParameterSetName = "File",
+        Position = 1)]
+    public string[]? EntryPath
     {
         get => _entryPath;
         set => _entryPath = value.Select(e => e.NormalizePath()).ToArray();
@@ -70,8 +76,10 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         {
             _zip = ZipFile.Open(Destination, ZipArchiveMode.Update);
 
-            if (SourcePath is null)
+            if (ParameterSetName == "Value")
             {
+                // Mandatory Parameter on this ParameterSet
+                Dbg.Assert(EntryPath is not null);
                 // We can create the entries here and go the process block
                 foreach (string entry in EntryPath)
                 {
@@ -95,6 +103,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 return;
             }
 
+            // else, we're on File ParameterSet, this can't be null
+            Dbg.Assert(SourcePath is not null);
             // Create Entries from file here
             string sourcePath = SourcePath.NormalizePath(
                 isLiteral: true,
@@ -114,6 +124,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 access: FileAccess.Read,
                 share: FileShare.ReadWrite);
 
+            EntryPath ??= [sourcePath.NormalizePath()];
             foreach (string entry in EntryPath)
             {
                 if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
@@ -183,7 +194,6 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             }
 
             _zip?.Dispose();
-
             WriteObject(GetResult(), enumerateCollection: true);
         }
         catch (Exception exception)

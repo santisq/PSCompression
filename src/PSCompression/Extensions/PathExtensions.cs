@@ -6,7 +6,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
 using Microsoft.PowerShell.Commands;
-using static PSCompression.Exceptions.ExceptionHelpers;
+using PSCompression.Exceptions;
 
 namespace PSCompression.Extensions;
 
@@ -31,7 +31,7 @@ public static class PathExtensions
         PSCmdlet cmdlet,
         bool throwOnInvalidProvider = false)
     {
-        s_normalizedPaths ??= new();
+        s_normalizedPaths ??= [];
         Collection<string> resolvedPaths;
         ProviderInfo provider;
         s_normalizedPaths.Clear();
@@ -40,18 +40,18 @@ public static class PathExtensions
         {
             if (isLiteral)
             {
-                string resolvedPath = cmdlet.SessionState.Path
+                string resolvedPath = cmdlet
+                    .SessionState.Path
                     .GetUnresolvedProviderPathFromPSPath(path, out provider, out _);
 
                 if (!provider.IsFileSystem())
                 {
                     if (throwOnInvalidProvider)
                     {
-                        cmdlet.ThrowTerminatingError(InvalidProviderError(path, provider));
+                        cmdlet.ThrowTerminatingError(provider.ToInvalidProviderError(path));
                     }
 
-                    cmdlet.WriteError(InvalidProviderError(path, provider));
-
+                    cmdlet.WriteError(provider.ToInvalidProviderError(path));
                     continue;
                 }
 
@@ -67,23 +67,21 @@ public static class PathExtensions
                 {
                     if (!provider.IsFileSystem())
                     {
-                        cmdlet.WriteError(InvalidProviderError(
-                            resolvedPath,
-                            provider));
-
+                        cmdlet.WriteError(provider.ToInvalidProviderError(resolvedPath));
                         continue;
                     }
 
                     s_normalizedPaths.Add(resolvedPath);
                 }
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                cmdlet.WriteError(ResolvePathError(path, e));
+
+                cmdlet.WriteError(exception.ToResolvePathError(path));
             }
         }
 
-        return s_normalizedPaths.ToArray();
+        return [.. s_normalizedPaths];
     }
 
     internal static string NormalizePath(
@@ -91,7 +89,7 @@ public static class PathExtensions
         bool isLiteral,
         PSCmdlet cmdlet,
         bool throwOnInvalidProvider = false) =>
-        NormalizePath(new[] { path }, isLiteral, cmdlet, throwOnInvalidProvider)
+        NormalizePath([path], isLiteral, cmdlet, throwOnInvalidProvider)
             .FirstOrDefault();
 
     internal static bool IsFileSystem(this ProviderInfo provider) =>

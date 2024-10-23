@@ -13,8 +13,8 @@ public sealed class EncodingCompleter : IArgumentCompleter
 
     static EncodingCompleter()
     {
-        List<string> set = new(new[]
-        {
+        List<string> set = new(
+        [
             "ascii",
             "bigendianUtf32",
             "unicode",
@@ -24,14 +24,14 @@ public sealed class EncodingCompleter : IArgumentCompleter
             "oem",
             "utf8BOM",
             "utf32"
-        });
+        ]);
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             set.Add("ansi");
         }
 
-        s_encodingSet = set.ToArray();
+        s_encodingSet = [.. set];
     }
 
     public IEnumerable<CompletionResult> CompleteArgument(

@@ -15,9 +15,7 @@ public sealed class ZipEntryFile : ZipEntryBase
 
     internal ZipEntryFile(ZipArchiveEntry entry, string source)
         : base(entry, source)
-    {
-
-    }
+    { }
 
     private static string GetRatio(long size, long compressedSize)
     {

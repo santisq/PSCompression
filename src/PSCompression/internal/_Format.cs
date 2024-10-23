@@ -12,10 +12,10 @@ namespace PSCompression.Internal;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class _Format
 {
-    private static CultureInfo _culture = CultureInfo.CurrentCulture;
+    private static readonly CultureInfo _culture = CultureInfo.CurrentCulture;
 
     private readonly static string[] s_suffix =
-    {
+    [
         "B",
         "KB",
         "MB",
@@ -25,26 +25,21 @@ public static class _Format
         "EB",
         "ZB",
         "YB"
-    };
+    ];
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetDirectoryPath(ZipEntryBase entry)
     {
         if (entry is ZipEntryDirectory)
         {
-            return entry.RelativePath.NormalizeEntryPath();
+            return $"/{entry.RelativePath.NormalizeEntryPath()}";
         }
 
         string path = Path
             .GetDirectoryName(entry.RelativePath)
             .NormalizeEntryPath();
 
-        if (string.IsNullOrEmpty(path))
-        {
-            return "/";
-        }
-
-        return path;
+        return string.IsNullOrEmpty(path) ? "/" : $"/{path}";
     }
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
