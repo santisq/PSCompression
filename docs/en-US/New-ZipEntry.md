@@ -62,13 +62,13 @@ In addition, `New-ZipEntry` can set the content of the entries that it creates f
 ```powershell
 PS ..\pwsh> New-ZipEntry .\test.zip -EntryPath test\entry, newfolder\
 
-   Directory: newfolder/
+   Directory: /newfolder/
 
 Type                    LastWriteTime  CompressedSize            Size Name
 ----                    -------------  --------------            ---- ----
 Directory          2/24/2024  3:22 PM         0.00  B         0.00  B newfolder
 
-   Directory: test/
+   Directory: /test/
 
 Type                    LastWriteTime  CompressedSize            Size Name
 ----                    -------------  --------------            ---- ----

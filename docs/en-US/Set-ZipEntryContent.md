@@ -131,6 +131,7 @@ Accept wildcard characters: False
 ### -BufferSize
 
 For efficiency purposes this cmdlet buffers bytes before writing them to the Zip Archive Entry. This parameter determines how many bytes are buffered before being written to the stream.
+
 > [!NOTE]
 >
 > - __This parameter is applicable only when `-AsByteStream` is used.__

@@ -68,7 +68,7 @@ The `-Type` parameter supports filtering by `Archive` or `Directory`.
 ```powershell
 PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-us*
 
-   Directory: PSCompression/docs/en-US/
+   Directory: /PSCompression/docs/en-US/
 
 Type                    LastWriteTime  CompressedSize            Size Name
 ----                    -------------  --------------            ---- ----
@@ -89,7 +89,7 @@ Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEnt
 
 PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-us* -Exclude *en-US/Compress*, *en-US/Remove*
 
-   Directory: PSCompression/docs/en-US/
+   Directory: /PSCompression/docs/en-US/
 
 Type                    LastWriteTime  CompressedSize            Size Name
 ----                    -------------  --------------            ---- ----
@@ -106,8 +106,10 @@ Archive            2/22/2024  1:19 PM       741.00  B         2.16 KB Rename-Zip
 Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEntryContent.md
 ```
 
-Inclusion and Exclusion patterns are applied to the entries relative path.
-Exclusions are applied after the inclusions.
+> [!NOTE]
+>
+> - Inclusion and Exclusion patterns are applied to the entries relative path.
+> - Exclusions are applied after the inclusions.
 
 ## PARAMETERS
 
