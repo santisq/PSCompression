@@ -10,6 +10,11 @@ public sealed class ZipEntryDirectory : ZipEntryBase
 {
     private const StringComparison _comparer = StringComparison.InvariantCultureIgnoreCase;
 
+    internal override string FormatDirectoryPath
+    {
+        get => _formatDirectoryPath ??= $"/{RelativePath.NormalizeEntryPath()}";
+    }
+
     public override ZipEntryType Type => ZipEntryType.Directory;
 
     internal ZipEntryDirectory(ZipArchiveEntry entry, string source)

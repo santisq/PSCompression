@@ -4,9 +4,8 @@ using System.IO.Compression;
 using System.Management.Automation;
 using PSCompression.Exceptions;
 using PSCompression.Extensions;
-using static PSCompression.Exceptions.ExceptionHelpers;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Rename, "ZipEntry", SupportsShouldProcess = true)]
 [OutputType(typeof(ZipEntryFile), typeof(ZipEntryDirectory))]
@@ -54,17 +53,13 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             _zipArchiveCache.TryAdd(ZipEntry);
             _moveCache.AddEntry(ZipEntry, NewName);
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (InvalidNameException exception)
         {
-            throw;
+            WriteError(exception.ToInvalidNameError(NewName));
         }
-        catch (InvalidNameException e)
+        catch (Exception exception)
         {
-            WriteError(InvalidNameError(NewName, e));
-        }
-        catch (Exception e)
-        {
-            WriteError(ZipOpenError(ZipEntry.Source, e));
+            WriteError(exception.ToOpenError(ZipEntry.Source));
         }
     }
 
@@ -101,26 +96,22 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
                     sourceZipPath: mapping.Key,
                     _zipArchiveCache[mapping.Key]);
             }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
-            {
-                throw;
-            }
-            catch (DuplicatedEntryException e)
+            catch (DuplicatedEntryException exception)
             {
                 if (_moveCache.IsDirectoryEntry(mapping.Key, source))
                 {
-                    ThrowTerminatingError(DuplicatedEntryError(e));
+                    ThrowTerminatingError(exception.ToDuplicatedEntryError());
                 }
 
-                WriteError(DuplicatedEntryError(e));
+                WriteError(exception.ToDuplicatedEntryError());
             }
-            catch (EntryNotFoundException e)
+            catch (EntryNotFoundException exception)
             {
-                WriteError(EntryNotFoundError(e));
+                WriteError(exception.ToEntryNotFoundError());
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                WriteError(ZipWriteError(ZipEntry, e));
+                WriteError(exception.ToWriteError(ZipEntry));
             }
         }
     }

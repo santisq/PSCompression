@@ -18,7 +18,7 @@ Sets or appends content to an existing zip entry.
 ```powershell
 Set-ZipEntryContent
     -Value <Object[]>
-    [-SourceEntry] <ZipEntryFile>
+    -SourceEntry <ZipEntryFile>
     [-Encoding <Encoding>]
     [-Append]
     [-PassThru]
@@ -30,7 +30,7 @@ Set-ZipEntryContent
 ```powershell
 Set-ZipEntryContent
     -Value <Object[]>
-    [-SourceEntry] <ZipEntryFile>
+    -SourceEntry <ZipEntryFile>
     [-AsByteStream]
     [-Append]
     [-BufferSize <Int32>]
@@ -131,6 +131,7 @@ Accept wildcard characters: False
 ### -BufferSize
 
 For efficiency purposes this cmdlet buffers bytes before writing them to the Zip Archive Entry. This parameter determines how many bytes are buffered before being written to the stream.
+
 > [!NOTE]
 >
 > - __This parameter is applicable only when `-AsByteStream` is used.__

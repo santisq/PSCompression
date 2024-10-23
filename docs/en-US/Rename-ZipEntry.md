@@ -15,8 +15,8 @@ Renames zip entries from one or more zip archives.
 
 ```powershell
 Rename-ZipEntry
-    [-ZipEntry] <ZipEntryBase>
-    [-NewName] <String>
+    -ZipEntry <ZipEntryBase>
+    -NewName <String>
     [-PassThru]
     [-WhatIf]
     [-Confirm]
@@ -63,7 +63,7 @@ PS ..pwsh\> Get-ZipEntry .\myZip.zip -Type Archive -Include *.ext |
 ```powershell
 PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US/*
 
-   Directory: PSCompression/docs/en-US/
+   Directory: /PSCompression/docs/en-US/
 
 Type                    LastWriteTime  CompressedSize            Size Name
 ----                    -------------  --------------            ---- ----
@@ -85,7 +85,7 @@ Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEnt
 PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US/ | Rename-ZipEntry -NewName 'en-US123'
 PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US123/*
 
-   Directory: PSCompression/docs/en-US123/
+   Directory: /PSCompression/docs/en-US123/
 
 Type                    LastWriteTime  CompressedSize            Size Name
 ----                    -------------  --------------            ---- ----
@@ -123,7 +123,7 @@ Performing the operation "Rename" on target "PSCompression/docs/en-US123/".
 Specifies the new name of the zip entry. Enter only a name, not a path and name.
 
 > [!TIP]
-> [Delay-bind scriptblock](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_script_blocks?view=powershell-7.4#using-delay-bind-script-blocks-with-parameters) is supported for this parameter. See [Example 2](./Rename-ZipEntry.md#example-2-rename-all-entries-with-ext-extension-using-a-delay-bind-scriptblock).
+> [Delay-bind scriptblock](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_script_blocks?view=powershell-7.4#using-delay-bind-script-blocks-with-parameters) is supported for this parameter. See [Example 2](#example-2-rename-all-entries-with-ext-extension-using-a-delay-bind-scriptblock).
 
 ```yaml
 Type: String

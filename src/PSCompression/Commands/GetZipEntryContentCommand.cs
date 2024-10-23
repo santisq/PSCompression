@@ -2,13 +2,13 @@ using System;
 using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
-using static PSCompression.Exceptions.ExceptionHelpers;
+using PSCompression.Exceptions;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Get, "ZipEntryContent", DefaultParameterSetName = "Stream")]
-[OutputType(typeof(string), ParameterSetName = new[] { "Stream" })]
-[OutputType(typeof(byte), ParameterSetName = new[] { "Bytes" })]
+[OutputType(typeof(string), ParameterSetName = ["Stream"])]
+[OutputType(typeof(byte), ParameterSetName = ["Bytes"])]
 [Alias("gczip")]
 public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
 {
@@ -42,13 +42,9 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
                 ZipContentReader reader = new(GetOrAdd(entry));
                 ReadEntry(entry, reader);
             }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            catch (Exception exception)
             {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(ZipOpenError(entry.Source, e));
+                WriteError(exception.ToOpenError(entry.Source));
             }
         }
     }
@@ -76,8 +72,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
         reader.StreamLines(entry.RelativePath, Encoding, this);
     }
 
-    private ZipArchive GetOrAdd(ZipEntryFile entry) =>
-        _cache.GetOrAdd(entry);
+    private ZipArchive GetOrAdd(ZipEntryFile entry) => _cache.GetOrAdd(entry);
 
     public void Dispose() => _cache?.Dispose();
 }

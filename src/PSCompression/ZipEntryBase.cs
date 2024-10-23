@@ -14,6 +14,10 @@ public enum ZipEntryType
 
 public abstract class ZipEntryBase
 {
+    protected string? _formatDirectoryPath;
+
+    internal abstract string FormatDirectoryPath { get; }
+
     public string Source { get; }
 
     public string Name { get; protected set; }

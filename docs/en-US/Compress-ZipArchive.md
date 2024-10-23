@@ -17,7 +17,7 @@ The `Compress-ZipArchive` cmdlet creates a compressed, or zipped, archive file f
 
 ```powershell
 Compress-ZipArchive
-    [-Path] <String[]>
+    -Path <String[]>
     -Destination <String>
     [-CompressionLevel <CompressionLevel>]
     [-Update]

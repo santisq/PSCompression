@@ -2,9 +2,9 @@
 using System.IO;
 using System.Management.Automation;
 using PSCompression.Extensions;
-using static PSCompression.Exceptions.ExceptionHelpers;
+using PSCompression.Exceptions;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Expand, "ZipEntry")]
 [OutputType(typeof(FileSystemInfo), ParameterSetName = new[] { "PassThru" })]
@@ -35,18 +35,14 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
 
             if (File.Exists(Destination))
             {
-                ThrowTerminatingError(NotDirectoryPathError(
+                ThrowTerminatingError(ExceptionHelpers.NotDirectoryPathError(
                     Destination,
                     nameof(Destination)));
             }
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            ThrowTerminatingError(ResolvePathError(Destination, e));
+            ThrowTerminatingError(exception.ToResolvePathError(Destination));
         }
     }
 
@@ -74,13 +70,9 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
                     WriteObject(new DirectoryInfo(path));
                 }
             }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            catch (Exception exception)
             {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(ExtractEntryError(entry, e));
+                WriteError(exception.ToExtractEntryError(entry));
             }
         }
     }

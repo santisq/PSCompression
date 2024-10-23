@@ -20,45 +20,45 @@ internal static class ExceptionHelpers
         new(new ArgumentException($"Destination path is an existing File: '{path}'.", paramname),
             "NotDirectoryPath", ErrorCategory.InvalidArgument, path);
 
-    internal static ErrorRecord InvalidProviderError(string path, ProviderInfo provider) =>
+    internal static ErrorRecord ToInvalidProviderError(this ProviderInfo provider, string path) =>
         new(new ArgumentException($"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
             "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
 
-    internal static ErrorRecord ZipOpenError(string path, Exception exception) =>
+    internal static ErrorRecord ToOpenError(this Exception exception, string path) =>
         new(exception, "ZipOpen", ErrorCategory.OpenError, path);
 
-    internal static ErrorRecord ResolvePathError(string path, Exception exception) =>
+    internal static ErrorRecord ToResolvePathError(this Exception exception, string path) =>
         new(exception, "ResolvePath", ErrorCategory.NotSpecified, path);
 
-    internal static ErrorRecord ExtractEntryError(ZipEntryBase entry, Exception exception) =>
+    internal static ErrorRecord ToExtractEntryError(this Exception exception, ZipEntryBase entry) =>
         new(exception, "ExtractEntry", ErrorCategory.NotSpecified, entry);
 
-    internal static ErrorRecord StreamOpenError(ZipEntryFile entry, Exception exception) =>
+    internal static ErrorRecord ToStreamOpenError(this Exception exception, ZipEntryFile entry) =>
         new(exception, "StreamOpen", ErrorCategory.NotSpecified, entry);
 
-    internal static ErrorRecord StreamOpenError(string path, Exception exception) =>
+    internal static ErrorRecord ToStreamOpenError(this Exception exception, string path) =>
         new(exception, "StreamOpen", ErrorCategory.NotSpecified, path);
 
-    internal static ErrorRecord ZipWriteError(object entry, Exception exception) =>
-        new(exception, "WriteError", ErrorCategory.WriteError, entry);
+    internal static ErrorRecord ToWriteError(this Exception exception, object? item) =>
+        new(exception, "WriteError", ErrorCategory.WriteError, item);
 
-    internal static ErrorRecord DuplicatedEntryError(DuplicatedEntryException exception) =>
+    internal static ErrorRecord ToDuplicatedEntryError(this DuplicatedEntryException exception) =>
         new(exception, "DuplicatedEntry", ErrorCategory.WriteError, exception._path);
 
-    internal static ErrorRecord InvalidNameError(string name, InvalidNameException exception) =>
+    internal static ErrorRecord ToInvalidNameError(this InvalidNameException exception, string name) =>
         new(exception, "InvalidName", ErrorCategory.InvalidArgument, name);
 
-    internal static ErrorRecord EntryNotFoundError(EntryNotFoundException exception) =>
+    internal static ErrorRecord ToEntryNotFoundError(this EntryNotFoundException exception) =>
         new(exception, "EntryNotFound", ErrorCategory.ObjectNotFound, exception._path);
 
-    internal static ErrorRecord EnumerationError(object item, Exception exception) =>
+    internal static ErrorRecord ToEnumerationError(this Exception exception, object item) =>
         new(exception, "EnumerationError", ErrorCategory.ReadError, item);
 
     internal static void ThrowIfNotFound(
-    this ZipArchive zip,
-    string path,
-    string source,
-    out ZipArchiveEntry entry)
+        this ZipArchive zip,
+        string path,
+        string source,
+        out ZipArchiveEntry entry)
     {
         if (!zip.TryGetEntry(path, out entry))
         {

@@ -2,18 +2,18 @@ using System;
 using System.IO;
 using System.Management.Automation;
 using System.Text;
-using static PSCompression.Exceptions.ExceptionHelpers;
 using PSCompression.Extensions;
+using PSCompression.Exceptions;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Expand, "GzipArchive")]
 [OutputType(
     typeof(string),
-    ParameterSetName = new[] { "Path", "LiteralPath" })]
+    ParameterSetName = ["Path", "LiteralPath"])]
 [OutputType(
     typeof(FileInfo),
-    ParameterSetName = new[] { "PathDestination", "LiteralPathDestination" })]
+    ParameterSetName = ["PathDestination", "LiteralPathDestination"])]
 [Alias("gzipfromfile")]
 public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
 {
@@ -21,7 +21,7 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
 
     private FileStream? _destination;
 
-    private string[] _paths = Array.Empty<string>();
+    private string[] _paths = [];
 
     [Parameter(
         ParameterSetName = "Path",
@@ -114,13 +114,9 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
 
                 _destination = File.Open(Destination, GetMode());
             }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            catch (Exception exception)
             {
-                throw;
-            }
-            catch (Exception e)
-            {
-                ThrowTerminatingError(StreamOpenError(Destination, e));
+                ThrowTerminatingError(exception.ToStreamOpenError(Destination));
             }
         }
     }
@@ -131,7 +127,7 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
         {
             if (!path.IsArchive())
             {
-                WriteError(NotArchivePathError(
+                WriteError(ExceptionHelpers.NotArchivePathError(
                     path,
                     _isLiteral ? nameof(LiteralPath) : nameof(Path)));
 
@@ -157,13 +153,9 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
                     encoding: Encoding,
                     cmdlet: this);
             }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            catch (Exception exception)
             {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(ZipOpenError(path, e));
+                WriteError(exception.ToOpenError(path));
             }
         }
     }

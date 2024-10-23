@@ -7,21 +7,20 @@ using System.Management.Automation;
 using System.Text;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
-using static PSCompression.Exceptions.ExceptionHelpers;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.New, "ZipEntry", DefaultParameterSetName = "Value")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
 public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 {
-    private readonly List<ZipArchiveEntry> _entries = new();
+    private readonly List<ZipArchiveEntry> _entries = [];
 
     private ZipArchive? _zip;
 
     private ZipContentWriter[]? _writers;
 
-    private string[] _entryPath = Array.Empty<string>();
+    private string[]? _entryPath;
 
     [Parameter(ValueFromPipeline = true, ParameterSetName = "Value")]
     [ValidateNotNull]
@@ -30,16 +29,17 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     [Parameter(Mandatory = true, Position = 0)]
     public string Destination { get; set; } = null!;
 
-    [Parameter(Mandatory = true, Position = 1)]
-    public string[] EntryPath
+    [Parameter(ParameterSetName = "File", Position = 1)]
+    [ValidateNotNullOrEmpty]
+    public string? SourcePath { get; set; }
+
+    [Parameter(ParameterSetName = "Value", Mandatory = true, Position = 2)]
+    [Parameter(ParameterSetName = "File", Position = 2)]
+    public string[]? EntryPath
     {
         get => _entryPath;
         set => _entryPath = value.Select(e => e.NormalizePath()).ToArray();
     }
-
-    [Parameter(ParameterSetName = "File", Position = 2)]
-    [ValidateNotNullOrEmpty]
-    public string? SourcePath { get; set; }
 
     [Parameter]
     public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;
@@ -61,7 +61,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         if (!path.IsArchive())
         {
-            ThrowTerminatingError(NotArchivePathError(path, nameof(Destination)));
+            ThrowTerminatingError(
+                ExceptionHelpers.NotArchivePathError(path, nameof(Destination)));
         }
 
         Destination = path;
@@ -70,8 +71,10 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         {
             _zip = ZipFile.Open(Destination, ZipArchiveMode.Update);
 
-            if (SourcePath is null)
+            if (ParameterSetName == "Value")
             {
+                // Mandatory Parameter on this ParameterSet
+                Dbg.Assert(EntryPath is not null);
                 // We can create the entries here and go the process block
                 foreach (string entry in EntryPath)
                 {
@@ -79,10 +82,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                     {
                         if (!Force.IsPresent)
                         {
-                            WriteError(DuplicatedEntryError(
-                                DuplicatedEntryException.Create(
-                                    path: entry,
-                                    source: Destination)));
+                            WriteError(DuplicatedEntryException
+                                .Create(entry, Destination)
+                                .ToDuplicatedEntryError());
 
                             continue;
                         }
@@ -96,6 +98,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 return;
             }
 
+            // else, we're on File ParameterSet, this can't be null
+            Dbg.Assert(SourcePath is not null);
             // Create Entries from file here
             string sourcePath = SourcePath.NormalizePath(
                 isLiteral: true,
@@ -104,7 +108,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
             if (!sourcePath.IsArchive())
             {
-                ThrowTerminatingError(NotArchivePathError(
+                ThrowTerminatingError(ExceptionHelpers.NotArchivePathError(
                     path: sourcePath,
                     paramname: nameof(SourcePath)));
             }
@@ -115,16 +119,16 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 access: FileAccess.Read,
                 share: FileShare.ReadWrite);
 
+            EntryPath ??= [sourcePath.NormalizePath()];
             foreach (string entry in EntryPath)
             {
                 if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
                 {
                     if (!Force.IsPresent)
                     {
-                        WriteError(DuplicatedEntryError(
-                            DuplicatedEntryException.Create(
-                                path: entry,
-                                source: Destination)));
+                        WriteError(DuplicatedEntryException
+                            .Create(entry, Destination)
+                            .ToDuplicatedEntryError());
 
                         continue;
                     }
@@ -138,13 +142,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                     compressionLevel: CompressionLevel));
             }
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            ThrowTerminatingError(ZipOpenError(Destination, e));
+            ThrowTerminatingError(exception.ToOpenError(Destination));
         }
     }
 
@@ -170,13 +170,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 writer.WriteLines(Value);
             }
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            ThrowTerminatingError(ZipWriteError(_zip, e));
+            ThrowTerminatingError(exception.ToWriteError(_zip));
         }
     }
 
@@ -193,16 +189,11 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             }
 
             _zip?.Dispose();
-
             WriteObject(GetResult(), enumerateCollection: true);
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            ThrowTerminatingError(ZipOpenError(Destination, e));
+            ThrowTerminatingError(exception.ToOpenError(Destination));
         }
     }
 

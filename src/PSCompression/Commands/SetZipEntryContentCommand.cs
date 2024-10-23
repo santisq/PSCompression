@@ -53,13 +53,9 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
                 append: Append.IsPresent,
                 encoding: Encoding);
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            ThrowTerminatingError(StreamOpenError(SourceEntry, e));
+            ThrowTerminatingError(exception.ToStreamOpenError(SourceEntry));
         }
     }
 
@@ -78,13 +74,9 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
             _zipWriter.WriteLines(
                 LanguagePrimitives.ConvertTo<string[]>(Value));
         }
-        catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+        catch (Exception exception)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
-            ThrowTerminatingError(ZipWriteError(SourceEntry, e));
+            ThrowTerminatingError(exception.ToWriteError(SourceEntry));
         }
     }
 
@@ -103,9 +95,9 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
             SourceEntry.Refresh();
             WriteObject(SourceEntry);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            ThrowTerminatingError(StreamOpenError(SourceEntry, e));
+            ThrowTerminatingError(exception.ToStreamOpenError(SourceEntry));
         }
     }
 

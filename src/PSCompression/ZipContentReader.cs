@@ -10,9 +10,7 @@ internal sealed class ZipContentReader : ZipContentOpsBase
 {
     internal ZipContentReader(ZipArchive zip)
         : base(zip)
-    {
-
-    }
+    { }
 
     private Stream GetStream(string entry) =>
         ZipArchive.GetEntry(entry).Open();
@@ -54,7 +52,6 @@ internal sealed class ZipContentReader : ZipContentOpsBase
     {
         using Stream entryStream = GetStream(entry);
         using StreamReader reader = new(entryStream, encoding);
-
         return reader.ReadToEnd();
     }
 }

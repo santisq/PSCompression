@@ -15,7 +15,7 @@ Creates a Gzip Base64 compressed string from a specified input string or strings
 
 ```powershell
 ConvertTo-GzipString
-    [-InputObject] <String[]>
+    -InputObject <String[]>
     [-Encoding <Encoding>]
     [-CompressionLevel <CompressionLevel>]
     [-AsByteStream]

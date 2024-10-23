@@ -15,9 +15,7 @@ internal abstract class ZipContentOpsBase : IDisposable
         ZipArchive = zip;
 
     protected ZipContentOpsBase()
-    {
-
-    }
+    { }
 
     protected virtual void Dispose(bool disposing)
     {

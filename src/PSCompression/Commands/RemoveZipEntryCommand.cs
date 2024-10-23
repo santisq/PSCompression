@@ -1,9 +1,9 @@
 using System;
 using System.IO.Compression;
 using System.Management.Automation;
-using static PSCompression.Exceptions.ExceptionHelpers;
+using PSCompression.Exceptions;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Remove, "ZipEntry", SupportsShouldProcess = true)]
 public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
@@ -24,13 +24,9 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
                     entry.Remove(_cache.GetOrAdd(entry));
                 }
             }
-            catch (Exception e) when (e is PipelineStoppedException or FlowControlException)
+            catch (Exception exception)
             {
-                throw;
-            }
-            catch (Exception e)
-            {
-                WriteError(ZipOpenError(entry.Source, e));
+                WriteError(exception.ToOpenError(entry.Source));
             }
         }
     }
