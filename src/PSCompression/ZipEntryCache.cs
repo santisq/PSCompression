@@ -14,7 +14,7 @@ public sealed class ZipEntryCache
     {
         if (!_cache.ContainsKey(source))
         {
-            _cache[source] = new();
+            _cache[source] = [];
         }
 
         return _cache[source];
