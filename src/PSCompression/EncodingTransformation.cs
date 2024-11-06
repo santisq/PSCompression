@@ -9,16 +9,21 @@ public sealed class EncodingTransformation : ArgumentTransformationAttribute
 {
     public override object Transform(
         EngineIntrinsics engineIntrinsics,
-        object inputData) =>
-        inputData switch
+        object inputData)
+    {
+        inputData = inputData is PSObject pso
+            ? pso.BaseObject
+            : inputData;
+
+        return inputData switch
         {
             Encoding enc => enc,
             int num => Encoding.GetEncoding(num),
             string str => ParseStringEncoding(str),
-            PSObject pso when pso.BaseObject is string str => ParseStringEncoding(str),
             _ => throw new ArgumentTransformationMetadataException(
                 $"Could not convert input '{inputData}' to a valid Encoding object."),
         };
+    }
 
     private Encoding ParseStringEncoding(string str) =>
         str.ToLowerInvariant() switch

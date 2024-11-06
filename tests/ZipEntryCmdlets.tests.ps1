@@ -158,11 +158,18 @@ Describe 'ZipEntry Cmdlets' {
                 Should -BeOfType ([string])
         }
 
-        It 'Should not throw when a string wrapped in PSObject is passed as Encdoing argument' {
+        It 'Should not throw when an instance wrapped in PSObject is passed as Encdoing argument' {
             $enc = Write-Output utf8
-            $zip | Get-ZipEntry -Type Archive |
-                Get-ZipEntryContent -Encoding $enc |
-                Should -BeOfType ([string])
+            { $zip | Get-ZipEntry -Type Archive | Get-ZipEntryContent -Encoding $enc } |
+                Should -Not -Throw
+
+            $enc = [System.Text.Encoding]::UTF8 | Write-Output
+            { $zip | Get-ZipEntry -Type Archive | Get-ZipEntryContent -Encoding $enc } |
+                Should -Not -Throw
+
+            $enc = [System.Text.Encoding]::UTF8.CodePage | Write-Output
+            { $zip | Get-ZipEntry -Type Archive | Get-ZipEntryContent -Encoding $enc } |
+                Should -Not -Throw
         }
 
         It 'Can read bytes from zip file entries' {
