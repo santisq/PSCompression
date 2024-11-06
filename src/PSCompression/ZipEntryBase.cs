@@ -6,12 +6,6 @@ using PSCompression.Exceptions;
 
 namespace PSCompression;
 
-public enum ZipEntryType
-{
-    Directory = 0,
-    Archive = 1
-}
-
 public abstract class ZipEntryBase
 {
     protected string? _formatDirectoryPath;

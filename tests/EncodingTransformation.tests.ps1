@@ -36,7 +36,12 @@ Describe 'EncodingTransformation Class' {
         $transform | Out-Null
     }
 
-    It 'Transform a completion set to their Encoding Representations' {
+    It 'Transforms Encoding to Encoding' {
+        $transform.Transform($ExecutionContext, [System.Text.Encoding]::UTF8) |
+            Should -BeExactly ([System.Text.Encoding]::UTF8)
+    }
+
+    It 'Transforms a completion set to their Encoding Representations' {
         $encodings.GetEnumerator() | ForEach-Object {
             $transform.Transform($ExecutionContext, $_.Key) |
                 Should -BeExactly $_.Value
@@ -50,7 +55,7 @@ Describe 'EncodingTransformation Class' {
         }
     }
 
-    It 'Throws if it cant transform' {
+    It 'Throws if input value cannot be transformed' {
         { $transform.Transform($ExecutionContext, 'doesnotexist') } |
             Should -Throw
     }

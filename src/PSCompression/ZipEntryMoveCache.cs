@@ -16,14 +16,14 @@ internal sealed class ZipEntryMoveCache
     internal ZipEntryMoveCache()
     {
         _cache = new(StringComparer.InvariantCultureIgnoreCase);
-        _mappings = new();
+        _mappings = [];
     }
 
     private Dictionary<string, EntryWithPath> WithSource(ZipEntryBase entry)
     {
         if (!_cache.ContainsKey(entry.Source))
         {
-            _cache[entry.Source] = new();
+            _cache[entry.Source] = [];
         }
 
         return _cache[entry.Source];
