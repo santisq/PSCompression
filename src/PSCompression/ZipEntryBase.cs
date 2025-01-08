@@ -42,8 +42,7 @@ public abstract class ZipEntryBase
         zip.GetEntry(RelativePath)?.Delete();
     }
 
-    internal void Remove(ZipArchive zip) =>
-        zip.GetEntry(RelativePath)?.Delete();
+    internal void Remove(ZipArchive zip) => zip.GetEntry(RelativePath)?.Delete();
 
     internal static string Move(
         string sourceRelativePath,
@@ -73,8 +72,7 @@ public abstract class ZipEntryBase
         return destination;
     }
 
-    internal ZipArchive Open(ZipArchiveMode mode) =>
-        ZipFile.Open(Source, mode);
+    internal ZipArchive OpenZip(ZipArchiveMode mode) => ZipFile.Open(Source, mode);
 
     public FileSystemInfo ExtractTo(string destination, bool overwrite)
     {

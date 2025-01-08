@@ -11,52 +11,13 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsCommon.Get, "ZipEntry", DefaultParameterSetName = "Path")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
 [Alias("gezip")]
-public sealed class GetZipEntryCommand : PSCmdlet
+public sealed class GetZipEntryCommand : CommandWithPathBase
 {
-    private bool _isLiteral;
-
-    private bool _withInclude;
-
-    private bool _withExclude;
-
-    private string[] _paths = [];
-
-    private readonly List<ZipEntryBase> _output = new();
+    private readonly List<ZipEntryBase> _output = [];
 
     private WildcardPattern[]? _includePatterns;
 
     private WildcardPattern[]? _excludePatterns;
-
-    [Parameter(
-        ParameterSetName = "Path",
-        Position = 0,
-        Mandatory = true,
-        ValueFromPipeline = true)]
-    [SupportsWildcards]
-    public string[] Path
-    {
-        get => _paths;
-        set
-        {
-            _paths = value;
-            _isLiteral = false;
-        }
-    }
-
-    [Parameter(
-        ParameterSetName = "LiteralPath",
-        Mandatory = true,
-        ValueFromPipelineByPropertyName = true)]
-    [Alias("PSPath")]
-    public string[] LiteralPath
-    {
-        get => _paths;
-        set
-        {
-            _paths = value;
-            _isLiteral = true;
-        }
-    }
 
     [Parameter]
     public ZipEntryType? Type { get; set; }
@@ -83,7 +44,6 @@ public sealed class GetZipEntryCommand : PSCmdlet
 
         if (Exclude is not null)
         {
-            _withExclude = true;
             _excludePatterns = Exclude
                 .Select(e => new WildcardPattern(e, wpoptions))
                 .ToArray();
@@ -91,7 +51,6 @@ public sealed class GetZipEntryCommand : PSCmdlet
 
         if (Include is not null)
         {
-            _withInclude = true;
             _includePatterns = Include
                 .Select(e => new WildcardPattern(e, wpoptions))
                 .ToArray();
@@ -100,13 +59,13 @@ public sealed class GetZipEntryCommand : PSCmdlet
 
     protected override void ProcessRecord()
     {
-        foreach (string path in _paths.NormalizePath(_isLiteral, this))
+        foreach (string path in EnumerateResolvedPaths())
         {
             if (!path.IsArchive())
             {
-                WriteError(ExceptionHelpers.NotArchivePathError(
+                WriteError(ExceptionHelper.NotArchivePath(
                     path,
-                    _isLiteral ? nameof(LiteralPath) : nameof(Path)));
+                    IsLiteral ? nameof(LiteralPath) : nameof(Path)));
 
                 continue;
             }
@@ -131,17 +90,12 @@ public sealed class GetZipEntryCommand : PSCmdlet
         {
             bool isDirectory = string.IsNullOrEmpty(entry.Name);
 
-            if (SkipEntryType(isDirectory))
+            if (ShouldSkipEntry(isDirectory))
             {
                 continue;
             }
 
-            if (SkipInclude(entry.FullName))
-            {
-                continue;
-            }
-
-            if (SkipExclude(entry.FullName))
+            if (!ShouldInclude(entry) || ShouldExclude(entry))
             {
                 continue;
             }
@@ -158,12 +112,42 @@ public sealed class GetZipEntryCommand : PSCmdlet
         return _output.ZipEntrySort();
     }
 
-    private bool SkipInclude(string path) =>
-        _withInclude && !_includePatterns.Any(e => e.IsMatch(path));
+    private static bool MatchAny(
+        ZipArchiveEntry entry,
+        WildcardPattern[] patterns)
+    {
+        foreach (WildcardPattern pattern in patterns)
+        {
+            if (pattern.IsMatch(entry.FullName))
+            {
+                return true;
+            }
+        }
 
-    private bool SkipExclude(string path) =>
-        _withExclude && _excludePatterns.Any(e => e.IsMatch(path));
+        return false;
+    }
 
-    private bool SkipEntryType(bool isdir) =>
-        (isdir && Type is ZipEntryType.Archive) || (!isdir && Type is ZipEntryType.Directory);
+    private bool ShouldInclude(ZipArchiveEntry entry)
+    {
+        if (_includePatterns is null)
+        {
+            return true;
+        }
+
+        return MatchAny(entry, _includePatterns);
+    }
+
+    private bool ShouldExclude(ZipArchiveEntry entry)
+    {
+        if (_excludePatterns is null)
+        {
+            return false;
+        }
+
+        return MatchAny(entry, _excludePatterns);
+    }
+
+    private bool ShouldSkipEntry(bool isDirectory) =>
+        isDirectory && Type is ZipEntryType.Archive
+        || !isDirectory && Type is ZipEntryType.Directory;
 }

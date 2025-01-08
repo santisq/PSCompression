@@ -6,22 +6,29 @@ using PSCompression.Extensions;
 
 namespace PSCompression.Exceptions;
 
-internal static class ExceptionHelpers
+internal static class ExceptionHelper
 {
     private static readonly char[] s_InvalidFileNameChar = Path.GetInvalidFileNameChars();
 
     private static readonly char[] s_InvalidPathChar = Path.GetInvalidPathChars();
 
-    internal static ErrorRecord NotArchivePathError(string path, string paramname) =>
-        new(new ArgumentException($"The specified path is a Directory: '{path}'.", paramname),
+    internal static ErrorRecord NotArchivePath(string path, string paramname) =>
+        new(
+            new ArgumentException(
+                $"The specified path '{path}' does not exist or is a Directory.",
+                paramname),
             "NotArchivePath", ErrorCategory.InvalidArgument, path);
 
-    internal static ErrorRecord NotDirectoryPathError(string path, string paramname) =>
-        new(new ArgumentException($"Destination path is an existing File: '{path}'.", paramname),
+    internal static ErrorRecord NotDirectoryPath(string path, string paramname) =>
+        new(
+            new ArgumentException(
+                $"Destination path is an existing File: '{path}'.", paramname),
             "NotDirectoryPath", ErrorCategory.InvalidArgument, path);
 
     internal static ErrorRecord ToInvalidProviderError(this ProviderInfo provider, string path) =>
-        new(new ArgumentException($"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
+        new(
+            new ArgumentException(
+                $"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
             "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
 
     internal static ErrorRecord ToOpenError(this Exception exception, string path) =>

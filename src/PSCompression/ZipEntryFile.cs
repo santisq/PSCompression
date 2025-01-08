@@ -40,6 +40,8 @@ public sealed class ZipEntryFile : ZipEntryBase
 
     public ZipArchive OpenWrite() => ZipFile.Open(Source, ZipArchiveMode.Update);
 
+    internal Stream Open(ZipArchive zip) => zip.GetEntry(RelativePath).Open();
+
     internal void Refresh()
     {
         using ZipArchive zip = OpenRead();

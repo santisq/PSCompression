@@ -116,5 +116,9 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         }
     }
 
-    public void Dispose() => _zipArchiveCache?.Dispose();
+    public void Dispose()
+    {
+        _zipArchiveCache?.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

@@ -10,45 +10,20 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsData.Compress, "GzipArchive", DefaultParameterSetName = "Path")]
 [OutputType(typeof(FileInfo))]
 [Alias("gziptofile")]
-public sealed class CompressGzipArchive : PSCmdlet, IDisposable
+public sealed class CompressGzipArchive : CommandWithPathBase, IDisposable
 {
-    private bool _isLiteral;
-
-    private string[] _paths = [];
-
     private FileStream? _destination;
 
     private GZipStream? _gzip;
 
-    [Parameter(
-        ParameterSetName = "Path",
-        Mandatory = true,
-        Position = 0,
-        ValueFromPipeline = true)]
-    [SupportsWildcards]
-    public string[] Path
+    private FileMode Mode
     {
-        get => _paths;
-        set
+        get => (Update.IsPresent, Force.IsPresent) switch
         {
-            _paths = value;
-            _isLiteral = false;
-        }
-    }
-
-    [Parameter(
-        ParameterSetName = "LiteralPath",
-        Mandatory = true,
-        ValueFromPipelineByPropertyName = true)]
-    [Alias("PSPath")]
-    public string[] LiteralPath
-    {
-        get => _paths;
-        set
-        {
-            _paths = value;
-            _isLiteral = true;
-        }
+            (true, _) => FileMode.Append,
+            (_, true) => FileMode.Create,
+            _ => FileMode.CreateNew
+        };
     }
 
     [Parameter(
@@ -75,14 +50,10 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
 
     protected override void BeginProcessing()
     {
-        if (!HasGZipExtension(Destination))
-        {
-            Destination += ".gz";
-        }
+        Destination = ResolvePath(Destination).AddExtensionIfMissing(".gz");
 
         try
         {
-            Destination = Destination.NormalizePath(isLiteral: true, this);
             string parent = Destination.GetParent();
 
             if (!Directory.Exists(parent))
@@ -90,7 +61,7 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
                 Directory.CreateDirectory(parent);
             }
 
-            _destination = File.Open(Destination, GetMode());
+            _destination = File.Open(Destination, Mode);
         }
         catch (Exception exception)
         {
@@ -118,13 +89,13 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
 
         _gzip ??= new GZipStream(_destination, CompressionLevel);
 
-        foreach (string path in _paths.NormalizePath(_isLiteral, this))
+        foreach (string path in EnumerateResolvedPaths())
         {
             if (!path.IsArchive())
             {
-                WriteError(ExceptionHelpers.NotArchivePathError(
+                WriteError(ExceptionHelper.NotArchivePath(
                     path,
-                    _isLiteral ? nameof(LiteralPath) : nameof(Path)));
+                    IsLiteral ? nameof(LiteralPath) : nameof(Path)));
 
                 continue;
             }
@@ -152,28 +123,10 @@ public sealed class CompressGzipArchive : PSCmdlet, IDisposable
         }
     }
 
-    private FileMode GetMode()
-    {
-        if (Update.IsPresent)
-        {
-            return FileMode.Append;
-        }
-
-        if (Force.IsPresent)
-        {
-            return FileMode.Create;
-        }
-
-        return FileMode.CreateNew;
-    }
-
-    private bool HasGZipExtension(string path) =>
-        System.IO.Path.GetExtension(path)
-            .Equals(".gz", StringComparison.InvariantCultureIgnoreCase);
-
     public void Dispose()
     {
         _gzip?.Dispose();
         _destination?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

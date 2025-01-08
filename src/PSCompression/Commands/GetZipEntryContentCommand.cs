@@ -31,7 +31,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
 
     [Parameter(ParameterSetName = "Bytes")]
     [ValidateNotNullOrEmpty]
-    public int BufferSize { get; set; } = 128000;
+    public int BufferSize { get; set; } = 128_000;
 
     protected override void ProcessRecord()
     {
@@ -55,24 +55,32 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
         {
             if (Raw.IsPresent)
             {
-                WriteObject(reader.ReadAllBytes(entry.RelativePath));
+                WriteObject(reader.ReadAllBytes(entry));
                 return;
             }
 
-            reader.StreamBytes(entry.RelativePath, BufferSize, this);
+            WriteObject(
+                reader.StreamBytes(entry, BufferSize),
+                enumerateCollection: true);
             return;
         }
 
         if (Raw.IsPresent)
         {
-            WriteObject(reader.ReadToEnd(entry.RelativePath, Encoding));
+            WriteObject(reader.ReadToEnd(entry, Encoding));
             return;
         }
 
-        reader.StreamLines(entry.RelativePath, Encoding, this);
+        WriteObject(
+            reader.StreamLines(entry, Encoding),
+            enumerateCollection: true);
     }
 
     private ZipArchive GetOrAdd(ZipEntryFile entry) => _cache.GetOrAdd(entry);
 
-    public void Dispose() => _cache?.Dispose();
+    public void Dispose()
+    {
+        _cache?.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

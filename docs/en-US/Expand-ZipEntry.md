@@ -66,7 +66,10 @@ By default this cmdlet produces no output. When `-PassThru` is used, this cmdlet
 
 ### -Destination
 
-The destination directory where to extract the Zip Entries. This parameter is optional, when not used, the entries are extracted to the their relative zip path in the current directory.
+The destination directory where to extract the Zip Entries.
+
+> [!NOTE]
+> This parameter is optional, when not used, the entries are extracted to the their relative zip path in the current directory.
 
 ```yaml
 Type: String

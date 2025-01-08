@@ -7,7 +7,7 @@ using PSCompression.Exceptions;
 namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Expand, "ZipEntry")]
-[OutputType(typeof(FileSystemInfo), ParameterSetName = new[] { "PassThru" })]
+[OutputType(typeof(FileSystemInfo))]
 public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _cache = new();
@@ -22,27 +22,24 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
     [Parameter]
     public SwitchParameter Force { get; set; }
 
-    [Parameter(ParameterSetName = "PassThru")]
+    [Parameter]
     public SwitchParameter PassThru { get; set; }
 
     protected override void BeginProcessing()
     {
-        Destination ??= SessionState.Path.CurrentFileSystemLocation.Path;
+        Destination = Destination is null
+            ? SessionState.Path.CurrentFileSystemLocation.Path
+            : Destination.ResolvePath(this);
 
-        try
+        if (Destination.IsArchive())
         {
-            Destination = Destination.NormalizePath(isLiteral: true, this);
-
-            if (File.Exists(Destination))
-            {
-                ThrowTerminatingError(ExceptionHelpers.NotDirectoryPathError(
-                    Destination,
-                    nameof(Destination)));
-            }
+            ThrowTerminatingError(
+                ExceptionHelper.NotDirectoryPath(Destination, nameof(Destination)));
         }
-        catch (Exception exception)
+
+        if (!Directory.Exists(Destination))
         {
-            ThrowTerminatingError(exception.ToResolvePathError(Destination));
+            Directory.CreateDirectory(Destination);
         }
     }
 
@@ -64,7 +61,7 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
                     if (isfile)
                     {
                         WriteObject(new FileInfo(path));
-                        return;
+                        continue;
                     }
 
                     WriteObject(new DirectoryInfo(path));
@@ -77,5 +74,9 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
         }
     }
 
-    public void Dispose() => _cache?.Dispose();
+    public void Dispose()
+    {
+        _cache?.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

@@ -54,18 +54,12 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void BeginProcessing()
     {
-        string path = Destination.NormalizePath(
-            isLiteral: true,
-            cmdlet: this,
-            throwOnInvalidProvider: true);
-
-        if (!path.IsArchive())
+        Destination = Destination.ResolvePath(this);
+        if (!Destination.IsArchive())
         {
             ThrowTerminatingError(
-                ExceptionHelpers.NotArchivePathError(path, nameof(Destination)));
+                ExceptionHelper.NotArchivePath(Destination, nameof(Destination)));
         }
-
-        Destination = path;
 
         try
         {
@@ -82,9 +76,10 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                     {
                         if (!Force.IsPresent)
                         {
-                            WriteError(DuplicatedEntryException
-                                .Create(entry, Destination)
-                                .ToDuplicatedEntryError());
+                            WriteError(
+                                DuplicatedEntryException
+                                    .Create(entry, Destination)
+                                    .ToDuplicatedEntryError());
 
                             continue;
                         }
@@ -101,34 +96,31 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             // else, we're on File ParameterSet, this can't be null
             Dbg.Assert(SourcePath is not null);
             // Create Entries from file here
-            string sourcePath = SourcePath.NormalizePath(
-                isLiteral: true,
-                cmdlet: this,
-                throwOnInvalidProvider: true);
+            SourcePath = SourcePath.ResolvePath(this);
 
-            if (!sourcePath.IsArchive())
+            if (!SourcePath.IsArchive())
             {
-                ThrowTerminatingError(ExceptionHelpers.NotArchivePathError(
-                    path: sourcePath,
-                    paramname: nameof(SourcePath)));
+                ThrowTerminatingError(
+                    ExceptionHelper.NotArchivePath(SourcePath, nameof(SourcePath)));
             }
 
             using FileStream fileStream = File.Open(
-                path: sourcePath,
+                path: SourcePath,
                 mode: FileMode.Open,
                 access: FileAccess.Read,
                 share: FileShare.ReadWrite);
 
-            EntryPath ??= [sourcePath.NormalizePath()];
+            EntryPath ??= [SourcePath.NormalizePath()];
             foreach (string entry in EntryPath)
             {
                 if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
                 {
                     if (!Force.IsPresent)
                     {
-                        WriteError(DuplicatedEntryException
-                            .Create(entry, Destination)
-                            .ToDuplicatedEntryError());
+                        WriteError(
+                            DuplicatedEntryException
+                                .Create(entry, Destination)
+                                .ToDuplicatedEntryError());
 
                         continue;
                     }
@@ -200,8 +192,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     private IEnumerable<ZipEntryBase> GetResult()
     {
         using ZipArchive zip = ZipFile.OpenRead(Destination);
-
         List<ZipEntryBase> _result = new(_entries.Count);
+
         foreach (ZipArchiveEntry entry in _entries)
         {
             if (string.IsNullOrEmpty(entry.Name))
@@ -231,5 +223,6 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
 
         _zip?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
