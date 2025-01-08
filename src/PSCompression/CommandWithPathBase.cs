@@ -38,8 +38,7 @@ public abstract class CommandWithPathBase : PSCmdlet
         set => _paths = value;
     }
 
-    protected IEnumerable<string> EnumerateResolvedPaths(
-        bool throwOnInvalidProvider = false)
+    protected IEnumerable<string> EnumerateResolvedPaths()
     {
         Collection<string> resolvedPaths;
         ProviderInfo provider;
@@ -53,7 +52,7 @@ public abstract class CommandWithPathBase : PSCmdlet
                     provider: out provider,
                     drive: out _);
 
-                if (provider.Validate(path, throwOnInvalidProvider, this))
+                if (provider.Validate(path, throwOnInvalidProvider: false, this))
                 {
                     yield return resolved;
                 }
@@ -74,7 +73,7 @@ public abstract class CommandWithPathBase : PSCmdlet
 
             foreach (string resolvedPath in resolvedPaths)
             {
-                if (!provider.Validate(path, throwOnInvalidProvider, this))
+                if (!provider.Validate(path, throwOnInvalidProvider: false, this))
                 {
                     yield return resolvedPath;
                 }
