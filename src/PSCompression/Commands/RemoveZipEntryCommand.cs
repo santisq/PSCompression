@@ -24,6 +24,10 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
                     entry.Remove(_cache.GetOrAdd(entry));
                 }
             }
+            catch (NotSupportedException exception)
+            {
+                ThrowTerminatingError(exception.ToStreamOpenError(entry));
+            }
             catch (Exception exception)
             {
                 WriteError(exception.ToOpenError(entry.Source));

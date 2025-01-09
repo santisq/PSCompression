@@ -16,7 +16,9 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
 {
     [Parameter(
         ParameterSetName = "Stream",
+        Position = 0,
         Mandatory = true,
+        ValueFromPipeline = true,
         ValueFromPipelineByPropertyName = true)]
     [Alias("RawContentStream")]
     public Stream? Stream { get; set; }

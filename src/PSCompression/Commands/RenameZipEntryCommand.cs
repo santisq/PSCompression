@@ -54,6 +54,10 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             _zipArchiveCache.TryAdd(ZipEntry);
             _moveCache.AddEntry(ZipEntry, NewName);
         }
+        catch (NotSupportedException exception)
+        {
+            ThrowTerminatingError(exception.ToStreamOpenError(ZipEntry));
+        }
         catch (InvalidNameException exception)
         {
             WriteError(exception.ToInvalidNameError(NewName));

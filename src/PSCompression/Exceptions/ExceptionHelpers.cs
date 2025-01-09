@@ -41,7 +41,7 @@ internal static class ExceptionHelper
     internal static ErrorRecord ToExtractEntryError(this Exception exception, ZipEntryBase entry) =>
         new(exception, "ExtractEntry", ErrorCategory.NotSpecified, entry);
 
-    internal static ErrorRecord ToStreamOpenError(this Exception exception, ZipEntryFile entry) =>
+    internal static ErrorRecord ToStreamOpenError(this Exception exception, ZipEntryBase entry) =>
         new(exception, "StreamOpen", ErrorCategory.NotSpecified, entry);
 
     internal static ErrorRecord ToStreamOpenError(this Exception exception, string path) =>
