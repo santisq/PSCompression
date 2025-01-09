@@ -13,7 +13,10 @@ public abstract class CommandWithPathBase : PSCmdlet
 {
     protected string[] _paths = [];
 
-    protected bool IsLiteral { get => LiteralPath is not null; }
+    protected bool IsLiteral
+    {
+        get => MyInvocation.BoundParameters.ContainsKey("LiteralPath");
+    }
 
     [Parameter(
         ParameterSetName = "Path",
@@ -73,7 +76,7 @@ public abstract class CommandWithPathBase : PSCmdlet
 
             foreach (string resolvedPath in resolvedPaths)
             {
-                if (!provider.Validate(path, throwOnInvalidProvider: false, this))
+                if (provider.Validate(path, throwOnInvalidProvider: false, this))
                 {
                     yield return resolvedPath;
                 }
