@@ -78,7 +78,7 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
 
             using ZipArchive zip = new(Stream, ZipArchiveMode.Read, true);
             WriteObject(
-                EnumerateEntries(zip, CreateFromStream),
+                GetEntries(zip, CreateFromStream),
                 enumerateCollection: true);
             return;
         }
@@ -102,10 +102,13 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
 
             try
             {
-                using ZipArchive zip = ZipFile.OpenRead(path);
-                WriteObject(
-                    EnumerateEntries(zip, CreateFromFile),
-                    enumerateCollection: true);
+                IEnumerable<ZipEntryBase> entries;
+                using (ZipArchive zip = ZipFile.OpenRead(path))
+                {
+                    entries = GetEntries(zip, CreateFromFile);
+                }
+
+                WriteObject(entries, enumerateCollection: true);
             }
             catch (Exception exception)
             {
@@ -114,7 +117,7 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
         }
     }
 
-    private IEnumerable<ZipEntryBase> EnumerateEntries(
+    private IEnumerable<ZipEntryBase> GetEntries(
         ZipArchive zip,
         Func<ZipArchiveEntry, bool, ZipEntryBase> createMethod)
     {

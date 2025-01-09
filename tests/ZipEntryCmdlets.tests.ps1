@@ -10,7 +10,8 @@ Describe 'ZipEntry Cmdlets' {
     BeforeAll {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
         $file = New-Item ([System.IO.Path]::Combine($TestDrive, 'someFile.txt')) -ItemType File -Value 'foo'
-        $zip, $file | Out-Null
+        $uri = 'https://www.powershellgallery.com/api/v2/package/PSCompression'
+        $zip, $file, $uri | Out-Null
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -113,8 +114,13 @@ Describe 'ZipEntry Cmdlets' {
 
     Context 'Get-ZipEntry' -Tag 'Get-ZipEntry' {
         It 'Can list entries in a zip archive' {
-            @($zip | Get-ZipEntry).Count -gt 0 |
-                Should -BeGreaterThan 0
+            $zip | Get-ZipEntry |
+                Should -BeOfType ([PSCompression.ZipEntryBase])
+        }
+
+        It 'Can list entries from a Stream' {
+            Invoke-WebRequest $uri | Get-ZipEntry |
+                Should -BeOfType ([PSCompression.ZipEntryBase])
         }
 
         It 'Should throw when not targetting a FileSystem Provider Path' {
