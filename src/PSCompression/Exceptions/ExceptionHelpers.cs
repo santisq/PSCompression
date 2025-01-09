@@ -62,6 +62,18 @@ internal static class ExceptionHelper
     internal static ErrorRecord ToEnumerationError(this Exception exception, object item) =>
         new(exception, "EnumerationError", ErrorCategory.ReadError, item);
 
+    internal static ErrorRecord ToInvalidZipArchive(this InvalidDataException exception) =>
+        new(
+            new InvalidDataException(
+                "Specified path or stream is not a valid zip archive, " +
+                "might be compressed using an unsupported method, " +
+                "or could be corrupted.",
+                exception),
+            "InvalidZipArchive",
+            ErrorCategory.InvalidData,
+            null);
+
+
     internal static void ThrowIfNotFound(
         this ZipArchive zip,
         string path,

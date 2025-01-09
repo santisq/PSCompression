@@ -129,16 +129,18 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw when not targetting a FileSystem Provider Path' {
-            { Get-ZipEntry function:\* } | Should -Throw
+            { Get-ZipEntry function:\* } |
+                Should -Throw -ExceptionType ([System.NotSupportedException])
         }
 
         It 'Should throw when the path is not a Zip' {
             { Get-ZipEntry $file.FullName } |
-                Should -Throw -ExceptionType ([System.ArgumentException])
+                Should -Throw -ExceptionType ([System.IO.InvalidDataException])
         }
 
         It 'Should throw if the path is not a file' {
-            { Get-ZipEntry $pwd.FullName } | Should -Throw
+            { Get-ZipEntry $pwd.FullName } |
+                Should -Throw -ExceptionType ([System.ArgumentException])
         }
 
         It 'Can list zip file entries' {

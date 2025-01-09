@@ -256,6 +256,22 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: True
 ```
 
+### -Stream
+
+{{ Fill Stream Description }}
+
+```yaml
+Type: Stream
+Parameter Sets: Stream
+Aliases: RawContentStream
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).

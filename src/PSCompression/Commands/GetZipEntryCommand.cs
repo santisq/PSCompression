@@ -69,6 +69,7 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
 
     protected override void ProcessRecord()
     {
+        IEnumerable<ZipEntryBase> entries;
         if (Stream is not null)
         {
             ZipEntryBase CreateFromStream(ZipArchiveEntry entry, bool isDirectory) =>
@@ -76,11 +77,23 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
                     ? new ZipEntryDirectory(entry, Stream)
                     : new ZipEntryFile(entry, Stream);
 
-            using ZipArchive zip = new(Stream, ZipArchiveMode.Read, true);
-            WriteObject(
-                GetEntries(zip, CreateFromStream),
-                enumerateCollection: true);
-            return;
+            try
+            {
+                using (ZipArchive zip = new(Stream, ZipArchiveMode.Read, true))
+                {
+                    entries = GetEntries(zip, CreateFromStream);
+                }
+                WriteObject(entries, enumerateCollection: true);
+                return;
+            }
+            catch (InvalidDataException exception)
+            {
+                ThrowTerminatingError(exception.ToInvalidZipArchive());
+            }
+            catch (Exception exception)
+            {
+                WriteError(exception.ToOpenError("InputStream"));
+            }
         }
 
         foreach (string path in EnumerateResolvedPaths())
@@ -102,13 +115,15 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
 
             try
             {
-                IEnumerable<ZipEntryBase> entries;
                 using (ZipArchive zip = ZipFile.OpenRead(path))
                 {
                     entries = GetEntries(zip, CreateFromFile);
                 }
-
                 WriteObject(entries, enumerateCollection: true);
+            }
+            catch (InvalidDataException exception)
+            {
+                ThrowTerminatingError(exception.ToInvalidZipArchive());
             }
             catch (Exception exception)
             {
