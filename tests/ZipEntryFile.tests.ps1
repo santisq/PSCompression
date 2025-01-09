@@ -27,14 +27,8 @@ Describe 'ZipEntryFile Class' {
     }
 
     It 'Should Open the source zip' {
-        try {
-            $stream = ($zip | Get-ZipEntry).OpenRead()
+        Use-Object ($stream = ($zip | Get-ZipEntry).OpenRead()) {
             $stream | Should -BeOfType ([System.IO.Compression.ZipArchive])
-        }
-        finally {
-            if ($stream -is [System.IDisposable]) {
-                $stream.Dispose()
-            }
         }
     }
 }

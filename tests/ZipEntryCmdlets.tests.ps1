@@ -121,6 +121,11 @@ Describe 'ZipEntry Cmdlets' {
         It 'Can list entries from a Stream' {
             Invoke-WebRequest $uri | Get-ZipEntry |
                 Should -BeOfType ([PSCompression.ZipEntryBase])
+
+            Use-Object ($stream = $zip.OpenRead()) {
+                $stream | Get-ZipEntry |
+                    Should -BeOfType ([PSCompression.ZipEntryBase])
+            }
         }
 
         It 'Should throw when not targetting a FileSystem Provider Path' {
@@ -128,11 +133,12 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw when the path is not a Zip' {
-            { $file | Get-ZipEntry } | Should -Throw
+            { Get-ZipEntry $file.FullName } |
+                Should -Throw -ExceptionType ([System.ArgumentException])
         }
 
         It 'Should throw if the path is not a file' {
-            { $pwd | Get-ZipEntry } | Should -Throw
+            { Get-ZipEntry $pwd.FullName } | Should -Throw
         }
 
         It 'Can list zip file entries' {

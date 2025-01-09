@@ -55,7 +55,7 @@ public abstract class CommandWithPathBase : PSCmdlet
                     provider: out provider,
                     drive: out _);
 
-                if (provider.Validate(path, throwOnInvalidProvider: false, this))
+                if (provider.Validate(resolved, throwOnInvalidProvider: false, this))
                 {
                     yield return resolved;
                 }
@@ -76,7 +76,7 @@ public abstract class CommandWithPathBase : PSCmdlet
 
             foreach (string resolvedPath in resolvedPaths)
             {
-                if (provider.Validate(path, throwOnInvalidProvider: false, this))
+                if (provider.Validate(resolvedPath, throwOnInvalidProvider: true, this))
                 {
                     yield return resolvedPath;
                 }

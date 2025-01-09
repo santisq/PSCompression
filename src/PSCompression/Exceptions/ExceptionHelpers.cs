@@ -28,7 +28,7 @@ internal static class ExceptionHelper
 
     internal static ErrorRecord ToInvalidProviderError(this ProviderInfo provider, string path) =>
         new(
-            new ArgumentException(
+            new NotSupportedException(
                 $"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
             "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
 
