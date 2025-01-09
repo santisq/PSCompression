@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Management.Automation;
 using System.Text;
 
 namespace PSCompression;
@@ -12,7 +11,7 @@ internal sealed class ZipContentReader : ZipContentOpsBase
 
     internal IEnumerable<byte> StreamBytes(ZipEntryFile entry, int bufferSize)
     {
-        using Stream entryStream = entry.Open(ZipArchive);
+        using Stream entryStream = entry.Open(_zip);
         _buffer ??= new byte[bufferSize];
         int bytes;
 
@@ -27,7 +26,7 @@ internal sealed class ZipContentReader : ZipContentOpsBase
 
     internal byte[] ReadAllBytes(ZipEntryFile entry)
     {
-        using Stream entryStream = entry.Open(ZipArchive);
+        using Stream entryStream = entry.Open(_zip);
         using MemoryStream mem = new();
 
         entryStream.CopyTo(mem);
@@ -36,7 +35,7 @@ internal sealed class ZipContentReader : ZipContentOpsBase
 
     internal IEnumerable<string> StreamLines(ZipEntryFile entry, Encoding encoding)
     {
-        using Stream entryStream = entry.Open(ZipArchive);
+        using Stream entryStream = entry.Open(_zip);
         using StreamReader reader = new(entryStream, encoding);
 
         while (!reader.EndOfStream)
@@ -47,7 +46,7 @@ internal sealed class ZipContentReader : ZipContentOpsBase
 
     internal string ReadToEnd(ZipEntryFile entry, Encoding encoding)
     {
-        using Stream entryStream = entry.Open(ZipArchive);
+        using Stream entryStream = entry.Open(_zip);
         using StreamReader reader = new(entryStream, encoding);
         return reader.ReadToEnd();
     }

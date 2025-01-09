@@ -8,41 +8,39 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
 {
     private int _index;
 
-    public override ZipArchive ZipArchive { get; }
-
     private readonly StreamWriter? _writer;
 
-    private readonly Stream Stream;
+    private readonly Stream _stream;
 
     private bool _disposed;
 
     internal ZipContentWriter(ZipEntryFile entry, bool append, int bufferSize)
+        : base(entry.OpenWrite())
     {
-        ZipArchive = entry.OpenWrite();
-        Stream = entry.Open(ZipArchive);
+        _stream = entry.Open(_zip);
         _buffer = new byte[bufferSize];
 
         if (append)
         {
-            Stream.Seek(0, SeekOrigin.End);
+            _stream.Seek(0, SeekOrigin.End);
             return;
         }
 
-        Stream.SetLength(0);
+        _stream.SetLength(0);
     }
 
     internal ZipContentWriter(ZipArchive zip, ZipArchiveEntry entry, Encoding encoding)
+        : base(zip)
     {
-        ZipArchive = zip;
-        Stream = entry.Open();
-        _writer = new StreamWriter(Stream, encoding);
+        _stream = entry.Open();
+        _writer = new StreamWriter(_stream, encoding);
     }
 
     internal ZipContentWriter(ZipEntryFile entry, bool append, Encoding encoding)
+        : base(entry.OpenWrite())
     {
-        ZipArchive = entry.OpenWrite();
-        Stream = entry.Open(ZipArchive);
-        _writer = new StreamWriter(Stream, encoding);
+        _stream = entry.Open(_zip);
+        _writer = new StreamWriter(_stream, encoding);
 
         if (append)
         {
@@ -77,7 +75,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
         {
             if (_index == _buffer.Length)
             {
-                Stream.Write(_buffer, 0, _index);
+                _stream.Write(_buffer, 0, _index);
                 _index = 0;
             }
 
@@ -89,9 +87,9 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
     {
         if (_index > 0 && _buffer is not null)
         {
-            Stream.Write(_buffer, 0, _index);
+            _stream.Write(_buffer, 0, _index);
             _index = 0;
-            Stream.Flush();
+            _stream.Flush();
         }
 
         if (_writer is { BaseStream.CanWrite: true })
@@ -108,7 +106,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
             return;
         }
 
-        Stream.Close();
+        _stream.Close();
     }
 
     protected override void Dispose(bool disposing)
@@ -123,7 +121,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
         finally
         {
             _writer?.Dispose();
-            Stream.Dispose();
+            _stream.Dispose();
             _disposed = true;
             base.Dispose(disposing);
         }

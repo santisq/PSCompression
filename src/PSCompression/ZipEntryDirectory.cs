@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using PSCompression.Extensions;
@@ -22,6 +23,10 @@ public sealed class ZipEntryDirectory : ZipEntryBase
     {
         Name = entry.GetDirectoryName();
     }
+
+    internal ZipEntryDirectory(ZipArchiveEntry entry, Stream? stream)
+        : base(entry, stream)
+    { }
 
     internal IEnumerable<ZipArchiveEntry> GetChilds(ZipArchive zip) =>
         zip.Entries.Where(e =>

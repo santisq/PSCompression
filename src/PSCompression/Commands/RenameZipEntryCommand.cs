@@ -49,6 +49,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
+            ZipEntry.ThrowIfFromStream();
             NewName.ThrowIfInvalidNameChar();
             _zipArchiveCache.TryAdd(ZipEntry);
             _moveCache.AddEntry(ZipEntry, NewName);

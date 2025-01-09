@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
@@ -65,7 +66,7 @@ internal static class ExceptionHelper
         this ZipArchive zip,
         string path,
         string source,
-        out ZipArchiveEntry entry)
+        [NotNull] out ZipArchiveEntry? entry)
     {
         if (!zip.TryGetEntry(path, out entry))
         {
@@ -78,7 +79,7 @@ internal static class ExceptionHelper
         string path,
         string source)
     {
-        if (zip.TryGetEntry(path, out ZipArchiveEntry _))
+        if (zip.TryGetEntry(path, out ZipArchiveEntry? _))
         {
             throw DuplicatedEntryException.Create(path, source);
         }
@@ -98,6 +99,15 @@ internal static class ExceptionHelper
         {
             throw new ArgumentException(
                 $"Path: '{path}' contains invalid path characters.");
+        }
+    }
+
+    internal static void ThrowIfFromStream(this ZipEntryBase entry)
+    {
+        if (entry.FromStream)
+        {
+            throw new NotSupportedException(
+                "The operation is not supported for entries created from input Stream.");
         }
     }
 }

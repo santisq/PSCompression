@@ -58,7 +58,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         if (!Destination.IsArchive())
         {
             ThrowTerminatingError(
-                ExceptionHelper.NotArchivePath(Destination, nameof(Destination)));
+                ExceptionHelper.NotArchivePath(
+                    Destination,
+                    nameof(Destination)));
         }
 
         try
@@ -72,7 +74,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 // We can create the entries here and go the process block
                 foreach (string entry in EntryPath)
                 {
-                    if (_zip.TryGetEntry(entry, out ZipArchiveEntry zipentry))
+                    if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
                     {
                         if (!Force.IsPresent)
                         {

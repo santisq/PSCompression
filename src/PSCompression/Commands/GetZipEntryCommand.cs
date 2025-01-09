@@ -5,6 +5,7 @@ using System.Linq;
 using System.Management.Automation;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
+using System.IO;
 
 namespace PSCompression.Commands;
 
@@ -13,6 +14,13 @@ namespace PSCompression.Commands;
 [Alias("gezip")]
 public sealed class GetZipEntryCommand : CommandWithPathBase
 {
+    [Parameter(
+        ParameterSetName = "Stream",
+        Mandatory = true,
+        ValueFromPipelineByPropertyName = true)]
+    [Alias("RawContentStream")]
+    public Stream? Stream { get; set; }
+
     private readonly List<ZipEntryBase> _output = [];
 
     private WildcardPattern[]? _includePatterns;
@@ -59,20 +67,43 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
 
     protected override void ProcessRecord()
     {
+        if (Stream is not null)
+        {
+            ZipEntryBase CreateFromStream(ZipArchiveEntry entry, bool isDirectory) =>
+                isDirectory
+                    ? new ZipEntryDirectory(entry, Stream)
+                    : new ZipEntryFile(entry, Stream);
+
+            using ZipArchive zip = new(Stream, ZipArchiveMode.Read, true);
+            WriteObject(
+                EnumerateEntries(zip, CreateFromStream),
+                enumerateCollection: true);
+            return;
+        }
+
         foreach (string path in EnumerateResolvedPaths())
         {
+            ZipEntryBase CreateFromFile(ZipArchiveEntry entry, bool isDirectory) =>
+                isDirectory
+                    ? new ZipEntryDirectory(entry, path)
+                    : new ZipEntryFile(entry, path);
+
             if (!path.IsArchive())
             {
-                WriteError(ExceptionHelper.NotArchivePath(
-                    path,
-                    IsLiteral ? nameof(LiteralPath) : nameof(Path)));
+                WriteError(
+                    ExceptionHelper.NotArchivePath(
+                        path,
+                        IsLiteral ? nameof(LiteralPath) : nameof(Path)));
 
                 continue;
             }
 
             try
             {
-                WriteObject(GetEntries(path), enumerateCollection: true);
+                using ZipArchive zip = ZipFile.OpenRead(path);
+                WriteObject(
+                    EnumerateEntries(zip, CreateFromFile),
+                    enumerateCollection: true);
             }
             catch (Exception exception)
             {
@@ -81,11 +112,11 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
         }
     }
 
-    private IEnumerable<ZipEntryBase> GetEntries(string path)
+    private IEnumerable<ZipEntryBase> EnumerateEntries(
+        ZipArchive zip,
+        Func<ZipArchiveEntry, bool, ZipEntryBase> createMethod)
     {
-        using ZipArchive zip = ZipFile.OpenRead(path);
         _output.Clear();
-
         foreach (ZipArchiveEntry entry in zip.Entries)
         {
             bool isDirectory = string.IsNullOrEmpty(entry.Name);
@@ -100,13 +131,7 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
                 continue;
             }
 
-            if (isDirectory)
-            {
-                _output.Add(new ZipEntryDirectory(entry, path));
-                continue;
-            }
-
-            _output.Add(new ZipEntryFile(entry, path));
+            _output.Add(createMethod(entry, isDirectory));
         }
 
         return _output.ZipEntrySort();
