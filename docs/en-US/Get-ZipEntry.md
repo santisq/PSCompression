@@ -48,7 +48,7 @@ Get-ZipEntry
 
 ## DESCRIPTION
 
-The `Get-ZipEntry` cmdlet is the main entry point for the `*-ZipEntry` cmdlets in this module. It can list zip archive entries from a specified path or input stream.
+The `Get-ZipEntry` cmdlet is the main entry point for the `*-ZipEntry` cmdlets in this module. It can list zip archive entries from specified paths or input stream.
 
 ## EXAMPLES
 
