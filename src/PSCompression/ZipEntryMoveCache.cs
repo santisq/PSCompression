@@ -31,8 +31,7 @@ internal sealed class ZipEntryMoveCache
 
     internal bool IsDirectoryEntry(string source, string path) =>
         _cache[source].TryGetValue(path, out EntryWithPath entryWithPath)
-            ? entryWithPath.ZipEntry.Type is ZipEntryType.Directory
-            : false;
+            && entryWithPath.ZipEntry.Type is ZipEntryType.Directory;
 
     internal void AddEntry(ZipEntryBase entry, string newname) =>
         WithSource(entry).Add(entry.RelativePath, new(entry, newname));
@@ -43,7 +42,11 @@ internal sealed class ZipEntryMoveCache
         {
             foreach ((string path, EntryWithPath entryWithPath) in source.Value)
             {
-                yield return (source.Key, new(_mappings[source.Key][path], entryWithPath.ZipEntry.Type));
+                yield return (
+                    source.Key,
+                    new PathWithType(
+                        _mappings[source.Key][path],
+                        entryWithPath.ZipEntry.Type));
             }
         }
     }
@@ -64,7 +67,7 @@ internal sealed class ZipEntryMoveCache
         Dictionary<string, EntryWithPath> pathChanges)
     {
         string newpath;
-        Dictionary<string, string> result = new();
+        Dictionary<string, string> result = [];
 
         foreach (var pair in pathChanges.OrderByDescending(e => e.Key))
         {

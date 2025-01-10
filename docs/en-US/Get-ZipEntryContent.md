@@ -103,6 +103,31 @@ PS ..pwsh\> $bytes[1].Length
 
 When the `-Raw` and `-AsByteStream` switches are used together the cmdlet outputs `byte[]` as single objects for each zip entry.
 
+### Example 5: Get content from input Stream
+
+```powershell
+PS ..\pwsh> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
+PS ..\pwsh> $package | Get-ZipEntry -Include *.psd1 | Get-ZipEntryContent -Raw | Invoke-Expression
+
+Name                           Value
+----                           -----
+PowerShellVersion              5.1
+Description                    Zip and GZip utilities for PowerShell!
+RootModule                     bin/netstandard2.0/PSCompression.dll
+FormatsToProcess               {PSCompression.Format.ps1xml}
+VariablesToExport              {}
+PrivateData                    {[PSData, System.Collections.Hashtable]}
+CmdletsToExport                {Get-ZipEntry, Get-ZipEntryContent, Set-ZipEntryContent, Remove-ZipEntry…}
+ModuleVersion                  2.0.10
+Author                         Santiago Squarzon
+CompanyName                    Unknown
+GUID                           c63aa90e-ae64-4ae1-b1c8-456e0d13967e
+FunctionsToExport              {}
+RequiredAssemblies             {System.IO.Compression, System.IO.Compression.FileSystem}
+Copyright                      (c) Santiago Squarzon. All rights reserved.
+AliasesToExport                {gziptofile, gzipfromfile, gziptostring, gzipfromstring…}
+```
+
 ## PARAMETERS
 
 ### -BufferSize

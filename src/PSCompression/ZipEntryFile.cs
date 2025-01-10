@@ -1,5 +1,6 @@
 using System.IO;
 using System.IO.Compression;
+using PSCompression.Exceptions;
 using PSCompression.Extensions;
 
 namespace PSCompression;
@@ -24,6 +25,10 @@ public sealed class ZipEntryFile : ZipEntryBase
         : base(entry, source)
     { }
 
+    internal ZipEntryFile(ZipArchiveEntry entry, Stream? stream)
+        : base(entry, stream)
+    { }
+
     private static string GetRatio(long size, long compressedSize)
     {
         float compressedRatio = (float)compressedSize / size;
@@ -36,12 +41,19 @@ public sealed class ZipEntryFile : ZipEntryBase
         return string.Format("{0:F2}%", 100 - (compressedRatio * 100));
     }
 
-    public ZipArchive OpenRead() => ZipFile.OpenRead(Source);
+    internal Stream Open(ZipArchive zip)
+    {
+        zip.ThrowIfNotFound(
+            path: RelativePath,
+            source: Source,
+            out ZipArchiveEntry entry);
 
-    public ZipArchive OpenWrite() => ZipFile.Open(Source, ZipArchiveMode.Update);
+        return entry.Open();
+    }
 
     internal void Refresh()
     {
+        this.ThrowIfFromStream();
         using ZipArchive zip = OpenRead();
         Refresh(zip);
     }

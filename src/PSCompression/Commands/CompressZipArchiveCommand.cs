@@ -12,14 +12,8 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsData.Compress, "ZipArchive")]
 [OutputType(typeof(FileInfo))]
 [Alias("ziparchive")]
-public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
+public sealed class CompressZipArchiveCommand : CommandWithPathBase, IDisposable
 {
-    private const FileShare s_sharemode = FileShare.ReadWrite | FileShare.Delete;
-
-    private bool _isLiteral;
-
-    private string[] _paths = [];
-
     private ZipArchive? _zip;
 
     private FileStream? _destination;
@@ -28,35 +22,21 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
 
     private readonly Queue<DirectoryInfo> _queue = new();
 
-    [Parameter(
-        ParameterSetName = "Path",
-        Mandatory = true,
-        Position = 0,
-        ValueFromPipeline = true)]
-    [SupportsWildcards]
-    public string[] Path
+    private ZipArchiveMode ZipArchiveMode
     {
-        get => _paths;
-        set
-        {
-            _paths = value;
-            _isLiteral = false;
-        }
+        get => Force.IsPresent || Update.IsPresent
+            ? ZipArchiveMode.Update
+            : ZipArchiveMode.Create;
     }
 
-    [Parameter(
-        ParameterSetName = "LiteralPath",
-        Mandatory = true,
-        ValueFromPipelineByPropertyName = true)]
-    [Alias("PSPath")]
-    public string[] LiteralPath
+    private FileMode FileMode
     {
-        get => _paths;
-        set
+        get => (Update.IsPresent, Force.IsPresent) switch
         {
-            _paths = value;
-            _isLiteral = true;
-        }
+            (true, _) => FileMode.OpenOrCreate,
+            (_, true) => FileMode.Create,
+            _ => FileMode.CreateNew
+        };
     }
 
     [Parameter(Mandatory = true, Position = 1)]
@@ -82,14 +62,10 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
 
     protected override void BeginProcessing()
     {
-        if (!HasZipExtension(Destination))
-        {
-            Destination += ".zip";
-        }
+        Destination = ResolvePath(Destination).AddExtensionIfMissing(".zip");
 
         try
         {
-            Destination = Destination.NormalizePath(isLiteral: true, this);
             string parent = Destination.GetParent();
 
             if (!Directory.Exists(parent))
@@ -97,22 +73,22 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
                 Directory.CreateDirectory(parent);
             }
 
-            _destination = File.Open(Destination, GetFileMode());
-            _zip = new ZipArchive(_destination, GetZipMode());
+            _destination = File.Open(Destination, FileMode);
+            _zip = new ZipArchive(_destination, ZipArchiveMode);
         }
         catch (Exception exception)
         {
             ThrowTerminatingError(exception.ToStreamOpenError(Destination));
         }
 
-        const WildcardOptions wpoptions = WildcardOptions.Compiled
-            | WildcardOptions.CultureInvariant
-            | WildcardOptions.IgnoreCase;
-
         if (Exclude is not null)
         {
+            const WildcardOptions options = WildcardOptions.Compiled
+                | WildcardOptions.CultureInvariant
+                | WildcardOptions.IgnoreCase;
+
             _excludePatterns = Exclude
-                .Select(e => new WildcardPattern(e, wpoptions))
+                .Select(pattern => new WildcardPattern(pattern, options))
                 .ToArray();
         }
     }
@@ -120,9 +96,9 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
     protected override void ProcessRecord()
     {
         Dbg.Assert(_zip is not null);
-
         _queue.Clear();
-        foreach (string path in _paths.NormalizePath(_isLiteral, this))
+
+        foreach (string path in EnumerateResolvedPaths())
         {
             if (ShouldExclude(_excludePatterns, path))
             {
@@ -230,7 +206,7 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
         file.Open(
             mode: FileMode.Open,
             access: FileAccess.Read,
-            share: s_sharemode);
+            share: FileShare.ReadWrite | FileShare.Delete);
 
     private void UpdateEntry(
         FileInfo file,
@@ -248,35 +224,6 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
             WriteError(exception.ToStreamOpenError(file.FullName));
         }
     }
-
-    private FileMode GetFileMode()
-    {
-        if (Update.IsPresent)
-        {
-            return FileMode.OpenOrCreate;
-        }
-
-        if (Force.IsPresent)
-        {
-            return FileMode.Create;
-        }
-
-        return FileMode.CreateNew;
-    }
-
-    private ZipArchiveMode GetZipMode()
-    {
-        if (!Force.IsPresent && !Update.IsPresent)
-        {
-            return ZipArchiveMode.Create;
-        }
-
-        return ZipArchiveMode.Update;
-    }
-
-    private bool HasZipExtension(string path) =>
-        System.IO.Path.GetExtension(path)
-            .Equals(".zip", StringComparison.InvariantCultureIgnoreCase);
 
     private bool ItemIsDestination(string source, string destination) =>
         source.Equals(destination, StringComparison.InvariantCultureIgnoreCase);
@@ -316,5 +263,6 @@ public sealed class CompressZipArchiveCommand : PSCmdlet, IDisposable
     {
         _zip?.Dispose();
         _destination?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

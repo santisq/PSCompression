@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
@@ -43,18 +44,8 @@ internal static class ZipEntryExtensions
     internal static bool TryGetEntry(
         this ZipArchive zip,
         string path,
-        out ZipArchiveEntry entry) =>
+        [NotNullWhen(true)] out ZipArchiveEntry? entry) =>
         (entry = zip.GetEntry(path)) is not null;
-
-    internal static string Move(
-        this ZipEntryBase entry,
-        string destination,
-        ZipArchive zip) =>
-        ZipEntryBase.Move(
-            sourceRelativePath: entry.RelativePath,
-            destination: destination,
-            sourceZipPath: entry.Source,
-            zip: zip);
 
     internal static (string, bool) ExtractTo(
         this ZipEntryBase entryBase,

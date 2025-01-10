@@ -1,9 +1,9 @@
 using System;
 using System.Management.Automation;
 using System.Text;
-using static PSCompression.Exceptions.ExceptionHelpers;
+using PSCompression.Exceptions;
 
-namespace PSCompression;
+namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Set, "ZipEntryContent", DefaultParameterSetName = "StringValue")]
 [OutputType(typeof(ZipEntryFile))]
@@ -30,7 +30,7 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
     public SwitchParameter Append { get; set; }
 
     [Parameter(ParameterSetName = "ByteStream")]
-    public int BufferSize { get; set; } = 128000;
+    public int BufferSize { get; set; } = 128_000;
 
     [Parameter]
     public SwitchParameter PassThru { get; set; }
@@ -101,5 +101,9 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         }
     }
 
-    public void Dispose() => _zipWriter?.Dispose();
+    public void Dispose()
+    {
+        _zipWriter?.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

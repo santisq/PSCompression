@@ -15,13 +15,19 @@ namespace PSCompression.Commands;
     typeof(FileInfo),
     ParameterSetName = ["PathDestination", "LiteralPathDestination"])]
 [Alias("gzipfromfile")]
-public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
+public sealed class ExpandGzipArchiveCommand : CommandWithPathBase, IDisposable
 {
-    private bool _isLiteral;
-
     private FileStream? _destination;
 
-    private string[] _paths = [];
+    private FileMode FileMode
+    {
+        get => (Update.IsPresent, Force.IsPresent) switch
+        {
+            (true, _) => FileMode.Append,
+            (_, true) => FileMode.Create,
+            _ => FileMode.CreateNew
+        };
+    }
 
     [Parameter(
         ParameterSetName = "Path",
@@ -34,14 +40,10 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
         Mandatory = true,
         ValueFromPipeline = true)]
     [SupportsWildcards]
-    public string[] Path
+    public override string[] Path
     {
         get => _paths;
-        set
-        {
-            _paths = value;
-            _isLiteral = false;
-        }
+        set => _paths = value;
     }
 
     [Parameter(
@@ -53,14 +55,10 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
         Mandatory = true,
         ValueFromPipelineByPropertyName = true)]
     [Alias("PSPath")]
-    public string[] LiteralPath
+    public override string[] LiteralPath
     {
         get => _paths;
-        set
-        {
-            _paths = value;
-            _isLiteral = true;
-        }
+        set => _paths = value;
     }
 
     [Parameter(
@@ -103,8 +101,7 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
         {
             try
             {
-                Destination = Destination.NormalizePath(isLiteral: true, this);
-
+                Destination = ResolvePath(Destination);
                 string parent = Destination.GetParent();
 
                 if (!Directory.Exists(parent))
@@ -112,7 +109,7 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
                     Directory.CreateDirectory(parent);
                 }
 
-                _destination = File.Open(Destination, GetMode());
+                _destination = File.Open(Destination, FileMode);
             }
             catch (Exception exception)
             {
@@ -123,13 +120,13 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
 
     protected override void ProcessRecord()
     {
-        foreach (string path in _paths.NormalizePath(_isLiteral, this))
+        foreach (string path in EnumerateResolvedPaths())
         {
             if (!path.IsArchive())
             {
-                WriteError(ExceptionHelpers.NotArchivePathError(
+                WriteError(ExceptionHelper.NotArchivePath(
                     path,
-                    _isLiteral ? nameof(LiteralPath) : nameof(Path)));
+                    IsLiteral ? nameof(LiteralPath) : nameof(Path)));
 
                 continue;
             }
@@ -170,20 +167,9 @@ public sealed class ExpandGzipArchiveCommand : PSCmdlet, IDisposable
         }
     }
 
-    private FileMode GetMode()
+    public void Dispose()
     {
-        if (Update.IsPresent)
-        {
-            return FileMode.Append;
-        }
-
-        if (Force.IsPresent)
-        {
-            return FileMode.Create;
-        }
-
-        return FileMode.CreateNew;
+        _destination?.Dispose();
+        GC.SuppressFinalize(this);
     }
-
-    public void Dispose() => _destination?.Dispose();
 }

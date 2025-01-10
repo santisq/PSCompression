@@ -49,9 +49,14 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
+            ZipEntry.ThrowIfFromStream();
             NewName.ThrowIfInvalidNameChar();
             _zipArchiveCache.TryAdd(ZipEntry);
             _moveCache.AddEntry(ZipEntry, NewName);
+        }
+        catch (NotSupportedException exception)
+        {
+            ThrowTerminatingError(exception.ToStreamOpenError(ZipEntry));
         }
         catch (InvalidNameException exception)
         {
@@ -116,5 +121,9 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         }
     }
 
-    public void Dispose() => _zipArchiveCache?.Dispose();
+    public void Dispose()
+    {
+        _zipArchiveCache?.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

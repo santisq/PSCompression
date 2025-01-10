@@ -10,7 +10,8 @@ Describe 'ZipEntry Cmdlets' {
     BeforeAll {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
         $file = New-Item ([System.IO.Path]::Combine($TestDrive, 'someFile.txt')) -ItemType File -Value 'foo'
-        $zip, $file | Out-Null
+        $uri = 'https://www.powershellgallery.com/api/v2/package/PSCompression'
+        $zip, $file, $uri | Out-Null
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -20,7 +21,7 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw if -Destination is a Directory' {
-            { New-ZipEntry -Destination $pwd.Path -EntryPath bar } |
+            { New-ZipEntry -Destination $TestDrive -EntryPath bar } |
                 Should -Throw
         }
 
@@ -30,7 +31,7 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw if -Source is a Directory' {
-            { New-ZipEntry -Destination $zip.FullName -EntryPath baz -SourcePath $pwd.FullName } |
+            { New-ZipEntry -Destination $zip.FullName -EntryPath baz -SourcePath $TestDrive } |
                 Should -Throw
         }
 
@@ -113,20 +114,50 @@ Describe 'ZipEntry Cmdlets' {
 
     Context 'Get-ZipEntry' -Tag 'Get-ZipEntry' {
         It 'Can list entries in a zip archive' {
-            @($zip | Get-ZipEntry).Count -gt 0 |
-                Should -BeGreaterThan 0
+            $zip | Get-ZipEntry |
+                Should -BeOfType ([PSCompression.ZipEntryBase])
+        }
+
+        It 'Can list entries from a Stream' {
+            Invoke-WebRequest $uri | Get-ZipEntry |
+                Should -BeOfType ([PSCompression.ZipEntryBase])
+
+            Use-Object ($stream = $zip.OpenRead()) {
+                $stream | Get-ZipEntry |
+                    Should -BeOfType ([PSCompression.ZipEntryBase])
+            }
         }
 
         It 'Should throw when not targetting a FileSystem Provider Path' {
-            { Get-ZipEntry function:\* } | Should -Throw
+            { Get-ZipEntry function:\* } |
+                Should -Throw -ExceptionType ([System.NotSupportedException])
+
+            { Get-ZipEntry -LiteralPath function:\ } |
+                Should -Throw -ExceptionType ([System.NotSupportedException])
         }
 
         It 'Should throw when the path is not a Zip' {
-            { $file | Get-ZipEntry } | Should -Throw
+            { Get-ZipEntry $file.FullName } |
+                Should -Throw -ExceptionType ([System.IO.InvalidDataException])
+        }
+
+        It 'Should throw when a Stream is not a Zip' {
+            {
+                Use-Object ($stream = $file.OpenRead()) {
+                    Get-ZipEntry $stream
+                }
+            } | Should -Throw -ExceptionType ([System.IO.InvalidDataException])
+        }
+
+        It 'Should throw when a Stream is Disposed' {
+            {
+                (Use-Object ($stream = (Invoke-WebRequest $uri).RawContentStream) { $stream }) | Get-ZipEntry
+            } | Should -Throw -ExceptionType ([System.ObjectDisposedException])
         }
 
         It 'Should throw if the path is not a file' {
-            { $pwd | Get-ZipEntry } | Should -Throw
+            { Get-ZipEntry $TestDrive } |
+                Should -Throw -ExceptionType ([System.ArgumentException])
         }
 
         It 'Can list zip file entries' {
@@ -158,7 +189,23 @@ Describe 'ZipEntry Cmdlets' {
                 Should -BeOfType ([string])
         }
 
-        It 'Should not throw when an instance wrapped in PSObject is passed as Encdoing argument' {
+        It 'Can read content from zip file entries created from input Stream' {
+            Invoke-WebRequest $uri | Get-ZipEntry -Type Archive -Include *.psd1 |
+                Get-ZipEntryContent -Raw |
+                Invoke-Expression |
+                Should -BeOfType ([System.Collections.IDictionary])
+        }
+
+        It 'Should throw when a Stream is Diposed' {
+            {
+                $entry = Use-Object ($stream = (Invoke-WebRequest $uri).RawContentStream) {
+                    $stream | Get-ZipEntry -Type Archive -Include *.psd1
+                }
+                $entry | Get-ZipEntryContent -Raw
+            } | Should -Throw -ExceptionType ([System.ObjectDisposedException])
+        }
+
+        It 'Should not throw when an instance wrapped in PSObject is passed as Encoding argument' {
             $enc = Write-Output utf8
             { $zip | Get-ZipEntry -Type Archive | Get-ZipEntryContent -Encoding $enc } |
                 Should -Not -Throw
@@ -203,6 +250,11 @@ Describe 'ZipEntry Cmdlets' {
             $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.ZipEntryFile])
         }
 
+        It 'Should throw if trying to remove entries created from input Stream' {
+            { Invoke-WebRequest $uri | Get-ZipEntry | Remove-ZipEntry } |
+                Should -Throw -ExceptionType ([System.NotSupportedException])
+        }
+
         It 'Can remove directory entries' {
             $entries = $zip | Get-ZipEntry -Type Directory
             { Remove-ZipEntry -InputObject $entries } | Should -Not -Throw
@@ -235,6 +287,12 @@ Describe 'ZipEntry Cmdlets' {
             $entry | Get-ZipEntryContent -Raw |
                 ForEach-Object TrimEnd |
                 Should -BeExactly ($content -join [System.Environment]::NewLine)
+        }
+
+        It 'Should throw if trying to write content to entries created from input Stream' {
+            $entry = Invoke-WebRequest $uri | Get-ZipEntry -Include *.psd1
+            { 'test' | Set-ZipEntryContent $entry } |
+                Should -Throw -ExceptionType ([System.NotSupportedException])
         }
 
         It 'Can append content to a zip file entry' {
@@ -294,6 +352,11 @@ Describe 'ZipEntry Cmdlets' {
                 Should -Match '^testtest'
         }
 
+        It 'Should throw if trying to rename entries created from input Stream' {
+            { Invoke-WebRequest $uri | Get-ZipEntry | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
+                Should -Throw -ExceptionType ([System.NotSupportedException])
+        }
+
         It 'Produces output with -PassThru' {
             $zip | Get-ZipEntry -Type Archive |
                 Rename-ZipEntry -NewName { $_.Name -replace 'test' } -PassThru |
@@ -351,6 +414,7 @@ Describe 'ZipEntry Cmdlets' {
         BeforeAll {
             $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
             $destination = New-Item (Join-Path $TestDrive -ChildPath 'ExtractTests') -ItemType Directory
+            $destination = $destination.FullName
             $structure = Get-Structure
             $content = 'hello world!'
             $content | New-ZipEntry $zip.FullName -EntryPath $structure
@@ -360,6 +424,26 @@ Describe 'ZipEntry Cmdlets' {
         It 'Can extract entries to a destination directory' {
             { $zip | Get-ZipEntry | Expand-ZipEntry -Destination $destination } |
                 Should -Not -Throw
+        }
+
+        It 'Can extract zip file entries created from input Stream' {
+            Invoke-WebRequest $uri | Get-ZipEntry -Type Archive -Include *.psd1 |
+                Expand-ZipEntry -Destination $destination -PassThru -OutVariable psd1 |
+                Should -BeOfType ([System.IO.FileInfo])
+
+            Get-Content $psd1.FullName -Raw | Invoke-Expression |
+                Should -BeOfType ([System.Collections.IDictionary])
+
+            $psd1.Delete()
+        }
+
+        It 'Should throw when a Stream is Diposed' {
+            {
+                $entry = Use-Object ($stream = (Invoke-WebRequest $uri).RawContentStream) {
+                    $stream | Get-ZipEntry -Type Archive -Include *.psd1
+                }
+                $entry | Expand-ZipEntry -Destination $destination -Force
+            } | Should -Throw -ExceptionType ([System.ObjectDisposedException])
         }
 
         It 'Should throw when -Destination is an invalid path' {

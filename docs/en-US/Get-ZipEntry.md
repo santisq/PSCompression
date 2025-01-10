@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Lists zip entries from one or more specified Zip Archives.
+Lists zip archive entries from specified path or input stream.
 
 ## SYNTAX
 
@@ -35,19 +35,30 @@ Get-ZipEntry
    [<CommonParameters>]
 ```
 
+### Stream
+
+```powershell
+Get-ZipEntry
+   -InputStream <Stream>
+   [-Type <ZipEntryType>]
+   [-Include <String[]>]
+   [-Exclude <String[]>]
+   [<CommonParameters>]
+```
+
 ## DESCRIPTION
 
-The `Get-ZipEntry` cmdlet lists entries from specified Zip paths. It has built-in functionalities to filter entries and is the main entry point for the `*-ZipEntry` cmdlets in this module.
+The `Get-ZipEntry` cmdlet is the main entry point for the `*-ZipEntry` cmdlets in this module. It can list zip archive entries from a specified path or input stream.
 
 ## EXAMPLES
 
-### Example 1: List entries for a specified Zip file path
+### Example 1: List entries for a specified file path
 
 ```powershell
 PS ..\pwsh> Get-ZipEntry path\to\myZip.zip
 ```
 
-### Example 2: List entries from all Zip files in the current directory
+### Example 2: List entries from all files with `.zip` extension in the current directory
 
 ```powershell
 PS ..\pwsh> Get-ZipEntry *.zip
@@ -61,7 +72,8 @@ The `-Path` parameter supports wildcards.
 PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Type Archive
 ```
 
-The `-Type` parameter supports filtering by `Archive` or `Directory`.
+> [!TIP]
+> The `-Type` parameter supports filtering by `Archive` or `Directory`.
 
 ### Example 4: Filtering entries with `-Include` and `-Exclude` parameters
 
@@ -110,6 +122,49 @@ Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEnt
 >
 > - Inclusion and Exclusion patterns are applied to the entries relative path.
 > - Exclusions are applied after the inclusions.
+
+### Example 5: List entries from an input Stream
+
+```powershell
+PS ..\pwsh> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
+PS ..\pwsh> $package | Get-ZipEntry
+
+   Directory: /
+
+Type                    LastWriteTime  CompressedSize            Size Name
+----                    -------------  --------------            ---- ----
+Archive            11/6/2024 10:29 PM       227.00  B       785.00  B [Content_Types].xml
+Archive            11/6/2024 10:27 PM       516.00  B         2.50 KB PSCompression.Format.ps1xml
+Archive            11/6/2024 10:29 PM       598.00  B         1.58 KB PSCompression.nuspec
+Archive            11/6/2024 10:27 PM         1.66 KB         5.45 KB PSCompression.psd1
+
+   Directory: /_rels/
+
+Type                    LastWriteTime  CompressedSize            Size Name
+----                    -------------  --------------            ---- ----
+Archive            11/6/2024 10:29 PM       276.00  B       507.00  B .rels
+
+   Directory: /bin/netstandard2.0/
+
+Type                    LastWriteTime  CompressedSize            Size Name
+----                    -------------  --------------            ---- ----
+Archive            11/6/2024 10:28 PM       996.00  B         3.12 KB PSCompression.deps.json
+Archive            11/6/2024 10:28 PM        28.73 KB        66.00 KB PSCompression.dll
+Archive            11/6/2024 10:28 PM        14.75 KB        29.39 KB PSCompression.pdb
+
+   Directory: /en-US/
+
+Type                    LastWriteTime  CompressedSize            Size Name
+----                    -------------  --------------            ---- ----
+Archive            11/6/2024 10:28 PM         8.33 KB       106.86 KB PSCompression-help.xml
+Archive            11/6/2024 10:28 PM         9.19 KB       103.84 KB PSCompression.dll-Help.xml
+
+   Directory: /package/services/metadata/core-properties/
+
+Type                    LastWriteTime  CompressedSize            Size Name
+----                    -------------  --------------            ---- ----
+Archive            11/6/2024 10:29 PM       635.00  B         1.55 KB 3212d87de09c4241a06e0166a08c3b13.psmdcp
+```
 
 ## PARAMETERS
 
@@ -172,7 +227,7 @@ Accept wildcard characters: True
 
 ### -LiteralPath
 
-Specifies a path to one or more Zip compressed files. Note that the value is used exactly as it's typed. No characters are interpreted as wildcards.
+Specifies a path to one or more zip archives. Note that the value is used exactly as it's typed. No characters are interpreted as wildcards.
 
 ```yaml
 Type: String[]
@@ -188,7 +243,7 @@ Accept wildcard characters: False
 
 ### -Path
 
-Specifies a path to one or more Zip compressed files. Wildcards are accepted.
+Specifies a path to one or more zip archives. Wildcards are accepted.
 
 ```yaml
 Type: String[]
@@ -202,6 +257,25 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: True
 ```
 
+### -InputStream
+
+Specifies an input stream.
+
+> [!TIP]
+> Output from `Invoke-WebRequest` is bound to this paremeter automatically.
+
+```yaml
+Type: Stream
+Parameter Sets: Stream
+Aliases: RawContentStream
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 
 This cmdlet supports the common parameters. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
@@ -210,7 +284,11 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ### String
 
-You can pipe paths to this cmdlet. Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
+You can pipe a string that contains a paths to this cmdlet.  Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
+
+### Stream
+
+You can pipe a Stream to this cmdlet. Output from `Invoke-WebRequest` can be piped to this cmdlet.
 
 ## OUTPUTS
 

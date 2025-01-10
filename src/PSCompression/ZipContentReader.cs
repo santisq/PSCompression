@@ -1,56 +1,52 @@
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Management.Automation;
 using System.Text;
 
 namespace PSCompression;
 
 internal sealed class ZipContentReader : ZipContentOpsBase
 {
-    internal ZipContentReader(ZipArchive zip)
-        : base(zip)
-    { }
+    internal ZipContentReader(ZipArchive zip) : base(zip) { }
 
-    private Stream GetStream(string entry) =>
-        ZipArchive.GetEntry(entry).Open();
-
-    internal void StreamBytes(string entry, int bufferSize, PSCmdlet cmdlet)
+    internal IEnumerable<byte> StreamBytes(ZipEntryFile entry, int bufferSize)
     {
-        using Stream entryStream = GetStream(entry);
-
-        int bytes;
+        using Stream entryStream = entry.Open(_zip);
         _buffer ??= new byte[bufferSize];
+        int bytes;
 
         while ((bytes = entryStream.Read(_buffer, 0, bufferSize)) > 0)
         {
-            cmdlet.WriteObject(_buffer.Take(bytes), enumerateCollection: true);
+            for (int i = 0; i < bytes; i++)
+            {
+                yield return _buffer[i];
+            }
         }
     }
 
-    internal byte[] ReadAllBytes(string entry)
+    internal byte[] ReadAllBytes(ZipEntryFile entry)
     {
-        using Stream entryStream = GetStream(entry);
+        using Stream entryStream = entry.Open(_zip);
         using MemoryStream mem = new();
 
         entryStream.CopyTo(mem);
         return mem.ToArray();
     }
 
-    internal void StreamLines(string entry, Encoding encoding, PSCmdlet cmdlet)
+    internal IEnumerable<string> StreamLines(ZipEntryFile entry, Encoding encoding)
     {
-        using Stream entryStream = GetStream(entry);
+        using Stream entryStream = entry.Open(_zip);
         using StreamReader reader = new(entryStream, encoding);
 
         while (!reader.EndOfStream)
         {
-            cmdlet.WriteObject(reader.ReadLine());
+            yield return reader.ReadLine();
         }
     }
 
-    internal string ReadToEnd(string entry, Encoding encoding)
+    internal string ReadToEnd(ZipEntryFile entry, Encoding encoding)
     {
-        using Stream entryStream = GetStream(entry);
+        using Stream entryStream = entry.Open(_zip);
         using StreamReader reader = new(entryStream, encoding);
         return reader.ReadToEnd();
     }

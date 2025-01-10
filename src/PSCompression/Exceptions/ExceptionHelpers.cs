@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
@@ -6,22 +7,29 @@ using PSCompression.Extensions;
 
 namespace PSCompression.Exceptions;
 
-internal static class ExceptionHelpers
+internal static class ExceptionHelper
 {
     private static readonly char[] s_InvalidFileNameChar = Path.GetInvalidFileNameChars();
 
     private static readonly char[] s_InvalidPathChar = Path.GetInvalidPathChars();
 
-    internal static ErrorRecord NotArchivePathError(string path, string paramname) =>
-        new(new ArgumentException($"The specified path is a Directory: '{path}'.", paramname),
+    internal static ErrorRecord NotArchivePath(string path, string paramname) =>
+        new(
+            new ArgumentException(
+                $"The specified path '{path}' does not exist or is a Directory.",
+                paramname),
             "NotArchivePath", ErrorCategory.InvalidArgument, path);
 
-    internal static ErrorRecord NotDirectoryPathError(string path, string paramname) =>
-        new(new ArgumentException($"Destination path is an existing File: '{path}'.", paramname),
+    internal static ErrorRecord NotDirectoryPath(string path, string paramname) =>
+        new(
+            new ArgumentException(
+                $"Destination path is an existing File: '{path}'.", paramname),
             "NotDirectoryPath", ErrorCategory.InvalidArgument, path);
 
     internal static ErrorRecord ToInvalidProviderError(this ProviderInfo provider, string path) =>
-        new(new ArgumentException($"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
+        new(
+            new NotSupportedException(
+                $"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
             "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
 
     internal static ErrorRecord ToOpenError(this Exception exception, string path) =>
@@ -33,7 +41,7 @@ internal static class ExceptionHelpers
     internal static ErrorRecord ToExtractEntryError(this Exception exception, ZipEntryBase entry) =>
         new(exception, "ExtractEntry", ErrorCategory.NotSpecified, entry);
 
-    internal static ErrorRecord ToStreamOpenError(this Exception exception, ZipEntryFile entry) =>
+    internal static ErrorRecord ToStreamOpenError(this Exception exception, ZipEntryBase entry) =>
         new(exception, "StreamOpen", ErrorCategory.NotSpecified, entry);
 
     internal static ErrorRecord ToStreamOpenError(this Exception exception, string path) =>
@@ -54,11 +62,23 @@ internal static class ExceptionHelpers
     internal static ErrorRecord ToEnumerationError(this Exception exception, object item) =>
         new(exception, "EnumerationError", ErrorCategory.ReadError, item);
 
+    internal static ErrorRecord ToInvalidZipArchive(this InvalidDataException exception) =>
+        new(
+            new InvalidDataException(
+                "Specified path or stream is not a valid zip archive, " +
+                "might be compressed using an unsupported method, " +
+                "or could be corrupted.",
+                exception),
+            "InvalidZipArchive",
+            ErrorCategory.InvalidData,
+            null);
+
+
     internal static void ThrowIfNotFound(
         this ZipArchive zip,
         string path,
         string source,
-        out ZipArchiveEntry entry)
+        [NotNull] out ZipArchiveEntry? entry)
     {
         if (!zip.TryGetEntry(path, out entry))
         {
@@ -71,7 +91,7 @@ internal static class ExceptionHelpers
         string path,
         string source)
     {
-        if (zip.TryGetEntry(path, out ZipArchiveEntry _))
+        if (zip.TryGetEntry(path, out ZipArchiveEntry? _))
         {
             throw DuplicatedEntryException.Create(path, source);
         }
@@ -91,6 +111,15 @@ internal static class ExceptionHelpers
         {
             throw new ArgumentException(
                 $"Path: '{path}' contains invalid path characters.");
+        }
+    }
+
+    internal static void ThrowIfFromStream(this ZipEntryBase entry)
+    {
+        if (entry.FromStream)
+        {
+            throw new NotSupportedException(
+                "The operation is not supported for entries created from input Stream.");
         }
     }
 }

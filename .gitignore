@@ -271,3 +271,4 @@ tools/Modules
 test.settings.json
 tests/integration/.vagrant
 tests/integration/cert_setup
+!assets/*.zip

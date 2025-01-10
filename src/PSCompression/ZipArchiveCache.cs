@@ -10,7 +10,7 @@ internal sealed class ZipArchiveCache : IDisposable
 
     private readonly ZipArchiveMode _mode = ZipArchiveMode.Read;
 
-    internal ZipArchiveCache() => _cache = new();
+    internal ZipArchiveCache() => _cache = [];
 
     internal ZipArchiveCache(ZipArchiveMode mode)
     {
@@ -18,14 +18,13 @@ internal sealed class ZipArchiveCache : IDisposable
         _mode = mode;
     }
 
-    internal ZipArchive this[string source] =>
-        _cache[source];
+    internal ZipArchive this[string source] => _cache[source];
 
     internal void TryAdd(ZipEntryBase entry)
     {
         if (!_cache.ContainsKey(entry.Source))
         {
-            _cache[entry.Source] = entry.Open(_mode);
+            _cache[entry.Source] = entry.OpenZip(_mode);
         }
     }
 
@@ -33,7 +32,7 @@ internal sealed class ZipArchiveCache : IDisposable
     {
         if (!_cache.ContainsKey(entry.Source))
         {
-            _cache[entry.Source] = entry.Open(_mode);
+            _cache[entry.Source] = entry.OpenZip(_mode);
         }
 
         return _cache[entry.Source];

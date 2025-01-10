@@ -62,11 +62,40 @@ PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Exclude *.txt | Expand-ZipEntry -Pas
 
 By default this cmdlet produces no output. When `-PassThru` is used, this cmdlet outputs the `FileInfo` and `DirectoryInfo` instances representing the expanded entries.
 
+### Example 6: Extract an entry from input Stream
+
+```powershell
+PS ..\pwsh> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
+PS ..\pwsh> $file = $package | Get-ZipEntry -Include *.psd1 | Expand-ZipEntry -PassThru -Force
+PS ..\pwsh> Get-Content $file.FullName -Raw | Invoke-Expression
+
+Name                           Value
+----                           -----
+PowerShellVersion              5.1
+Description                    Zip and GZip utilities for PowerShell!
+RootModule                     bin/netstandard2.0/PSCompression.dll
+FormatsToProcess               {PSCompression.Format.ps1xml}
+VariablesToExport              {}
+PrivateData                    {[PSData, System.Collections.Hashtable]}
+CmdletsToExport                {Get-ZipEntry, Get-ZipEntryContent, Set-ZipEntryContent, Remove-ZipEntry…}
+ModuleVersion                  2.0.10
+Author                         Santiago Squarzon
+CompanyName                    Unknown
+GUID                           c63aa90e-ae64-4ae1-b1c8-456e0d13967e
+FunctionsToExport              {}
+RequiredAssemblies             {System.IO.Compression, System.IO.Compression.FileSystem}
+Copyright                      (c) Santiago Squarzon. All rights reserved.
+AliasesToExport                {gziptofile, gzipfromfile, gziptostring, gzipfromstring…}
+```
+
 ## PARAMETERS
 
 ### -Destination
 
-The destination directory where to extract the Zip Entries. This parameter is optional, when not used, the entries are extracted to the their relative zip path in the current directory.
+The destination directory where to extract the Zip Entries.
+
+> [!NOTE]
+> This parameter is optional, when not used, the entries are extracted to the their relative zip path in the current directory.
 
 ```yaml
 Type: String
