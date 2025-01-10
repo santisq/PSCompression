@@ -34,7 +34,9 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
         if (Destination.IsArchive())
         {
             ThrowTerminatingError(
-                ExceptionHelper.NotDirectoryPath(Destination, nameof(Destination)));
+                ExceptionHelper.NotDirectoryPath(
+                    Destination,
+                    nameof(Destination)));
         }
 
         if (!Directory.Exists(Destination))
@@ -66,6 +68,10 @@ public sealed class ExpandZipEntryCommand : PSCmdlet, IDisposable
 
                     WriteObject(new DirectoryInfo(path));
                 }
+            }
+            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+            {
+                throw;
             }
             catch (Exception exception)
             {

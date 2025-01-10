@@ -127,7 +127,7 @@ Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEnt
 
 ```powershell
 PS ..\pwsh> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
-PS ..\pwsh> $package | Get-ZipEntry
+PS ..\pwsh> $package | Get-ZipEntry | Select-Object -First 5
 
    Directory: /
 

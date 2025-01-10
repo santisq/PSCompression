@@ -86,6 +86,10 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
                 WriteObject(entries, enumerateCollection: true);
                 return;
             }
+            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+            {
+                throw;
+            }
             catch (InvalidDataException exception)
             {
                 ThrowTerminatingError(exception.ToInvalidZipArchive());
@@ -121,6 +125,10 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
                 }
 
                 WriteObject(entries, enumerateCollection: true);
+            }
+            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+            {
+                throw;
             }
             catch (InvalidDataException exception)
             {

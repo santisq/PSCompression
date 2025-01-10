@@ -103,7 +103,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             if (!SourcePath.IsArchive())
             {
                 ThrowTerminatingError(
-                    ExceptionHelper.NotArchivePath(SourcePath, nameof(SourcePath)));
+                    ExceptionHelper.NotArchivePath(
+                        SourcePath,
+                        nameof(SourcePath)));
             }
 
             using FileStream fileStream = File.Open(
@@ -135,6 +137,10 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                     fileStream: fileStream,
                     compressionLevel: CompressionLevel));
             }
+        }
+        catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+        {
+            throw;
         }
         catch (Exception exception)
         {
@@ -184,6 +190,10 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
             _zip?.Dispose();
             WriteObject(GetResult(), enumerateCollection: true);
+        }
+        catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+        {
+            throw;
         }
         catch (Exception exception)
         {

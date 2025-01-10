@@ -150,6 +150,10 @@ public sealed class ExpandGzipArchiveCommand : CommandWithPathBase, IDisposable
                     encoding: Encoding,
                     cmdlet: this);
             }
+            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
                 WriteError(exception.ToOpenError(path));

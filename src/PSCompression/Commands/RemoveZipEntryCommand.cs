@@ -6,6 +6,7 @@ using PSCompression.Exceptions;
 namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Remove, "ZipEntry", SupportsShouldProcess = true)]
+[OutputType(typeof(void))]
 public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _cache = new(ZipArchiveMode.Update);
@@ -23,6 +24,10 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
                 {
                     entry.Remove(_cache.GetOrAdd(entry));
                 }
+            }
+            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+            {
+                throw;
             }
             catch (NotSupportedException exception)
             {

@@ -45,6 +45,10 @@ public sealed class ConvertFromGzipStringCommand : PSCmdlet
                     WriteObject(reader.ReadLine());
                 }
             }
+            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
                 WriteError(exception.ToEnumerationError(line));

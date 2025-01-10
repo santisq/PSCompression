@@ -80,6 +80,10 @@ public sealed class ConvertToGzipStringCommand : PSCmdlet, IDisposable
 
             WriteObject(Convert.ToBase64String(_outstream.ToArray()));
         }
+        catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
             WriteError(exception.ToWriteError(_outstream));
