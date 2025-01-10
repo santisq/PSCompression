@@ -131,6 +131,9 @@ Describe 'ZipEntry Cmdlets' {
         It 'Should throw when not targetting a FileSystem Provider Path' {
             { Get-ZipEntry function:\* } |
                 Should -Throw -ExceptionType ([System.NotSupportedException])
+
+            { Get-ZipEntry -LiteralPath function:\ } |
+                Should -Throw -ExceptionType ([System.NotSupportedException])
         }
 
         It 'Should throw when the path is not a Zip' {

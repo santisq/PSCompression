@@ -14,8 +14,6 @@ namespace PSCompression.Commands;
 [Alias("ziparchive")]
 public sealed class CompressZipArchiveCommand : CommandWithPathBase, IDisposable
 {
-    private const FileShare s_sharemode = FileShare.ReadWrite | FileShare.Delete;
-
     private ZipArchive? _zip;
 
     private FileStream? _destination;
@@ -83,14 +81,14 @@ public sealed class CompressZipArchiveCommand : CommandWithPathBase, IDisposable
             ThrowTerminatingError(exception.ToStreamOpenError(Destination));
         }
 
-        const WildcardOptions wpoptions = WildcardOptions.Compiled
-            | WildcardOptions.CultureInvariant
-            | WildcardOptions.IgnoreCase;
-
         if (Exclude is not null)
         {
+            const WildcardOptions options = WildcardOptions.Compiled
+                | WildcardOptions.CultureInvariant
+                | WildcardOptions.IgnoreCase;
+
             _excludePatterns = Exclude
-                .Select(e => new WildcardPattern(e, wpoptions))
+                .Select(pattern => new WildcardPattern(pattern, options))
                 .ToArray();
         }
     }
@@ -208,7 +206,7 @@ public sealed class CompressZipArchiveCommand : CommandWithPathBase, IDisposable
         file.Open(
             mode: FileMode.Open,
             access: FileAccess.Read,
-            share: s_sharemode);
+            share: FileShare.ReadWrite | FileShare.Delete);
 
     private void UpdateEntry(
         FileInfo file,

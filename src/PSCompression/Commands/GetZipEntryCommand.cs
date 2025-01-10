@@ -47,22 +47,21 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
             return;
         }
 
-        const WildcardOptions wpoptions =
-            WildcardOptions.Compiled
+        const WildcardOptions options = WildcardOptions.Compiled
             | WildcardOptions.CultureInvariant
             | WildcardOptions.IgnoreCase;
 
         if (Exclude is not null)
         {
             _excludePatterns = Exclude
-                .Select(e => new WildcardPattern(e, wpoptions))
+                .Select(e => new WildcardPattern(e, options))
                 .ToArray();
         }
 
         if (Include is not null)
         {
             _includePatterns = Include
-                .Select(e => new WildcardPattern(e, wpoptions))
+                .Select(e => new WildcardPattern(e, options))
                 .ToArray();
         }
     }
