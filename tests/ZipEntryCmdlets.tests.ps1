@@ -21,7 +21,7 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw if -Destination is a Directory' {
-            { New-ZipEntry -Destination $pwd.Path -EntryPath bar } |
+            { New-ZipEntry -Destination $TestDrive -EntryPath bar } |
                 Should -Throw
         }
 
@@ -31,7 +31,7 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw if -Source is a Directory' {
-            { New-ZipEntry -Destination $zip.FullName -EntryPath baz -SourcePath $pwd.FullName } |
+            { New-ZipEntry -Destination $zip.FullName -EntryPath baz -SourcePath $TestDrive } |
                 Should -Throw
         }
 
@@ -139,7 +139,7 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw if the path is not a file' {
-            { Get-ZipEntry $pwd.FullName } |
+            { Get-ZipEntry $TestDrive } |
                 Should -Throw -ExceptionType ([System.ArgumentException])
         }
 
