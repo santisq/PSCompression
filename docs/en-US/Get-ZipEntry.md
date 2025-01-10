@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Lists zip archive entries from specified path or input stream.
+Lists zip archive entries from a specified path or input stream.
 
 ## SYNTAX
 
