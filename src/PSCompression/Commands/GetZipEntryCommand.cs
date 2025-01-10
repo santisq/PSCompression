@@ -21,7 +21,7 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
         ValueFromPipeline = true,
         ValueFromPipelineByPropertyName = true)]
     [Alias("RawContentStream")]
-    public Stream? Stream { get; set; }
+    public Stream? InputStream { get; set; }
 
     private readonly List<ZipEntryBase> _output = [];
 
@@ -69,19 +69,20 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
     protected override void ProcessRecord()
     {
         IEnumerable<ZipEntryBase> entries;
-        if (Stream is not null)
+        if (InputStream is not null)
         {
             ZipEntryBase CreateFromStream(ZipArchiveEntry entry, bool isDirectory) =>
                 isDirectory
-                    ? new ZipEntryDirectory(entry, Stream)
-                    : new ZipEntryFile(entry, Stream);
+                    ? new ZipEntryDirectory(entry, InputStream)
+                    : new ZipEntryFile(entry, InputStream);
 
             try
             {
-                using (ZipArchive zip = new(Stream, ZipArchiveMode.Read, true))
+                using (ZipArchive zip = new(InputStream, ZipArchiveMode.Read, true))
                 {
                     entries = GetEntries(zip, CreateFromStream);
                 }
+
                 WriteObject(entries, enumerateCollection: true);
                 return;
             }
@@ -118,6 +119,7 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
                 {
                     entries = GetEntries(zip, CreateFromFile);
                 }
+
                 WriteObject(entries, enumerateCollection: true);
             }
             catch (InvalidDataException exception)

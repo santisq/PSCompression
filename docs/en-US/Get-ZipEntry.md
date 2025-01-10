@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Lists zip entries from one or more specified Zip Archives.
+Lists zip archive entries from specified path or input stream.
 
 ## SYNTAX
 
@@ -39,7 +39,7 @@ Get-ZipEntry
 
 ```powershell
 Get-ZipEntry
-   -Stream <Stream>
+   -InputStream <Stream>
    [-Type <ZipEntryType>]
    [-Include <String[]>]
    [-Exclude <String[]>]
@@ -48,7 +48,7 @@ Get-ZipEntry
 
 ## DESCRIPTION
 
-The `Get-ZipEntry` cmdlet is the main entry point for the `*-ZipEntry` cmdlets in this module. It can list zip archive entries from a specified path or stream.
+The `Get-ZipEntry` cmdlet is the main entry point for the `*-ZipEntry` cmdlets in this module. It can list zip archive entries from a specified path or input stream.
 
 ## EXAMPLES
 
@@ -72,7 +72,8 @@ The `-Path` parameter supports wildcards.
 PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Type Archive
 ```
 
-The `-Type` parameter supports filtering by `Archive` or `Directory`.
+> [!TIP]
+> The `-Type` parameter supports filtering by `Archive` or `Directory`.
 
 ### Example 4: Filtering entries with `-Include` and `-Exclude` parameters
 
@@ -122,7 +123,7 @@ Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEnt
 > - Inclusion and Exclusion patterns are applied to the entries relative path.
 > - Exclusions are applied after the inclusions.
 
-### Example 5: List entries from an input stream
+### Example 5: List entries from an input Stream
 
 ```powershell
 PS ..\pwsh> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
@@ -226,7 +227,7 @@ Accept wildcard characters: True
 
 ### -LiteralPath
 
-Specifies a path to one or more Zip compressed files. Note that the value is used exactly as it's typed. No characters are interpreted as wildcards.
+Specifies a path to one or more zip archives. Note that the value is used exactly as it's typed. No characters are interpreted as wildcards.
 
 ```yaml
 Type: String[]
@@ -242,7 +243,7 @@ Accept wildcard characters: False
 
 ### -Path
 
-Specifies a path to one or more Zip compressed files. Wildcards are accepted.
+Specifies a path to one or more zip archives. Wildcards are accepted.
 
 ```yaml
 Type: String[]
@@ -256,9 +257,12 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: True
 ```
 
-### -Stream
+### -InputStream
 
-{{ Fill Stream Description }}
+Specifies an input stream.
+
+> [!TIP]
+> Output from `Invoke-WebRequest` is bound to this paremeter automatically.
 
 ```yaml
 Type: Stream
@@ -280,7 +284,11 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ### String
 
-You can pipe paths to this cmdlet. Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
+You can pipe a string that contains a paths to this cmdlet.  Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
+
+### Stream
+
+You can pipe a Stream to this cmdlet. Output from `Invoke-WebRequest` can be piped to this cmdlet.
 
 ## OUTPUTS
 

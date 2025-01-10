@@ -23,6 +23,12 @@ Describe 'ZipEntryBase Class' {
             Should -BeOfType ([System.IO.FileInfo])
     }
 
+    It 'Can extract a file from entries created from input Stream' {
+        Use-Object ($stream = $zip.OpenRead()) {
+            ($stream | Get-ZipEntry -Type Archive).ExtractTo($TestDrive, $true)
+        } | Should -BeOfType ([System.IO.FileInfo])
+    }
+
     It 'Can create a new folder in the destination path when extracting' {
         $entry = $zip | Get-ZipEntry -Type Archive
         $file = $entry.ExtractTo(
@@ -56,5 +62,39 @@ Describe 'ZipEntryBase Class' {
             Should -Not -Throw
 
         $zip | Get-ZipEntry | Should -BeNullOrEmpty
+    }
+
+    It 'Should throw if Remove() is used on entries created from input Stream' {
+        'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
+
+        {
+            Use-Object ($stream = $zip.OpenRead()) {
+                $stream | Get-ZipEntry -Type Archive | ForEach-Object Remove
+            }
+        } | Should -Throw
+    }
+
+    It 'Opens a ZipArchive on OpenRead() and OpenWrite()' {
+        Use-Object ($archive = ($zip | Get-ZipEntry).OpenRead()) {
+            $archive | Should -BeOfType ([System.IO.Compression.ZipArchive])
+        }
+
+        Use-Object ($stream = $zip.OpenRead()) {
+            Use-Object ($archive = ($stream | Get-ZipEntry).OpenRead()) {
+                $archive | Should -BeOfType ([System.IO.Compression.ZipArchive])
+            }
+        }
+
+        Use-Object ($archive = ($zip | Get-ZipEntry).OpenWrite()) {
+            $archive | Should -BeOfType ([System.IO.Compression.ZipArchive])
+        }
+    }
+
+    It 'Should throw if calling OpenWrite() on entries created from input Stream' {
+        Use-Object ($stream = $zip.OpenRead()) {
+            {
+                Use-Object ($stream | Get-ZipEntry).OpenWrite() { }
+            } | Should -Throw
+        }
     }
 }

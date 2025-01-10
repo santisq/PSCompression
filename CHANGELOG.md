@@ -1,18 +1,26 @@
-# 06/24/2024
+# CHANGELOG
+
+## 01/10/2025
+
+- Code improvements.
+- Instance methods `.OpenRead()` and `.OpenWrite()` moved from `ZipEntryFile` to `ZipEntryBase`.
+- Adds support to list, read and extract zip archive entries from Stream.
+
+## 06/24/2024
 
 - Update build process.
 
-# 06/05/2024
+## 06/05/2024
 
 - Update `ci.yml` to use `codecov-action@v4`.
 - Fixed parameter names in `Compress-ZipArchive` documentation. Thanks to @martincostello.
 - Fixed coverlet.console support for Linux runner tests.
 
-# 02/26/2024
+## 02/26/2024
 
 - Fixed a bug with `CompressionRatio` property showing always in InvariantCulture format.
 
-# 02/25/2024
+## 02/25/2024
 
 - `ZipEntryBase` Type:
     - Renamed Property `EntryName` to `Name`.

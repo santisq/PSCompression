@@ -36,6 +36,16 @@ public abstract class ZipEntryBase(ZipArchiveEntry entry, string source)
         _stream = stream;
     }
 
+    public ZipArchive OpenRead() => _stream is null
+        ? ZipFile.OpenRead(Source)
+        : new ZipArchive(_stream);
+
+    public ZipArchive OpenWrite()
+    {
+        this.ThrowIfFromStream();
+        return ZipFile.Open(Source, ZipArchiveMode.Update);
+    }
+
     public void Remove()
     {
         this.ThrowIfFromStream();
@@ -99,7 +109,10 @@ public abstract class ZipEntryBase(ZipArchiveEntry entry, string source)
 
     public FileSystemInfo ExtractTo(string destination, bool overwrite)
     {
-        using ZipArchive zip = ZipFile.OpenRead(Source);
+        using ZipArchive zip = _stream is null
+            ? ZipFile.OpenRead(Source)
+            : new ZipArchive(_stream);
+
         (string path, bool isArchive) = this.ExtractTo(zip, destination, overwrite);
 
         if (isArchive)

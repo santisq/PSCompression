@@ -41,14 +41,6 @@ public sealed class ZipEntryFile : ZipEntryBase
         return string.Format("{0:F2}%", 100 - (compressedRatio * 100));
     }
 
-    public ZipArchive OpenRead() => ZipFile.OpenRead(Source);
-
-    public ZipArchive OpenWrite()
-    {
-        this.ThrowIfFromStream();
-        return ZipFile.Open(Source, ZipArchiveMode.Update);
-    }
-
     internal Stream Open(ZipArchive zip)
     {
         zip.ThrowIfNotFound(

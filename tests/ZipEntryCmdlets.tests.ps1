@@ -149,6 +149,12 @@ Describe 'ZipEntry Cmdlets' {
             } | Should -Throw -ExceptionType ([System.IO.InvalidDataException])
         }
 
+        It 'Should throw when a Stream is Disposed' {
+            {
+                (Use-Object ($stream = (Invoke-WebRequest $uri).RawContentStream) { $stream }) | Get-ZipEntry
+            } | Should -Throw -ExceptionType ([System.ObjectDisposedException])
+        }
+
         It 'Should throw if the path is not a file' {
             { Get-ZipEntry $TestDrive } |
                 Should -Throw -ExceptionType ([System.ArgumentException])
@@ -188,6 +194,15 @@ Describe 'ZipEntry Cmdlets' {
                 Get-ZipEntryContent -Raw |
                 Invoke-Expression |
                 Should -BeOfType ([System.Collections.IDictionary])
+        }
+
+        It 'Should throw when a Stream is Diposed' {
+            {
+                $entry = Use-Object ($stream = (Invoke-WebRequest $uri).RawContentStream) {
+                    $stream | Get-ZipEntry -Type Archive -Include *.psd1
+                }
+                $entry | Get-ZipEntryContent -Raw
+            } | Should -Throw -ExceptionType ([System.ObjectDisposedException])
         }
 
         It 'Should not throw when an instance wrapped in PSObject is passed as Encoding argument' {
@@ -420,6 +435,15 @@ Describe 'ZipEntry Cmdlets' {
                 Should -BeOfType ([System.Collections.IDictionary])
 
             $psd1.Delete()
+        }
+
+        It 'Should throw when a Stream is Diposed' {
+            {
+                $entry = Use-Object ($stream = (Invoke-WebRequest $uri).RawContentStream) {
+                    $stream | Get-ZipEntry -Type Archive -Include *.psd1
+                }
+                $entry | Expand-ZipEntry -Destination $destination -Force
+            } | Should -Throw -ExceptionType ([System.ObjectDisposedException])
         }
 
         It 'Should throw when -Destination is an invalid path' {
