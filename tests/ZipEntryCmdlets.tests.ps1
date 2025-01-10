@@ -138,6 +138,14 @@ Describe 'ZipEntry Cmdlets' {
                 Should -Throw -ExceptionType ([System.IO.InvalidDataException])
         }
 
+        It 'Should throw when a Stream is not a Zip' {
+            {
+                Use-Object ($stream = $file.OpenRead()) {
+                    Get-ZipEntry $stream
+                }
+            } | Should -Throw -ExceptionType ([System.IO.InvalidDataException])
+        }
+
         It 'Should throw if the path is not a file' {
             { Get-ZipEntry $TestDrive } |
                 Should -Throw -ExceptionType ([System.ArgumentException])
