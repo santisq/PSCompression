@@ -87,9 +87,7 @@ public sealed class CompressZipArchiveCommand : CommandWithPathBase, IDisposable
                 | WildcardOptions.CultureInvariant
                 | WildcardOptions.IgnoreCase;
 
-            _excludePatterns = Exclude
-                .Select(pattern => new WildcardPattern(pattern, options))
-                .ToArray();
+            _excludePatterns = [.. Exclude.Select(pattern => new WildcardPattern(pattern, options))];
         }
     }
 

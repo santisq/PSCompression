@@ -38,7 +38,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     public string[]? EntryPath
     {
         get => _entryPath;
-        set => _entryPath = value.Select(e => e.NormalizePath()).ToArray();
+        set => _entryPath = [.. value.Select(e => e.NormalizePath())];
     }
 
     [Parameter]
@@ -160,10 +160,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            _writers ??= _entries
+            _writers ??= [.. _entries
                 .Where(e => !string.IsNullOrEmpty(e.Name))
-                .Select(e => new ZipContentWriter(_zip, e, Encoding))
-                .ToArray();
+                .Select(e => new ZipContentWriter(_zip, e, Encoding))];
 
             foreach (ZipContentWriter writer in _writers)
             {

@@ -53,16 +53,12 @@ public sealed class GetZipEntryCommand : CommandWithPathBase
 
         if (Exclude is not null)
         {
-            _excludePatterns = Exclude
-                .Select(e => new WildcardPattern(e, options))
-                .ToArray();
+            _excludePatterns = [.. Exclude.Select(e => new WildcardPattern(e, options))];
         }
 
         if (Include is not null)
         {
-            _includePatterns = Include
-                .Select(e => new WildcardPattern(e, options))
-                .ToArray();
+            _includePatterns = [.. Include.Select(e => new WildcardPattern(e, options))];
         }
     }
 
