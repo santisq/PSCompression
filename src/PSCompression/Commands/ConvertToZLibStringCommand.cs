@@ -4,15 +4,15 @@ using System.Management.Automation;
 
 namespace PSCompression.Commands;
 
-[Cmdlet(VerbsData.ConvertTo, "GzipString")]
+[Cmdlet(VerbsData.ConvertTo, "ZLibString")]
 [OutputType(typeof(byte[]), typeof(string))]
-[Alias("gziptostring")]
-public sealed class ConvertToGzipStringCommand : CommandToCompressedStringBase
+[Alias("zlibtostring")]
+public sealed class ConvertToZLibStringCommand : CommandToCompressedStringBase
 {
     protected override Stream CreateCompressionStream(
         Stream outputStream,
         CompressionLevel compressionLevel)
     {
-        return new GZipStream(outputStream, compressionLevel);
+        return new ZlibStream(outputStream, compressionLevel);
     }
 }

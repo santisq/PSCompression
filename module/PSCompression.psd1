@@ -87,6 +87,8 @@
         'Compress-GzipArchive'
         'Compress-ZipArchive'
         'Rename-ZipEntry'
+        'ConvertFrom-ZLibString'
+        'ConvertTo-ZLibString'
     )
 
     # Variables to export from this module
@@ -101,6 +103,8 @@
         'zip'
         'ziparchive'
         'gze'
+        'zlibfromstring'
+        'zlibtostring'
     )
 
     # DSC resources to export from this module
