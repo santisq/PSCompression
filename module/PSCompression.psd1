@@ -91,6 +91,8 @@
         'ConvertTo-ZLibString'
         'ConvertFrom-DeflateString'
         'ConvertTo-DeflateString'
+        'ConvertFrom-BrotliString'
+        'ConvertTo-BrotliString'
     )
 
     # Variables to export from this module
@@ -109,6 +111,8 @@
         'zlibtostring'
         'deflatefromstring'
         'deflatetostring'
+        'brotlifromstring'
+        'brotlitostring'
     )
 
     # DSC resources to export from this module
