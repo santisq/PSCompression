@@ -12,8 +12,6 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
 
     private readonly Stream _stream;
 
-    private bool _disposed;
-
     internal ZipContentWriter(ZipEntryFile entry, bool append, int bufferSize)
         : base(entry.OpenWrite())
     {
@@ -122,7 +120,6 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
         {
             _writer?.Dispose();
             _stream.Dispose();
-            _disposed = true;
             base.Dispose(disposing);
         }
     }

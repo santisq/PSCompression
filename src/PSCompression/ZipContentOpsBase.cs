@@ -5,6 +5,8 @@ namespace PSCompression;
 
 internal abstract class ZipContentOpsBase(ZipArchive zip) : IDisposable
 {
+    protected byte[]? _buffer;
+
     protected ZipArchive _zip = zip;
 
     protected bool _disposed;

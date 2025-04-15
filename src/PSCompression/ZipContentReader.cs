@@ -8,8 +8,6 @@ namespace PSCompression;
 
 internal sealed class ZipContentReader : ZipContentOpsBase
 {
-    private byte[]? _buffer;
-
     internal ZipContentReader(ZipArchive zip) : base(zip)
     { }
 
