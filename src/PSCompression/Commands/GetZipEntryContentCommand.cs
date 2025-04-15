@@ -1,5 +1,4 @@
 using System;
-using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
 using PSCompression.Exceptions;
@@ -39,7 +38,7 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
         {
             try
             {
-                ZipContentReader reader = new(GetOrAdd(entry));
+                ZipContentReader reader = new(_cache.GetOrAdd(entry));
                 ReadEntry(entry, reader);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
@@ -55,32 +54,26 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
 
     private void ReadEntry(ZipEntryFile entry, ZipContentReader reader)
     {
-        if (AsByteStream.IsPresent)
+        if (AsByteStream)
         {
-            if (Raw.IsPresent)
+            if (Raw)
             {
-                WriteObject(reader.ReadAllBytes(entry));
+                reader.ReadAllBytes(entry, this);
                 return;
             }
 
-            WriteObject(
-                reader.StreamBytes(entry, BufferSize),
-                enumerateCollection: true);
+            reader.StreamBytes(entry, BufferSize, this);
             return;
         }
 
         if (Raw.IsPresent)
         {
-            WriteObject(reader.ReadToEnd(entry, Encoding));
+            reader.ReadToEnd(entry, Encoding, this);
             return;
         }
 
-        WriteObject(
-            reader.StreamLines(entry, Encoding),
-            enumerateCollection: true);
+        reader.StreamLines(entry, Encoding, this);
     }
-
-    private ZipArchive GetOrAdd(ZipEntryFile entry) => _cache.GetOrAdd(entry);
 
     public void Dispose()
     {

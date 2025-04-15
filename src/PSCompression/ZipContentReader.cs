@@ -1,53 +1,62 @@
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Management.Automation;
 using System.Text;
+using PSCompression.Extensions;
 
 namespace PSCompression;
 
 internal sealed class ZipContentReader : ZipContentOpsBase
 {
-    internal ZipContentReader(ZipArchive zip) : base(zip) { }
+    private byte[]? _buffer;
 
-    internal IEnumerable<byte> StreamBytes(ZipEntryFile entry, int bufferSize)
+    internal ZipContentReader(ZipArchive zip) : base(zip)
+    { }
+
+    internal void StreamBytes(
+        ZipEntryFile entry,
+        int bufferSize,
+        PSCmdlet cmdlet)
     {
+        int bytes;
         using Stream entryStream = entry.Open(_zip);
         _buffer ??= new byte[bufferSize];
-        int bytes;
 
         while ((bytes = entryStream.Read(_buffer, 0, bufferSize)) > 0)
         {
             for (int i = 0; i < bytes; i++)
             {
-                yield return _buffer[i];
+                cmdlet.WriteObject(_buffer[i]);
             }
         }
     }
 
-    internal byte[] ReadAllBytes(ZipEntryFile entry)
+    internal void ReadAllBytes(ZipEntryFile entry, PSCmdlet cmdlet)
     {
         using Stream entryStream = entry.Open(_zip);
         using MemoryStream mem = new();
 
         entryStream.CopyTo(mem);
-        return mem.ToArray();
+        cmdlet.WriteObject(mem.ToArray());
     }
 
-    internal IEnumerable<string> StreamLines(ZipEntryFile entry, Encoding encoding)
+    internal void StreamLines(
+        ZipEntryFile entry,
+        Encoding encoding,
+        PSCmdlet cmdlet)
     {
         using Stream entryStream = entry.Open(_zip);
         using StreamReader reader = new(entryStream, encoding);
-
-        while (!reader.EndOfStream)
-        {
-            yield return reader.ReadLine();
-        }
+        reader.ReadLines(cmdlet);
     }
 
-    internal string ReadToEnd(ZipEntryFile entry, Encoding encoding)
+    internal void ReadToEnd(
+        ZipEntryFile entry,
+        Encoding encoding,
+        PSCmdlet cmdlet)
     {
         using Stream entryStream = entry.Open(_zip);
         using StreamReader reader = new(entryStream, encoding);
-        return reader.ReadToEnd();
+        reader.ReadToEnd(cmdlet);
     }
 }

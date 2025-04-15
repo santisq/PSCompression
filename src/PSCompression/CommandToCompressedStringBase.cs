@@ -67,37 +67,22 @@ public abstract class CommandToCompressedStringBase : PSCmdlet, IDisposable
     {
         _writer?.Dispose();
         _compressStream?.Dispose();
-        _outstream?.Dispose();
+        _outstream.Dispose();
 
-        try
+        if (AsByteStream.IsPresent)
         {
-            if (_writer is null || _compressStream is null || _outstream is null)
-            {
-                return;
-            }
+            WriteObject(_outstream.ToArray(), enumerateCollection: false);
+            return;
+        }
 
-            if (AsByteStream.IsPresent)
-            {
-                WriteObject(_outstream.ToArray(), enumerateCollection: false);
-                return;
-            }
-
-            WriteObject(Convert.ToBase64String(_outstream.ToArray()));
-        }
-        catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
-        {
-            throw;
-        }
-        catch (Exception exception)
-        {
-            WriteError(exception.ToWriteError(_outstream));
-        }
+        WriteObject(Convert.ToBase64String(_outstream.ToArray()));
     }
 
     public void Dispose()
     {
         _writer?.Dispose();
         _compressStream?.Dispose();
-        _outstream?.Dispose();
+        _outstream.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

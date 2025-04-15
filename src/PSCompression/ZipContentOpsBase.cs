@@ -7,16 +7,14 @@ internal abstract class ZipContentOpsBase(ZipArchive zip) : IDisposable
 {
     protected ZipArchive _zip = zip;
 
-    protected byte[]? _buffer;
-
-    public bool Disposed { get; internal set; }
+    protected bool _disposed;
 
     protected virtual void Dispose(bool disposing)
     {
-        if (disposing && !Disposed)
+        if (disposing && !_disposed)
         {
-            _zip?.Dispose();
-            Disposed = true;
+            _zip.Dispose();
+            _disposed = true;
         }
     }
 

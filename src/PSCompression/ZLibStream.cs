@@ -1,9 +1,12 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 
 namespace PSCompression;
 
+// Justification: ain't nobody got time for that!
+[ExcludeFromCodeCoverage]
 internal sealed class ZlibStream : Stream
 {
     private readonly Stream _outputStream;
@@ -14,7 +17,7 @@ internal sealed class ZlibStream : Stream
 
     private bool _isDisposed;
 
-    public ZlibStream(Stream outputStream, CompressionLevel compressionLevel)
+    internal ZlibStream(Stream outputStream, CompressionLevel compressionLevel)
     {
         _outputStream = outputStream ?? throw new ArgumentNullException(nameof(outputStream));
         _uncompressedBuffer = new MemoryStream();
