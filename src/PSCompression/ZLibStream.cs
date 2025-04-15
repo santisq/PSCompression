@@ -22,8 +22,6 @@ internal sealed class ZlibStream : Stream
         // Write zlib header (0x78 0x9C for default compatibility)
         _outputStream.WriteByte(0x78);
         _outputStream.WriteByte(0x9C);
-
-        // Initialize DeflateStream
         _deflateStream = new DeflateStream(outputStream, compressionLevel, true);
     }
 
@@ -64,9 +62,7 @@ internal sealed class ZlibStream : Stream
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-        // Buffer uncompressed data for Adler-32
         _uncompressedBuffer.Write(buffer, offset, count);
-        // Write to DeflateStream for compression
         _deflateStream.Write(buffer, offset, count);
     }
 
@@ -94,20 +90,17 @@ internal sealed class ZlibStream : Stream
 
         if (disposing)
         {
-            // Ensure DeflateStream is flushed and closed
             _deflateStream.Dispose();
 
-            // Write Adler-32 checksum
             uint adler32 = ComputeAdler32();
             byte[] checksum = BitConverter.GetBytes(adler32);
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(checksum);
             }
-            _outputStream.Write(checksum, 0, checksum.Length);
 
+            _outputStream.Write(checksum, 0, checksum.Length);
             _uncompressedBuffer.Dispose();
-            // Note: Don't dispose _outputStream, as it's owned by the caller
         }
 
         _isDisposed = true;

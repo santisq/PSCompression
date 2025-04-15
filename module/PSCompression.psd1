@@ -89,6 +89,8 @@
         'Rename-ZipEntry'
         'ConvertFrom-ZLibString'
         'ConvertTo-ZLibString'
+        'ConvertFrom-DeflateString'
+        'ConvertTo-DeflateString'
     )
 
     # Variables to export from this module
@@ -105,6 +107,8 @@
         'gze'
         'zlibfromstring'
         'zlibtostring'
+        'deflatefromstring'
+        'deflatetostring'
     )
 
     # DSC resources to export from this module
@@ -126,6 +130,10 @@
                 'zip-compression'
                 'gzip'
                 'gzip-compression'
+                'zlib'
+                'zlib-compression'
+                'deflate'
+                'deflate-compression'
                 'compression'
                 'csharp'
             )
