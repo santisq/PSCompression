@@ -4,6 +4,7 @@ using System.IO;
 using System.Management.Automation;
 using System.Text;
 using PSCompression.Exceptions;
+using PSCompression.Extensions;
 
 namespace PSCompression;
 
@@ -34,22 +35,11 @@ public abstract class CommandFromCompressedStringBase : PSCmdlet
 
         if (Raw)
         {
-            ReadToEnd(reader);
+            reader.ReadToEnd(this);
             return;
         }
 
-        ReadLines(reader);
-    }
-
-    private void ReadToEnd(StreamReader reader) => WriteObject(reader.ReadToEnd());
-
-    private void ReadLines(StreamReader reader)
-    {
-        string line;
-        while ((line = reader.ReadLine()) is not null)
-        {
-            WriteObject(line);
-        }
+        reader.ReadLines(this);
     }
 
     protected abstract Stream CreateDecompressionStream(Stream inputStream);

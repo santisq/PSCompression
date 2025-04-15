@@ -4,6 +4,7 @@ using System.Management.Automation;
 using System.Text;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
+using ICSharpCode.SharpZipLib.GZip;
 
 namespace PSCompression.Commands;
 
@@ -133,22 +134,34 @@ public sealed class ExpandGzipArchiveCommand : CommandWithPathBase, IDisposable
 
             try
             {
+                using FileStream source = File.OpenRead(path);
+                using GZipInputStream gz = new(source);
+
                 if (_destination is not null)
                 {
-                    GzipReaderOps.CopyTo(
-                        path: path,
-                        isCoreCLR: PSVersionHelper.IsCoreCLR,
-                        destination: _destination);
-
+                    // GzipReaderOps.CopyTo(
+                    //     path: path,
+                    //     isCoreCLR: PSVersionHelper.IsCoreCLR,
+                    //     destination: _destination);
+                    gz.CopyTo(_destination);
                     continue;
                 }
 
-                GzipReaderOps.GetContent(
-                    path: path,
-                    isCoreCLR: PSVersionHelper.IsCoreCLR,
-                    raw: Raw.IsPresent,
-                    encoding: Encoding,
-                    cmdlet: this);
+                using StreamReader reader = new(gz, Encoding);
+
+                if (Raw)
+                {
+                    reader.ReadToEnd(this);
+                    continue;
+                }
+
+                reader.ReadLines(this);
+                // GzipReaderOps.GetContent(
+                //     path: path,
+                //     isCoreCLR: PSVersionHelper.IsCoreCLR,
+                //     raw: Raw.IsPresent,
+                //     encoding: Encoding,
+                //     cmdlet: this);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {

@@ -7,7 +7,7 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsData.ConvertTo, "DeflateString")]
 [OutputType(typeof(string))]
 [Alias("deflatetostring")]
-public sealed class ConvertToDeflateString : CommandToCompressedStringBase
+public sealed class ConvertToDeflateStringCommand : CommandToCompressedStringBase
 {
     protected override Stream CreateCompressionStream(
         Stream outputStream,

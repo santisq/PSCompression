@@ -1,11 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
+using System.Management.Automation;
 using System.Text.RegularExpressions;
 
 namespace PSCompression.Extensions;
 
-internal static class ZipEntryExtensions
+internal static class CompressionExtensions
 {
     private static readonly Regex s_reGetDirName = new(
         @"[^/]+(?=/$)",
@@ -106,4 +107,32 @@ internal static class ZipEntryExtensions
 
     internal static string GetDirectoryName(this ZipArchiveEntry entry) =>
         s_reGetDirName.Match(entry.FullName).Value;
+
+    internal static void ReadToEnd(this StreamReader reader, PSCmdlet cmdlet) =>
+        cmdlet.WriteObject(reader.ReadToEnd());
+
+    internal static void ReadLines(this StreamReader reader, PSCmdlet cmdlet)
+    {
+        string line;
+        while ((line = reader.ReadLine()) is not null)
+        {
+            cmdlet.WriteObject(line);
+        }
+    }
+
+    internal static void WriteLinesFrom(this StreamWriter writer, string[] lines)
+    {
+        foreach (string line in lines)
+        {
+            writer.WriteLine(line);
+        }
+    }
+
+    internal static void WriteFrom(this StreamWriter writer, string[] lines)
+    {
+        foreach (string line in lines)
+        {
+            writer.Write(line);
+        }
+    }
 }

@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
 using PSCompression.Exceptions;
+using PSCompression.Extensions;
 
 namespace PSCompression;
 
@@ -50,11 +51,11 @@ public abstract class CommandToCompressedStringBase : PSCmdlet, IDisposable
 
             if (NoNewLine.IsPresent)
             {
-                Write(_writer, InputObject);
+                _writer.WriteFrom(InputObject);
                 return;
             }
 
-            WriteLines(_writer, InputObject);
+            _writer.WriteLinesFrom(InputObject);
         }
         catch (Exception exception)
         {
@@ -90,22 +91,6 @@ public abstract class CommandToCompressedStringBase : PSCmdlet, IDisposable
         catch (Exception exception)
         {
             WriteError(exception.ToWriteError(_outstream));
-        }
-    }
-
-    private void WriteLines(StreamWriter writer, string[] lines)
-    {
-        foreach (string line in lines)
-        {
-            writer.WriteLine(line);
-        }
-    }
-
-    private void Write(StreamWriter writer, string[] lines)
-    {
-        foreach (string line in lines)
-        {
-            writer.Write(line);
         }
     }
 
