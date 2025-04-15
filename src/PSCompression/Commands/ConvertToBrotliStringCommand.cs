@@ -7,7 +7,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.ConvertTo, "BrotliString")]
 [OutputType(typeof(string))]
-[Alias("brotlitostring")]
+[Alias("tobrotlistring")]
 public sealed class ConvertToBrotliStringCommand : CommandToCompressedStringBase
 {
     protected override Stream CreateCompressionStream(

@@ -9,7 +9,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Compress, "GzipArchive", DefaultParameterSetName = "Path")]
 [OutputType(typeof(FileInfo))]
-[Alias("gziptofile")]
+[Alias("togzipfile")]
 public sealed class CompressGzipArchive : CommandWithPathBase, IDisposable
 {
     private FileStream? _destination;

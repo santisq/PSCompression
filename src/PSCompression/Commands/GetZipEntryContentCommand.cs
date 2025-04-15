@@ -9,7 +9,7 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsCommon.Get, "ZipEntryContent", DefaultParameterSetName = "Stream")]
 [OutputType(typeof(string), ParameterSetName = ["Stream"])]
 [OutputType(typeof(byte), ParameterSetName = ["Bytes"])]
-[Alias("gczip")]
+[Alias("zipgc")]
 public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _cache = new();

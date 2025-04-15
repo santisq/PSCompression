@@ -11,7 +11,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Compress, "ZipArchive")]
 [OutputType(typeof(FileInfo))]
-[Alias("ziparchive")]
+[Alias("zipcompress")]
 public sealed class CompressZipArchiveCommand : CommandWithPathBase, IDisposable
 {
     private ZipArchive? _zip;

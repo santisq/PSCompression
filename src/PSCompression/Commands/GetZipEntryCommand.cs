@@ -11,7 +11,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Get, "ZipEntry", DefaultParameterSetName = "Path")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
-[Alias("gezip")]
+[Alias("zipge")]
 public sealed class GetZipEntryCommand : CommandWithPathBase
 {
     [Parameter(

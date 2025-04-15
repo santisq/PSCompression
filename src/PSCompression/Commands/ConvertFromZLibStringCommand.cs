@@ -6,7 +6,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.ConvertFrom, "ZLibString")]
 [OutputType(typeof(string))]
-[Alias("zlibfromstring")]
+[Alias("fromzlibstring")]
 public sealed class ConvertFromZLibStringCommand : CommandFromCompressedStringBase
 {
     protected override Stream CreateDecompressionStream(Stream inputStream)

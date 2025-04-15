@@ -15,7 +15,7 @@ namespace PSCompression.Commands;
 [OutputType(
     typeof(FileInfo),
     ParameterSetName = ["PathDestination", "LiteralPathDestination"])]
-[Alias("gzipfromfile")]
+[Alias("fromgzipfile")]
 public sealed class ExpandGzipArchiveCommand : CommandWithPathBase, IDisposable
 {
     private FileStream? _destination;
@@ -98,7 +98,7 @@ public sealed class ExpandGzipArchiveCommand : CommandWithPathBase, IDisposable
 
     protected override void BeginProcessing()
     {
-        if (Destination is not null && _destination is null)
+        if (Destination is not null)
         {
             try
             {
@@ -139,10 +139,6 @@ public sealed class ExpandGzipArchiveCommand : CommandWithPathBase, IDisposable
 
                 if (_destination is not null)
                 {
-                    // GzipReaderOps.CopyTo(
-                    //     path: path,
-                    //     isCoreCLR: PSVersionHelper.IsCoreCLR,
-                    //     destination: _destination);
                     gz.CopyTo(_destination);
                     continue;
                 }
@@ -156,12 +152,6 @@ public sealed class ExpandGzipArchiveCommand : CommandWithPathBase, IDisposable
                 }
 
                 reader.ReadLines(this);
-                // GzipReaderOps.GetContent(
-                //     path: path,
-                //     isCoreCLR: PSVersionHelper.IsCoreCLR,
-                //     raw: Raw.IsPresent,
-                //     encoding: Encoding,
-                //     cmdlet: this);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -176,9 +166,14 @@ public sealed class ExpandGzipArchiveCommand : CommandWithPathBase, IDisposable
 
     protected override void EndProcessing()
     {
-        _destination?.Dispose();
+        if (_destination is null)
+        {
+            return;
+        }
 
-        if (PassThru.IsPresent && _destination is not null)
+        _destination.Dispose();
+
+        if (PassThru.IsPresent)
         {
             WriteObject(new FileInfo(_destination.Name));
         }

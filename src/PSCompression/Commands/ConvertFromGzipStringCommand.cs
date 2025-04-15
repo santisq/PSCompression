@@ -6,7 +6,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.ConvertFrom, "GzipString")]
 [OutputType(typeof(string))]
-[Alias("gzipfromstring")]
+[Alias("fromgzipstring")]
 public sealed class ConvertFromGzipStringCommand : CommandFromCompressedStringBase
 {
     protected override Stream CreateDecompressionStream(Stream inputStream) =>
