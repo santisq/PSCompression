@@ -5,7 +5,7 @@ using System.Management.Automation;
 namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.ConvertTo, "DeflateString")]
-[OutputType(typeof(string))]
+[OutputType(typeof(byte[]), typeof(string))]
 [Alias("todeflatestring")]
 public sealed class ConvertToDeflateStringCommand : CommandToCompressedStringBase
 {
