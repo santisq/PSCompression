@@ -147,11 +147,11 @@ public sealed class ExpandGzipArchiveCommand : CommandWithPathBase, IDisposable
 
                 if (Raw)
                 {
-                    reader.ReadToEnd(this);
+                    reader.WriteAllToPipeline(this);
                     continue;
                 }
 
-                reader.ReadLines(this);
+                reader.WriteLinesToPipeline(this);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {

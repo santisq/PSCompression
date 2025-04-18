@@ -51,11 +51,11 @@ public abstract class CommandToCompressedStringBase : PSCmdlet, IDisposable
 
             if (NoNewLine.IsPresent)
             {
-                _writer.WriteFrom(InputObject);
+                _writer.WriteContent(InputObject);
                 return;
             }
 
-            _writer.WriteLinesFrom(InputObject);
+            _writer.WriteLines(InputObject);
         }
         catch (Exception exception)
         {

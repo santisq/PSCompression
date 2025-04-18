@@ -45,7 +45,7 @@ internal sealed class ZipContentReader : ZipContentOpsBase
     {
         using Stream entryStream = entry.Open(_zip);
         using StreamReader reader = new(entryStream, encoding);
-        reader.ReadLines(cmdlet);
+        reader.WriteLinesToPipeline(cmdlet);
     }
 
     internal void ReadToEnd(
@@ -55,6 +55,6 @@ internal sealed class ZipContentReader : ZipContentOpsBase
     {
         using Stream entryStream = entry.Open(_zip);
         using StreamReader reader = new(entryStream, encoding);
-        reader.ReadToEnd(cmdlet);
+        reader.WriteAllToPipeline(cmdlet);
     }
 }

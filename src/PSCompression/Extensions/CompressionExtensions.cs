@@ -108,10 +108,10 @@ internal static class CompressionExtensions
     internal static string GetDirectoryName(this ZipArchiveEntry entry) =>
         s_reGetDirName.Match(entry.FullName).Value;
 
-    internal static void ReadToEnd(this StreamReader reader, PSCmdlet cmdlet) =>
+    internal static void WriteAllToPipeline(this StreamReader reader, PSCmdlet cmdlet) =>
         cmdlet.WriteObject(reader.ReadToEnd());
 
-    internal static void ReadLines(this StreamReader reader, PSCmdlet cmdlet)
+    internal static void WriteLinesToPipeline(this StreamReader reader, PSCmdlet cmdlet)
     {
         string line;
         while ((line = reader.ReadLine()) is not null)
@@ -120,7 +120,7 @@ internal static class CompressionExtensions
         }
     }
 
-    internal static void WriteLinesFrom(this StreamWriter writer, string[] lines)
+    internal static void WriteLines(this StreamWriter writer, string[] lines)
     {
         foreach (string line in lines)
         {
@@ -128,11 +128,19 @@ internal static class CompressionExtensions
         }
     }
 
-    internal static void WriteFrom(this StreamWriter writer, string[] lines)
+    internal static void WriteContent(this StreamWriter writer, string[] lines)
     {
         foreach (string line in lines)
         {
             writer.Write(line);
         }
     }
+
+    internal static uint MapToBrotliQuality(this CompressionLevel compressionLevel) =>
+        compressionLevel switch
+        {
+            CompressionLevel.NoCompression => 0,
+            CompressionLevel.Fastest => 1,
+            _ => 11
+        };
 }

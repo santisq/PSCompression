@@ -2,6 +2,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using Brotli;
+using PSCompression.Extensions;
 
 namespace PSCompression.Commands;
 
@@ -10,20 +11,12 @@ namespace PSCompression.Commands;
 [Alias("tobrotlistring")]
 public sealed class ConvertToBrotliStringCommand : CommandToCompressedStringBase
 {
-    private uint MapCompressionLevelToBrotliQuality(CompressionLevel compressionLevel) =>
-        compressionLevel switch
-        {
-            CompressionLevel.NoCompression => 0,
-            CompressionLevel.Fastest => 1,
-            _ => 11
-        };
-
     protected override Stream CreateCompressionStream(
         Stream outputStream,
         CompressionLevel compressionLevel)
     {
         BrotliStream brotli = new(outputStream, CompressionMode.Compress);
-        brotli.SetQuality(MapCompressionLevelToBrotliQuality(compressionLevel));
+        brotli.SetQuality(compressionLevel.MapToBrotliQuality());
         return brotli;
     }
 }
