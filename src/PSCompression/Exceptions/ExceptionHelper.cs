@@ -122,17 +122,4 @@ internal static class ExceptionHelper
                 "The operation is not supported for entries created from input Stream.");
         }
     }
-
-    internal static void WriteWarningForIgnoredParameter(
-        this PSCmdlet cmdlet,
-        bool condition,
-        string parameterName,
-        string context)
-    {
-        if (condition)
-        {
-            cmdlet.WriteWarning(
-                $"The {parameterName} parameter is not supported by {context} and has no effect on this cmdlet.");
-        }
-    }
 }

@@ -29,7 +29,7 @@ public abstract class CommandToCompressedStringBase : PSCmdlet, IDisposable
     public Encoding Encoding { get; set; } = new UTF8Encoding();
 
     [Parameter]
-    public virtual CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;
+    public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Optimal;
 
     [Parameter]
     [Alias("Raw")]
