@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
+using Brotli;
 
 namespace PSCompression.Extensions;
 
@@ -136,11 +137,18 @@ internal static class CompressionExtensions
         }
     }
 
-    internal static uint MapToBrotliQuality(this CompressionLevel compressionLevel) =>
-        compressionLevel switch
+    internal static BrotliStream AsBrotliCompressedStream(
+        this Stream stream,
+        CompressionLevel compressionLevel)
+    {
+        BrotliStream brotli = new(stream, CompressionMode.Compress);
+        brotli.SetQuality(compressionLevel switch
         {
             CompressionLevel.NoCompression => 0,
             CompressionLevel.Fastest => 1,
             _ => 11
-        };
+        });
+
+        return brotli;
+    }
 }

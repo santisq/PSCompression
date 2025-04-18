@@ -15,8 +15,6 @@ public sealed class ConvertToBrotliStringCommand : CommandToCompressedStringBase
         Stream outputStream,
         CompressionLevel compressionLevel)
     {
-        BrotliStream brotli = new(outputStream, CompressionMode.Compress);
-        brotli.SetQuality(compressionLevel.MapToBrotliQuality());
-        return brotli;
+        return outputStream.AsBrotliCompressedStream(compressionLevel);
     }
 }
