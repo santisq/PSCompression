@@ -11,8 +11,6 @@ namespace PSCompression;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class CommandToCompressedFileBase : CommandWithPathBase, IDisposable
 {
-    protected abstract string FileExtension { get; }
-
     private FileStream? _destination;
 
     private Stream? _compressStream;
@@ -26,6 +24,8 @@ public abstract class CommandToCompressedFileBase : CommandWithPathBase, IDispos
             _ => FileMode.CreateNew
         };
     }
+
+    protected abstract string FileExtension { get; }
 
     [Parameter(
         ParameterSetName = "InputBytes",
