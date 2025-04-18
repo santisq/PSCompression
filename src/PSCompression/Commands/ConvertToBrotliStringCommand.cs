@@ -2,6 +2,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using Brotli;
+using PSCompression.Exceptions;
 
 namespace PSCompression.Commands;
 
@@ -12,6 +13,16 @@ public sealed class ConvertToBrotliStringCommand : CommandToCompressedStringBase
 {
     [Parameter(DontShow = true)]
     public override CompressionLevel CompressionLevel { get; set; }
+
+    protected override void BeginProcessing()
+    {
+        this.WriteWarningForIgnoredParameter(
+            MyInvocation.BoundParameters.ContainsKey(nameof(CompressionLevel)),
+            nameof(CompressionLevel),
+            "Brotli.NET");
+
+        base.BeginProcessing();
+    }
 
     protected override Stream CreateCompressionStream(
         Stream outputStream,
