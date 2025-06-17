@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using PSCompression.Abstractions;
 
 namespace PSCompression;
 

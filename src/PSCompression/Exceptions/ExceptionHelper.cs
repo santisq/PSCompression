@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
+using PSCompression.Abstractions;
 using PSCompression.Extensions;
 
 namespace PSCompression.Exceptions;
@@ -13,12 +14,32 @@ internal static class ExceptionHelper
 
     private static readonly char[] s_InvalidPathChar = Path.GetInvalidPathChars();
 
-    internal static ErrorRecord NotArchivePath(string path, string paramname) =>
-        new(
-            new ArgumentException(
-                $"The specified path '{path}' does not exist or is a Directory.",
-                paramname),
-            "NotArchivePath", ErrorCategory.InvalidArgument, path);
+    internal static bool WriteErrorIfNotArchive(
+        this string path,
+        string paramname,
+        PSCmdlet cmdlet,
+        bool isTerminating = false)
+    {
+        if (File.Exists(path))
+        {
+            return false;
+        }
+
+        ArgumentException exception = new(
+            $"The specified path '{path}' does not exist or is a Directory.",
+            paramname);
+
+        ErrorRecord error = new(exception, "NotArchivePath", ErrorCategory.InvalidArgument, path);
+
+        if (isTerminating)
+        {
+            cmdlet.ThrowTerminatingError(error);
+        }
+
+        cmdlet.WriteError(error);
+        return true;
+    }
+
 
     internal static ErrorRecord NotDirectoryPath(string path, string paramname) =>
         new(
@@ -33,12 +54,12 @@ internal static class ExceptionHelper
             "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
 
     internal static ErrorRecord ToOpenError(this Exception exception, string path) =>
-        new(exception, "ZipOpen", ErrorCategory.OpenError, path);
+        new(exception, "EntryOpen", ErrorCategory.OpenError, path);
 
     internal static ErrorRecord ToResolvePathError(this Exception exception, string path) =>
         new(exception, "ResolvePath", ErrorCategory.NotSpecified, path);
 
-    internal static ErrorRecord ToExtractEntryError(this Exception exception, ZipEntryBase entry) =>
+    internal static ErrorRecord ToExtractEntryError(this Exception exception, EntryBase entry) =>
         new(exception, "ExtractEntry", ErrorCategory.NotSpecified, entry);
 
     internal static ErrorRecord ToStreamOpenError(this Exception exception, ZipEntryBase entry) =>
@@ -62,16 +83,25 @@ internal static class ExceptionHelper
     internal static ErrorRecord ToEnumerationError(this Exception exception, object item) =>
         new(exception, "EnumerationError", ErrorCategory.ReadError, item);
 
-    internal static ErrorRecord ToInvalidZipArchive(this InvalidDataException exception) =>
-        new(
-            new InvalidDataException(
-                "Specified path or stream is not a valid zip archive, " +
-                "might be compressed using an unsupported method, " +
-                "or could be corrupted.",
-                exception),
-            "InvalidZipArchive",
-            ErrorCategory.InvalidData,
-            null);
+    internal static ErrorRecord ToInvalidArchive(
+        this Exception exception,
+        ArchiveType type,
+        bool isStream = false)
+    {
+        string basemsg = $"Specified path or stream is not a valid {type} archive, " +
+            "might be compressed using an unsupported method, " +
+            "or could be corrupted.";
+
+        if (type is ArchiveType.tar && isStream)
+        {
+            basemsg += " When reading a tar archive from a stream, " +
+                "use the -Algorithm parameter to specify the compression type.";
+        }
+
+        return new ErrorRecord(
+            new InvalidDataException(basemsg, exception),
+            "InvalidArchive", ErrorCategory.InvalidData, null);
+    }
 
 
     internal static void ThrowIfNotFound(

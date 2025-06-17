@@ -1,6 +1,6 @@
 namespace PSCompression;
 
-public enum ZipEntryType
+public enum EntryType
 {
     Directory = 0,
     Archive = 1

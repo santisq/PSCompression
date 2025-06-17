@@ -7,10 +7,10 @@ using System.Text;
 using PSCompression.Exceptions;
 using PSCompression.Extensions;
 
-namespace PSCompression;
+namespace PSCompression.Abstractions;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class CommandToCompressedStringBase : PSCmdlet, IDisposable
+public abstract class ToCompressedStringCommandBase : PSCmdlet, IDisposable
 {
     private StreamWriter? _writer;
 

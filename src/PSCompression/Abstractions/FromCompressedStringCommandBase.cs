@@ -6,10 +6,10 @@ using System.Text;
 using PSCompression.Exceptions;
 using PSCompression.Extensions;
 
-namespace PSCompression;
+namespace PSCompression.Abstractions;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class CommandFromCompressedStringBase : PSCmdlet
+public abstract class FromCompressedStringCommandBase : PSCmdlet
 {
     protected delegate Stream DecompressionStreamFactory(Stream inputStream);
 
@@ -35,7 +35,7 @@ public abstract class CommandFromCompressedStringBase : PSCmdlet
 
         if (Raw)
         {
-            reader.WriteAllToPipeline(this);
+            reader.WriteAllTextToPipeline(this);
             return;
         }
 

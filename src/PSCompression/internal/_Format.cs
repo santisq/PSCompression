@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Management.Automation;
+using PSCompression.Abstractions;
 
 namespace PSCompression.Internal;
 
@@ -26,7 +27,7 @@ public static class _Format
     ];
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
-    public static string GetDirectoryPath(ZipEntryBase entry) => entry.FormatDirectoryPath;
+    public static string? GetDirectoryPath(EntryBase entry) => entry.FormatDirectoryPath;
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetFormattedDate(DateTime dateTime) =>

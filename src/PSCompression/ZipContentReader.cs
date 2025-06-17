@@ -2,6 +2,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
+using PSCompression.Abstractions;
 using PSCompression.Extensions;
 
 namespace PSCompression;
@@ -55,6 +56,6 @@ internal sealed class ZipContentReader : ZipContentOpsBase
     {
         using Stream entryStream = entry.Open(_zip);
         using StreamReader reader = new(entryStream, encoding);
-        reader.WriteAllToPipeline(cmdlet);
+        reader.WriteAllTextToPipeline(cmdlet);
     }
 }

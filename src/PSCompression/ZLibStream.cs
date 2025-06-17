@@ -5,7 +5,7 @@ using System.IO.Compression;
 
 namespace PSCompression;
 
-// Justification: ain't nobody got time for that!
+// ain't nobody got time for that
 [ExcludeFromCodeCoverage]
 internal sealed class ZlibStream : Stream
 {
@@ -48,20 +48,14 @@ internal sealed class ZlibStream : Stream
         _outputStream.Flush();
     }
 
-    public override int Read(byte[] buffer, int offset, int count)
-    {
+    public override int Read(byte[] buffer, int offset, int count) =>
         throw new NotSupportedException("Reading is not supported.");
-    }
 
-    public override long Seek(long offset, SeekOrigin origin)
-    {
+    public override long Seek(long offset, SeekOrigin origin) =>
         throw new NotSupportedException("Seeking is not supported.");
-    }
 
-    public override void SetLength(long value)
-    {
+    public override void SetLength(long value) =>
         throw new NotSupportedException("Setting length is not supported.");
-    }
 
     public override void Write(byte[] buffer, int offset, int count)
     {

@@ -1,9 +1,17 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
 using Brotli;
+using ICSharpCode.SharpZipLib.BZip2;
+using ICSharpCode.SharpZipLib.Tar;
+using SharpCompress.Compressors.BZip2;
+using SharpCompress.Compressors.LZMA;
+using ZstdSharp;
+using SharpCompressors = SharpCompress.Compressors;
 
 namespace PSCompression.Extensions;
 
@@ -18,8 +26,8 @@ internal static class CompressionExtensions
     internal static string RelativeTo(this DirectoryInfo directory, int length) =>
         (directory.FullName.Substring(length) + _directorySeparator).NormalizeEntryPath();
 
-    internal static string RelativeTo(this FileInfo directory, int length) =>
-        directory.FullName.Substring(length).NormalizeFileEntryPath();
+    internal static string RelativeTo(this FileInfo file, int length) =>
+        file.FullName.Substring(length).NormalizeFileEntryPath();
 
     internal static ZipArchiveEntry CreateEntryFromFile(
         this ZipArchive zip,
@@ -46,35 +54,8 @@ internal static class CompressionExtensions
     internal static bool TryGetEntry(
         this ZipArchive zip,
         string path,
-        [NotNullWhen(true)] out ZipArchiveEntry? entry) =>
-        (entry = zip.GetEntry(path)) is not null;
-
-    internal static (string, bool) ExtractTo(
-        this ZipEntryBase entryBase,
-        ZipArchive zip,
-        string destination,
-        bool overwrite)
-    {
-        destination = Path.GetFullPath(
-            Path.Combine(destination, entryBase.RelativePath));
-
-        if (entryBase.Type is ZipEntryType.Directory)
-        {
-            Directory.CreateDirectory(destination);
-            return (destination, false);
-        }
-
-        string parent = Path.GetDirectoryName(destination);
-
-        if (!Directory.Exists(parent))
-        {
-            Directory.CreateDirectory(parent);
-        }
-
-        ZipArchiveEntry entry = zip.GetEntry(entryBase.RelativePath);
-        entry.ExtractToFile(destination, overwrite);
-        return (destination, true);
-    }
+        [NotNullWhen(true)] out ZipArchiveEntry? entry)
+        => (entry = zip.GetEntry(path)) is not null;
 
     internal static string ChangeName(
         this ZipEntryFile file,
@@ -95,22 +76,25 @@ internal static class CompressionExtensions
 
     internal static string ChangeName(
         this ZipEntryDirectory directory,
-        string newname) =>
-        s_reGetDirName.Replace(
+        string newname)
+        => s_reGetDirName.Replace(
             directory.RelativePath.NormalizePath(),
             newname);
 
     internal static string ChangePath(
         this ZipArchiveEntry entry,
         string oldPath,
-        string newPath) =>
-        string.Concat(newPath, entry.FullName.Remove(0, oldPath.Length));
+        string newPath)
+        => string.Concat(newPath, entry.FullName.Remove(0, oldPath.Length));
 
-    internal static string GetDirectoryName(this ZipArchiveEntry entry) =>
-        s_reGetDirName.Match(entry.FullName).Value;
+    internal static string GetDirectoryName(this ZipArchiveEntry entry)
+        => s_reGetDirName.Match(entry.FullName).Value;
 
-    internal static void WriteAllToPipeline(this StreamReader reader, PSCmdlet cmdlet) =>
-        cmdlet.WriteObject(reader.ReadToEnd());
+    internal static string GetDirectoryName(this TarEntry entry)
+        => s_reGetDirName.Match(entry.Name).Value;
+
+    internal static void WriteAllTextToPipeline(this StreamReader reader, PSCmdlet cmdlet)
+        => cmdlet.WriteObject(reader.ReadToEnd());
 
     internal static void WriteLinesToPipeline(this StreamReader reader, PSCmdlet cmdlet)
     {
@@ -150,5 +134,84 @@ internal static class CompressionExtensions
         });
 
         return brotli;
+    }
+
+    internal static BZip2OutputStream AsBZip2CompressedStream(
+        this Stream stream,
+        CompressionLevel compressionLevel)
+    {
+        int blockSize = compressionLevel switch
+        {
+            CompressionLevel.NoCompression => 1,
+            CompressionLevel.Fastest => 2,
+            _ => 9
+        };
+
+        return new BZip2OutputStream(stream, blockSize);
+    }
+
+    internal static CompressionStream AsZstCompressedStream(
+        this Stream stream,
+        CompressionLevel compressionLevel)
+    {
+        int level = compressionLevel switch
+        {
+            CompressionLevel.NoCompression => 1,
+            CompressionLevel.Fastest => 3,
+            _ => 19
+        };
+
+        return new CompressionStream(stream, level);
+    }
+
+    internal static LZipStream AsLzCompressedStream(this Stream outputStream) =>
+        new(outputStream, SharpCompressors.CompressionMode.Compress);
+
+    internal static Stream ToCompressedStream(
+        this Algorithm algorithm,
+        Stream stream,
+        CompressionLevel compressionLevel)
+        => algorithm switch
+        {
+            Algorithm.gz => new GZipStream(stream, compressionLevel),
+            Algorithm.br => stream.AsBrotliCompressedStream(compressionLevel),
+            Algorithm.zst => stream.AsZstCompressedStream(compressionLevel),
+            Algorithm.lz => stream.AsLzCompressedStream(),
+            Algorithm.bz2 => stream.AsBZip2CompressedStream(compressionLevel),
+            _ => stream
+        };
+
+    internal static Stream FromCompressedStream(
+        this Algorithm algorithm,
+        Stream stream)
+        => algorithm switch
+        {
+            Algorithm.gz => new GZipStream(stream, CompressionMode.Decompress),
+            Algorithm.br => new BrotliStream(stream, CompressionMode.Decompress),
+            Algorithm.zst => new DecompressionStream(stream),
+            Algorithm.lz => new LZipStream(stream, SharpCompressors.CompressionMode.Decompress),
+            Algorithm.bz2 => new BZip2Stream(stream, SharpCompressors.CompressionMode.Decompress, true),
+            _ => stream
+        };
+
+    internal static void CreateTarEntry(
+        this TarOutputStream stream,
+        string entryName,
+        DateTime modTime,
+        long size)
+    {
+        TarEntry entry = TarEntry.CreateTarEntry(entryName);
+        entry.TarHeader.Size = size;
+        entry.TarHeader.ModTime = modTime;
+        stream.PutNextEntry(entry);
+    }
+
+    internal static IEnumerable<TarEntry> EnumerateEntries(this TarInputStream tar)
+    {
+        TarEntry? entry;
+        while ((entry = tar.GetNextEntry()) is not null)
+        {
+            yield return entry;
+        }
     }
 }

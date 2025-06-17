@@ -1,5 +1,6 @@
 using System.IO;
 using System.IO.Compression;
+using PSCompression.Abstractions;
 using PSCompression.Exceptions;
 using PSCompression.Extensions;
 
@@ -7,15 +8,9 @@ namespace PSCompression;
 
 public sealed class ZipEntryFile : ZipEntryBase
 {
-    internal override string FormatDirectoryPath
-    {
-        get => _formatDirectoryPath ??=
-            $"/{Path.GetDirectoryName(RelativePath).NormalizeEntryPath()}";
-    }
-
     public string CompressionRatio => GetRatio(Length, CompressedLength);
 
-    public override ZipEntryType Type => ZipEntryType.Archive;
+    public override EntryType Type => EntryType.Archive;
 
     public string BaseName => Path.GetFileNameWithoutExtension(Name);
 
@@ -64,4 +59,7 @@ public sealed class ZipEntryFile : ZipEntryBase
         Length = entry.Length;
         CompressedLength = entry.CompressedLength;
     }
+
+    protected override string GetFormatDirectoryPath() =>
+        $"/{Path.GetDirectoryName(RelativePath).NormalizeEntryPath()}";
 }

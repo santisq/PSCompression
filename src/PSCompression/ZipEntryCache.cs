@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using PSCompression.Abstractions;
 
 namespace PSCompression;
 
@@ -38,9 +39,9 @@ public sealed class ZipEntryCache
         foreach (var entry in _cache)
         {
             using ZipArchive zip = ZipFile.OpenRead(entry.Key);
-            foreach ((string path, ZipEntryType type) in entry.Value)
+            foreach ((string path, EntryType type) in entry.Value)
             {
-                if (type is ZipEntryType.Archive)
+                if (type is EntryType.Archive)
                 {
                     yield return new ZipEntryFile(zip.GetEntry(path), entry.Key);
                     continue;

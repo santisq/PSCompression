@@ -1,6 +1,6 @@
 using System;
 using System.Management.Automation;
-using System.Text;
+using PSCompression.Abstractions;
 using PSCompression.Exceptions;
 
 namespace PSCompression.Commands;
@@ -9,32 +9,13 @@ namespace PSCompression.Commands;
 [OutputType(typeof(string), ParameterSetName = ["Stream"])]
 [OutputType(typeof(byte), ParameterSetName = ["Bytes"])]
 [Alias("zipgc")]
-public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
+public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEntryFile>, IDisposable
 {
     private readonly ZipArchiveCache _cache = new();
 
-    [Parameter(Mandatory = true, ValueFromPipeline = true)]
-    public ZipEntryFile[] ZipEntry { get; set; } = null!;
-
-    [Parameter(ParameterSetName = "Stream")]
-    [ArgumentCompleter(typeof(EncodingCompleter))]
-    [EncodingTransformation]
-    [ValidateNotNullOrEmpty]
-    public Encoding Encoding { get; set; } = new UTF8Encoding();
-
-    [Parameter]
-    public SwitchParameter Raw { get; set; }
-
-    [Parameter(ParameterSetName = "Bytes")]
-    public SwitchParameter AsByteStream { get; set; }
-
-    [Parameter(ParameterSetName = "Bytes")]
-    [ValidateNotNullOrEmpty]
-    public int BufferSize { get; set; } = 128_000;
-
     protected override void ProcessRecord()
     {
-        foreach (ZipEntryFile entry in ZipEntry)
+        foreach (ZipEntryFile entry in Entry)
         {
             try
             {

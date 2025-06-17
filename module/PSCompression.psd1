@@ -11,7 +11,7 @@
     RootModule         = 'bin/netstandard2.0/PSCompression.dll'
 
     # Version number of this module.
-    ModuleVersion      = '2.1.0'
+    ModuleVersion      = '3.0.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -83,8 +83,6 @@
         'Expand-ZipEntry'
         'ConvertTo-GzipString'
         'ConvertFrom-GzipString'
-        'Expand-GzipArchive'
-        'Compress-GzipArchive'
         'Compress-ZipArchive'
         'Rename-ZipEntry'
         'ConvertFrom-ZLibString'
@@ -93,6 +91,10 @@
         'ConvertTo-DeflateString'
         'ConvertFrom-BrotliString'
         'ConvertTo-BrotliString'
+        'Compress-TarArchive'
+        'Get-TarEntry'
+        'Get-TarEntryContent'
+        'Expand-TarEntry'
     )
 
     # Variables to export from this module
@@ -100,11 +102,8 @@
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
     AliasesToExport    = @(
-        'togzipfile'
-        'fromgzipfile'
         'togzipstring'
         'fromgzipstring'
-        'zip'
         'zipcompress'
         'fromzlibstring'
         'tozlibstring'
@@ -114,6 +113,9 @@
         'tobrotlistring'
         'zipge'
         'zipgc'
+        'tarcompress'
+        'targe'
+        'targc'
     )
 
     # DSC resources to export from this module

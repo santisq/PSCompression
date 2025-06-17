@@ -52,8 +52,6 @@ public static class PathExtensions
         return false;
     }
 
-    internal static bool IsArchive(this string path) => File.Exists(path);
-
     internal static string GetParent(this string path) => Path.GetDirectoryName(path);
 
     internal static string AddExtensionIfMissing(this string path, string extension)

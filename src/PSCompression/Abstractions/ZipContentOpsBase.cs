@@ -1,7 +1,7 @@
 using System;
 using System.IO.Compression;
 
-namespace PSCompression;
+namespace PSCompression.Abstractions;
 
 internal abstract class ZipContentOpsBase(ZipArchive zip) : IDisposable
 {

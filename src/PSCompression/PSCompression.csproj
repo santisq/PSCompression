@@ -9,9 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-447r-wph3-92pm" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-555c-2p6r-68mm" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Brotli.NET" Version="2.1.1" />
-    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    <PackageReference Include="SharpCompress" Version="0.39.0" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">

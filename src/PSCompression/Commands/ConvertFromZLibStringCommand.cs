@@ -1,13 +1,14 @@
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
+using PSCompression.Abstractions;
 
 namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.ConvertFrom, "ZLibString")]
 [OutputType(typeof(string))]
 [Alias("fromzlibstring")]
-public sealed class ConvertFromZLibStringCommand : CommandFromCompressedStringBase
+public sealed class ConvertFromZLibStringCommand : FromCompressedStringCommandBase
 {
     protected override Stream CreateDecompressionStream(Stream inputStream)
     {

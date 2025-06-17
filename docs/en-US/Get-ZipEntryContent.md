@@ -17,7 +17,7 @@ Gets the content of a zip entry.
 
 ```powershell
 Get-ZipEntryContent
-    -ZipEntry <ZipEntryFile[]>
+    -Entry <ZipEntryFile[]>
     [-Encoding <Encoding>]
     [-Raw]
     [<CommonParameters>]
@@ -27,7 +27,7 @@ Get-ZipEntryContent
 
 ```powershell
 Get-ZipEntryContent
-    -ZipEntry <ZipEntryFile[]>
+    -Entry <ZipEntryFile[]>
     [-Raw]
     [-AsByteStream]
     [-BufferSize <Int32>]
@@ -183,7 +183,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ZipEntry
+### -Entry
 
 The entry or entries to get the content from. This parameter can be and is meant to be bound from pipeline however can be also used as a named parameter.
 

@@ -1,203 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO.Compression;
-using System.Linq;
 using System.Management.Automation;
-using PSCompression.Extensions;
-using PSCompression.Exceptions;
 using System.IO;
+using PSCompression.Abstractions;
 
 namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Get, "ZipEntry", DefaultParameterSetName = "Path")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
 [Alias("zipge")]
-public sealed class GetZipEntryCommand : CommandWithPathBase
+public sealed class GetZipEntryCommand : GetEntryCommandBase
 {
-    [Parameter(
-        ParameterSetName = "Stream",
-        Position = 0,
-        Mandatory = true,
-        ValueFromPipeline = true,
-        ValueFromPipelineByPropertyName = true)]
-    [Alias("RawContentStream")]
-    public Stream? InputStream { get; set; }
+    internal override ArchiveType ArchiveType => ArchiveType.zip;
 
-    private readonly List<ZipEntryBase> _output = [];
-
-    private WildcardPattern[]? _includePatterns;
-
-    private WildcardPattern[]? _excludePatterns;
-
-    [Parameter]
-    public ZipEntryType? Type { get; set; }
-
-    [Parameter]
-    [SupportsWildcards]
-    public string[]? Include { get; set; }
-
-    [Parameter]
-    [SupportsWildcards]
-    public string[]? Exclude { get; set; }
-
-    protected override void BeginProcessing()
+    protected override IEnumerable<EntryBase> GetEntriesFromFile(string path)
     {
-        if (Exclude is null && Include is null)
+        List<EntryBase> entries = [];
+        using (ZipArchive zip = ZipFile.OpenRead(path))
         {
-            return;
-        }
-
-        const WildcardOptions options = WildcardOptions.Compiled
-            | WildcardOptions.CultureInvariant
-            | WildcardOptions.IgnoreCase;
-
-        if (Exclude is not null)
-        {
-            _excludePatterns = [.. Exclude.Select(e => new WildcardPattern(e, options))];
-        }
-
-        if (Include is not null)
-        {
-            _includePatterns = [.. Include.Select(e => new WildcardPattern(e, options))];
-        }
-    }
-
-    protected override void ProcessRecord()
-    {
-        IEnumerable<ZipEntryBase> entries;
-        if (InputStream is not null)
-        {
-            ZipEntryBase CreateFromStream(ZipArchiveEntry entry, bool isDirectory) =>
-                isDirectory
-                    ? new ZipEntryDirectory(entry, InputStream)
-                    : new ZipEntryFile(entry, InputStream);
-
-            try
+            foreach (ZipArchiveEntry entry in zip.Entries)
             {
-                using (ZipArchive zip = new(InputStream, ZipArchiveMode.Read, true))
+                bool isDirectory = string.IsNullOrEmpty(entry.Name);
+
+                if (ShouldSkipEntry(isDirectory))
                 {
-                    entries = GetEntries(zip, CreateFromStream);
+                    continue;
                 }
 
-                WriteObject(entries, enumerateCollection: true);
-                return;
-            }
-            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
-            {
-                throw;
-            }
-            catch (InvalidDataException exception)
-            {
-                ThrowTerminatingError(exception.ToInvalidZipArchive());
-            }
-            catch (Exception exception)
-            {
-                WriteError(exception.ToOpenError("InputStream"));
-            }
-        }
+                if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
+                {
+                    continue;
+                }
 
-        foreach (string path in EnumerateResolvedPaths())
-        {
-            ZipEntryBase CreateFromFile(ZipArchiveEntry entry, bool isDirectory) =>
-                isDirectory
+                entries.Add(isDirectory
                     ? new ZipEntryDirectory(entry, path)
-                    : new ZipEntryFile(entry, path);
-
-            if (!path.IsArchive())
-            {
-                WriteError(
-                    ExceptionHelper.NotArchivePath(
-                        path,
-                        IsLiteral ? nameof(LiteralPath) : nameof(Path)));
-
-                continue;
+                    : new ZipEntryFile(entry, path));
             }
+        }
 
-            try
+        return [.. entries];
+    }
+
+    protected override IEnumerable<EntryBase> GetEntriesFromStream(Stream stream)
+    {
+        List<EntryBase> entries = [];
+        using (ZipArchive zip = new(stream, ZipArchiveMode.Read, true))
+        {
+            foreach (ZipArchiveEntry entry in zip.Entries)
             {
-                using (ZipArchive zip = ZipFile.OpenRead(path))
+                bool isDirectory = string.IsNullOrEmpty(entry.Name);
+
+                if (ShouldSkipEntry(isDirectory))
                 {
-                    entries = GetEntries(zip, CreateFromFile);
+                    continue;
                 }
 
-                WriteObject(entries, enumerateCollection: true);
-            }
-            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
-            {
-                throw;
-            }
-            catch (InvalidDataException exception)
-            {
-                ThrowTerminatingError(exception.ToInvalidZipArchive());
-            }
-            catch (Exception exception)
-            {
-                WriteError(exception.ToOpenError(path));
-            }
-        }
-    }
+                if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
+                {
+                    continue;
+                }
 
-    private IEnumerable<ZipEntryBase> GetEntries(
-        ZipArchive zip,
-        Func<ZipArchiveEntry, bool, ZipEntryBase> createMethod)
-    {
-        _output.Clear();
-        foreach (ZipArchiveEntry entry in zip.Entries)
-        {
-            bool isDirectory = string.IsNullOrEmpty(entry.Name);
-
-            if (ShouldSkipEntry(isDirectory))
-            {
-                continue;
-            }
-
-            if (!ShouldInclude(entry) || ShouldExclude(entry))
-            {
-                continue;
-            }
-
-            _output.Add(createMethod(entry, isDirectory));
-        }
-
-        return _output.ZipEntrySort();
-    }
-
-    private static bool MatchAny(
-        ZipArchiveEntry entry,
-        WildcardPattern[] patterns)
-    {
-        foreach (WildcardPattern pattern in patterns)
-        {
-            if (pattern.IsMatch(entry.FullName))
-            {
-                return true;
+                entries.Add(isDirectory
+                    ? new ZipEntryDirectory(entry, stream)
+                    : new ZipEntryFile(entry, stream));
             }
         }
 
-        return false;
+        return [.. entries];
     }
-
-    private bool ShouldInclude(ZipArchiveEntry entry)
-    {
-        if (_includePatterns is null)
-        {
-            return true;
-        }
-
-        return MatchAny(entry, _includePatterns);
-    }
-
-    private bool ShouldExclude(ZipArchiveEntry entry)
-    {
-        if (_excludePatterns is null)
-        {
-            return false;
-        }
-
-        return MatchAny(entry, _excludePatterns);
-    }
-
-    private bool ShouldSkipEntry(bool isDirectory) =>
-        isDirectory && Type is ZipEntryType.Archive
-        || !isDirectory && Type is ZipEntryType.Directory;
 }

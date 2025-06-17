@@ -1,34 +1,21 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using PSCompression.Extensions;
 using PSCompression.Exceptions;
 
-namespace PSCompression;
+namespace PSCompression.Abstractions;
 
-public abstract class ZipEntryBase(ZipArchiveEntry entry, string source)
+public abstract class ZipEntryBase(ZipArchiveEntry entry, string source) : EntryBase(source)
 {
-    protected string? _formatDirectoryPath;
+    public override string Name { get; protected set; } = entry.Name;
 
-    protected Stream? _stream;
+    public override string RelativePath { get; } = entry.FullName;
 
-    internal bool FromStream { get => _stream is not null; }
+    public override DateTime LastWriteTime { get; } = entry.LastWriteTime.LocalDateTime;
 
-    internal abstract string FormatDirectoryPath { get; }
-
-    public string Source { get; } = source;
-
-    public string Name { get; protected set; } = entry.Name;
-
-    public string RelativePath { get; } = entry.FullName;
-
-    public DateTime LastWriteTime { get; } = entry.LastWriteTime.LocalDateTime;
-
-    public long Length { get; internal set; } = entry.Length;
+    public override long Length { get; internal set; } = entry.Length;
 
     public long CompressedLength { get; internal set; } = entry.CompressedLength;
-
-    public abstract ZipEntryType Type { get; }
 
     protected ZipEntryBase(ZipArchiveEntry entry, Stream? stream)
         : this(entry, $"InputStream.{Guid.NewGuid()}")
@@ -36,7 +23,7 @@ public abstract class ZipEntryBase(ZipArchiveEntry entry, string source)
         _stream = stream;
     }
 
-    public ZipArchive OpenRead() => _stream is null
+    public ZipArchive OpenRead() => FromStream
         ? ZipFile.OpenRead(Source)
         : new ZipArchive(_stream);
 
@@ -97,31 +84,45 @@ public abstract class ZipEntryBase(ZipArchiveEntry entry, string source)
         {
             sourceStream.CopyTo(destinationStream);
         }
-        sourceEntry.Delete();
 
+        sourceEntry.Delete();
         return destination;
     }
 
     internal ZipArchive OpenZip(ZipArchiveMode mode) =>
-        _stream is null
-            ? ZipFile.Open(Source, mode)
-            : new ZipArchive(_stream, mode, true);
+        FromStream
+            ? new ZipArchive(_stream, mode, true)
+            : ZipFile.Open(Source, mode);
 
     public FileSystemInfo ExtractTo(string destination, bool overwrite)
     {
-        using ZipArchive zip = _stream is null
-            ? ZipFile.OpenRead(Source)
-            : new ZipArchive(_stream);
+        using ZipArchive zip = _stream is not null
+            ? new ZipArchive(_stream, ZipArchiveMode.Read, leaveOpen: true)
+            : ZipFile.OpenRead(Source);
 
-        (string path, bool isArchive) = this.ExtractTo(zip, destination, overwrite);
-
-        if (isArchive)
-        {
-            return new FileInfo(path);
-        }
-
-        return new DirectoryInfo(path);
+        return ExtractTo(destination, overwrite, zip);
     }
 
-    public override string ToString() => RelativePath;
+    internal FileSystemInfo ExtractTo(
+        string destination,
+        bool overwrite,
+        ZipArchive zip)
+    {
+        destination = Path.GetFullPath(Path.Combine(destination, RelativePath));
+        if (Type is EntryType.Directory)
+        {
+            Directory.CreateDirectory(destination);
+            return new DirectoryInfo(destination);
+        }
+
+        string parent = Path.GetDirectoryName(destination);
+        if (!Directory.Exists(parent))
+        {
+            Directory.CreateDirectory(parent);
+        }
+
+        ZipArchiveEntry entry = zip.GetEntry(RelativePath);
+        entry.ExtractToFile(destination, overwrite);
+        return new FileInfo(destination);
+    }
 }
