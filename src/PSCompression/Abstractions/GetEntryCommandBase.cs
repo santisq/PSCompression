@@ -7,7 +7,6 @@ using System;
 using PSCompression.Exceptions;
 using ICSharpCode.SharpZipLib.Tar;
 using ZstdSharp;
-using Brotli;
 
 namespace PSCompression.Abstractions;
 
@@ -168,6 +167,5 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
             InvalidDataException
             or TarException
             or ZstdException
-            or IOException
-            or BrotliDecodeException;
+            or IOException;
 }

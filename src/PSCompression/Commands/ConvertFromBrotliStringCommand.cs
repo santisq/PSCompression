@@ -1,7 +1,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
-using Brotli;
+using BrotliSharpLib;
 using PSCompression.Abstractions;
 
 namespace PSCompression.Commands;

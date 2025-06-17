@@ -5,7 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
-using Brotli;
+using BrotliSharpLib;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Tar;
 using SharpCompress.Compressors.BZip2;
