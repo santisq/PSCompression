@@ -56,7 +56,8 @@ public static class PathExtensions
 
     internal static string AddExtensionIfMissing(this string path, string extension)
     {
-        if (!path.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
+        if (!path.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase)
+            && !AlgorithmMappings.HasExtension(path))
         {
             path += extension;
         }

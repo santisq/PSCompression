@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Management.Automation;
 using System.Text;
@@ -16,6 +17,10 @@ public sealed class CompressTarArchiveCommand : ToCompressedFileCommandBase<TarO
 {
     private Stream? _compressionStream;
 
+    // override this parameter without adding the decoration since this isn't supported for .tar
+    [ExcludeFromCodeCoverage]
+    public override SwitchParameter Update { get; set; }
+
     [Parameter]
     [ValidateNotNull]
     public Algorithm Algorithm { get; set; } = Algorithm.gz;
@@ -24,6 +29,12 @@ public sealed class CompressTarArchiveCommand : ToCompressedFileCommandBase<TarO
 
     protected override TarOutputStream CreateCompressionStream(Stream outputStream)
     {
+        if (Algorithm == Algorithm.lz &&
+            MyInvocation.BoundParameters.ContainsKey(nameof(CompressionLevel)))
+        {
+            WriteWarning("The lzip algorithm does not support the CompressionLevel parameter; it will be ignored.");
+        }
+
         _compressionStream = Algorithm.ToCompressedStream(outputStream, CompressionLevel);
         return new TarOutputStream(_compressionStream, Encoding.UTF8);
     }

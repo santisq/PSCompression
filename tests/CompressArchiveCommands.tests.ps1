@@ -1,43 +1,62 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿using namespace System.IO
 
-$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
-$manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
+$ErrorActionPreference = 'Stop'
+
+$moduleName = (Get-Item ([Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
+$manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 
 Import-Module $manifestPath
-Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
+Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
-Describe 'Compress-ZipArchive' -Tag 'Compress-ZipArchive' {
+Describe 'CompressArchive Commands' -Tag 'CompressArchive Commands' {
     BeforeAll {
-        $sourceName = 'CompressZipArchiveTests'
-        $destName = 'CompressZipArchiveExtract'
+        $algos = [PSCompression.Algorithm].GetEnumValues()
+        $sourceName = 'CompressArchiveTests'
+        $destName = 'CompressArchiveExtract'
         $testpath = Join-Path $TestDrive $sourceName
         $extractpath = Join-Path $TestDrive $destName
-
         $structure = Get-Structure | ForEach-Object {
-            $path = Join-Path $testpath $_
-            if ($_.EndsWith('.txt')) {
-                New-Item $path -ItemType File -Value (Get-Random) -Force
-                return
+            $newItemSplat = @{
+                ItemType = ('Directory', 'File')[$_.EndsWith('.txt')]
+                Value    = (Get-Random)
+                Force    = $true
+                Path     = Join-Path $testpath $_
             }
-            New-Item $path -ItemType Directory -Force
+
+            New-Item @newItemSplat
         }
 
-        $structure, $extractpath | Out-Null
+        $structure, $extractpath, $algos | Out-Null
     }
 
     It 'Can compress a folder and all its child items' {
         Compress-ZipArchive $testpath $extractpath -PassThru |
-            Should -BeOfType ([System.IO.FileInfo])
+            Should -BeOfType ([FileInfo])
+
+        $algos | ForEach-Object {
+            Compress-TarArchive $testpath $extractpath -PassThru -Algorithm $_ |
+                Should -BeOfType ([FileInfo])
+        }
     }
 
     It 'Should throw if the destination already exists' {
         { Compress-ZipArchive $testpath $extractpath } |
-            Should -Throw
+            Should -Throw -ExceptionType ([IOException])
+
+        $algos | ForEach-Object {
+            { Compress-TarArchive $testpath $extractpath -Algorithm $_ } |
+                Should -Throw -ExceptionType ([IOException])
+        }
     }
 
-    It 'Should overwrite if using -Force' {
+    It 'Should overwrite if using -Force parameter' {
         { Compress-ZipArchive $testpath $extractpath -Force } |
             Should -Not -Throw
+
+        $algos | ForEach-Object {
+            { Compress-TarArchive $testpath $extractpath -Algorithm $_ -Force } |
+                Should -Not -Throw
+        }
     }
 
     It 'Extracted files should be exactly the same with the same structure' {
@@ -45,7 +64,7 @@ Describe 'Compress-ZipArchive' -Tag 'Compress-ZipArchive' {
             $map = @{}
             Get-ChildItem $testpath -Recurse | ForEach-Object {
                 $relative = $_.FullName.Substring($testpath.Length)
-                if ($_ -is [System.IO.FileInfo]) {
+                if ($_ -is [FileInfo]) {
                     $map[$relative] = ($_ | Get-FileHash -Algorithm MD5).Hash
                     return
                 }
@@ -59,7 +78,7 @@ Describe 'Compress-ZipArchive' -Tag 'Compress-ZipArchive' {
                 $relative = $_.FullName.Substring($extractpath.Length)
                 $map.ContainsKey($relative) | Should -BeTrue
 
-                if ($_ -is [System.IO.FileInfo]) {
+                if ($_ -is [FileInfo]) {
                     $thishash = ($_ | Get-FileHash -Algorithm MD5).Hash
                     $map[$relative] | Should -BeExactly $thishash
                 }
@@ -68,8 +87,8 @@ Describe 'Compress-ZipArchive' -Tag 'Compress-ZipArchive' {
     }
 
     It 'Can update entries if they exist' {
-        $destination = [IO.Path]::Combine($TestDrive, 'UpdateTest', 'test.zip')
-        $destinationExtract = [IO.Path]::Combine($TestDrive, 'UpdateTest')
+        $destination = [Path]::Combine($TestDrive, 'UpdateTest', 'test.zip')
+        $destinationExtract = [Path]::Combine($TestDrive, 'UpdateTest')
 
         0..10 | ForEach-Object {
             New-Item (Join-Path $TestDrive ('file{0:D2}.txt' -f $_)) -ItemType File -Value 'hello'

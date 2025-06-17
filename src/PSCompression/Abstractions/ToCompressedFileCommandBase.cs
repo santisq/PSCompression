@@ -63,7 +63,8 @@ public abstract class ToCompressedFileCommandBase<T> : CommandWithPathBase, IDis
 
     protected override void BeginProcessing()
     {
-        Destination = ResolvePath(Destination).AddExtensionIfMissing(FileExtension);
+        Destination = ResolvePath(Destination)
+            .AddExtensionIfMissing(FileExtension);
 
         try
         {
