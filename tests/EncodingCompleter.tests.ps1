@@ -41,10 +41,10 @@ Describe 'EncodingCompleter Class' {
 
     It 'Should not offer ansi as a completion result if the OS is not Windows' {
         if ($osIsWindows) {
+            (Complete 'Test-Completer ansi').CompletionText | Should -Not -BeNullOrEmpty
             return
         }
 
-        (Complete 'Test-Completer ansi').CompletionText |
-            Should -BeNullOrEmpty
+        (Complete 'Test-Completer ansi').CompletionText | Should -BeNullOrEmpty
     }
 }
