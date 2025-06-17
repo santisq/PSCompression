@@ -115,16 +115,16 @@ Describe 'ZipEntry Cmdlets' {
     Context 'Get-ZipEntry' -Tag 'Get-ZipEntry' {
         It 'Can list entries in a zip archive' {
             $zip | Get-ZipEntry |
-                Should -BeOfType ([PSCompression.ZipEntryBase])
+                Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
         }
 
         It 'Can list entries from a Stream' {
             Invoke-WebRequest $uri | Get-ZipEntry |
-                Should -BeOfType ([PSCompression.ZipEntryBase])
+                Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
 
             Use-Object ($stream = $zip.OpenRead()) {
                 $stream | Get-ZipEntry |
-                    Should -BeOfType ([PSCompression.ZipEntryBase])
+                    Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
             }
         }
 

@@ -24,8 +24,8 @@ public abstract class ZipEntryBase(ZipArchiveEntry entry, string source) : Entry
     }
 
     public ZipArchive OpenRead() => FromStream
-        ? ZipFile.OpenRead(Source)
-        : new ZipArchive(_stream);
+        ? new ZipArchive(_stream)
+        : ZipFile.OpenRead(Source);
 
     public ZipArchive OpenWrite()
     {

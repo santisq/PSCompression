@@ -12,6 +12,8 @@
     - `Expand-TarEntry`: Extracts a tar entry to a file.
 - Added commands to compress files and folders into `.tar` archives and extract `.tar` archives with various compression algorithms:
     - `Compress-TarArchive` and `Expand-TarArchive`: Supported compression algorithms include `gz`, `br`, `bz2`, `zst`, `lz`, and `none` (no compression).
+- Removed commands:
+    - `Compress-GzipArchive` and `Expand-GzipArchive`: These were deprecated as they only supported single-file compression, which is now better handled by the module’s `.tar` archive functionality.
 
 This update was made possible by the following projects. If you find them helpful, please consider starring their repositories:
 

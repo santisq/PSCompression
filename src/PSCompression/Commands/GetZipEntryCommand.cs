@@ -27,7 +27,7 @@ public sealed class GetZipEntryCommand : GetEntryCommandBase
                     continue;
                 }
 
-                if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
+                if (!ShouldInclude(entry.FullName) || ShouldExclude(entry.FullName))
                 {
                     continue;
                 }
@@ -55,7 +55,7 @@ public sealed class GetZipEntryCommand : GetEntryCommandBase
                     continue;
                 }
 
-                if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
+                if (!ShouldInclude(entry.FullName) || ShouldExclude(entry.FullName))
                 {
                     continue;
                 }

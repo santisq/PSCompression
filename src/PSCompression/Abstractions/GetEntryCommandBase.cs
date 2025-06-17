@@ -164,5 +164,10 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
         isDirectory && Type is EntryType.Archive || !isDirectory && Type is EntryType.Directory;
 
     private bool IsInvalidArchive(Exception exception) =>
-        exception is InvalidDataException or TarException or ZstdException or IOException or BrotliDecodeException;
+        exception is
+            InvalidDataException
+            or TarException
+            or ZstdException
+            or IOException
+            or BrotliDecodeException;
 }

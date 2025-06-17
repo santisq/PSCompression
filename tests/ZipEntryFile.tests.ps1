@@ -13,7 +13,7 @@ Describe 'ZipEntryFile Class' {
     }
 
     It 'Should be of type Archive' {
-        ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.ZipEntryType]::Archive)
+        ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.EntryType]::Archive)
     }
 
     It 'Should Have a BaseName Property' {
