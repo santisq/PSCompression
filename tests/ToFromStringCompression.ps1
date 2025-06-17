@@ -1,58 +1,70 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿using namespace System.IO
 
-$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
-$manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
+$ErrorActionPreference = 'Stop'
+
+$moduleName = (Get-Item ([Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
+$manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 
 Import-Module $manifestPath
-Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
+Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
-Describe 'ToFromStringCompression' {
-    Context 'ConvertFrom-GzipString' -Tag 'ConvertFrom-GzipString' {
+Describe 'To & From String Compression' {
+    BeforeAll {
+        $conversionCommands = @{
+            'ConvertFrom-BrotliString'  = 'ConvertTo-BrotliString'
+            'ConvertFrom-DeflateString' = 'ConvertTo-DeflateString'
+            'ConvertFrom-GzipString'    = 'ConvertTo-GzipString'
+            'ConvertFrom-ZlibString'    = 'ConvertTo-ZlibString'
+        }
+
+        $conversionCommands | Out-Null
+    }
+
+    Context 'ConvertFrom Commands' -Tag 'ConvertFrom Commands' {
         It 'Should throw on a non b64 encoded input' {
-            { 'foo' | ConvertFrom-GzipString } |
-                Should -Throw
+            $conversionCommands.Keys | ForEach-Object {
+                { 'foo' | & $_ } | Should -Throw -ExceptionType ([FormatException])
+            }
         }
     }
 
-    Context 'ConvertTo & ConvertFrom GzipString' -Tag 'ConvertTo & ConvertFrom GzipString' {
+    Context 'ConvertTo & ConvertFrom General Usage' -Tag 'ConvertTo & ConvertFrom General Usage' {
         BeforeAll {
             $content = 'hello', 'world', '!'
             $content | Out-Null
         }
 
-        It 'Can compress strings to gzip b64 strings from pipeline' {
-            $encoded = { $content | ConvertTo-GzipString } |
-                Should -Not -Throw -PassThru
+        It 'Can compress strings and expand strings' {
+            $conversionCommands.Keys | ForEach-Object {
+                $encoded = { $content | & $conversionCommands[$_] } |
+                    Should -Not -Throw -PassThru
 
-            $encoded | ConvertFrom-GzipString |
-                Should -BeExactly $contet
+                $encoded | & $_ | Should -BeExactly $contet
+            }
         }
 
-        It 'Can compress strings to gzip b64 strings positionally' {
-            $encoded = { ConvertTo-GzipString -InputObject $content } |
-                Should -Not -Throw -PassThru
-
-            $encoded | ConvertFrom-GzipString |
-                Should -BeExactly $contet
+        It 'Can compress strings outputting raw bytes' {
+            $conversionCommands.Keys | ForEach-Object {
+                [byte[]] $bytes = $content | & $conversionCommands[$_] -AsByteStream
+                $result = [Convert]::ToBase64String($bytes) | & $_
+                $result | Should -BeExactly $content
+            }
         }
 
-        It 'Can compress strings to gzip and output raw bytes' {
-            [byte[]] $bytes = $content | ConvertTo-GzipString -AsByteStream
-            $result = Decode $bytes
-            $result.TrimEnd() | Should -BeExactly ($content -join [System.Environment]::NewLine)
-        }
-
-        It 'Can convert gzip b64 compressed string and output multi-line string' {
-            $content | ConvertTo-GzipString |
-                ConvertFrom-GzipString -Raw |
-                ForEach-Object TrimEnd |
-                Should -BeExactly ($content -join [System.Environment]::NewLine)
+        It 'Can expand b64 compressed strings and output a multi-line string' {
+            $contentAsString = $content -join [Environment]::NewLine
+            $conversionCommands.Keys | ForEach-Object {
+                $content | & $conversionCommands[$_] | & $_ -Raw |
+                    ForEach-Object TrimEnd | Should -BeExactly $contentAsString
+            }
         }
 
         It 'Concatenates strings when the -NoNewLine switch is used' {
-            $content | ConvertTo-GzipString -NoNewLine |
-                ConvertFrom-GzipString |
-                Should -BeExactly (-join $content)
+            $contentAsString = -join $content
+            $conversionCommands.Keys | ForEach-Object {
+                $content | & $conversionCommands[$_] -NoNewLine | & $_ |
+                    Should -BeExactly $contentAsString
+            }
         }
     }
 }
