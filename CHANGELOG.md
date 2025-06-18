@@ -3,7 +3,7 @@
 ## 06/17/2025
 
 - Added commands supporting several algorithms to compress and decompress strings:
-    - `ConvertFrom-BrotliString` & `ConvertTo-BrotliString` (using to Brotli.NET)
+    - `ConvertFrom-BrotliString` & `ConvertTo-BrotliString` (using to BrotliSharpLib)
     - `ConvertFrom-DeflateString` & `ConvertTo-DeflateString` (from CLR)
     - `ConvertFrom-ZlibString` & `ConvertTo-ZlibString` (custom implementation)
 - Added commands for `.tar` entry management with a reduced set of operations compared to `zip` entry management:

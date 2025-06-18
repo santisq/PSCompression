@@ -35,7 +35,7 @@ internal static class CompressionExtensions
         FileStream fileStream,
         CompressionLevel compressionLevel)
     {
-        if (entry.IsDirectoryPath())
+        if (entry.EndsWith("/") || entry.EndsWith("\\"))
         {
             return zip.CreateEntry(entry);
         }

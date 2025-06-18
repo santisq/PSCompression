@@ -13,10 +13,6 @@ public static class PathExtensions
         @"(?:^[a-z]:)?[\\/]+|(?<![\\/])$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    private static readonly Regex s_reEntryDir = new(
-        @"[\\/]$",
-        RegexOptions.Compiled | RegexOptions.RightToLeft);
-
     private const string _directorySeparator = "/";
 
     internal static string ResolvePath(this string path, PSCmdlet cmdlet)
@@ -71,11 +67,8 @@ public static class PathExtensions
     internal static string NormalizeFileEntryPath(this string path) =>
         NormalizeEntryPath(path).TrimEnd('/');
 
-    internal static bool IsDirectoryPath(this string path) =>
-        s_reEntryDir.IsMatch(path);
-
     public static string NormalizePath(this string path) =>
-        s_reEntryDir.IsMatch(path)
+        path.EndsWith("/") || path.EndsWith("\\")
             ? NormalizeEntryPath(path)
             : NormalizeFileEntryPath(path);
 }

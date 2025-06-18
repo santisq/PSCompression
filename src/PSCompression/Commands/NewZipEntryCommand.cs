@@ -73,10 +73,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                     {
                         if (!Force.IsPresent)
                         {
-                            WriteError(
-                                DuplicatedEntryException
-                                    .Create(entry, Destination)
-                                    .ToDuplicatedEntryError());
+                            WriteError(DuplicatedEntryException
+                                .Create(entry, Destination)
+                                .ToDuplicatedEntryError());
 
                             continue;
                         }
@@ -109,10 +108,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 {
                     if (!Force.IsPresent)
                     {
-                        WriteError(
-                            DuplicatedEntryException
-                                .Create(entry, Destination)
-                                .ToDuplicatedEntryError());
+                        WriteError(DuplicatedEntryException
+                            .Create(entry, Destination)
+                            .ToDuplicatedEntryError());
 
                         continue;
                     }

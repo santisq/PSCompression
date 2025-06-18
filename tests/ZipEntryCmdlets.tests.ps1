@@ -1,15 +1,19 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿using namespace System.IO
+using namespace PSCompression
+using namespace PSCompression.Extensions
 
-$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
-$manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
+$ErrorActionPreference = 'Stop'
+
+$moduleName = (Get-Item ([Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
+$manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 
 Import-Module $manifestPath
-Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
+Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
-Describe 'ZipEntry Cmdlets' {
+Describe 'Entry Cmdlets' {
     BeforeAll {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
-        $file = New-Item ([System.IO.Path]::Combine($TestDrive, 'someFile.txt')) -ItemType File -Value 'foo'
+        $file = New-Item ([Path]::Combine($TestDrive, 'someFile.txt')) -ItemType File -Value 'foo'
         $uri = 'https://www.powershellgallery.com/api/v2/package/PSCompression'
         $zip, $file, $uri | Out-Null
     }
@@ -42,12 +46,12 @@ Describe 'ZipEntry Cmdlets' {
 
         It 'Can create new zip file entries' {
             New-ZipEntry $zip.FullName -EntryPath test\newentry.txt |
-                Should -BeOfType ([PSCompression.ZipEntryFile])
+                Should -BeOfType ([ZipEntryFile])
         }
 
         It 'Can create new zip directory entries' {
             New-ZipEntry $zip.FullName -EntryPath test\ |
-                Should -BeOfType ([PSCompression.ZipEntryDirectory])
+                Should -BeOfType ([ZipEntryDirectory])
         }
 
         It 'Can create multiple entries' {
@@ -108,7 +112,18 @@ Describe 'ZipEntry Cmdlets' {
             $entry = New-ZipEntry @newZipEntrySplat
             $entry | Get-ZipEntryContent | Should -Be 'hello world!'
             $entry.RelativePath |
-                Should -Be ([PSCompression.Extensions.PathExtensions]::NormalizePath($item.FullName))
+                Should -Be ([PathExtensions]::NormalizePath($item.FullName))
+        }
+
+        It 'Ignores copying content to a ZipEntryDirectory from source file' {
+            $newZipEntrySplat = @{
+                SourcePath  = (Join-Path $TestDrive helloworld.txt)
+                Destination = $zip.FullName
+                EntryPath   = 'directoryEntry/', 'directoryEntry2\'
+            }
+
+            $entry = New-ZipEntry @newZipEntrySplat
+            $entry | ForEach-Object { $_.Length | Should -BeExactly 0 }
         }
     }
 
