@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using PSCompression.Exceptions;
+using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;
 
@@ -115,7 +116,7 @@ public abstract class ZipEntryBase(ZipArchiveEntry entry, string source) : Entry
             return new DirectoryInfo(destination);
         }
 
-        string parent = Path.GetDirectoryName(destination);
+        string parent = destination.GetParent();
         if (!Directory.Exists(parent))
         {
             Directory.CreateDirectory(parent);

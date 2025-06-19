@@ -59,14 +59,11 @@ internal static class ExceptionHelper
     internal static ErrorRecord ToResolvePathError(this Exception exception, string path) =>
         new(exception, "ResolvePath", ErrorCategory.NotSpecified, path);
 
-    internal static ErrorRecord ToExtractEntryError(this Exception exception, EntryBase entry) =>
+    internal static ErrorRecord ToExtractEntryError(this Exception exception, object entry) =>
         new(exception, "ExtractEntry", ErrorCategory.NotSpecified, entry);
 
-    internal static ErrorRecord ToStreamOpenError(this Exception exception, ZipEntryBase entry) =>
-        new(exception, "StreamOpen", ErrorCategory.NotSpecified, entry);
-
-    internal static ErrorRecord ToStreamOpenError(this Exception exception, string path) =>
-        new(exception, "StreamOpen", ErrorCategory.NotSpecified, path);
+    internal static ErrorRecord ToStreamOpenError(this Exception exception, object item) =>
+        new(exception, "StreamOpen", ErrorCategory.NotSpecified, item);
 
     internal static ErrorRecord ToWriteError(this Exception exception, object? item) =>
         new(exception, "WriteError", ErrorCategory.WriteError, item);

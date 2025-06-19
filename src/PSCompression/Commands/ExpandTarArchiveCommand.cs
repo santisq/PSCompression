@@ -1,15 +1,23 @@
+using System;
+using System.IO;
 using System.Management.Automation;
+using System.Text;
+using ICSharpCode.SharpZipLib.Tar;
 using PSCompression.Abstractions;
+using PSCompression.Exceptions;
+using PSCompression.Extensions;
+using IO = System.IO;
 
 namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Expand, "TarArchive")]
+[OutputType(typeof(FileInfo), typeof(DirectoryInfo))]
 public sealed class ExpandTarArchiveCommand : CommandWithPathBase
 {
     private bool _shouldInferAlgo;
 
-    [Parameter(Mandatory = true, Position = 1)]
-    public string Destination { get; set; } = null!;
+    [Parameter(Position = 1)]
+    public string? Destination { get; set; }
 
     [Parameter]
     public Algorithm Algorithm { get; set; }
@@ -20,17 +28,115 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
     [Parameter]
     public SwitchParameter PassThru { get; set; }
 
-    protected override void BeginProcessing() =>
-        _shouldInferAlgo = !MyInvocation.BoundParameters.ContainsKey(nameof(Algorithm));
+    protected override void BeginProcessing()
+    {
+        Destination = Destination is null
+            ? SessionState.Path.CurrentFileSystemLocation.Path
+            : Destination.ResolvePath(this);
+
+        if (File.Exists(Destination))
+        {
+            ThrowTerminatingError(ExceptionHelper.NotDirectoryPath(
+                Destination, nameof(Destination)));
+        }
+
+        if (!Directory.Exists(Destination))
+        {
+            Directory.CreateDirectory(Destination);
+        }
+
+        _shouldInferAlgo = !MyInvocation
+            .BoundParameters
+            .ContainsKey(nameof(Algorithm));
+    }
 
     protected override void ProcessRecord()
     {
+        Dbg.Assert(Destination is not null);
+
         foreach (string path in EnumerateResolvedPaths())
         {
             if (_shouldInferAlgo)
             {
                 Algorithm = AlgorithmMappings.Parse(path);
             }
+
+            try
+            {
+                ExtractArchive(path);
+            }
+            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                WriteError(exception.ToWriteError(path));
+            }
+        }
+    }
+
+    private void ExtractArchive(string path)
+    {
+        using FileStream fs = File.OpenRead(path);
+        using Stream decompress = Algorithm.FromCompressedStream(fs);
+        using TarInputStream tar = new(decompress, Encoding.UTF8);
+
+        foreach (TarEntry entry in tar.EnumerateEntries())
+        {
+            try
+            {
+                ExtractEntry(entry, tar);
+            }
+            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                WriteError(exception.ToExtractEntryError(entry));
+            }
+        }
+    }
+
+    private void ExtractEntry(TarEntry entry, TarInputStream tar)
+    {
+        string destination = IO.Path.GetFullPath(
+            IO.Path.Combine(Destination, entry.Name));
+
+        if (entry.IsDirectory)
+        {
+            DirectoryInfo dir = new(destination);
+            dir.Create(Force);
+
+            if (PassThru)
+            {
+                WriteObject(dir.AppendPSProperties(dir.Parent.FullName));
+            }
+
+            return;
+        }
+
+        string parent = destination.GetParent();
+        if (!Directory.Exists(parent))
+        {
+            Directory.CreateDirectory(parent);
+        }
+
+        using (FileStream destStream = File.Open(
+            destination,
+            Force ? FileMode.Create : FileMode.CreateNew,
+            FileAccess.Write))
+        {
+            if (entry.Size > 0)
+            {
+                tar.CopyTo(destStream, (int)entry.Size);
+            }
+        }
+
+        if (PassThru)
+        {
+            WriteObject(new FileInfo(destination).AppendPSProperties(parent));
         }
     }
 }

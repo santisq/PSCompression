@@ -174,7 +174,6 @@ internal static class CompressionExtensions
         => algorithm switch
         {
             Algorithm.gz => new GZipStream(stream, compressionLevel),
-            Algorithm.br => stream.AsBrotliCompressedStream(compressionLevel),
             Algorithm.zst => stream.AsZstCompressedStream(compressionLevel),
             Algorithm.lz => stream.AsLzCompressedStream(),
             Algorithm.bz2 => stream.AsBZip2CompressedStream(compressionLevel),
@@ -187,7 +186,6 @@ internal static class CompressionExtensions
         => algorithm switch
         {
             Algorithm.gz => new GZipStream(stream, CompressionMode.Decompress),
-            Algorithm.br => new BrotliStream(stream, CompressionMode.Decompress),
             Algorithm.zst => new DecompressionStream(stream),
             Algorithm.lz => new LZipStream(stream, SharpCompressors.CompressionMode.Decompress),
             Algorithm.bz2 => new BZip2Stream(stream, SharpCompressors.CompressionMode.Decompress, true),

@@ -30,9 +30,9 @@ public sealed class TarEntryFile : TarEntryBase
     }
 
     protected override string GetFormatDirectoryPath() =>
-        $"/{Path.GetDirectoryName(RelativePath).NormalizeEntryPath()}";
+        $"/{RelativePath.GetParent().NormalizeEntryPath()}";
 
-    internal bool GetContentStream(Stream stream)
+    internal bool GetContentStream(Stream destination)
     {
         Stream? sourceStream = null;
         Stream? decompressedStream = null;
@@ -54,8 +54,8 @@ public sealed class TarEntryFile : TarEntryBase
                 return false;
             }
 
-            tar.CopyTo(stream, (int)entry.Size);
-            stream.Seek(0, SeekOrigin.Begin);
+            tar.CopyTo(destination, (int)entry.Size);
+            destination.Seek(0, SeekOrigin.Begin);
             return true;
         }
         finally

@@ -25,7 +25,10 @@ public sealed class CompressTarArchiveCommand : ToCompressedFileCommandBase<TarO
     [ValidateNotNull]
     public Algorithm Algorithm { get; set; } = Algorithm.gz;
 
-    protected override string FileExtension => Algorithm is Algorithm.none ? ".tar" : $".tar.{Algorithm}";
+    protected override string FileExtension
+    {
+        get => Algorithm == Algorithm.none ? ".tar" : $".tar.{Algorithm}";
+    }
 
     protected override TarOutputStream CreateCompressionStream(Stream outputStream)
     {

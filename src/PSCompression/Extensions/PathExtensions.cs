@@ -15,6 +15,11 @@ public static class PathExtensions
 
     private const string _directorySeparator = "/";
 
+    public static string NormalizePath(this string path) =>
+        path.EndsWith("/") || path.EndsWith("\\")
+            ? NormalizeEntryPath(path)
+            : NormalizeFileEntryPath(path);
+
     internal static string ResolvePath(this string path, PSCmdlet cmdlet)
     {
         string resolved = cmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath(
@@ -52,8 +57,7 @@ public static class PathExtensions
 
     internal static string AddExtensionIfMissing(this string path, string extension)
     {
-        if (!path.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase)
-            && !AlgorithmMappings.HasExtension(path))
+        if (!path.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
         {
             path += extension;
         }
@@ -67,8 +71,23 @@ public static class PathExtensions
     internal static string NormalizeFileEntryPath(this string path) =>
         NormalizeEntryPath(path).TrimEnd('/');
 
-    public static string NormalizePath(this string path) =>
-        path.EndsWith("/") || path.EndsWith("\\")
-            ? NormalizeEntryPath(path)
-            : NormalizeFileEntryPath(path);
+    internal static void Create(this DirectoryInfo dir, bool force)
+    {
+        if (force || !dir.Exists)
+        {
+            dir.Create();
+            return;
+        }
+
+        throw new IOException($"The directory '{dir.FullName}' already exists.");
+    }
+
+    internal static PSObject AppendPSProperties(this FileSystemInfo info, string parent)
+    {
+        const string provider = @"Microsoft.PowerShell.Core\FileSystem::";
+        PSObject pso = PSObject.AsPSObject(info);
+        pso.Properties.Add(new PSNoteProperty("PSPath", $"{provider}{info.FullName}"));
+        pso.Properties.Add(new PSNoteProperty("PSParentPath", $"{provider}{parent}"));
+        return pso;
+    }
 }

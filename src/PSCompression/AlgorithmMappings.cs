@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace PSCompression;
 
@@ -14,9 +13,6 @@ internal static class AlgorithmMappings
         [".gz"] = Algorithm.gz,
         [".gzip"] = Algorithm.gz,
         [".tgz"] = Algorithm.gz,
-
-        // Brotli
-        [".br"] = Algorithm.br,
 
         // Bzip2
         [".bz2"] = Algorithm.bz2,
@@ -37,7 +33,4 @@ internal static class AlgorithmMappings
     internal static Algorithm Parse(string path) =>
         _mappings.TryGetValue(Path.GetExtension(path), out Algorithm value)
             ? value : Algorithm.none;
-
-    internal static bool HasExtension(string path) =>
-        _mappings.Keys.Any(e => path.EndsWith(e, StringComparison.InvariantCultureIgnoreCase));
 }

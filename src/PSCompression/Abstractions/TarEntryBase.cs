@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using ICSharpCode.SharpZipLib.Tar;
+using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;
 
@@ -24,14 +25,16 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
         string destination,
         bool overwrite)
     {
-        destination = Path.GetFullPath(Path.Combine(destination, RelativePath));
+        destination = Path.GetFullPath(
+            Path.Combine(destination, RelativePath));
+
         if (this is not TarEntryFile entryFile)
         {
             Directory.CreateDirectory(destination);
             return new DirectoryInfo(destination);
         }
 
-        string parent = Path.GetDirectoryName(destination);
+        string parent = destination.GetParent();
         if (!Directory.Exists(parent))
         {
             Directory.CreateDirectory(parent);
@@ -39,7 +42,8 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
 
         using FileStream destStream = File.Open(
             destination,
-            overwrite ? FileMode.Create : FileMode.CreateNew);
+            overwrite ? FileMode.Create : FileMode.CreateNew,
+            FileAccess.Write);
 
         entryFile.GetContentStream(destStream);
         return new FileInfo(destination);

@@ -95,6 +95,7 @@
         'Get-TarEntry'
         'Get-TarEntryContent'
         'Expand-TarEntry'
+        'Expand-TarArchive'
     )
 
     # Variables to export from this module
