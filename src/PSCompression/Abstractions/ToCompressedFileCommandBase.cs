@@ -7,6 +7,7 @@ using System.Management.Automation;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
 using System.ComponentModel;
+using IOPath = System.IO.Path;
 
 namespace PSCompression.Abstractions;
 
@@ -68,12 +69,7 @@ public abstract class ToCompressedFileCommandBase<T> : CommandWithPathBase, IDis
 
         try
         {
-            string parent = Destination.GetParent();
-
-            if (!Directory.Exists(parent))
-            {
-                Directory.CreateDirectory(parent);
-            }
+            Directory.CreateDirectory(IOPath.GetDirectoryName(Destination));
 
             _destination = File.Open(Destination, FileMode);
             _archive = CreateCompressionStream(_destination);

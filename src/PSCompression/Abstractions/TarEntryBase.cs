@@ -30,15 +30,13 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
 
         if (this is not TarEntryFile entryFile)
         {
-            Directory.CreateDirectory(destination);
-            return new DirectoryInfo(destination);
+            DirectoryInfo dir = new(destination);
+            dir.Create(overwrite);
+            return dir;
         }
 
-        string parent = destination.GetParent();
-        if (!Directory.Exists(parent))
-        {
-            Directory.CreateDirectory(parent);
-        }
+        FileInfo file = new(destination);
+        file.Directory.Create();
 
         using FileStream destStream = File.Open(
             destination,
@@ -46,6 +44,6 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
             FileAccess.Write);
 
         entryFile.GetContentStream(destStream);
-        return new FileInfo(destination);
+        return file;
     }
 }

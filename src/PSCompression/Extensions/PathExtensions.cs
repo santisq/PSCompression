@@ -53,8 +53,6 @@ public static class PathExtensions
         return false;
     }
 
-    internal static string GetParent(this string path) => Path.GetDirectoryName(path);
-
     internal static string AddExtensionIfMissing(this string path, string extension)
     {
         if (!path.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))

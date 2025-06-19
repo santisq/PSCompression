@@ -9,7 +9,7 @@ namespace PSCompression;
 internal static class SortingOps
 {
     private static string SortByParent(EntryBase entry) =>
-        entry.RelativePath.GetParent().NormalizeEntryPath();
+        Path.GetDirectoryName(entry.RelativePath).NormalizeEntryPath();
 
     private static int SortByLength(EntryBase entry) =>
         entry.RelativePath.Count(e => e == '/');

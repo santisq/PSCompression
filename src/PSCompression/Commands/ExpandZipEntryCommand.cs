@@ -6,7 +6,7 @@ using PSCompression.Abstractions;
 namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Expand, "ZipEntry")]
-[OutputType(typeof(FileSystemInfo))]
+[OutputType(typeof(FileInfo), typeof(DirectoryInfo))]
 public sealed class ExpandZipEntryCommand : ExpandEntryCommandBase<ZipEntryBase>, IDisposable
 {
     private readonly ZipArchiveCache _cache = new();

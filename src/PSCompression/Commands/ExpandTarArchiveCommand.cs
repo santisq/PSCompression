@@ -40,10 +40,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
                 Destination, nameof(Destination)));
         }
 
-        if (!Directory.Exists(Destination))
-        {
-            Directory.CreateDirectory(Destination);
-        }
+        Directory.CreateDirectory(Destination);
 
         _shouldInferAlgo = !MyInvocation
             .BoundParameters
@@ -117,11 +114,8 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
             return;
         }
 
-        string parent = destination.GetParent();
-        if (!Directory.Exists(parent))
-        {
-            Directory.CreateDirectory(parent);
-        }
+        FileInfo file = new(destination);
+        file.Directory.Create();
 
         using (FileStream destStream = File.Open(
             destination,
@@ -136,7 +130,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
 
         if (PassThru)
         {
-            WriteObject(new FileInfo(destination).AppendPSProperties(parent));
+            WriteObject(file.AppendPSProperties(file.DirectoryName));
         }
     }
 }

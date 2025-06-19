@@ -109,21 +109,21 @@ public abstract class ZipEntryBase(ZipArchiveEntry entry, string source) : Entry
         bool overwrite,
         ZipArchive zip)
     {
-        destination = Path.GetFullPath(Path.Combine(destination, RelativePath));
-        if (Type is EntryType.Directory)
+        destination = Path.GetFullPath(
+            Path.Combine(destination, RelativePath));
+
+        if (Type == EntryType.Directory)
         {
-            Directory.CreateDirectory(destination);
-            return new DirectoryInfo(destination);
+            DirectoryInfo dir = new(destination);
+            dir.Create(overwrite);
+            return dir;
         }
 
-        string parent = destination.GetParent();
-        if (!Directory.Exists(parent))
-        {
-            Directory.CreateDirectory(parent);
-        }
+        FileInfo file = new(destination);
+        file.Directory.Create();
 
         ZipArchiveEntry entry = zip.GetEntry(RelativePath);
         entry.ExtractToFile(destination, overwrite);
-        return new FileInfo(destination);
+        return file;
     }
 }

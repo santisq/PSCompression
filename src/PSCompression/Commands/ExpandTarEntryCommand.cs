@@ -5,7 +5,7 @@ using PSCompression.Abstractions;
 namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Expand, "TarEntry")]
-[OutputType(typeof(FileSystemInfo))]
+[OutputType(typeof(FileInfo), typeof(DirectoryInfo))]
 public sealed class ExpandTarEntryCommand : ExpandEntryCommandBase<TarEntryBase>
 {
     protected override FileSystemInfo Extract(TarEntryBase entry) =>

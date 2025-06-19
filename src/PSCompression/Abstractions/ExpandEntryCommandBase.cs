@@ -4,6 +4,7 @@ using System.Management.Automation;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace PSCompression.Abstractions;
 
@@ -36,10 +37,7 @@ public abstract class ExpandEntryCommandBase<T> : PSCmdlet
                 Destination, nameof(Destination)));
         }
 
-        if (!Directory.Exists(Destination))
-        {
-            Directory.CreateDirectory(Destination);
-        }
+        Directory.CreateDirectory(Destination);
     }
 
     protected override void ProcessRecord()
@@ -54,7 +52,11 @@ public abstract class ExpandEntryCommandBase<T> : PSCmdlet
 
                 if (PassThru)
                 {
-                    WriteObject(info);
+                    string parent = info is DirectoryInfo dir
+                        ? dir.Parent.FullName
+                        : Unsafe.As<FileInfo>(info).DirectoryName;
+
+                    WriteObject(info.AppendPSProperties(parent));
                 }
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
