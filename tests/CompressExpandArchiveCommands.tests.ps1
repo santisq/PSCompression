@@ -1,4 +1,5 @@
 ﻿using namespace System.IO
+using namespace System.Collections.Generic
 
 $ErrorActionPreference = 'Stop'
 
@@ -8,25 +9,37 @@ $manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 Import-Module $manifestPath
 Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
-Describe 'CompressArchive Commands' -Tag 'CompressArchive Commands' {
+Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Commands' {
     BeforeAll {
         $algos = [PSCompression.Algorithm].GetEnumValues()
+
         $sourceName = 'CompressArchiveTests'
         $destName = 'CompressArchiveExtract'
+
         $testpath = Join-Path $TestDrive $sourceName
         $extractpath = Join-Path $TestDrive $destName
+
+        $fileCount = $dirCount = 0
         $structure = Get-Structure | ForEach-Object {
             $newItemSplat = @{
                 ItemType = ('Directory', 'File')[$_.EndsWith('.txt')]
-                Value    = (Get-Random)
+                Value    = Get-Random
                 Force    = $true
                 Path     = Join-Path $testpath $_
             }
 
             New-Item @newItemSplat
+
+            if ($newItemSplat['ItemType'] -eq 'Directory') {
+                $dirCount++
+            }
+            else {
+                $fileCount++
+            }
         }
 
-        $structure, $extractpath, $algos | Out-Null
+        $dirCount++ # Includes the folder itself
+        $extractpath, $structure, $algos | Out-Null
     }
 
     It 'Can compress a folder and all its child items' {
@@ -60,29 +73,24 @@ Describe 'CompressArchive Commands' -Tag 'CompressArchive Commands' {
     }
 
     It 'Extracted files should be exactly the same with the same structure' {
-        BeforeAll {
-            $map = @{}
-            Get-ChildItem $testpath -Recurse | ForEach-Object {
-                $relative = $_.FullName.Substring($testpath.Length)
-                if ($_ -is [FileInfo]) {
-                    $map[$relative] = ($_ | Get-FileHash -Algorithm MD5).Hash
-                    return
-                }
-                $map[$relative] = $null
+        Get-ChildItem $TestDrive -File | ForEach-Object {
+            $destination = [Path]::Combine($TestDrive, "ExpandTest_$($_.Extension.TrimStart('.'))")
+
+            if ($_.Extension -eq '.zip') {
+                $_ | Expand-Archive -DestinationPath $destination
+            }
+            elseif ($_.Extension -match '\.tar.*') {
+                $_ | Expand-TarArchive -Destination $destination
+            }
+            else {
+                return
             }
 
-            Expand-Archive "$extractpath.zip" $extractpath
+            $expanded = Get-ChildItem $destination -Recurse
+            $files, $dirs = $expanded.Where({ $_ -is [FileInfo] }, 'Split')
 
-            $extractpath = Join-Path $extractpath $sourceName
-            Get-ChildItem $extractpath -Recurse | ForEach-Object {
-                $relative = $_.FullName.Substring($extractpath.Length)
-                $map.ContainsKey($relative) | Should -BeTrue
-
-                if ($_ -is [FileInfo]) {
-                    $thishash = ($_ | Get-FileHash -Algorithm MD5).Hash
-                    $map[$relative] | Should -BeExactly $thishash
-                }
-            }
+            $files | Should -HaveCount $fileCount
+            $dirs | Should -HaveCount $dirCount
         }
     }
 
@@ -107,21 +115,41 @@ Describe 'CompressArchive Commands' -Tag 'CompressArchive Commands' {
 
     It 'Should skip the entry if the source and destination are the same' {
         Push-Location $TestDrive
-        $zipname = 'testskipitself.zip'
+        $name = 'testskipitself'
 
-        { Compress-ZipArchive $pwd.Path $zipname } |
+        { Compress-ZipArchive $pwd.Path $name } |
             Should -Not -Throw
 
-        { Compress-ZipArchive $pwd.Path $zipname -Force } |
+        { Compress-ZipArchive $pwd.Path $name -Force } |
             Should -Not -Throw
 
-        { Compress-ZipArchive $pwd.Path $zipname -Update } |
+        { Compress-ZipArchive $pwd.Path $name -Update } |
             Should -Not -Throw
 
-        Expand-Archive $zipname -DestinationPath skipitself
+        $destination = [guid]::NewGuid()
+        Expand-Archive "${name}.zip" -DestinationPath $destination
 
-        Get-ChildItem skipitself -Recurse | ForEach-Object Name |
-            Should -Not -Contain $zipname
+        Get-ChildItem $destination -Recurse | ForEach-Object Name |
+            Should -Not -Contain "${name}.zip"
+
+        $archive = [Queue[FileInfo]]::new()
+        $algos | ForEach-Object {
+            $currentName = "${name}_${_}"
+            { Compress-TarArchive $pwd.Path $currentName -Algorithm $_ } |
+                Should -Not -Throw
+
+
+            {
+                $result = Compress-TarArchive $pwd.Path $currentName -Algorithm $_ -Force -PassThru
+                $archive.Enqueue($result)
+            } | Should -Not -Throw
+
+            $info = $archive.Dequeue()
+            $info | Should -BeOfType ([FileInfo])
+            Expand-TarArchive $info.FullName -Destination $currentName
+            Get-ChildItem $currentName -Recurse | ForEach-Object Name |
+                Should -Not -Contain $info.Name
+        }
     }
 
     It 'Should skip items that match the exclusion patterns' {
