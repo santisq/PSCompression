@@ -34,7 +34,8 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
     protected override void BeginProcessing()
     {
         Destination = Destination is null
-            ? SessionState.Path.CurrentFileSystemLocation.Path
+            // PowerShell is retarded and decided to mix up ProviderPath & Path
+            ? SessionState.Path.CurrentFileSystemLocation.ProviderPath
             : Destination.ResolvePath(this);
 
         if (File.Exists(Destination))
@@ -67,14 +68,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
                 if (PassThru)
                 {
                     IOrderedEnumerable<PSObject> result = output
-                        .Select(info =>
-                        {
-                            string parent = info is DirectoryInfo dir
-                                ? dir.Parent.FullName
-                                : Unsafe.As<FileInfo>(info).DirectoryName;
-
-                            return info.AppendPSProperties(parent);
-                        })
+                        .Select(AppendPSProperties)
                         .OrderBy(pso => pso.Properties["PSParentPath"].Value);
 
                     WriteObject(result, enumerateCollection: true);
@@ -144,5 +138,14 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
         }
 
         return file;
+    }
+
+    private static PSObject AppendPSProperties(FileSystemInfo info)
+    {
+        string parent = info is DirectoryInfo dir
+            ? dir.Parent.FullName
+            : Unsafe.As<FileInfo>(info).DirectoryName;
+
+        return info.AppendPSProperties(parent);
     }
 }
