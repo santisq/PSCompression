@@ -35,7 +35,9 @@ public sealed class CompressTarArchiveCommand : ToCompressedFileCommandBase<TarO
         if (Algorithm == Algorithm.lz &&
             MyInvocation.BoundParameters.ContainsKey(nameof(CompressionLevel)))
         {
-            WriteWarning("The lzip algorithm does not support the CompressionLevel parameter; it will be ignored.");
+            WriteWarning(
+                "The lzip algorithm does not support custom CompressionLevel settings. " +
+                "The default compression level will be used.");
         }
 
         _compressionStream = Algorithm.ToCompressedStream(outputStream, CompressionLevel);

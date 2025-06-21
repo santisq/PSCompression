@@ -81,12 +81,6 @@ internal static class CompressionExtensions
             directory.RelativePath.NormalizePath(),
             newname);
 
-    internal static string ChangePath(
-        this ZipArchiveEntry entry,
-        string oldPath,
-        string newPath)
-        => string.Concat(newPath, entry.FullName.Remove(0, oldPath.Length));
-
     internal static string GetDirectoryName(this ZipArchiveEntry entry)
         => s_reGetDirName.Match(entry.FullName).Value;
 

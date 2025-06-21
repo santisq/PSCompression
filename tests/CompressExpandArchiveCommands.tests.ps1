@@ -1,5 +1,6 @@
-﻿using namespace System.IO
-using namespace System.Collections.Generic
+﻿using namespace System.Collections.Generic
+using namespace System.IO
+using namespace System.IO.Compression
 using namespace System.Management.Automation
 
 $ErrorActionPreference = 'Stop'
@@ -67,9 +68,20 @@ Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Co
         { Compress-ZipArchive $testpath $extractpath -Force } |
             Should -Not -Throw
 
-        $algos | ForEach-Object {
-            { Compress-TarArchive $testpath $extractpath -Algorithm $_ -Force } |
-                Should -Not -Throw
+        foreach ($level in [CompressionLevel].GetEnumNames()) {
+            foreach ($algo in $algos) {
+                $compressTarArchiveSplat = @{
+                    PassThru         = $true
+                    Algorithm        = $algo
+                    Destination      = $extractpath
+                    CompressionLevel = $level
+                    Force            = $true
+                    WarningAction    = 'Ignore'
+                }
+
+                { $testpath | Compress-TarArchive @compressTarArchiveSplat } |
+                    Should -Not -Throw
+            }
         }
     }
 
