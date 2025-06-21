@@ -62,18 +62,23 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
 
             try
             {
-                IOrderedEnumerable<PSObject> output = ExtractArchive(path)
-                    .Select(info =>
-                    {
-                        string parent = info is DirectoryInfo dir
-                            ? dir.Parent.FullName
-                            : Unsafe.As<FileInfo>(info).DirectoryName;
+                FileSystemInfo[] output = ExtractArchive(path);
 
-                        return info.AppendPSProperties(parent);
-                    })
-                    .OrderBy(pso => pso.Properties["PSParentPath"].Value);
+                if (PassThru)
+                {
+                    IOrderedEnumerable<PSObject> result = output
+                        .Select(info =>
+                        {
+                            string parent = info is DirectoryInfo dir
+                                ? dir.Parent.FullName
+                                : Unsafe.As<FileInfo>(info).DirectoryName;
 
-                WriteObject(output, enumerateCollection: true);
+                            return info.AppendPSProperties(parent);
+                        })
+                        .OrderBy(pso => pso.Properties["PSParentPath"].Value);
+
+                    WriteObject(result, enumerateCollection: true);
+                }
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -86,19 +91,18 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
         }
     }
 
-    private IEnumerable<FileSystemInfo> ExtractArchive(string path)
+    private FileSystemInfo[] ExtractArchive(string path)
     {
-        FileSystemInfo? info = null;
-
         using FileStream fs = File.OpenRead(path);
         using Stream decompress = Algorithm.FromCompressedStream(fs);
         using TarInputStream tar = new(decompress, Encoding.UTF8);
 
+        List<FileSystemInfo> result = [];
         foreach (TarEntry entry in tar.EnumerateEntries())
         {
             try
             {
-                info = ExtractEntry(entry, tar);
+                result.Add(ExtractEntry(entry, tar));
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -107,11 +111,10 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
             catch (Exception exception)
             {
                 WriteError(exception.ToExtractEntryError(entry));
-                continue;
             }
-
-            yield return info;
         }
+
+        return [.. result];
     }
 
     private FileSystemInfo ExtractEntry(TarEntry entry, TarInputStream tar)
