@@ -206,7 +206,8 @@ public abstract class ToCompressedFileCommandBase<T> : CommandWithPathBase, IDis
 
         if (PassThru.IsPresent && _destination is not null)
         {
-            WriteObject(new FileInfo(_destination.Name));
+            FileInfo passthru = new(_destination.Name);
+            WriteObject(passthru.AppendPSProperties(passthru.DirectoryName));
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using namespace System.IO
 using namespace System.Collections.Generic
+using namespace System.Management.Automation
 
 $ErrorActionPreference = 'Stop'
 
@@ -20,7 +21,7 @@ Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Co
         $extractpath = Join-Path $TestDrive $destName
 
         $fileCount = $dirCount = 0
-        $structure = Get-Structure | ForEach-Object {
+        Get-Structure | ForEach-Object {
             $newItemSplat = @{
                 ItemType = ('Directory', 'File')[$_.EndsWith('.txt')]
                 Value    = Get-Random
@@ -28,7 +29,7 @@ Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Co
                 Path     = Join-Path $testpath $_
             }
 
-            New-Item @newItemSplat
+            $null = New-Item @newItemSplat
 
             if ($newItemSplat['ItemType'] -eq 'Directory') {
                 $dirCount++
@@ -39,7 +40,7 @@ Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Co
         }
 
         $dirCount++ # Includes the folder itself
-        $extractpath, $structure, $algos | Out-Null
+        $extractpath, $algos | Out-Null
     }
 
     It 'Can compress a folder and all its child items' {
@@ -153,12 +154,51 @@ Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Co
     }
 
     It 'Should skip items that match the exclusion patterns' {
-        Remove-Item "$extractpath.zip" -Force
-        Compress-ZipArchive $testpath $extractpath -Exclude *testfile00*, *testfolder05*
-        Expand-Archive "$extractpath.zip" $extractpath
+        Get-ChildItem $TestDrive |
+            Where-Object Name -NE $sourceName |
+            Remove-Item -Recurse
+
+        $compressZipArchiveSplat = @{
+            Exclude     = '*testfile00*', '*testfolder05*'
+            Path        = $testpath
+            Destination = $extractpath
+            PassThru    = $true
+        }
+
+        Compress-ZipArchive @compressZipArchiveSplat |
+            Expand-Archive -DestinationPath $extractpath
+
         Get-ChildItem $extractpath -Recurse | ForEach-Object {
             $_.FullName | Should -Not -BeLike *testfile00*
             $_.FullName | Should -Not -BeLike *testfolder05*
         }
+
+        Remove-Item $extractpath -Recurse
+
+        $compressTarArchiveSplat = @{
+            LiteralPath = $testpath
+            PassThru    = $true
+            Exclude     = '*testfile00*', '*testfolder05*'
+            Destination = $extractpath
+        }
+
+        $expanded = Compress-TarArchive @compressTarArchiveSplat |
+            Expand-TarArchive -Destination $extractpath -PassThru
+
+        $expanded | ForEach-Object {
+            $_.FullName | Should -Not -BeLike *testfile00*
+            $_.FullName | Should -Not -BeLike *testfolder05*
+        }
+    }
+
+    It 'CompressTarArchive outputs a warning when algorithm is lzip and CompressionLevel is used' {
+        $compressTarArchiveSplat = @{
+            CompressionLevel = 'Optimal'
+            Algorithm        = 'lz'
+            Destination      = 'shouldWarn'
+        }
+
+        Compress-TarArchive @compressTarArchiveSplat $testpath 3>&1 |
+            Should -BeOfType ([WarningRecord])
     }
 }
