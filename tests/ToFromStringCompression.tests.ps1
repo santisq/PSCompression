@@ -1,4 +1,5 @@
 ﻿using namespace System.IO
+using namespace System.IO.Compression
 
 $ErrorActionPreference = 'Stop'
 
@@ -35,11 +36,11 @@ Describe 'To & From String Compression' {
         }
 
         It 'Can compress strings and expand strings' {
-            $conversionCommands.Keys | ForEach-Object {
-                $encoded = { $content | & $conversionCommands[$_] } |
-                    Should -Not -Throw -PassThru
-
-                $encoded | & $_ | Should -BeExactly $contet
+            foreach ($level in [CompressionLevel].GetEnumNames()) {
+                $conversionCommands.Keys | ForEach-Object {
+                    $encoded = $content | & $conversionCommands[$_] -CompressionLevel $level
+                    $encoded | & $_ | Should -BeExactly $content
+                }
             }
         }
 
