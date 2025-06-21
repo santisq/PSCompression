@@ -237,5 +237,15 @@ Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Co
                 Pop-Location
             }
         }
+
+        It 'Should overwrite files if already exist' {
+            $compressed | Expand-TarArchive -Destination testOverwrite
+
+            { $compressed | Expand-TarArchive -Destination testOverwrite } |
+                Should -Throw -ExceptionType ([IOException])
+
+            { $compressed | Expand-TarArchive -Destination testOverwrite -Force } |
+                Should -Not -Throw
+        }
     }
 }
