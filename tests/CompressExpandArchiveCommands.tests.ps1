@@ -217,13 +217,25 @@ Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Co
     Context 'ExpandTarArchive Command' -Tag 'ExpandTarArchive Command' {
         BeforeAll {
             $destination = 'shouldThrowIfExists'
+            New-Item $destination -ItemType Directory | Out-Null
             $compressed = Compress-TarArchive $testpath $destination -PassThru
-            $compressed | Expand-TarArchive -Destination $destination
+            $compressed | Out-Null
         }
 
-        It 'Should throw if destination already exists' {
-            { $compressed | Expand-TarArchive -Destination $destination } |
-                Should -Throw -ExceptionType ([IOException])
+        It 'Should throw if destination is an existing file' {
+            { $compressed | Expand-TarArchive -Destination "${destination}.tar.gz" } |
+                Should -Throw -ExceptionType ([ArgumentException])
+        }
+
+        It 'Can expand the archive using the current directory as Destination when not specified' {
+            try {
+                Push-Location $destination
+                { Expand-TarArchive $compressed } | Should -Not -Throw
+                Get-ChildItem | Should -Not -BeNullOrEmpty
+            }
+            finally {
+                Pop-Location
+            }
         }
     }
 }

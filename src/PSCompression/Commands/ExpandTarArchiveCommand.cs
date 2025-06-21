@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
+using System.Runtime.CompilerServices;
 using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
 using PSCompression.Abstractions;
@@ -42,8 +45,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
 
         Directory.CreateDirectory(Destination);
 
-        _shouldInferAlgo = !MyInvocation
-            .BoundParameters
+        _shouldInferAlgo = !MyInvocation.BoundParameters
             .ContainsKey(nameof(Algorithm));
     }
 
@@ -60,7 +62,18 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
 
             try
             {
-                ExtractArchive(path);
+                IOrderedEnumerable<PSObject> output = ExtractArchive(path)
+                    .Select(info =>
+                    {
+                        string parent = info is DirectoryInfo dir
+                            ? dir.Parent.FullName
+                            : Unsafe.As<FileInfo>(info).DirectoryName;
+
+                        return info.AppendPSProperties(parent);
+                    })
+                    .OrderBy(pso => pso.Properties["PSParentPath"].Value);
+
+                WriteObject(output, enumerateCollection: true);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -73,8 +86,10 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
         }
     }
 
-    private void ExtractArchive(string path)
+    private IEnumerable<FileSystemInfo> ExtractArchive(string path)
     {
+        FileSystemInfo? info = null;
+
         using FileStream fs = File.OpenRead(path);
         using Stream decompress = Algorithm.FromCompressedStream(fs);
         using TarInputStream tar = new(decompress, Encoding.UTF8);
@@ -83,7 +98,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
         {
             try
             {
-                ExtractEntry(entry, tar);
+                info = ExtractEntry(entry, tar);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -92,11 +107,14 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
             catch (Exception exception)
             {
                 WriteError(exception.ToExtractEntryError(entry));
+                continue;
             }
+
+            yield return info;
         }
     }
 
-    private void ExtractEntry(TarEntry entry, TarInputStream tar)
+    private FileSystemInfo ExtractEntry(TarEntry entry, TarInputStream tar)
     {
         string destination = IO.Path.GetFullPath(
             IO.Path.Combine(Destination, entry.Name));
@@ -105,13 +123,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
         {
             DirectoryInfo dir = new(destination);
             dir.Create(Force);
-
-            if (PassThru)
-            {
-                WriteObject(dir.AppendPSProperties(dir.Parent.FullName));
-            }
-
-            return;
+            return dir;
         }
 
         FileInfo file = new(destination);
@@ -128,9 +140,6 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
             }
         }
 
-        if (PassThru)
-        {
-            WriteObject(file.AppendPSProperties(file.DirectoryName));
-        }
+        return file;
     }
 }
