@@ -213,4 +213,17 @@ Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Co
         Compress-TarArchive @compressTarArchiveSplat $testpath 3>&1 |
             Should -BeOfType ([WarningRecord])
     }
+
+    Context 'ExpandTarArchive Command' -Tag 'ExpandTarArchive Command' {
+        BeforeAll {
+            $destination = 'shouldThrowIfExists'
+            $compressed = Compress-TarArchive $testpath $destination -PassThru
+            $compressed | Expand-TarArchive -Destination $destination
+        }
+
+        It 'Should throw if destination already exists' {
+            { $compressed | Expand-TarArchive -Destination $destination } |
+                Should -Throw -ExceptionType ([IOException])
+        }
+    }
 }
