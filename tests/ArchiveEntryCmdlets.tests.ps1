@@ -390,21 +390,19 @@ Describe 'Archive Entry Cmdlets' {
         }
 
         It 'Should throw when a Stream is Diposed' {
-            {
-                foreach ($archive in $tarArchives) {
-                    if ($archive.Extension -eq '.tar') {
-                        $algo = 'none'
-                    }
-                    else {
-                        $algo = $archive.Extension.TrimStart('.')
-                    }
-
-                    $entry = Use-Object ($stream = $archive.OpenRead()) {
-                        $stream | Get-TarEntry -Algorithm $algo -Type Archive
-                    }
-
-                    { $entry | Get-TarEntryContent } | Should -Throw
+            foreach ($archive in $tarArchives) {
+                if ($archive.Extension -eq '.tar') {
+                    $algo = 'none'
                 }
+                else {
+                    $algo = $archive.Extension.TrimStart('.')
+                }
+
+                $entry = Use-Object ($stream = $archive.OpenRead()) {
+                    $stream | Get-TarEntry -Algorithm $algo -Type Archive
+                }
+
+                { $entry | Get-TarEntryContent } | Should -Throw
             }
         }
 
