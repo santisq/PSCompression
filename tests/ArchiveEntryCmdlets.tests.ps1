@@ -31,11 +31,11 @@ Describe 'Archive Entry Cmdlets' {
         }
 
         $algos = [PSCompression.Algorithm].GetEnumValues()
-        $algos | ForEach-Object {
-            Compress-TarArchive $testTarpath -Destination $testTarpath -Algorithm $_
+        $tarArchives = $algos | ForEach-Object {
+            Compress-TarArchive $testTarpath $testTarpath -Algorithm $_ -PassThru
         }
 
-        $zip, $file, $uri | Out-Null
+        $zip, $file, $uri, $tarArchives | Out-Null
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -218,13 +218,6 @@ Describe 'Archive Entry Cmdlets' {
     }
 
     Context 'Get-TarEntry' -Tag 'Get-TarEntry' {
-        BeforeAll {
-            $tarArchives = Get-ChildItem $TestDrive -File |
-                Where-Object { $_.BaseName.StartsWith($testTarName) }
-
-            $tarArchives | Out-Null
-        }
-
         It 'Can list entries in a tar archive' {
             $tarArchives | Get-TarEntry |
                 Should -BeOfType ([PSCompression.Abstractions.TarEntryBase])
@@ -232,13 +225,15 @@ Describe 'Archive Entry Cmdlets' {
 
         It 'Can list entries from a Stream' {
             foreach ($archive in $tarArchives) {
-                $algo = $archive.Extension
                 if ($archive.Extension -eq '.tar') {
                     $algo = 'none'
                 }
+                else {
+                    $algo = $archive.Extension.TrimStart('.')
+                }
 
                 Use-Object ($stream = $archive.OpenRead()) {
-                    $stream | Get-TarEntry -Algorithm $algo.TrimStart('.') |
+                    $stream | Get-TarEntry -Algorithm $algo |
                         Should -BeOfType ([PSCompression.Abstractions.TarEntryBase])
                 }
             }
@@ -362,6 +357,79 @@ Describe 'Archive Entry Cmdlets' {
 
         It 'Should not attempt to read a directory entry' {
             { $zip | Get-ZipEntry -Type Directory | Get-ZipEntry } |
+                Should -Throw
+        }
+    }
+
+    Context 'Get-TarEntryContent' -Tag 'Get-TarEntryContent' {
+        It 'Can read content from tar file entries' {
+            $tarArchives | Get-TarEntry -Type Archive |
+                Get-TarEntryContent |
+                Should -Match '^\d+$'
+        }
+
+        It 'Can read content from tar file entries created from input Stream' {
+            foreach ($archive in $tarArchives) {
+                if ($archive.Extension -eq '.tar') {
+                    $algo = 'none'
+                }
+                else {
+                    $algo = $archive.Extension.TrimStart('.')
+                }
+
+                Use-Object ($stream = $archive.OpenRead()) {
+                    $stream | Get-TarEntry -Algorithm $algo -Type Archive |
+                        Get-TarEntryContent |
+                        Should -Match '^\d+$'
+                }
+            }
+        }
+
+        It 'Should throw when a Stream is Diposed' {
+            {
+                foreach ($archive in $tarArchives) {
+                    if ($archive.Extension -eq '.tar') {
+                        $algo = 'none'
+                    }
+                    else {
+                        $algo = $archive.Extension.TrimStart('.')
+                    }
+
+                    $entry = Use-Object ($stream = $archive.OpenRead()) {
+                        $stream | Get-TarEntry -Algorithm $algo -Type Archive
+                    }
+
+                    { $entry | Get-ZipEntryContent } | Should -Throw
+                }
+            }
+        }
+
+        It 'Should not throw when an instance wrapped in PSObject is passed as Encoding argument' {
+            $enc = Write-Output utf8
+            { $tarArchives | Get-TarEntry -Type Archive | Get-TarEntryContent -Encoding $enc } |
+                Should -Not -Throw
+
+            $enc = [Encoding]::UTF8 | Write-Output
+            { $tarArchives | Get-TarEntry -Type Archive | Get-TarEntryContent -Encoding $enc } |
+                Should -Not -Throw
+
+            $enc = [Encoding]::UTF8.CodePage | Write-Output
+            { $tarArchives | Get-TarEntry -Type Archive | Get-TarEntryContent -Encoding $enc } |
+                Should -Not -Throw
+        }
+
+        It 'Can read bytes from tar file entries' {
+            $tarArchives | Get-TarEntry -Type Archive | Get-TarEntryContent -AsByteStream |
+                Should -BeOfType ([byte])
+        }
+
+        It 'Can output a byte array when using the -Raw switch' {
+            $tarArchives | Get-TarEntry -Type Archive | Get-TarEntryContent -AsByteStream -Raw |
+                Should -BeOfType ([byte[]])
+        }
+
+        It 'Should not attempt to read a directory entry' {
+            { $tarArchives | Get-TarEntry -Type Directory | Get-TarEntryContent } |
                 Should -Throw
         }
     }

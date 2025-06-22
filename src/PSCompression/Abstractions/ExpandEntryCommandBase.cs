@@ -4,7 +4,6 @@ using System.Management.Automation;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace PSCompression.Abstractions;
 
@@ -28,7 +27,8 @@ public abstract class ExpandEntryCommandBase<T> : PSCmdlet
     protected override void BeginProcessing()
     {
         Destination = Destination is null
-            ? SessionState.Path.CurrentFileSystemLocation.Path
+            // PowerShell is retarded and decided to mix up ProviderPath & Path
+            ? SessionState.Path.CurrentFileSystemLocation.ProviderPath
             : Destination.ResolvePath(this);
 
         if (File.Exists(Destination))
@@ -52,11 +52,7 @@ public abstract class ExpandEntryCommandBase<T> : PSCmdlet
 
                 if (PassThru)
                 {
-                    string parent = info is DirectoryInfo dir
-                        ? dir.Parent.FullName
-                        : Unsafe.As<FileInfo>(info).DirectoryName;
-
-                    WriteObject(info.AppendPSProperties(parent));
+                    WriteObject(info.AppendPSProperties());
                 }
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)

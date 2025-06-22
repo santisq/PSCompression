@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Management.Automation;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Microsoft.PowerShell.Commands;
 using PSCompression.Exceptions;
@@ -78,6 +79,15 @@ public static class PathExtensions
         }
 
         throw new IOException($"The directory '{dir.FullName}' already exists.");
+    }
+
+    internal static PSObject AppendPSProperties(this FileSystemInfo info)
+    {
+        string parent = info is DirectoryInfo dir
+            ? dir.Parent.FullName
+            : Unsafe.As<FileInfo>(info).DirectoryName;
+
+        return info.AppendPSProperties(parent);
     }
 
     internal static PSObject AppendPSProperties(this FileSystemInfo info, string parent)

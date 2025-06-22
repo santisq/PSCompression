@@ -65,36 +65,14 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
     {
         if (InputStream is not null)
         {
-            try
-            {
-                if (InputStream.CanSeek)
-                {
-                    InputStream.Seek(0, SeekOrigin.Begin);
-                }
-
-                WriteObject(
-                    GetEntriesFromStream(InputStream).ToEntrySort(),
-                    enumerateCollection: true);
-
-                return;
-            }
-            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
-            {
-                throw;
-            }
-            catch (Exception exception) when (IsInvalidArchive(exception))
-            {
-                ThrowTerminatingError(exception.ToInvalidArchive(ArchiveType, isStream: true));
-            }
-            catch (Exception exception)
-            {
-                WriteError(exception.ToOpenError("InputStream"));
-            }
+            HandleFromStream(InputStream);
+            return;
         }
 
         foreach (string path in EnumerateResolvedPaths())
         {
-            if (path.WriteErrorIfNotArchive(IsLiteral ? nameof(LiteralPath) : nameof(Path), this))
+            if (path.WriteErrorIfNotArchive(
+                IsLiteral ? nameof(LiteralPath) : nameof(Path), this))
             {
                 continue;
             }
@@ -117,6 +95,33 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
             {
                 WriteError(exception.ToOpenError(path));
             }
+        }
+    }
+
+    private void HandleFromStream(Stream stream)
+    {
+        try
+        {
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
+
+            WriteObject(
+                GetEntriesFromStream(stream).ToEntrySort(),
+                enumerateCollection: true);
+        }
+        catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
+        {
+            throw;
+        }
+        catch (Exception exception) when (IsInvalidArchive(exception))
+        {
+            ThrowTerminatingError(exception.ToInvalidArchive(ArchiveType, isStream: true));
+        }
+        catch (Exception exception)
+        {
+            WriteError(exception.ToOpenError("InputStream"));
         }
     }
 
@@ -163,9 +168,5 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
         isDirectory && Type is EntryType.Archive || !isDirectory && Type is EntryType.Directory;
 
     private bool IsInvalidArchive(Exception exception) =>
-        exception is
-            InvalidDataException
-            or TarException
-            or ZstdException
-            or IOException;
+        exception is InvalidDataException or TarException or ZstdException or IOException;
 }

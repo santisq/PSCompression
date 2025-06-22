@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using System.Runtime.CompilerServices;
 using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
 using PSCompression.Abstractions;
@@ -68,7 +67,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
                 if (PassThru)
                 {
                     IOrderedEnumerable<PSObject> result = output
-                        .Select(AppendPSProperties)
+                        .Select(PathExtensions.AppendPSProperties)
                         .OrderBy(pso => pso.Properties["PSParentPath"].Value);
 
                     WriteObject(result, enumerateCollection: true);
@@ -138,14 +137,5 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
         }
 
         return file;
-    }
-
-    private static PSObject AppendPSProperties(FileSystemInfo info)
-    {
-        string parent = info is DirectoryInfo dir
-            ? dir.Parent.FullName
-            : Unsafe.As<FileInfo>(info).DirectoryName;
-
-        return info.AppendPSProperties(parent);
     }
 }

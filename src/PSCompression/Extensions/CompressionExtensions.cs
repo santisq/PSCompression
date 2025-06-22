@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using BrotliSharpLib;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Tar;
-using SharpCompress.Compressors.BZip2;
 using SharpCompress.Compressors.LZMA;
 using ZstdSharp;
 using SharpCompressors = SharpCompress.Compressors;
@@ -182,7 +181,7 @@ internal static class CompressionExtensions
             Algorithm.gz => new GZipStream(stream, CompressionMode.Decompress),
             Algorithm.zst => new DecompressionStream(stream),
             Algorithm.lz => new LZipStream(stream, SharpCompressors.CompressionMode.Decompress),
-            Algorithm.bz2 => new BZip2Stream(stream, SharpCompressors.CompressionMode.Decompress, true),
+            Algorithm.bz2 => new BZip2InputStream(stream),
             _ => stream
         };
 

@@ -20,41 +20,35 @@ public sealed class GetTarEntryCommand : GetEntryCommandBase
 
     protected override IEnumerable<EntryBase> GetEntriesFromFile(string path)
     {
-        List<EntryBase> entries = [];
-
         if (!MyInvocation.BoundParameters.ContainsKey(nameof(Algorithm)))
         {
             Algorithm = AlgorithmMappings.Parse(path);
         }
 
-        using (FileStream fs = File.OpenRead(path))
-        using (Stream stream = Algorithm.FromCompressedStream(fs))
-        using (TarInputStream tar = new(stream, Encoding.UTF8))
+        using FileStream fs = File.OpenRead(path);
+        using Stream stream = Algorithm.FromCompressedStream(fs);
+        using TarInputStream tar = new(stream, Encoding.UTF8);
+
+        foreach (TarEntry entry in tar.EnumerateEntries())
         {
-            foreach (TarEntry entry in tar.EnumerateEntries())
+            if (ShouldSkipEntry(entry.IsDirectory))
             {
-                if (ShouldSkipEntry(entry.IsDirectory))
-                {
-                    continue;
-                }
-
-                if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
-                {
-                    continue;
-                }
-
-                entries.Add(entry.IsDirectory
-                    ? new TarEntryDirectory(entry, path)
-                    : new TarEntryFile(entry, path, Algorithm));
+                continue;
             }
-        }
 
-        return [.. entries];
+            if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
+            {
+                continue;
+            }
+
+            yield return entry.IsDirectory
+                ? new TarEntryDirectory(entry, path)
+                : new TarEntryFile(entry, path, Algorithm);
+        }
     }
 
     protected override IEnumerable<EntryBase> GetEntriesFromStream(Stream stream)
     {
-        List<EntryBase> entries = [];
         Stream decompressStream = Algorithm.FromCompressedStream(stream);
         TarInputStream tar = new(decompressStream, Encoding.UTF8);
 
@@ -70,11 +64,9 @@ public sealed class GetTarEntryCommand : GetEntryCommandBase
                 continue;
             }
 
-            entries.Add(entry.IsDirectory
+            yield return entry.IsDirectory
                 ? new TarEntryDirectory(entry, stream)
-                : new TarEntryFile(entry, stream, Algorithm));
+                : new TarEntryFile(entry, stream, Algorithm);
         }
-
-        return [.. entries];
     }
 }
