@@ -32,8 +32,6 @@ Describe 'Archive Entry Management Commands' {
             Compress-TarArchive @compressTarArchiveSplat
         }
 
-
-
         $zip, $file, $uri, $tarArchives, $itemCounts, $totalCount | Out-Null
     }
 

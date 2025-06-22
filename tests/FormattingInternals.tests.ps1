@@ -13,6 +13,11 @@ Describe 'Formatting internals' {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
         'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
         New-ZipEntry $zip.FullName -EntryPath afolder/
+        $testTarName = 'formattingTarTest'
+        $testTarpath = Join-Path $TestDrive $testTarName
+        Get-Structure | Build-Structure $testTarpath
+        $tarArchive = Compress-TarArchive $testTarpath -Destination $testTarName -PassThru
+        $tarArchive | Out-Null
     }
 
     It 'Converts Length to their friendly representation' {
@@ -22,6 +27,10 @@ Describe 'Formatting internals' {
 
     It 'Gets the directory of an entry' {
         $zip | Get-ZipEntry | ForEach-Object {
+            [PSCompression.Internal._Format]::GetDirectoryPath($_)
+        } | Should -BeOfType ([string])
+
+        $tarArchive | Get-TarEntry | ForEach-Object {
             [PSCompression.Internal._Format]::GetDirectoryPath($_)
         } | Should -BeOfType ([string])
     }
