@@ -366,6 +366,10 @@ Describe 'Archive Entry Cmdlets' {
             $tarArchives | Get-TarEntry -Type Archive |
                 Get-TarEntryContent |
                 Should -Match '^\d+$'
+
+            $tarArchives | Get-TarEntry -Type Archive |
+                Get-TarEntryContent -Raw |
+                Should -Match '^\d+$'
         }
 
         It 'Can read content from tar file entries created from input Stream' {
