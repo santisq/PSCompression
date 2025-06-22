@@ -1,10 +1,13 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿using namespace System.IO
+using namespace System.Text
 
-$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
-$manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
+$ErrorActionPreference = 'Stop'
+
+$moduleName = (Get-Item ([Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
+$manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 
 Import-Module $manifestPath
-Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
+Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
 Describe 'EncodingTransformation Class' {
     BeforeAll {
@@ -13,23 +16,22 @@ Describe 'EncodingTransformation Class' {
         {
             [System.Runtime.InteropServices.DllImport("Kernel32.dll")]
             public static extern int GetACP();
-        }
-        '
+        }'
 
         $encodings = @{
-            'ascii'            = [System.Text.ASCIIEncoding]::new()
-            'bigendianunicode' = [System.Text.UnicodeEncoding]::new($true, $true)
-            'bigendianutf32'   = [System.Text.UTF32Encoding]::new($true, $true)
+            'ascii'            = [ASCIIEncoding]::new()
+            'bigendianunicode' = [UnicodeEncoding]::new($true, $true)
+            'bigendianutf32'   = [UTF32Encoding]::new($true, $true)
             'oem'              = [Console]::OutputEncoding
-            'unicode'          = [System.Text.UnicodeEncoding]::new()
-            'utf8'             = [System.Text.UTF8Encoding]::new($false)
-            'utf8bom'          = [System.Text.UTF8Encoding]::new($true)
-            'utf8nobom'        = [System.Text.UTF8Encoding]::new($false)
-            'utf32'            = [System.Text.UTF32Encoding]::new()
+            'unicode'          = [UnicodeEncoding]::new()
+            'utf8'             = [UTF8Encoding]::new($false)
+            'utf8bom'          = [UTF8Encoding]::new($true)
+            'utf8nobom'        = [UTF8Encoding]::new($false)
+            'utf32'            = [UTF32Encoding]::new()
         }
 
         if ($osIsWindows) {
-            $encodings['ansi'] = [System.Text.Encoding]::GetEncoding([Acp]::GetACP())
+            $encodings['ansi'] = [Encoding]::GetEncoding([Acp]::GetACP())
         }
 
         $transform = [PSCompression.EncodingTransformation]::new()
@@ -37,8 +39,8 @@ Describe 'EncodingTransformation Class' {
     }
 
     It 'Transforms Encoding to Encoding' {
-        $transform.Transform($ExecutionContext, [System.Text.Encoding]::UTF8) |
-            Should -BeExactly ([System.Text.Encoding]::UTF8)
+        $transform.Transform($ExecutionContext, [Encoding]::UTF8) |
+            Should -BeExactly ([Encoding]::UTF8)
     }
 
     It 'Transforms a completion set to their Encoding Representations' {

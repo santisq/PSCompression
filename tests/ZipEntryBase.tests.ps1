@@ -1,10 +1,13 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿using namespace System.IO
+using namespace System.IO.Compression
 
-$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
-$manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
+$ErrorActionPreference = 'Stop'
+
+$moduleName = (Get-Item ([Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
+$manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 
 Import-Module $manifestPath
-Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
+Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
 Describe 'ZipEntryBase Class' {
     BeforeAll {
@@ -15,37 +18,35 @@ Describe 'ZipEntryBase Class' {
 
     It 'Can extract an entry' {
         ($zip | Get-ZipEntry -Type Archive).ExtractTo($TestDrive, $false) |
-            Should -BeOfType ([System.IO.FileInfo])
+            Should -BeOfType ([FileInfo])
     }
 
     It 'Can overwrite a file when extracting' {
         ($zip | Get-ZipEntry -Type Archive).ExtractTo($TestDrive, $true) |
-            Should -BeOfType ([System.IO.FileInfo])
+            Should -BeOfType ([FileInfo])
     }
 
     It 'Can extract a file from entries created from input Stream' {
         Use-Object ($stream = $zip.OpenRead()) {
             ($stream | Get-ZipEntry -Type Archive).ExtractTo($TestDrive, $true)
-        } | Should -BeOfType ([System.IO.FileInfo])
+        } | Should -BeOfType ([FileInfo])
     }
 
     It 'Can create a new folder in the destination path when extracting' {
         $entry = $zip | Get-ZipEntry -Type Archive
-        $file = $entry.ExtractTo(
-            [System.IO.Path]::Combine($TestDrive, 'myTestFolder'),
-            $false)
+        $file = $entry.ExtractTo([Path]::Combine($TestDrive, 'myTestFolder'), $false)
 
-        $file.FullName | Should -BeExactly ([System.IO.Path]::Combine($TestDrive, 'myTestFolder', $entry.Name))
+        $file.FullName | Should -BeExactly ([Path]::Combine($TestDrive, 'myTestFolder', $entry.Name))
     }
 
     It 'Can extract folders' {
         ($zip | Get-ZipEntry -Type Directory).ExtractTo($TestDrive, $false) |
-            Should -BeOfType ([System.IO.DirectoryInfo])
+            Should -BeOfType ([DirectoryInfo])
     }
 
     It 'Can overwrite folders when extracting' {
         ($zip | Get-ZipEntry -Type Directory).ExtractTo($TestDrive, $true) |
-            Should -BeOfType ([System.IO.DirectoryInfo])
+            Should -BeOfType ([DirectoryInfo])
     }
 
     It 'Has a LastWriteTime Property' {
@@ -76,17 +77,17 @@ Describe 'ZipEntryBase Class' {
 
     It 'Opens a ZipArchive on OpenRead() and OpenWrite()' {
         Use-Object ($archive = ($zip | Get-ZipEntry).OpenRead()) {
-            $archive | Should -BeOfType ([System.IO.Compression.ZipArchive])
+            $archive | Should -BeOfType ([ZipArchive])
         }
 
         Use-Object ($stream = $zip.OpenRead()) {
             Use-Object ($archive = ($stream | Get-ZipEntry).OpenRead()) {
-                $archive | Should -BeOfType ([System.IO.Compression.ZipArchive])
+                $archive | Should -BeOfType ([ZipArchive])
             }
         }
 
         Use-Object ($archive = ($zip | Get-ZipEntry).OpenWrite()) {
-            $archive | Should -BeOfType ([System.IO.Compression.ZipArchive])
+            $archive | Should -BeOfType ([ZipArchive])
         }
     }
 

@@ -9,7 +9,7 @@ $manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 Import-Module $manifestPath
 Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
-Describe 'To & From String Compression' {
+Describe 'String Compression & Expansion Commands' {
     BeforeAll {
         $conversionCommands = @{
             'ConvertFrom-BrotliString'  = 'ConvertTo-BrotliString'

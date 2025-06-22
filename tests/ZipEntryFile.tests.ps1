@@ -1,10 +1,13 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿using namespace System.IO
+using namespace System.IO.Compression
 
-$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
-$manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
+$ErrorActionPreference = 'Stop'
+
+$moduleName = (Get-Item ([Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
+$manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 
 Import-Module $manifestPath
-Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
+Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
 Describe 'ZipEntryFile Class' {
     BeforeAll {
@@ -28,7 +31,7 @@ Describe 'ZipEntryFile Class' {
 
     It 'Should Open the source zip' {
         Use-Object ($stream = ($zip | Get-ZipEntry).OpenRead()) {
-            $stream | Should -BeOfType ([System.IO.Compression.ZipArchive])
+            $stream | Should -BeOfType ([ZipArchive])
         }
     }
 }

@@ -11,31 +11,30 @@ $manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 Import-Module $manifestPath
 Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
-Describe 'Archive Entry Cmdlets' {
+Describe 'Archive Entry Management Commands' {
     BeforeAll {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
         $file = New-Item ([Path]::Combine($TestDrive, 'someFile.txt')) -ItemType File -Value 'foo'
         $uri = 'https://www.powershellgallery.com/api/v2/package/PSCompression'
         $testTarName = 'TarEntryTests'
         $testTarpath = Join-Path $TestDrive $testTarName
-
-        Get-Structure | ForEach-Object {
-            $newItemSplat = @{
-                ItemType = ('Directory', 'File')[$_.EndsWith('.txt')]
-                Value    = Get-Random
-                Force    = $true
-                Path     = Join-Path $testTarpath $_
-            }
-
-            $null = New-Item @newItemSplat
-        }
-
+        $itemCounts = Get-Structure | Build-Structure $testTarpath
+        $totalCount = $itemCounts.File + $itemCounts.Directory
         $algos = [PSCompression.Algorithm].GetEnumValues()
-        $tarArchives = $algos | ForEach-Object {
-            Compress-TarArchive $testTarpath $testTarpath -Algorithm $_ -PassThru
+
+        $tarArchives = foreach ($algo in $algos) {
+            $compressTarArchiveSplat = @{
+                Algorithm   = $algo
+                PassThru    = $true
+                LiteralPath = $testTarpath
+                Destination = $testTarpath
+            }
+            Compress-TarArchive @compressTarArchiveSplat
         }
 
-        $zip, $file, $uri, $tarArchives | Out-Null
+
+
+        $zip, $file, $uri, $tarArchives, $itemCounts, $totalCount | Out-Null
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -643,6 +642,17 @@ Describe 'Archive Entry Cmdlets' {
             } | Should -Throw -ExceptionType ([ObjectDisposedException])
         }
 
+        It 'Should extract entries to the current directory when -Destination is not specified' {
+            try {
+                New-Item expandToCurrent -ItemType Directory | Push-Location
+                { $zip | Get-ZipEntry | Expand-ZipEntry } | Should -Not -Throw
+                Get-ChildItem | Should -Not -HaveCount 0
+            }
+            finally {
+                Pop-Location
+            }
+        }
+
         It 'Should throw when -Destination is an invalid path' {
             { $zip | Get-ZipEntry | Expand-ZipEntry -Destination function: } |
                 Should -Throw
@@ -671,6 +681,104 @@ Describe 'Archive Entry Cmdlets' {
 
             Get-ChildItem -LiteralPath $destination -Recurse -File |
                 ForEach-Object { $_ | Get-Content | Should -BeExactly $content }
+        }
+    }
+
+    Context 'Expand-TarEntry' -Tag 'Expand-TarEntry' {
+        It 'Can extract entries to a destination directory' {
+            $tarArchives | ForEach-Object {
+                $destination = "extract_$($_.Extension)"
+
+                { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination } |
+                    Should -Not -Throw
+
+                Get-ChildItem $destination -Recurse |
+                    Should -HaveCount $totalCount
+            }
+        }
+
+        It 'Can extract tar entries created from input Stream' {
+            foreach ($archive in $tarArchives) {
+                if ($archive.Extension -eq '.tar') {
+                    $algo = 'none'
+                }
+                else {
+                    $algo = $archive.Extension.TrimStart('.')
+                }
+
+                $destination = "extract_${algo}_fromStream"
+
+                $result = Use-Object ($stream = $archive.OpenRead()) {
+                    $stream | Get-TarEntry -Algorithm $algo |
+                        Expand-TarEntry -Destination $destination -PassThru
+                }
+
+                $result | Should -BeOfType ([FileSystemInfo])
+                $result | Should -HaveCount $totalCount
+            }
+        }
+
+        It 'Should throw when a Stream is Diposed' {
+            foreach ($archive in $tarArchives) {
+                if ($archive.Extension -eq '.tar') {
+                    $algo = 'none'
+                }
+                else {
+                    $algo = $archive.Extension.TrimStart('.')
+                }
+
+                $destination = "extract_$($_.Extension)_fromStream"
+
+                $entries = Use-Object ($stream = $archive.OpenRead()) {
+                    $stream | Get-TarEntry -Algorithm $algo
+                }
+
+                { $entries | Expand-TarEntry -Destination $destination } |
+                    Should -Throw
+            }
+        }
+
+        It 'Should throw when -Destination is an invalid path' {
+            { $tarArchives | Get-TarEntry | Expand-TarEntry -Destination function: } |
+                Should -Throw
+        }
+
+        It 'Should throw if the destination path argument belongs to a file' {
+            $tarArchive = $tarArchives[0]
+            { $tarArchive | Get-TarEntry | Expand-TarEntry -Destination $tarArchive.FullName } |
+                Should -Throw
+        }
+
+        It 'Should not overwrite files without -Force' {
+            $tarArchives | ForEach-Object {
+                $destination = "extract_$($_.Extension)"
+
+                { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination } |
+                    Should -Throw -ExceptionType ([IOException])
+            }
+        }
+
+        It 'Can overwrite files if using -Force' {
+            $tarArchives | ForEach-Object {
+                $destination = "extract_$($_.Extension)"
+
+                { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination -Force } |
+                    Should -Not -Throw
+            }
+        }
+
+        It 'Should extract entries to the current directory when -Destination is not specified' {
+            foreach ($archive in $tarArchives) {
+                try {
+                    New-Item "expandToCurrent_$($archive.Extension)" -ItemType Directory | Push-Location
+                    { $archive | Get-TarEntry | Expand-TarEntry } | Should -Not -Throw
+                    Get-ChildItem | Should -Not -HaveCount 0
+                }
+                finally {
+                    Pop-Location
+                }
+
+            }
         }
     }
 }

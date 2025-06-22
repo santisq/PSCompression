@@ -8,27 +8,27 @@ $manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 Import-Module $manifestPath
 Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
-BeforeAll {
-    $encodingSet = @(
-        'ascii'
-        'bigendianUtf32'
-        'unicode'
-        'utf8'
-        'utf8NoBOM'
-        'bigendianUnicode'
-        'oem'
-        'utf8BOM'
-        'utf32'
-
-        if ($osIsWindows) {
-            'ansi'
-        }
-    )
-
-    $encodingSet | Out-Null
-}
-
 Describe 'EncodingCompleter Class' {
+    BeforeAll {
+        $encodingSet = @(
+            'ascii'
+            'bigendianUtf32'
+            'unicode'
+            'utf8'
+            'utf8NoBOM'
+            'bigendianUnicode'
+            'oem'
+            'utf8BOM'
+            'utf32'
+
+            if ($osIsWindows) {
+                'ansi'
+            }
+        )
+
+        $encodingSet | Out-Null
+    }
+
     It 'Completes results from a completion set' {
         (Complete 'Test-Completer ').CompletionText |
             Should -BeExactly $encodingSet

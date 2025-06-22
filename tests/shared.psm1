@@ -25,12 +25,52 @@ function Get-Structure {
     }
 }
 
+function Build-Structure {
+    param(
+        [Parameter(ValueFromPipeline, Mandatory)]
+        [string] $Item,
+
+        [Parameter(Mandatory, Position = 0)]
+        [string] $Path)
+
+    begin {
+        $fileCount = $dirCount = 0
+    }
+    process {
+        $isFile = $Item.EndsWith('.txt')
+
+        $newItemSplat = @{
+            ItemType = ('Directory', 'File')[$isFile]
+            Value    = Get-Random
+            Force    = $true
+            Path     = Join-Path $Path $Item
+        }
+
+        $null = New-Item @newItemSplat
+
+        if ($isFile) {
+            $fileCount++
+            return
+        }
+
+        $dirCount++
+    }
+    end {
+        $dirCount++ # Includes the folder itself
+
+        [pscustomobject]@{
+            File      = $fileCount
+            Directory = $dirCount
+        }
+    }
+}
+
 $osIsWindows = [RuntimeInformation]::IsOSPlatform([OSPlatform]::Windows)
 $osIsWindows | Out-Null
 
 $exportModuleMemberSplat = @{
     Variable = 'moduleName', 'manifestPath', 'osIsWindows'
-    Function = 'Decode', 'Complete', 'Test-Completer', 'Get-Structure'
+    Function = 'Decode', 'Complete', 'Test-Completer', 'Get-Structure', 'Build-Structure'
 }
 
 Export-ModuleMember @exportModuleMemberSplat

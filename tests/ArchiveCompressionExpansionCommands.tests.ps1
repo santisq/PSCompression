@@ -11,37 +11,15 @@ $manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 Import-Module $manifestPath
 Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
-Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Commands' {
+Describe 'Archive Compression & Expansion Commands' -Tag 'Archive Compression & Expansion Commands' {
     BeforeAll {
         $algos = [PSCompression.Algorithm].GetEnumValues()
-
         $sourceName = 'CompressArchiveTests'
         $destName = 'CompressArchiveExtract'
-
         $testpath = Join-Path $TestDrive $sourceName
         $extractpath = Join-Path $TestDrive $destName
-
-        $fileCount = $dirCount = 0
-        Get-Structure | ForEach-Object {
-            $newItemSplat = @{
-                ItemType = ('Directory', 'File')[$_.EndsWith('.txt')]
-                Value    = Get-Random
-                Force    = $true
-                Path     = Join-Path $testpath $_
-            }
-
-            $null = New-Item @newItemSplat
-
-            if ($newItemSplat['ItemType'] -eq 'Directory') {
-                $dirCount++
-            }
-            else {
-                $fileCount++
-            }
-        }
-
-        $dirCount++ # Includes the folder itself
-        $extractpath, $algos | Out-Null
+        $itemCounts = Get-Structure | Build-Structure $testpath
+        $extractpath, $algos, $itemCounts | Out-Null
     }
 
     It 'Can compress a folder and all its child items' {
@@ -102,8 +80,8 @@ Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Co
             $expanded = Get-ChildItem $destination -Recurse
             $files, $dirs = $expanded.Where({ $_ -is [FileInfo] }, 'Split')
 
-            $files | Should -HaveCount $fileCount
-            $dirs | Should -HaveCount $dirCount
+            $files | Should -HaveCount $itemCounts.File
+            $dirs | Should -HaveCount $itemCounts.Directory
         }
     }
 
@@ -214,7 +192,7 @@ Describe 'Compress & Expand Archive Commands' -Tag 'Compress & Expand Archive Co
             Should -BeOfType ([WarningRecord])
     }
 
-    Context 'ExpandTarArchive Command' -Tag 'ExpandTarArchive Command' {
+    Context 'Expand-TarArchive' -Tag 'Expand-TarArchive' {
         BeforeAll {
             $destination = 'shouldThrowIfExists'
             New-Item $destination -ItemType Directory | Out-Null
