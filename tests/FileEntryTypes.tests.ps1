@@ -15,7 +15,7 @@ Describe 'File Entry Types' {
         'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
 
         $tarArchive = New-Item (Join-Path $TestDrive helloworld.txt) -ItemType File -Force |
-            Compress-TarArchive -Destination 'testTarFile' -PassThru
+            Compress-TarArchive -Destination 'testTarDirectory' -PassThru
 
         $tarArchive | Out-Null
     }
