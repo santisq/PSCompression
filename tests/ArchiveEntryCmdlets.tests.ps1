@@ -403,7 +403,7 @@ Describe 'Archive Entry Cmdlets' {
                         $stream | Get-TarEntry -Algorithm $algo -Type Archive
                     }
 
-                    { $entry | Get-ZipEntryContent } | Should -Throw
+                    { $entry | Get-TarEntryContent } | Should -Throw
                 }
             }
         }
