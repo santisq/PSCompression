@@ -20,6 +20,7 @@ This update was made possible by the following projects. If you find them helpfu
 - [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
 - [SharpCompress](https://github.com/adamhathcock/sharpcompress)
 - [BrotliSharpLib](https://github.com/master131/BrotliSharpLib)
+- [ZstdSharp](https://github.com/oleg-st/ZstdSharp)
 
 ## 01/10/2025
 

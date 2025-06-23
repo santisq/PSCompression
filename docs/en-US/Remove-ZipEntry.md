@@ -109,7 +109,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### ZipEntryBase
+### PSCompression.Abstractions.ZipEntryBase
 
 You can pipe instances of `ZipEntryFile` and `ZipEntryDirectory` to this cmdlet. These instances are produced by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
 

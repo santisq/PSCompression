@@ -69,8 +69,9 @@ public abstract class ToCompressedStringCommandBase : PSCmdlet, IDisposable
         _compressStream?.Dispose();
         _outstream.Dispose();
 
-        if (AsByteStream.IsPresent)
+        if (AsByteStream)
         {
+            // On purpose, we don't want to enumerate the byte[] for efficiency
             WriteObject(_outstream.ToArray(), enumerateCollection: false);
             return;
         }

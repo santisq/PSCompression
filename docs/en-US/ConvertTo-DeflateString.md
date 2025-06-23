@@ -1,20 +1,20 @@
 ---
-external help file: PSCompression-help.xml
+external help file: PSCompression.dll-Help.xml
 Module Name: PSCompression
 online version: https://github.com/santisq/PSCompression
 schema: 2.0.0
 ---
 
-# ConvertTo-GzipString
+# ConvertTo-DeflateString
 
 ## SYNOPSIS
 
-Creates a Gzip Base64 compressed string from a specified input string or strings.
+Creates a Deflate Base64 compressed string from a specified input string or strings.
 
 ## SYNTAX
 
 ```powershell
-ConvertTo-GzipString
+ConvertTo-DeflateString
     [-InputObject] <String[]>
     [-Encoding <Encoding>]
     [-CompressionLevel <CompressionLevel>]
@@ -25,36 +25,34 @@ ConvertTo-GzipString
 
 ## DESCRIPTION
 
-The `ConvertTo-GzipString` cmdlet can compress input strings into Gzip Base64 encoded strings or raw bytes using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion of Base64 Gzip strings, see [`ConvertFrom-GzipString`](ConvertFrom-GzipString.md).
+The `ConvertTo-DeflateString` cmdlet compresses input strings into Deflate Base64 encoded strings or raw bytes using the [`DeflateStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.deflatestream). For expansion of Base64 Deflate strings, see [`ConvertFrom-DeflateString`](./ConvertFrom-DeflateString.md).
 
 ## EXAMPLES
 
-### Example 1: Compress strings to Gzip compressed Base64 encoded string
+### Example 1: Compress strings to Deflate compressed Base64 encoded string
 
 ```powershell
 PS ..\pwsh> $strings = 'hello', 'world', '!'
+PS ..\pwsh> ConvertTo-DeflateString $strings
 
-# With positional binding
-PS ..\pwsh> ConvertTo-GzipString $strings
+ykjNycnn5SrPL8pJ4eVS5OUCAAAA//8DAA==
 
-H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
+# Or using pipeline input
+PS ..\pwsh> $strings | ConvertTo-DeflateString
 
-# Or pipeline input, both work
-PS ..\pwsh> $strings | ConvertTo-GzipString
-
-H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
+ykjNycnn5SrPL8pJ4eVS5OUCAAAA//8DAA==
 ```
 
-This example demonstrates compressing an array of strings into a single Brotli Base64 encoded string using either positional binding or pipeline input.
+This example demonstrates compressing an array of strings into a single Deflate Base64 encoded string using either positional binding or pipeline input.
 
-### Example 2: Create a Gzip compressed file from a string
+### Example 2: Create a Deflate compressed file from a string
 
 ```powershell
-PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream | Set-Content -FilePath .\helloworld.gz -AsByteStream
+PS ..\pwsh> 'hello world!' | ConvertTo-DeflateString -AsByteStream | Set-Content -FilePath .\helloworld.deflate -AsByteStream
 
 # To read the file back you can use `ConvertFrom-BrotliString` following these steps:
-PS ..\pwsh> $path = Convert-Path .\helloworld.gz
-PS ..\pwsh> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-GzipString
+PS ..\pwsh> $path = Convert-Path .\helloworld.deflate
+PS ..\pwsh> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-DeflateString
 
 hello world!
 ```
@@ -67,16 +65,16 @@ Demonstrates how `-AsByteStream` outputs a byte array that can be saved to a fil
 ### Example 3: Compress strings using a specific Encoding
 
 ```powershell
-PS ..\pwsh> 'ñ' | ConvertTo-GzipString -Encoding ansi | ConvertFrom-GzipString
+PS ..\pwsh> 'ñ' | ConvertTo-DeflateString -Encoding ansi | ConvertFrom-DeflateString
 �
 
-PS ..\pwsh> 'ñ' | ConvertTo-GzipString -Encoding utf8BOM | ConvertFrom-GzipString
+PS ..\pwsh> 'ñ' | ConvertTo-DeflateString -Encoding utf8BOM | ConvertFrom-DeflateString
 ñ
 ```
 
-The default Encoding is `utf8NoBom`.
+This example shows how different encodings affect the compression and decompression of special characters. The default encoding is `utf8NoBOM`.
 
-### Example 4: Compressing multiple files into one Gzip Base64 string
+### Example 4: Compressing multiple files into one Deflate Base64 string
 
 ```powershell
 # Check the total length of the files
@@ -84,11 +82,11 @@ PS ..\pwsh> (Get-Content myLogs\*.txt | Measure-Object Length -Sum).Sum / 1kb
 87.216796875
 
 # Check the total length after compression
-PS ..\pwsh> (Get-Content myLogs\*.txt | ConvertTo-GzipString).Length / 1kb
+PS ..\pwsh> (Get-Content myLogs\*.txt | ConvertTo-DeflateString).Length / 1kb
 35.123456789
 ```
 
-This example demonstrates compressing the contents of multiple text files into a single Gzip Base64 string and compares the total length before and after compression.
+This example demonstrates compressing the contents of multiple text files into a single Deflate Base64 string and compares the total length before and after compression.
 
 ## PARAMETERS
 
@@ -113,8 +111,7 @@ Accept wildcard characters: False
 
 ### -CompressionLevel
 
-Define the compression level that should be used.
-__See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details__.
+Specifies the compression level for the Deflate algorithm, balancing speed and compression size. See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details.
 
 ```yaml
 Type: CompressionLevel
@@ -134,7 +131,7 @@ Accept wildcard characters: False
 Determines the character encoding used when compressing the input strings.
 
 > [!NOTE]
-> The default encoding is __`utf8NoBOM`__.
+> The default encoding is `utf8NoBOM`.
 
 ```yaml
 Type: Encoding
@@ -166,8 +163,7 @@ Accept wildcard characters: False
 
 ### -NoNewLine
 
-The encoded string representation of the input objects are concatenated to form the output.
-No new line character is added after each output string when this switch is used.
+The encoded string representation of the input objects is concatenated to form the output. No newline character is added after each input string when this switch is used.
 
 ```yaml
 Type: SwitchParameter
@@ -187,26 +183,26 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### String
+### System.String[]
 
 You can pipe strings to this cmdlet.
 
 ## OUTPUTS
 
-### String
+### System.String
 
-By default, this cmdlet outputs a single string.
+By default, this cmdlet outputs a single Base64 encoded string.
 
-### Byte[]
+### System.Byte[]
 
-When the `-AsByteStream` switch is used this cmdlet outputs a byte array down the pipeline.
+When the `-AsByteStream` switch is used, this cmdlet outputs a byte array down the pipeline.
 
 ## NOTES
 
 ## RELATED LINKS
 
-[__ConvertFrom-GzipString__](https://github.com/santisq/PSCompression)
+[__ConvertFrom-DeflateString__](https://github.com/santisq/PSCompression)
 
-[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)
+[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression?view=net-6.0)
 
-[__GzipStream Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream)
+[__DeflateStream Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.deflatestream)

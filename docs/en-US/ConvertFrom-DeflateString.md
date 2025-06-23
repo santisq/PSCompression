@@ -1,20 +1,20 @@
 ---
-external help file: PSCompression-help.xml
+external help file: PSCompression.dll-Help.xml
 Module Name: PSCompression
 online version: https://github.com/santisq/PSCompression
 schema: 2.0.0
 ---
 
-# ConvertFrom-GzipString
+# ConvertFrom-DeflateString
 
 ## SYNOPSIS
 
-Expands Gzip Base64 compressed input strings.
+Expands Deflate Base64 compressed input strings.
 
 ## SYNTAX
 
 ```powershell
-ConvertFrom-GzipString
+ConvertFrom-DeflateString
     [-InputObject] <String[]>
     [-Encoding <Encoding>]
     [-Raw]
@@ -23,34 +23,36 @@ ConvertFrom-GzipString
 
 ## DESCRIPTION
 
-The `ConvertFrom-GzipString` cmdlet can expand Base64 encoded Gzip compressed strings using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). This cmdlet is the counterpart of [`ConvertTo-GzipString`](ConvertTo-GzipString.md).
+The `ConvertFrom-DeflateString` cmdlet expands Base64 encoded Deflate compressed strings using the [`DeflateStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.deflatestream). This cmdlet is the counterpart of [`ConvertTo-DeflateString`](./ConvertTo-DeflateString.md).
 
 ## EXAMPLES
 
-### Example 1: Expanding a Gzip compressed string
+### Example 1: Expanding a Deflate compressed string
 
 ```powershell
-PS ..\pwsh> ConvertFrom-GzipString H4sIAAAAAAAACstIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
+PS ..\pwsh> ConvertFrom-DeflateString ykjNycnn5SrPL8pJ4eVS5OUCAAAA//8DAA==
 
 hello
 world
 !
 ```
 
-### Example 2: Demonstrates how `-NoNewLine` works
+This example expands a Deflate Base64 encoded string back to its original strings.
+
+### Example 2: Demonstrates how `-Raw` works
 
 ```powershell
 PS ..\pwsh> $strings = 'hello', 'world', '!'
 
 # New lines are preserved when the cmdlet receives an array of strings.
-PS ..\pwsh> $strings | ConvertTo-GzipString | ConvertFrom-GzipString
+PS ..\pwsh> $strings | ConvertTo-DeflateString | ConvertFrom-DeflateString
 
 hello
 world
 !
 
-# When using the `-NoNewLine` switch, all strings are concatenated
-PS ..\pwsh> $strings | ConvertTo-GzipString -NoNewLine | ConvertFrom-GzipString
+# When using the `-Raw` switch, all strings are returned as a single string
+PS ..\pwsh> $strings | ConvertTo-DeflateString -NoNewLine | ConvertFrom-DeflateString -Raw
 
 helloworld!
 ```
@@ -64,7 +66,7 @@ This example shows how the `-Raw` switch concatenates the expanded strings into 
 Determines the character encoding used when expanding the input strings.
 
 > [!NOTE]
-> The default encoding is __`utf8NoBOM`__.
+> The default encoding is `utf8NoBOM`.
 
 ```yaml
 Type: Encoding
@@ -96,8 +98,7 @@ Accept wildcard characters: False
 
 ### -Raw
 
-Outputs the expanded string as a single string with newlines preserved.
-By default, newline characters in the expanded string are used as delimiters to separate the input into an array of strings.
+Outputs the expanded string as a single string with newlines preserved. By default, newline characters in the expanded string are used as delimiters to separate the input into an array of strings.
 
 ```yaml
 Type: SwitchParameter
@@ -117,9 +118,9 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### System.String
+### System.String[]
 
-You can pipe Gzip Base64 strings to this cmdlet.
+You can pipe Deflate Base64 strings to this cmdlet.
 
 ## OUTPUTS
 
@@ -131,8 +132,8 @@ By default, this cmdlet streams strings. When the `-Raw` switch is used, it retu
 
 ## RELATED LINKS
 
-[__ConvertTo-GzipString__](https://github.com/santisq/PSCompression)
+[__ConvertTo-DeflateString__](https://github.com/santisq/PSCompression)
 
-[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)
+[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression?view=net-6.0)
 
-[__GzipStream Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream)
+[__DeflateStream Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.deflatestream)
