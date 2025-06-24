@@ -104,7 +104,7 @@
   </tr>
   <tr>
     <td><a href="docs/en-US/Get-TarEntryContent.md">Get-TarEntryContent</a></td>
-    <td><code>targc</code></td>
+    <td><code>targec</code></td>
     <td>Retrieves the content of tar entries as text or bytes.</td>
   </tr>
 </table>
