@@ -33,7 +33,7 @@
     <th>Description</th>
   </tr>
   <tr>
-    <td colspan="1" width="220" height="60"><a href="docs/en-US/Compress-ZipArchive.md">Compress-ZipArchive</a></td>
+    <td colspan="1" width="210" height="80"><a href="docs/en-US/Compress-ZipArchive.md">Compress-ZipArchive</a></td>
     <td><code>zipcompress</code></td>
     <td>Compresses files and folders into a zip archive, overcoming built-in PowerShell limitations.</td>
   </tr>
@@ -83,7 +83,7 @@
     <th>Description</th>
   </tr>
   <tr>
-    <td colspan="1" width="220" height="60"><a href="docs/en-US/Compress-TarArchive.md">Compress-TarArchive</a></td>
+    <td colspan="1" width="210" height="80"><a href="docs/en-US/Compress-TarArchive.md">Compress-TarArchive</a></td>
     <td><code>tarcompress</code></td>
     <td>Compresses files and folders into a tar archive with optional compression (gz, bz2, zst, lz, none).</td>
   </tr>
@@ -118,7 +118,7 @@
     <th>Description</th>
   </tr>
   <tr>
-    <td colspan="1" width="220" height="60"><a href="docs/en-US/ConvertFrom-BrotliString.md">ConvertFrom-BrotliString</a></td>
+    <td colspan="1" width="210" height="80"><a href="docs/en-US/ConvertFrom-BrotliString.md">ConvertFrom-BrotliString</a></td>
     <td><code>frombrotlistring</code></td>
     <td>Decompresses a Brotli-compressed string.</td>
   </tr>
@@ -128,7 +128,7 @@
     <td>Decompresses a Deflate-compressed string.</td>
   </tr>
   <tr>
-    <td><code>ConvertFrom-GzipString</code></td>
+    <td><a href="docs/en-US/ConvertFrom-GzipString">ConvertFrom-GzipString</a></td>
     <td><code>fromgzipstring</code></td>
     <td>Decompresses a Gzip-compressed string.</td>
   </tr>
