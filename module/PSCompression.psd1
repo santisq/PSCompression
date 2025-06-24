@@ -29,7 +29,7 @@
     Copyright          = '(c) Santiago Squarzon. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description        = 'Zip and GZip utilities for PowerShell!'
+    Description        = 'Zip, tar, and string compression utilities for PowerShell!'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion  = '5.1'
@@ -143,13 +143,26 @@
                 'powershell'
                 'zip'
                 'zip-compression'
+                'tar'
+                'tar-compression'
                 'gzip'
                 'gzip-compression'
+                'bzip2'
+                'bzip2-compression'
+                'zstd'
+                'zstd-compression'
+                'lzip'
+                'lzip-compression'
+                'brotli'
+                'brotli-compression'
                 'zlib'
                 'zlib-compression'
                 'deflate'
                 'deflate-compression'
                 'compression'
+                'decompression'
+                'archive'
+                'cross-platform'
                 'csharp'
             )
 

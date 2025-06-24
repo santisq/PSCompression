@@ -1,6 +1,6 @@
 <h1 align="center">PSCompression</h1>
 <div align="center">
-<sub>Zip and Tar utilities for PowerShell</sub>
+<sub>Zip, tar, and string compression utilities for PowerShell!</sub>
 <br/><br/>
 
 [![build](https://github.com/santisq/PSCompression/actions/workflows/ci.yml/badge.svg)](https://github.com/santisq/PSCompression/actions/workflows/ci.yml)
