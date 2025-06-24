@@ -83,7 +83,7 @@
     <th>Description</th>
   </tr>
   <tr>
-    <td colspan="1" width="230" height="60"><a href="docs/en-US/Compress-TarArchive.md">Compress-TarArchive</a></td>
+    <td colspan="1" width="240" height="60"><a href="docs/en-US/Compress-TarArchive.md">Compress-TarArchive</a></td>
     <td><code>tarcompress</code></td>
     <td>Compresses files and folders into a tar archive with optional compression (gz, bz2, zst, lz, none).</td>
   </tr>
