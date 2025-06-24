@@ -18,7 +18,7 @@ Sets or appends content to an existing zip entry.
 ```powershell
 Set-ZipEntryContent
     -Value <Object[]>
-    -SourceEntry <ZipEntryFile>
+    [-SourceEntry] <ZipEntryFile>
     [-Encoding <Encoding>]
     [-Append]
     [-PassThru]
@@ -30,7 +30,7 @@ Set-ZipEntryContent
 ```powershell
 Set-ZipEntryContent
     -Value <Object[]>
-    -SourceEntry <ZipEntryFile>
+    [-SourceEntry] <ZipEntryFile>
     [-AsByteStream]
     [-Append]
     [-BufferSize <Int32>]
@@ -43,6 +43,9 @@ Set-ZipEntryContent
 The `Set-ZipEntryContent` cmdlet can write or append content to a Zip Archive Entry. By default, this cmdlet replaces the existing content of a Zip Archive Entry, if you need to append content you can use the `-Append` switch. This cmdlet also supports writing or appending raw bytes while using the `-AsByteStream` switch. To send content to `Set-ZipEntryContent` you can use the `-Value` parameter on the command line or send content through the pipeline.
 
 If you need to create a new Zip Archive Entry you can use the [`New-ZipEntry` cmdlet](./New-ZipEntry.md).
+
+> [!NOTE]
+> Due to a .NET limitation, writing or appending content larger than 2 GB to an existing zip entry may fail. To handle such content, recreate the zip archive or use tools like 7-Zip. See issue #19 for details.
 
 ## EXAMPLES
 

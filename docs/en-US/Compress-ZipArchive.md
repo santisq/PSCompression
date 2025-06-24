@@ -45,9 +45,9 @@ Compress-ZipArchive
 
 PowerShell cmdlet that overcomes the limitation that the built-in cmdlet `Compress-Archive` has:
 
-> The `Compress-Archive` cmdlet uses the Microsoft .NET API [`System.IO.Compression.ZipArchive`](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive?view=net-6.0) to compress files. The maximum file size is 2 GB because there's a limitation of the underlying API.
+> The `Compress-Archive` cmdlet uses the Microsoft .NET API [`System.IO.Compression.ZipArchive`](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive) to compress files. The maximum file size is 2 GB because there's a limitation of the underlying API.
 
-The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.zipfile.createfromdirectory?view=net-6.0#system-io-compression-zipfile-createfromdirectory(system-string-system-string)).
+The easy workaround would be to use the [`ZipFile.CreateFromDirectory` Method](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.zipfile.createfromdirectory#system-io-compression-zipfile-createfromdirectory(system-string-system-string)).
 
 However, there are 3 limitations while using this method:
 
@@ -55,7 +55,10 @@ However, there are 3 limitations while using this method:
    2. All files (recursively) on the source folder __will be compressed__, we can't pick / filter files to compress.
    3. It's not possible to __Update__ the entries of an existing Zip Archive.
 
-This cmdlet should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure untouched__.
+This cmdlet should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure intact__.
+
+> [!NOTE]
+> When appending to an existing zip archive using the [`-Update` parameter](#-update), a .NET limitation may cause failures for files larger than 2 GB. To handle such files, recreate the archive or use tools like 7-Zip. See issue #19 for details.
 
 ## EXAMPLES
 

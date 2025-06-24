@@ -74,6 +74,9 @@
   </tr>
 </table>
 
+> [!NOTE]
+> Due to a .NET limitation, cmdlets like `New-ZipEntry`, `Compress-ZipArchive` with `-Update`, and `Set-ZipEntryContent` may fail when handling files or content > 2 GB __in existing zip archives__. As a workaround, recreate the zip archive or use tools like 7-Zip, which support larger files. See issue #19 for details.
+
 ### Tar Archive Cmdlets
 
 <table>
