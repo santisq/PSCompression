@@ -58,7 +58,7 @@ However, there are 3 limitations while using this method:
 This cmdlet should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure intact__.
 
 > [!NOTE]
-> When appending to an existing zip archive using the [`-Update` parameter](#-update), a .NET limitation may cause failures for files larger than 2 GB. To handle such files, recreate the archive or use tools like 7-Zip. See issue #19 for details.
+> When appending to an existing zip archive using the [`-Update` parameter](#-update), a .NET limitation may cause failures for files larger than 2 GB. To handle such files, recreate the archive or use tools like 7-Zip. See [issue #19](https://github.com/santisq/PSCompression/issues/19) for details.
 
 ## EXAMPLES
 

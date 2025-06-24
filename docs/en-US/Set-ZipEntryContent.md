@@ -45,7 +45,7 @@ The `Set-ZipEntryContent` cmdlet can write or append content to a Zip Archive En
 If you need to create a new Zip Archive Entry you can use the [`New-ZipEntry` cmdlet](./New-ZipEntry.md).
 
 > [!NOTE]
-> Due to a .NET limitation, writing or appending content larger than 2 GB to an existing zip entry may fail. To handle such content, recreate the zip archive or use tools like 7-Zip. See issue #19 for details.
+> Due to a .NET limitation, writing or appending content larger than 2 GB to an existing zip entry may fail. To handle such content, recreate the zip archive or use tools like 7-Zip. See [issue #19](https://github.com/santisq/PSCompression/issues/19) for details.
 
 ## EXAMPLES
 

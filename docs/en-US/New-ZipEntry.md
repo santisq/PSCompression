@@ -56,7 +56,7 @@ Entry paths, _arguments of the `-EntryPath` parameter_, are always normalized, a
 In addition, `New-ZipEntry` can set the content of the entries that it creates from string input or by specifying a source file path.
 
 > [!NOTE]
-> Due to a .NET limitation, adding files larger than 2 GB to an existing zip archive may fail. To handle such files, recreate the zip archive or use tools like 7-Zip. See issue #19 for details.
+> Due to a .NET limitation, adding files larger than 2 GB to an existing zip archive may fail. To handle such files, recreate the zip archive or use tools like 7-Zip. See [issue #19](https://github.com/santisq/PSCompression/issues/19) for details.
 
 ## EXAMPLES
 
