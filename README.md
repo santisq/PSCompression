@@ -83,7 +83,7 @@
     <th>Description</th>
   </tr>
   <tr>
-    <td><a href="docs/en-US/Compress-TarArchive.md">Compress-TarArchive</a></td>
+    <td colspan="1" width="230" height="60"><a href="docs/en-US/Compress-TarArchive.md">Compress-TarArchive</a></td>
     <td><code>tarcompress</code></td>
     <td>Compresses files and folders into a tar archive with optional compression (gz, bz2, zst, lz, none).</td>
   </tr>
@@ -118,7 +118,7 @@
     <th>Description</th>
   </tr>
   <tr>
-    <td><a href="docs/en-US/ConvertFrom-BrotliString.md">ConvertFrom-BrotliString</a></td>
+    <td colspan="1" width="230" height="60"><a href="docs/en-US/ConvertFrom-BrotliString.md">ConvertFrom-BrotliString</a></td>
     <td><code>frombrotlistring</code></td>
     <td>Decompresses a Brotli-compressed string.</td>
   </tr>
@@ -159,7 +159,8 @@
   </tr>
 </table>
 
-> __Note__: The `Compress-GzipArchive` and `Expand-GzipArchive` cmdlets have been removed, as their single-file gzip functionality is now handled by `Compress-TarArchive` and `Expand-TarArchive`. For a workaround to compress or decompress single files using gzip, see [Example 2 in `ConvertTo-GzipString`](./docs/en-US/ConvertTo-GzipString.md#example-2-create-a-gzip-compressed-file-from-a-string).
+> [!NOTE]
+> The `Compress-GzipArchive` and `Expand-GzipArchive` cmdlets have been removed, as their single-file gzip functionality is now handled by `Compress-TarArchive` and `Expand-TarArchive`. For a workaround to compress or decompress single files using gzip, see [Example 2 in `ConvertTo-GzipString`](./docs/en-US/ConvertTo-GzipString.md#example-2-create-a-gzip-compressed-file-from-a-string).
 
 ## Documentation
 
