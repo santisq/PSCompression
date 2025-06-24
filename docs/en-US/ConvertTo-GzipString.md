@@ -15,7 +15,7 @@ Creates a Gzip Base64 compressed string from a specified input string or strings
 
 ```powershell
 ConvertTo-GzipString
-    -InputObject <String[]>
+    [-InputObject] <String[]>
     [-Encoding <Encoding>]
     [-CompressionLevel <CompressionLevel>]
     [-AsByteStream]
@@ -45,14 +45,24 @@ PS ..\pwsh> $strings | ConvertTo-GzipString
 H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
 ```
 
+This example demonstrates compressing an array of strings into a single Brotli Base64 encoded string using either positional binding or pipeline input.
+
 ### Example 2: Create a Gzip compressed file from a string
 
 ```powershell
-PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream |
-    Compress-GzipArchive -DestinationPath .\files\file.gz
+PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream | Set-Content -FilePath .\helloworld.gz -AsByteStream
+
+# To read the file back you can use `ConvertFrom-BrotliString` following these steps:
+PS ..\pwsh> $path = Convert-Path .\helloworld.gz
+PS ..\pwsh> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-GzipString
+
+hello world!
 ```
 
-Demonstrates how `-AsByteStream` works on `ConvertTo-GzipString`, the cmdlet outputs a byte array that is received by `Compress-GzipArchive` and stored in a file. __Note that the byte array is not enumerated__.
+Demonstrates how `-AsByteStream` outputs a byte array that can be saved to a file using `Set-Content` or `Out-File`. Note that the byte array is not enumerated.
+
+> [!NOTE]
+> The example uses `-AsByteStream` with `Set-Content`, which is available in PowerShell 7+. In Windows PowerShell 5.1, use `-Encoding Byte` with `Set-Content` or `Out-File` to write the byte array to a file.
 
 ### Example 3: Compress strings using a specific Encoding
 
@@ -69,18 +79,16 @@ The default Encoding is `utf8NoBom`.
 ### Example 4: Compressing multiple files into one Gzip Base64 string
 
 ```powershell
-PS ..\pwsh> 0..10 | ForEach-Object {
-    Invoke-RestMethod loripsum.net/api/10/long/plaintext -OutFile .\files\lorem$_.txt
-}
-
-# Check the total Length of the downloaded files
-PS ..\pwsh> (Get-Content .\files\lorem*.txt | Measure-Object Length -Sum).Sum / 1kb
+# Check the total length of the files
+PS ..\pwsh> (Get-Content myLogs\*.txt | Measure-Object Length -Sum).Sum / 1kb
 87.216796875
 
-# Check the total Length after compression
-PS ..\pwsh> (Get-Content .\files\lorem*.txt | ConvertTo-GzipString).Length / 1kb
-36.94921875
+# Check the total length after compression
+PS ..\pwsh> (Get-Content myLogs\*.txt | ConvertTo-GzipString).Length / 1kb
+35.123456789
 ```
+
+This example demonstrates compressing the contents of multiple text files into a single Gzip Base64 string and compares the total length before and after compression.
 
 ## PARAMETERS
 
@@ -89,7 +97,7 @@ PS ..\pwsh> (Get-Content .\files\lorem*.txt | ConvertTo-GzipString).Length / 1kb
 Outputs the compressed byte array to the Success Stream.
 
 > [!NOTE]
-> This parameter is meant to be used in combination with [`Compress-GzipArchive`](./Compress-GzipArchive.md).
+> This parameter is intended for use with cmdlets that accept byte arrays, such as `Out-File` and `Set-Content` with `-Encoding Byte` (Windows PowerShell 5.1) or `-AsByteStream` (PowerShell 7+).
 
 ```yaml
 Type: SwitchParameter
@@ -192,3 +200,13 @@ By default, this cmdlet outputs a single string.
 ### Byte[]
 
 When the `-AsByteStream` switch is used this cmdlet outputs a byte array down the pipeline.
+
+## NOTES
+
+## RELATED LINKS
+
+[__ConvertFrom-GzipString__](https://github.com/santisq/PSCompression)
+
+[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)
+
+[__GzipStream Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream)

@@ -249,12 +249,12 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### String
+### System.String
 
 You can pipe a value for the new zip entry to this cmdlet.
 
 ## OUTPUTS
 
-### ZipEntryDirectory
+### PSCompression.ZipEntryDirectory
 
-### ZipEntryFile
+### PSCompression.ZipEntryFile

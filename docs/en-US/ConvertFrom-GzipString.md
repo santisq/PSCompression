@@ -15,7 +15,7 @@ Expands Gzip Base64 compressed input strings.
 
 ```powershell
 ConvertFrom-GzipString
-    -InputObject <String[]>
+    [-InputObject] <String[]>
     [-Encoding <Encoding>]
     [-Raw]
     [<CommonParameters>]
@@ -54,6 +54,8 @@ PS ..\pwsh> $strings | ConvertTo-GzipString -NoNewLine | ConvertFrom-GzipString
 
 helloworld!
 ```
+
+This example shows how the `-Raw` switch concatenates the expanded strings into a single string with newlines preserved.
 
 ## PARAMETERS
 
@@ -115,12 +117,22 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### String
+### System.String
 
 You can pipe Gzip Base64 strings to this cmdlet.
 
 ## OUTPUTS
 
-### String
+### System.String
 
 By default, this cmdlet streams strings. When the `-Raw` switch is used, it returns a single multi-line string.
+
+## NOTES
+
+## RELATED LINKS
+
+[__ConvertTo-GzipString__](https://github.com/santisq/PSCompression)
+
+[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)
+
+[__GzipStream Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream)

@@ -66,7 +66,7 @@ By default this cmdlet produces no output. When `-PassThru` is used, this cmdlet
 
 ```powershell
 PS ..\pwsh> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
-PS ..\pwsh> $file = $package | Get-ZipEntry -Include *.psd1 | Expand-ZipEntry -PassThru -Force
+PS ..\pwsh> $file = $package | Get-ZipEntry -Include *.psd1 | Expand-ZipEntry -PassThru
 PS ..\pwsh> Get-Content $file.FullName -Raw | Invoke-Expression
 
 Name                           Value
@@ -168,7 +168,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### ZipEntryBase
+### PSCompression.Abstractions.ZipEntryBase
 
 You can pipe instances of `ZipEntryFile` or `ZipEntryDirectory` to this cmdlet. These instances are produced by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
 
@@ -178,6 +178,6 @@ You can pipe instances of `ZipEntryFile` or `ZipEntryDirectory` to this cmdlet. 
 
 By default, this cmdlet produces no output.
 
-### FileSystemInfo
+### System.IO.FileSystemInfo
 
 The cmdlet outputs the `FileInfo` and `DirectoryInfo` instances of the extracted entries when `-PassThru` switch is used.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
+using PSCompression.Abstractions;
 using PSCompression.Extensions;
 
 namespace PSCompression;
@@ -31,7 +32,7 @@ internal sealed class ZipEntryMoveCache
 
     internal bool IsDirectoryEntry(string source, string path) =>
         _cache[source].TryGetValue(path, out EntryWithPath entryWithPath)
-            && entryWithPath.ZipEntry.Type is ZipEntryType.Directory;
+            && entryWithPath.ZipEntry.Type is EntryType.Directory;
 
     internal void AddEntry(ZipEntryBase entry, string newname) =>
         WithSource(entry).Add(entry.RelativePath, new(entry, newname));
@@ -72,7 +73,7 @@ internal sealed class ZipEntryMoveCache
         foreach (var pair in pathChanges.OrderByDescending(e => e.Key))
         {
             (ZipEntryBase entry, string newname) = pair.Value;
-            if (entry.Type is ZipEntryType.Archive)
+            if (entry.Type is EntryType.Archive)
             {
                 newpath = ((ZipEntryFile)entry).ChangeName(newname);
                 result[pair.Key] = newpath;

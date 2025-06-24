@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Management.Automation;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Microsoft.PowerShell.Commands;
 using PSCompression.Exceptions;
@@ -13,11 +14,12 @@ public static class PathExtensions
         @"(?:^[a-z]:)?[\\/]+|(?<![\\/])$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    private static readonly Regex s_reEntryDir = new(
-        @"[\\/]$",
-        RegexOptions.Compiled | RegexOptions.RightToLeft);
-
     private const string _directorySeparator = "/";
+
+    public static string NormalizePath(this string path) =>
+        path.EndsWith("/") || path.EndsWith("\\")
+            ? NormalizeEntryPath(path)
+            : NormalizeFileEntryPath(path);
 
     internal static string ResolvePath(this string path, PSCmdlet cmdlet)
     {
@@ -52,10 +54,6 @@ public static class PathExtensions
         return false;
     }
 
-    internal static bool IsArchive(this string path) => File.Exists(path);
-
-    internal static string GetParent(this string path) => Path.GetDirectoryName(path);
-
     internal static string AddExtensionIfMissing(this string path, string extension)
     {
         if (!path.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
@@ -72,11 +70,32 @@ public static class PathExtensions
     internal static string NormalizeFileEntryPath(this string path) =>
         NormalizeEntryPath(path).TrimEnd('/');
 
-    internal static bool IsDirectoryPath(this string path) =>
-        s_reEntryDir.IsMatch(path);
+    internal static void Create(this DirectoryInfo dir, bool force)
+    {
+        if (force || !dir.Exists)
+        {
+            dir.Create();
+            return;
+        }
 
-    public static string NormalizePath(this string path) =>
-        s_reEntryDir.IsMatch(path)
-            ? NormalizeEntryPath(path)
-            : NormalizeFileEntryPath(path);
+        throw new IOException($"The directory '{dir.FullName}' already exists.");
+    }
+
+    internal static PSObject AppendPSProperties(this FileSystemInfo info)
+    {
+        string parent = info is DirectoryInfo dir
+            ? dir.Parent.FullName
+            : Unsafe.As<FileInfo>(info).DirectoryName;
+
+        return info.AppendPSProperties(parent);
+    }
+
+    internal static PSObject AppendPSProperties(this FileSystemInfo info, string parent)
+    {
+        const string provider = @"Microsoft.PowerShell.Core\FileSystem::";
+        PSObject pso = PSObject.AsPSObject(info);
+        pso.Properties.Add(new PSNoteProperty("PSPath", $"{provider}{info.FullName}"));
+        pso.Properties.Add(new PSNoteProperty("PSParentPath", $"{provider}{parent}"));
+        return pso;
+    }
 }

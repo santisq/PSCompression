@@ -213,7 +213,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### ZipEntryBase
+### PSCompression.Abstractions.ZipEntryBase
 
 You can pipe instances of `ZipEntryFile` or `ZipEntryDirectory` to this cmdlet. These instances are produced by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
 
@@ -223,8 +223,8 @@ You can pipe instances of `ZipEntryFile` or `ZipEntryDirectory` to this cmdlet. 
 
 By default, this cmdlet produces no output.
 
-### ZipEntryFile
+### PSCompression.ZipEntryFile
 
-### ZipEntryDirectory
+### PSCompression.ZipEntryDirectory
 
 This cmdlet outputs the renamed entries when the `-PassThru` switch is used.

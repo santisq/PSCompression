@@ -4,7 +4,7 @@
     <View>
       <Name>zipentryview</Name>
       <ViewSelectedBy>
-        <TypeName>PSCompression.ZipEntryBase</TypeName>
+        <TypeName>PSCompression.Abstractions.ZipEntryBase</TypeName>
       </ViewSelectedBy>
       <GroupBy>
         <ScriptBlock>[PSCompression.Internal._Format]::GetDirectoryPath($_)</ScriptBlock>
@@ -56,6 +56,61 @@
               <TableColumnItem>
                 <ScriptBlock>
                   if ($_ -is [PSCompression.ZipEntryFile]) {
+                    [PSCompression.Internal._Format]::GetFormattedLength($_.Length)
+                  }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>tarentryview</Name>
+      <ViewSelectedBy>
+        <TypeName>PSCompression.Abstractions.TarEntryBase</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <ScriptBlock>[PSCompression.Internal._Format]::GetDirectoryPath($_)</ScriptBlock>
+        <Label>Directory</Label>
+      </GroupBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Width>10</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LastWriteTime</Label>
+            <Width>26</Width>
+            <Alignment>Right</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Size</Label>
+            <Width>15</Width>
+            <Alignment>Right</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Type</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedDate($_.LastWriteTime)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_ -is [PSCompression.TarEntryFile]) {
                     [PSCompression.Internal._Format]::GetFormattedLength($_.Length)
                   }
                 </ScriptBlock>

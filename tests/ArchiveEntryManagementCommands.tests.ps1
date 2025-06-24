@@ -1,17 +1,38 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿using namespace System
+using namespace System.Collections
+using namespace System.IO
+using namespace System.Text
 
-$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
-$manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
+$ErrorActionPreference = 'Stop'
+
+$moduleName = (Get-Item ([Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
+$manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 
 Import-Module $manifestPath
-Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
+Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
-Describe 'ZipEntry Cmdlets' {
+Describe 'Archive Entry Management Commands' {
     BeforeAll {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
-        $file = New-Item ([System.IO.Path]::Combine($TestDrive, 'someFile.txt')) -ItemType File -Value 'foo'
+        $file = New-Item ([Path]::Combine($TestDrive, 'someFile.txt')) -ItemType File -Value 'foo'
         $uri = 'https://www.powershellgallery.com/api/v2/package/PSCompression'
-        $zip, $file, $uri | Out-Null
+        $testTarName = 'TarEntryTests'
+        $testTarpath = Join-Path $TestDrive $testTarName
+        $itemCounts = Get-Structure | Build-Structure $testTarpath
+        $totalCount = $itemCounts.File + $itemCounts.Directory
+        $algos = [PSCompression.Algorithm].GetEnumValues()
+
+        $tarArchives = foreach ($algo in $algos) {
+            $compressTarArchiveSplat = @{
+                Algorithm   = $algo
+                PassThru    = $true
+                LiteralPath = $testTarpath
+                Destination = $testTarpath
+            }
+            Compress-TarArchive @compressTarArchiveSplat
+        }
+
+        $zip, $file, $uri, $tarArchives, $itemCounts, $totalCount | Out-Null
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -110,54 +131,65 @@ Describe 'ZipEntry Cmdlets' {
             $entry.RelativePath |
                 Should -Be ([PSCompression.Extensions.PathExtensions]::NormalizePath($item.FullName))
         }
+
+        It 'Ignores copying content to a ZipEntryDirectory from source file' {
+            $newZipEntrySplat = @{
+                SourcePath  = (Join-Path $TestDrive helloworld.txt)
+                Destination = $zip.FullName
+                EntryPath   = 'directoryEntry/', 'directoryEntry2\'
+            }
+
+            $entry = New-ZipEntry @newZipEntrySplat
+            $entry | ForEach-Object { $_.Length | Should -BeExactly 0 }
+        }
     }
 
     Context 'Get-ZipEntry' -Tag 'Get-ZipEntry' {
         It 'Can list entries in a zip archive' {
             $zip | Get-ZipEntry |
-                Should -BeOfType ([PSCompression.ZipEntryBase])
+                Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
         }
 
         It 'Can list entries from a Stream' {
             Invoke-WebRequest $uri | Get-ZipEntry |
-                Should -BeOfType ([PSCompression.ZipEntryBase])
+                Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
 
             Use-Object ($stream = $zip.OpenRead()) {
                 $stream | Get-ZipEntry |
-                    Should -BeOfType ([PSCompression.ZipEntryBase])
+                    Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
             }
         }
 
         It 'Should throw when not targetting a FileSystem Provider Path' {
             { Get-ZipEntry function:\* } |
-                Should -Throw -ExceptionType ([System.NotSupportedException])
+                Should -Throw -ExceptionType ([NotSupportedException])
 
             { Get-ZipEntry -LiteralPath function:\ } |
-                Should -Throw -ExceptionType ([System.NotSupportedException])
+                Should -Throw -ExceptionType ([NotSupportedException])
         }
 
-        It 'Should throw when the path is not a Zip' {
+        It 'Should throw when the path is not a zip archive' {
             { Get-ZipEntry $file.FullName } |
-                Should -Throw -ExceptionType ([System.IO.InvalidDataException])
+                Should -Throw -ExceptionType ([InvalidDataException])
         }
 
-        It 'Should throw when a Stream is not a Zip' {
+        It 'Should throw when a Stream is not a zip archive' {
             {
                 Use-Object ($stream = $file.OpenRead()) {
                     Get-ZipEntry $stream
                 }
-            } | Should -Throw -ExceptionType ([System.IO.InvalidDataException])
+            } | Should -Throw -ExceptionType ([InvalidDataException])
         }
 
-        It 'Should throw when a Stream is Disposed' {
+        It 'Should throw when a Stream is disposed' {
             {
                 (Use-Object ($stream = (Invoke-WebRequest $uri).RawContentStream) { $stream }) | Get-ZipEntry
-            } | Should -Throw -ExceptionType ([System.ObjectDisposedException])
+            } | Should -Throw -ExceptionType ([ObjectDisposedException])
         }
 
         It 'Should throw if the path is not a file' {
             { Get-ZipEntry $TestDrive } |
-                Should -Throw -ExceptionType ([System.ArgumentException])
+                Should -Throw -ExceptionType ([ArgumentException])
         }
 
         It 'Can list zip file entries' {
@@ -182,6 +214,95 @@ Describe 'ZipEntry Cmdlets' {
         }
     }
 
+    Context 'Get-TarEntry' -Tag 'Get-TarEntry' {
+        It 'Can list entries in a tar archive' {
+            $tarArchives | Get-TarEntry |
+                Should -BeOfType ([PSCompression.Abstractions.TarEntryBase])
+        }
+
+        It 'Can list entries from a Stream' {
+            foreach ($archive in $tarArchives) {
+                if ($archive.Extension -eq '.tar') {
+                    $algo = 'none'
+                }
+                else {
+                    $algo = $archive.Extension.TrimStart('.')
+                }
+
+                Use-Object ($stream = $archive.OpenRead()) {
+                    $stream | Get-TarEntry -Algorithm $algo |
+                        Should -BeOfType ([PSCompression.Abstractions.TarEntryBase])
+                }
+            }
+        }
+
+        It 'Should throw when not targetting a FileSystem Provider Path' {
+            { Get-TarEntry function:\* } |
+                Should -Throw -ExceptionType ([NotSupportedException])
+
+            { Get-TarEntry -LiteralPath function:\ } |
+                Should -Throw -ExceptionType ([NotSupportedException])
+        }
+
+        It 'Should throw when the path is not a tar archive' {
+            { Get-TarEntry $file.FullName } |
+                Should -Throw -ExceptionType ([InvalidDataException])
+        }
+
+        It 'Should throw when a Stream is not a tar archive' {
+            {
+                Use-Object ($stream = $file.OpenRead()) {
+                    Get-TarEntry $stream
+                }
+            } | Should -Throw -ExceptionType ([InvalidDataException])
+        }
+
+        It 'Should throw when a Stream is a tar archive with wrong algorithm' {
+            $testArchive = $tarArchives |
+                Where-Object { $_.Extension -ne '.tar' -and $_.Extension -notmatch $algos[0] } |
+                Select-Object -First 1
+
+            {
+                Use-Object ($stream = $testArchive.OpenRead()) {
+                    $stream | Get-TarEntry -Algorithm $algos[0]
+                }
+            } | Should -Throw -ExceptionType ([InvalidDataException])
+        }
+
+        It 'Should throw when a Stream is disposed' {
+            {
+                $gz = $tarArchives | Where-Object Extension -EQ .gz
+                (Use-Object ($stream = $gz.OpenRead()) { $stream }) | Get-TarEntry
+            } | Should -Throw
+        }
+
+        It 'Should throw if the path is not a file' {
+            { Get-TarEntry $TestDrive } |
+                Should -Throw -ExceptionType ([ArgumentException])
+        }
+
+        It 'Can list tar file entries' {
+            $tarArchives | Get-TarEntry -Type Archive |
+                Should -BeOfType ([PSCompression.TarEntryFile])
+        }
+
+        It 'Can list tar directory entries' {
+            $tarArchives | Get-TarEntry -Type Directory |
+                Should -BeOfType ([PSCompression.TarEntryDirectory])
+        }
+
+        It 'Can list a specific entry with the -Include parameter' {
+            $tarArchives | Get-TarEntry -Include "${testTarName}/testfolder05/testfile00.txt" |
+                Should -BeOfType ([PSCompression.TarEntryFile])
+        }
+
+        It 'Can exclude entries using the -Exclude parameter' {
+            $tarArchives | Get-TarEntry -Exclude *.txt |
+                ForEach-Object Extension |
+                Should -Not -Be '.txt'
+        }
+    }
+
     Context 'Get-ZipEntryContent' -Tag 'Get-ZipEntryContent' {
         It 'Can read content from zip file entries' {
             $zip | Get-ZipEntry -Type Archive |
@@ -193,7 +314,7 @@ Describe 'ZipEntry Cmdlets' {
             Invoke-WebRequest $uri | Get-ZipEntry -Type Archive -Include *.psd1 |
                 Get-ZipEntryContent -Raw |
                 Invoke-Expression |
-                Should -BeOfType ([System.Collections.IDictionary])
+                Should -BeOfType ([IDictionary])
         }
 
         It 'Should throw when a Stream is Diposed' {
@@ -202,7 +323,7 @@ Describe 'ZipEntry Cmdlets' {
                     $stream | Get-ZipEntry -Type Archive -Include *.psd1
                 }
                 $entry | Get-ZipEntryContent -Raw
-            } | Should -Throw -ExceptionType ([System.ObjectDisposedException])
+            } | Should -Throw -ExceptionType ([ObjectDisposedException])
         }
 
         It 'Should not throw when an instance wrapped in PSObject is passed as Encoding argument' {
@@ -210,11 +331,11 @@ Describe 'ZipEntry Cmdlets' {
             { $zip | Get-ZipEntry -Type Archive | Get-ZipEntryContent -Encoding $enc } |
                 Should -Not -Throw
 
-            $enc = [System.Text.Encoding]::UTF8 | Write-Output
+            $enc = [Encoding]::UTF8 | Write-Output
             { $zip | Get-ZipEntry -Type Archive | Get-ZipEntryContent -Encoding $enc } |
                 Should -Not -Throw
 
-            $enc = [System.Text.Encoding]::UTF8.CodePage | Write-Output
+            $enc = [Encoding]::UTF8.CodePage | Write-Output
             { $zip | Get-ZipEntry -Type Archive | Get-ZipEntryContent -Encoding $enc } |
                 Should -Not -Throw
         }
@@ -237,6 +358,81 @@ Describe 'ZipEntry Cmdlets' {
         }
     }
 
+    Context 'Get-TarEntryContent' -Tag 'Get-TarEntryContent' {
+        It 'Can read content from tar file entries' {
+            $tarArchives | Get-TarEntry -Type Archive |
+                Get-TarEntryContent |
+                Should -Match '^\d+$'
+
+            $tarArchives | Get-TarEntry -Type Archive |
+                Get-TarEntryContent -Raw |
+                Should -Match '^\d+$'
+        }
+
+        It 'Can read content from tar file entries created from input Stream' {
+            foreach ($archive in $tarArchives) {
+                if ($archive.Extension -eq '.tar') {
+                    $algo = 'none'
+                }
+                else {
+                    $algo = $archive.Extension.TrimStart('.')
+                }
+
+                Use-Object ($stream = $archive.OpenRead()) {
+                    $stream | Get-TarEntry -Algorithm $algo -Type Archive |
+                        Get-TarEntryContent |
+                        Should -Match '^\d+$'
+                }
+            }
+        }
+
+        It 'Should throw when a Stream is Diposed' {
+            foreach ($archive in $tarArchives) {
+                if ($archive.Extension -eq '.tar') {
+                    $algo = 'none'
+                }
+                else {
+                    $algo = $archive.Extension.TrimStart('.')
+                }
+
+                $entry = Use-Object ($stream = $archive.OpenRead()) {
+                    $stream | Get-TarEntry -Algorithm $algo -Type Archive
+                }
+
+                { $entry | Get-TarEntryContent } | Should -Throw
+            }
+        }
+
+        It 'Should not throw when an instance wrapped in PSObject is passed as Encoding argument' {
+            $enc = Write-Output utf8
+            { $tarArchives | Get-TarEntry -Type Archive | Get-TarEntryContent -Encoding $enc } |
+                Should -Not -Throw
+
+            $enc = [Encoding]::UTF8 | Write-Output
+            { $tarArchives | Get-TarEntry -Type Archive | Get-TarEntryContent -Encoding $enc } |
+                Should -Not -Throw
+
+            $enc = [Encoding]::UTF8.CodePage | Write-Output
+            { $tarArchives | Get-TarEntry -Type Archive | Get-TarEntryContent -Encoding $enc } |
+                Should -Not -Throw
+        }
+
+        It 'Can read bytes from tar file entries' {
+            $tarArchives | Get-TarEntry -Type Archive | Get-TarEntryContent -AsByteStream |
+                Should -BeOfType ([byte])
+        }
+
+        It 'Can output a byte array when using the -Raw switch' {
+            $tarArchives | Get-TarEntry -Type Archive | Get-TarEntryContent -AsByteStream -Raw |
+                Should -BeOfType ([byte[]])
+        }
+
+        It 'Should not attempt to read a directory entry' {
+            { $tarArchives | Get-TarEntry -Type Directory | Get-TarEntryContent } |
+                Should -Throw
+        }
+    }
+
     Context 'Remove-ZipEntry' -Tag 'Remove-ZipEntry' {
         It 'No entry is removed with -WhatIf' {
             $zip | Get-ZipEntry | Remove-ZipEntry -WhatIf
@@ -252,7 +448,7 @@ Describe 'ZipEntry Cmdlets' {
 
         It 'Should throw if trying to remove entries created from input Stream' {
             { Invoke-WebRequest $uri | Get-ZipEntry | Remove-ZipEntry } |
-                Should -Throw -ExceptionType ([System.NotSupportedException])
+                Should -Throw -ExceptionType ([NotSupportedException])
         }
 
         It 'Can remove directory entries' {
@@ -274,9 +470,7 @@ Describe 'ZipEntry Cmdlets' {
     Context 'Set-ZipEntryContent' -Tag 'Set-ZipEntryContent' {
         BeforeAll {
             $content = 'hello', 'world', '!'
-            [byte[]] $bytes = $content | ForEach-Object {
-                [System.Text.Encoding]::UTF8.GetBytes($_)
-            }
+            [byte[]] $bytes = $content | ForEach-Object { [Encoding]::UTF8.GetBytes($_) }
             $entry = New-ZipEntry $zip.FullName -EntryPath test\helloworld.txt
             $entry, $content, $bytes | Out-Null
         }
@@ -286,13 +480,13 @@ Describe 'ZipEntry Cmdlets' {
             $entry | Get-ZipEntryContent | Should -BeExactly $content
             $entry | Get-ZipEntryContent -Raw |
                 ForEach-Object TrimEnd |
-                Should -BeExactly ($content -join [System.Environment]::NewLine)
+                Should -BeExactly ($content -join [Environment]::NewLine)
         }
 
         It 'Should throw if trying to write content to entries created from input Stream' {
             $entry = Invoke-WebRequest $uri | Get-ZipEntry -Include *.psd1
             { 'test' | Set-ZipEntryContent $entry } |
-                Should -Throw -ExceptionType ([System.NotSupportedException])
+                Should -Throw -ExceptionType ([NotSupportedException])
         }
 
         It 'Can append content to a zip file entry' {
@@ -301,7 +495,7 @@ Describe 'ZipEntry Cmdlets' {
             $entry | Get-ZipEntryContent | Should -BeExactly $newContent
             $entry | Get-ZipEntryContent -Raw |
                 ForEach-Object TrimEnd |
-                Should -BeExactly ($newContent -join [System.Environment]::NewLine)
+                Should -BeExactly ($newContent -join [Environment]::NewLine)
         }
 
         It 'Can write raw bytes to a zip file entry' {
@@ -354,7 +548,7 @@ Describe 'ZipEntry Cmdlets' {
 
         It 'Should throw if trying to rename entries created from input Stream' {
             { Invoke-WebRequest $uri | Get-ZipEntry | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
-                Should -Throw -ExceptionType ([System.NotSupportedException])
+                Should -Throw -ExceptionType ([NotSupportedException])
         }
 
         It 'Produces output with -PassThru' {
@@ -391,7 +585,7 @@ Describe 'ZipEntry Cmdlets' {
         }
 
         It 'Should throw if using invalid FileName chars' {
-            $invalidChars = [System.IO.Path]::GetInvalidFileNameChars()
+            $invalidChars = [Path]::GetInvalidFileNameChars()
 
             { $zip | Get-ZipEntry -Type Archive |
                 Rename-ZipEntry -NewName { $_.Name + $invalidChars[0] } } |
@@ -429,10 +623,10 @@ Describe 'ZipEntry Cmdlets' {
         It 'Can extract zip file entries created from input Stream' {
             Invoke-WebRequest $uri | Get-ZipEntry -Type Archive -Include *.psd1 |
                 Expand-ZipEntry -Destination $destination -PassThru -OutVariable psd1 |
-                Should -BeOfType ([System.IO.FileInfo])
+                Should -BeOfType ([FileInfo])
 
             Get-Content $psd1.FullName -Raw | Invoke-Expression |
-                Should -BeOfType ([System.Collections.IDictionary])
+                Should -BeOfType ([IDictionary])
 
             $psd1.Delete()
         }
@@ -443,7 +637,18 @@ Describe 'ZipEntry Cmdlets' {
                     $stream | Get-ZipEntry -Type Archive -Include *.psd1
                 }
                 $entry | Expand-ZipEntry -Destination $destination -Force
-            } | Should -Throw -ExceptionType ([System.ObjectDisposedException])
+            } | Should -Throw -ExceptionType ([ObjectDisposedException])
+        }
+
+        It 'Should extract entries to the current directory when -Destination is not specified' {
+            try {
+                New-Item expandToCurrent -ItemType Directory | Push-Location
+                { $zip | Get-ZipEntry | Expand-ZipEntry } | Should -Not -Throw
+                Get-ChildItem | Should -Not -HaveCount 0
+            }
+            finally {
+                Pop-Location
+            }
         }
 
         It 'Should throw when -Destination is an invalid path' {
@@ -474,6 +679,104 @@ Describe 'ZipEntry Cmdlets' {
 
             Get-ChildItem -LiteralPath $destination -Recurse -File |
                 ForEach-Object { $_ | Get-Content | Should -BeExactly $content }
+        }
+    }
+
+    Context 'Expand-TarEntry' -Tag 'Expand-TarEntry' {
+        It 'Can extract entries to a destination directory' {
+            $tarArchives | ForEach-Object {
+                $destination = "extract_$($_.Extension)"
+
+                { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination } |
+                    Should -Not -Throw
+
+                Get-ChildItem $destination -Recurse |
+                    Should -HaveCount $totalCount
+            }
+        }
+
+        It 'Can extract tar entries created from input Stream' {
+            foreach ($archive in $tarArchives) {
+                if ($archive.Extension -eq '.tar') {
+                    $algo = 'none'
+                }
+                else {
+                    $algo = $archive.Extension.TrimStart('.')
+                }
+
+                $destination = "extract_${algo}_fromStream"
+
+                $result = Use-Object ($stream = $archive.OpenRead()) {
+                    $stream | Get-TarEntry -Algorithm $algo |
+                        Expand-TarEntry -Destination $destination -PassThru
+                }
+
+                $result | Should -BeOfType ([FileSystemInfo])
+                $result | Should -HaveCount $totalCount
+            }
+        }
+
+        It 'Should throw when a Stream is Diposed' {
+            foreach ($archive in $tarArchives) {
+                if ($archive.Extension -eq '.tar') {
+                    $algo = 'none'
+                }
+                else {
+                    $algo = $archive.Extension.TrimStart('.')
+                }
+
+                $destination = "extract_$($_.Extension)_fromStream"
+
+                $entries = Use-Object ($stream = $archive.OpenRead()) {
+                    $stream | Get-TarEntry -Algorithm $algo
+                }
+
+                { $entries | Expand-TarEntry -Destination $destination } |
+                    Should -Throw
+            }
+        }
+
+        It 'Should throw when -Destination is an invalid path' {
+            { $tarArchives | Get-TarEntry | Expand-TarEntry -Destination function: } |
+                Should -Throw
+        }
+
+        It 'Should throw if the destination path argument belongs to a file' {
+            $tarArchive = $tarArchives[0]
+            { $tarArchive | Get-TarEntry | Expand-TarEntry -Destination $tarArchive.FullName } |
+                Should -Throw
+        }
+
+        It 'Should not overwrite files without -Force' {
+            $tarArchives | ForEach-Object {
+                $destination = "extract_$($_.Extension)"
+
+                { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination } |
+                    Should -Throw -ExceptionType ([IOException])
+            }
+        }
+
+        It 'Can overwrite files if using -Force' {
+            $tarArchives | ForEach-Object {
+                $destination = "extract_$($_.Extension)"
+
+                { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination -Force } |
+                    Should -Not -Throw
+            }
+        }
+
+        It 'Should extract entries to the current directory when -Destination is not specified' {
+            foreach ($archive in $tarArchives) {
+                try {
+                    New-Item "expandToCurrent_$($archive.Extension)" -ItemType Directory | Push-Location
+                    { $archive | Get-TarEntry | Expand-TarEntry } | Should -Not -Throw
+                    Get-ChildItem | Should -Not -HaveCount 0
+                }
+                finally {
+                    Pop-Location
+                }
+
+            }
         }
     }
 }

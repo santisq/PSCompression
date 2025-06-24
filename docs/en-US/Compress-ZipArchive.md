@@ -17,8 +17,8 @@ The `Compress-ZipArchive` cmdlet creates a compressed, or zipped, archive file f
 
 ```powershell
 Compress-ZipArchive
-    -Path <String[]>
-    -Destination <String>
+    [-Path] <String[]>
+    [-Destination] <String>
     [-CompressionLevel <CompressionLevel>]
     [-Update]
     [-Force]
@@ -32,7 +32,7 @@ Compress-ZipArchive
 ```powershell
 Compress-ZipArchive
     -LiteralPath <String[]>
-    -Destination <String>
+    [-Destination] <String>
     [-CompressionLevel <CompressionLevel>]
     [-Update]
     [-Force]
@@ -126,16 +126,14 @@ exclusion patterns are tested against the items `.FullName` property.
 
 ### -Path
 
-Specifies the path or paths to the files that you want to add to the archive zipped file. To specify multiple paths, and include files in multiple locations, use commas to separate the paths.
-
-This parameter accepts wildcard characters. Wildcard characters allow you to add all files in a directory to your archive file.
+Specifies the path or paths to the files or directories to include in the archive file. To specify multiple paths and include files from multiple locations, use commas to separate the paths. This parameter accepts wildcard characters, allowing you to include all files in a directory or match specific patterns.
 
 > [!TIP]
 > Using wildcards with a root directory affects the archive's contents:
 >
-> - To create an archive that includes the root directory, and all its files and subdirectories, specify the root directory in the Path without wildcards. For example: `-Path C:\Reference`
-> - To create an archive that excludes the root directory, but zips all its files and subdirectories, use the asterisk (`*`) wildcard. For example: `-Path C:\Reference\*`
-> - To create an archive that only zips the files in the root directory, use the star-dot-star (`*.*`) wildcard. Subdirectories of the root aren't included in the archive. For example: `-Path C:\Reference\*.*`
+> - To create an archive that includes the root directory and all its files and subdirectories, specify the root directory without wildcards. For example: `-Path C:\Reference`
+> - To create an archive that excludes the root directory but includes all its files and subdirectories, use the asterisk (`*`) wildcard. For example: `-Path C:\Reference\*`
+> - To create an archive that only includes files in the root directory (excluding subdirectories), use the star-dot-star (`*.*`) wildcard. For example: `-Path C:\Reference\*.*`
 
 ```yaml
 Type: String[]
@@ -151,9 +149,7 @@ Accept wildcard characters: True
 
 ### -LiteralPath
 
-Specifies the path or paths to the files that you want to add to the archive zipped file.
-Unlike the Path `-Parameter`, the value of `-LiteralPath` is used exactly as it's typed.
-No characters are interpreted as wildcards
+Specifies the exact path or paths to the files or directories to include in the archive file. Unlike the `-Path` parameter, the value of `-LiteralPath` is used exactly as typed, with no wildcard character interpretation.
 
 ```yaml
 Type: String[]
@@ -172,7 +168,7 @@ Accept wildcard characters: False
 This parameter is required and specifies the path to the archive output file. The destination should include the name of the zipped file, and either the absolute or relative path to the zipped file.
 
 > [!NOTE]
-> If the file name does not have an extension, the cmdlet appends the `.zip` file name extension.
+> If the file name lacks an extension, the cmdlet appends the `.zip` file name extension.
 
 ```yaml
 Type: String
@@ -205,9 +201,7 @@ Accept wildcard characters: False
 
 ### -Exclude
 
-Specifies an array of one or more string patterns to be matched as the cmdlet gets child items.
-Any matching item is excluded from the created zip archive.
-Wildcard characters are accepted.
+Specifies an array of string patterns to exclude files or directories from the archive. Matching items are excluded based on their `.FullName` property. Wildcard characters are supported.
 
 > [!NOTE]
 > Patterns are tested against the object's `.FullName` property.
@@ -245,7 +239,7 @@ Accept wildcard characters: False
 
 ### -Force
 
-Overwrites the destination archive if exists otherwise it creates a new one. All Zip entries are lost.
+Overwrites the destination archive if exists otherwise it creates a new one. All existing entries are lost.
 
 > [!NOTE]
 > If `-Force` and `-Update` are used together this cmdlet will add or update entries.
@@ -284,9 +278,9 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### String
+### System.String[]
 
-You can pipe a string that contains a path to one or more files. Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
+You can pipe strings containing paths to files or directories. Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
 
 ## OUTPUTS
 
@@ -294,10 +288,18 @@ You can pipe a string that contains a path to one or more files. Output from `Ge
 
 By default, this cmdlet produces no output.
 
-### FileInfo
+### System.IO.FileInfo
 
 When the `-PassThru` switch is used this cmdlet outputs the `FileInfo` instance representing the compressed file.
 
 ## NOTES
 
 This cmdlet was initially posted to address [this Stack Overflow question](https://stackoverflow.com/a/72611161/15339544). [Another question](https://stackoverflow.com/q/74129754/15339544) in the same site pointed out another limitation with the native cmdlet, it can't compress if another process has a handle on a file. To overcome this issue, and also to emulate explorer's behavior when compressing files used by another process, the cmdlet defaults to __[`FileShare 'ReadWrite, Delete'`](https://learn.microsoft.com/en-us/dotnet/api/system.io.fileshare?view=net-6.0)__ when opening a [`FileStream`](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.open?view=net-7.0).
+
+## RELATED LINKS
+
+[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)
+
+[__ZipArchive Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive)
+
+[__ZipArchiveEntry Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchiveentry)

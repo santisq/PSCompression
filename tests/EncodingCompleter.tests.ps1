@@ -1,32 +1,34 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿using namespace System.IO
 
-$moduleName = (Get-Item ([IO.Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
-$manifestPath = [IO.Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
+$ErrorActionPreference = 'Stop'
+
+$moduleName = (Get-Item ([Path]::Combine($PSScriptRoot, '..', 'module', '*.psd1'))).BaseName
+$manifestPath = [Path]::Combine($PSScriptRoot, '..', 'output', $moduleName)
 
 Import-Module $manifestPath
-Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'shared.psm1'))
-
-BeforeAll {
-    $encodingSet = @(
-        'ascii'
-        'bigendianUtf32'
-        'unicode'
-        'utf8'
-        'utf8NoBOM'
-        'bigendianUnicode'
-        'oem'
-        'utf8BOM'
-        'utf32'
-
-        if ($osIsWindows) {
-            'ansi'
-        }
-    )
-
-    $encodingSet | Out-Null
-}
+Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
 Describe 'EncodingCompleter Class' {
+    BeforeAll {
+        $encodingSet = @(
+            'ascii'
+            'bigendianUtf32'
+            'unicode'
+            'utf8'
+            'utf8NoBOM'
+            'bigendianUnicode'
+            'oem'
+            'utf8BOM'
+            'utf32'
+
+            if ($osIsWindows) {
+                'ansi'
+            }
+        )
+
+        $encodingSet | Out-Null
+    }
+
     It 'Completes results from a completion set' {
         (Complete 'Test-Completer ').CompletionText |
             Should -BeExactly $encodingSet
@@ -39,10 +41,10 @@ Describe 'EncodingCompleter Class' {
 
     It 'Should not offer ansi as a completion result if the OS is not Windows' {
         if ($osIsWindows) {
+            (Complete 'Test-Completer ansi').CompletionText | Should -Not -BeNullOrEmpty
             return
         }
 
-        (Complete 'Test-Completer ansi').CompletionText |
-            Should -BeNullOrEmpty
+        (Complete 'Test-Completer ansi').CompletionText | Should -BeNullOrEmpty
     }
 }

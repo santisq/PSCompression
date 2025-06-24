@@ -11,7 +11,7 @@
     RootModule         = 'bin/netstandard2.0/PSCompression.dll'
 
     # Version number of this module.
-    ModuleVersion      = '2.1.0'
+    ModuleVersion      = '3.0.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -29,7 +29,7 @@
     Copyright          = '(c) Santiago Squarzon. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description        = 'Zip and GZip utilities for PowerShell!'
+    Description        = 'Zip, tar, and string compression utilities for PowerShell!'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion  = '5.1'
@@ -83,10 +83,19 @@
         'Expand-ZipEntry'
         'ConvertTo-GzipString'
         'ConvertFrom-GzipString'
-        'Expand-GzipArchive'
-        'Compress-GzipArchive'
         'Compress-ZipArchive'
         'Rename-ZipEntry'
+        'ConvertFrom-ZLibString'
+        'ConvertTo-ZLibString'
+        'ConvertFrom-DeflateString'
+        'ConvertTo-DeflateString'
+        'ConvertFrom-BrotliString'
+        'ConvertTo-BrotliString'
+        'Compress-TarArchive'
+        'Get-TarEntry'
+        'Get-TarEntryContent'
+        'Expand-TarEntry'
+        'Expand-TarArchive'
     )
 
     # Variables to export from this module
@@ -94,13 +103,27 @@
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
     AliasesToExport    = @(
-        'gziptofile'
-        'gzipfromfile'
-        'gziptostring'
-        'gzipfromstring'
-        'zip'
-        'ziparchive'
-        'gze'
+        'tarcompress'       # Compress-TarArchive
+        'zipcompress'       # Compress-ZipArchive
+        'frombrotlistring'  # ConvertFrom-BrotliString
+        'fromdeflatestring' # ConvertFrom-DeflateString
+        'fromgzipstring'    # ConvertFrom-GzipString
+        'fromzlibstring'    # ConvertFrom-ZlibString
+        'tobrotlistring'    # ConvertTo-BrotliString
+        'todeflatestring'   # ConvertTo-DeflateString
+        'togzipstring'      # ConvertTo-GzipString
+        'tozlibstring'      # ConvertTo-ZlibString
+        'untar'             # Expand-TarArchive
+        'untarentry'        # Expand-TarEntry
+        'unzipentry'        # Expand-ZipEntry
+        'targe'             # Get-TarEntry
+        'targec'            # Get-TarEntryContent
+        'zipge'             # Get-ZipEntry
+        'zipgec'            # Get-ZipEntryContent
+        'zipne'             # New-ZipEntry
+        'ziprm'             # Remove-ZipEntry
+        'zipren'            # Rename-ZipEntry
+        'zipsc'             # Set-ZipEntryContent
     )
 
     # DSC resources to export from this module
@@ -120,9 +143,26 @@
                 'powershell'
                 'zip'
                 'zip-compression'
+                'tar'
+                'tar-compression'
                 'gzip'
                 'gzip-compression'
+                'bzip2'
+                'bzip2-compression'
+                'zstd'
+                'zstd-compression'
+                'lzip'
+                'lzip-compression'
+                'brotli'
+                'brotli-compression'
+                'zlib'
+                'zlib-compression'
+                'deflate'
+                'deflate-compression'
                 'compression'
+                'decompression'
+                'archive'
+                'cross-platform'
                 'csharp'
             )
 

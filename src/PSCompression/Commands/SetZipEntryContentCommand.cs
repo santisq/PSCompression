@@ -7,6 +7,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Set, "ZipEntryContent", DefaultParameterSetName = "StringValue")]
 [OutputType(typeof(ZipEntryFile))]
+[Alias("zipsc")]
 public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
 {
     private ZipContentWriter? _zipWriter;

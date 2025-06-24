@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Management.Automation;
+using PSCompression.Abstractions;
 using PSCompression.Exceptions;
 using PSCompression.Extensions;
 
@@ -9,6 +10,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Rename, "ZipEntry", SupportsShouldProcess = true)]
 [OutputType(typeof(ZipEntryFile), typeof(ZipEntryDirectory))]
+[Alias("zipren")]
 public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _zipArchiveCache = new(ZipArchiveMode.Update);
@@ -85,7 +87,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             _zipEntryCache
                 .AddRange(_moveCache.GetPassThruMappings())
                 .GetEntries()
-                .ZipEntrySort(),
+                .ToEntrySort(),
             enumerateCollection: true);
     }
 

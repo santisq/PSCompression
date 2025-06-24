@@ -40,7 +40,7 @@ Get-ZipEntry
 ```powershell
 Get-ZipEntry
    -InputStream <Stream>
-   [-Type <ZipEntryType>]
+   [-Type <EntryType>]
    [-Include <String[]>]
    [-Exclude <String[]>]
    [<CommonParameters>]
@@ -84,7 +84,7 @@ PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-us*
 
 Type                    LastWriteTime  CompressedSize            Size Name
 ----                    -------------  --------------            ---- ----
-Directory          2/22/2024  1:19 PM         0.00  B         0.00  B en-US
+Directory          2/22/2024  1:19 PM         0.00  B                 en-US
 Archive            2/22/2024  1:19 PM         2.08 KB         6.98 KB Compress-GzipArchive.md
 Archive            2/22/2024  1:19 PM         2.74 KB         8.60 KB Compress-ZipArchive.md
 Archive            2/22/2024  1:19 PM         1.08 KB         2.67 KB ConvertFrom-GzipString.md
@@ -105,7 +105,7 @@ PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-us* 
 
 Type                    LastWriteTime  CompressedSize            Size Name
 ----                    -------------  --------------            ---- ----
-Directory          2/22/2024  1:19 PM         0.00  B         0.00  B en-US
+Directory          2/22/2024  1:19 PM         0.00  B                 en-US
 Archive            2/22/2024  1:19 PM         1.08 KB         2.67 KB ConvertFrom-GzipString.md
 Archive            2/22/2024  1:19 PM         1.67 KB         4.63 KB ConvertTo-GzipString.md
 Archive            2/22/2024  1:19 PM         1.74 KB         6.28 KB Expand-GzipArchive.md
@@ -170,10 +170,10 @@ Archive            11/6/2024 10:29 PM       635.00  B         1.55 KB 3212d87de0
 
 ### -Type
 
-Lists entries of a specified type, `Archive` or `Directory`.
+Filters entries by type: `Archive` for files or `Directory` for directories.
 
 ```yaml
-Type: ZipEntryType
+Type: EntryType
 Parameter Sets: (All)
 Aliases:
 Accepted values: Directory, Archive
@@ -187,11 +187,10 @@ Accept wildcard characters: False
 
 ### -Exclude
 
-Specifies an array of one or more string patterns to be matched as the cmdlet lists entries. Any matching item is excluded from the output. Wildcard characters are accepted.
+Specifies an array of string patterns to match as the cmdlet lists entries. Matching entries are excluded from the output. Wildcard characters are supported.
 
 > [!NOTE]
-> Inclusion and Exclusion patterns are applied to the entries relative path.
-Exclusions are applied after the inclusions.
+> Inclusion and exclusion patterns are applied to the entries’ relative paths. Exclusions are applied after inclusions.
 
 ```yaml
 Type: String[]
@@ -207,11 +206,10 @@ Accept wildcard characters: True
 
 ### -Include
 
-Specifies an array of one or more string patterns to be matched as the cmdlet lists entries. Any matching item is included in the output. Wildcard characters are accepted.
+Specifies an array of string patterns to match as the cmdlet lists entries. Matching entries are included in the output. Wildcard characters are supported.
 
 > [!NOTE]
-> Inclusion and Exclusion patterns are applied to the entries relative path.
-Exclusions are applied after the inclusions.
+> Inclusion and exclusion patterns are applied to the entries’ relative paths. Exclusions are applied after inclusions.
 
 ```yaml
 Type: String[]
@@ -259,7 +257,7 @@ Accept wildcard characters: True
 
 ### -InputStream
 
-Specifies an input stream.
+Specifies an input stream containing a zip archive.
 
 > [!TIP]
 > Output from `Invoke-WebRequest` is bound to this paremeter automatically.
@@ -292,6 +290,6 @@ You can pipe a Stream to this cmdlet. Output from `Invoke-WebRequest` can be pip
 
 ## OUTPUTS
 
-### ZipEntryDirectory
+### PSCompression.ZipEntryDirectory
 
-### ZipEntryFile
+### PSCompression.ZipEntryFile

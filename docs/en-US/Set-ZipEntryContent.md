@@ -224,7 +224,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### Object
+### System.Object
 
 You can pipe strings or bytes to this cmdlet.
 
@@ -234,6 +234,6 @@ You can pipe strings or bytes to this cmdlet.
 
 This cmdlet produces no output by default .
 
-### ZipEntryFile
+### PSCompression.ZipEntryFile
 
 This cmdlet outputs the updated entry when the `-PassThru` switch is used.

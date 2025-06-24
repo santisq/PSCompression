@@ -1,7 +1,6 @@
 using System;
-using System.IO.Compression;
 using System.Management.Automation;
-using System.Text;
+using PSCompression.Abstractions;
 using PSCompression.Exceptions;
 
 namespace PSCompression.Commands;
@@ -9,37 +8,18 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsCommon.Get, "ZipEntryContent", DefaultParameterSetName = "Stream")]
 [OutputType(typeof(string), ParameterSetName = ["Stream"])]
 [OutputType(typeof(byte), ParameterSetName = ["Bytes"])]
-[Alias("gczip")]
-public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
+[Alias("zipgec")]
+public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEntryFile>, IDisposable
 {
     private readonly ZipArchiveCache _cache = new();
 
-    [Parameter(Mandatory = true, ValueFromPipeline = true)]
-    public ZipEntryFile[] ZipEntry { get; set; } = null!;
-
-    [Parameter(ParameterSetName = "Stream")]
-    [ArgumentCompleter(typeof(EncodingCompleter))]
-    [EncodingTransformation]
-    [ValidateNotNullOrEmpty]
-    public Encoding Encoding { get; set; } = new UTF8Encoding();
-
-    [Parameter]
-    public SwitchParameter Raw { get; set; }
-
-    [Parameter(ParameterSetName = "Bytes")]
-    public SwitchParameter AsByteStream { get; set; }
-
-    [Parameter(ParameterSetName = "Bytes")]
-    [ValidateNotNullOrEmpty]
-    public int BufferSize { get; set; } = 128_000;
-
     protected override void ProcessRecord()
     {
-        foreach (ZipEntryFile entry in ZipEntry)
+        foreach (ZipEntryFile entry in Entry)
         {
             try
             {
-                ZipContentReader reader = new(GetOrAdd(entry));
+                ZipContentReader reader = new(_cache.GetOrAdd(entry));
                 ReadEntry(entry, reader);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
@@ -55,32 +35,26 @@ public sealed class GetZipEntryContentCommand : PSCmdlet, IDisposable
 
     private void ReadEntry(ZipEntryFile entry, ZipContentReader reader)
     {
-        if (AsByteStream.IsPresent)
+        if (AsByteStream)
         {
-            if (Raw.IsPresent)
+            if (Raw)
             {
-                WriteObject(reader.ReadAllBytes(entry));
+                reader.ReadAllBytes(entry, this);
                 return;
             }
 
-            WriteObject(
-                reader.StreamBytes(entry, BufferSize),
-                enumerateCollection: true);
+            reader.StreamBytes(entry, BufferSize, this);
             return;
         }
 
         if (Raw.IsPresent)
         {
-            WriteObject(reader.ReadToEnd(entry, Encoding));
+            reader.ReadToEnd(entry, Encoding, this);
             return;
         }
 
-        WriteObject(
-            reader.StreamLines(entry, Encoding),
-            enumerateCollection: true);
+        reader.StreamLines(entry, Encoding, this);
     }
-
-    private ZipArchive GetOrAdd(ZipEntryFile entry) => _cache.GetOrAdd(entry);
 
     public void Dispose()
     {

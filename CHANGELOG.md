@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## 06/23/2025
+
+- Added commands supporting several algorithms to compress and decompress strings:
+    - `ConvertFrom-BrotliString` & `ConvertTo-BrotliString` (using to BrotliSharpLib)
+    - `ConvertFrom-DeflateString` & `ConvertTo-DeflateString` (from CLR)
+    - `ConvertFrom-ZlibString` & `ConvertTo-ZlibString` (custom implementation)
+- Added commands for `.tar` entry management with a reduced set of operations compared to `zip` entry management:
+    - `Get-TarEntry`: Lists entries, serving as the main entry point for `TarEntry` cmdlets.
+    - `Get-TarEntryContent`: Retrieves the content of a tar entry.
+    - `Expand-TarEntry`: Extracts a tar entry to a file.
+- Added commands to compress files and folders into `.tar` archives and extract `.tar` archives with various compression algorithms:
+    - `Compress-TarArchive` & `Expand-TarArchive`: Supported compression algorithms include `gz`, `bz2`, `zst`, `lz`, and `none` (no compression).
+- Removed commands:
+    - `Compress-GzipArchive` & `Expand-GzipArchive`: These were deprecated as they only supported single-file compression, which is now better handled by the module’s `.tar` archive functionality. For a workaround to compress or decompress single files using gzip, see [Example 2 in `ConvertTo-GzipString`][example2converttogzipstring], which demonstrates using:
+
+    ```powershell
+    [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-GzipString
+    ```
+
+This update was made possible by the following projects. If you find them helpful, please consider starring their repositories:
+
+- [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
+- [SharpCompress](https://github.com/adamhathcock/sharpcompress)
+- [BrotliSharpLib](https://github.com/master131/BrotliSharpLib)
+- [ZstdSharp](https://github.com/oleg-st/ZstdSharp)
+
 ## 01/10/2025
 
 - Code improvements.
@@ -38,3 +64,5 @@
     - Moved from `[PSCompression.ZipEntryExtensions]::NormalizePath` to `[PSCompression.Extensions.PathExtensions]::NormalizePath`.
 - `Get-ZipEntry` command:
     - Renamed Parameter `-EntryType` to `-Type`.
+
+[example2converttogzipstring]: https://github.com/santisq/PSCompression/blob/main/docs/en-US/ConvertTo-GzipString.md#example-2-create-a-gzip-compressed-file-from-a-string

@@ -6,7 +6,7 @@ using System.Management.Automation;
 using PSCompression.Exceptions;
 using PSCompression.Extensions;
 
-namespace PSCompression;
+namespace PSCompression.Abstractions;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class CommandWithPathBase : PSCmdlet

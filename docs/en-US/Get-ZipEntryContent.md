@@ -17,7 +17,7 @@ Gets the content of a zip entry.
 
 ```powershell
 Get-ZipEntryContent
-    -ZipEntry <ZipEntryFile[]>
+    -Entry <ZipEntryFile[]>
     [-Encoding <Encoding>]
     [-Raw]
     [<CommonParameters>]
@@ -27,7 +27,7 @@ Get-ZipEntryContent
 
 ```powershell
 Get-ZipEntryContent
-    -ZipEntry <ZipEntryFile[]>
+    -Entry <ZipEntryFile[]>
     [-Raw]
     [-AsByteStream]
     [-BufferSize <Int32>]
@@ -132,7 +132,7 @@ AliasesToExport                {gziptofile, gzipfromfile, gziptostring, gzipfrom
 
 ### -BufferSize
 
-This parameter determines the total number of bytes read into the buffer before outputting the stream of bytes. __This parameter is applicable only when `-Raw` is not used.__ The buffer default value is __128 KiB.__
+Determines the number of bytes read into the buffer before outputting the stream of bytes. This parameter applies only when `-Raw` is not used. The default buffer size is 128 KiB.
 
 ```yaml
 Type: Int32
@@ -148,11 +148,11 @@ Accept wildcard characters: False
 
 ### -Encoding
 
-The character encoding used to read the entry content.
+Specifies the character encoding used to read the entry content. . The default encoding is `utf8NoBOM`.
 
 > [!NOTE]
 >
-> - __This parameter is applicable only when `-AsByteStream` is not used.__
+> - This parameter applies only when `-AsByteStream` is not used.
 > - The default encoding is __`utf8NoBOM`__.
 
 ```yaml
@@ -169,7 +169,7 @@ Accept wildcard characters: False
 
 ### -Raw
 
-Ignores newline characters and returns the entire contents of an entry in one string with the newlines preserved. By default, newline characters in a file are used as delimiters to separate the input into an array of strings.
+Returns the entire contents of an entry as a single string with newlines preserved, ignoring newline characters. By default, newline characters are used to separate the content into an array of strings.
 
 ```yaml
 Type: SwitchParameter
@@ -183,9 +183,9 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ZipEntry
+### -Entry
 
-The entry or entries to get the content from. This parameter can be and is meant to be bound from pipeline however can be also used as a named parameter.
+The zip entry or entries to get the content from. This parameter is designed to accept pipeline input from `Get-ZipEntry` but can also be used as a named parameter.
 
 ```yaml
 Type: ZipEntryFile[]
@@ -221,16 +221,16 @@ This cmdlet supports the common parameters. See [about_CommonParameters](http://
 
 ## INPUTS
 
-### ZipEntryFile
+### PSCompression.ZipEntryFile
 
 You can pipe instances of `ZipEntryFile` to this cmdlet. These instances are produced by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
 
 ## OUTPUTS
 
-### String
+### System.String
 
 By default, this cmdlet returns the content as an array of strings, one per line. When the `-Raw` parameter is used, it returns a single string.
 
-### Byte
+### System.Byte
 
 This cmdlet returns the content as bytes when the `-AsByteStream` parameter is used.
