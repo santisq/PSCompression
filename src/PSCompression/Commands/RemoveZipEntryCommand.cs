@@ -8,6 +8,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Remove, "ZipEntry", SupportsShouldProcess = true)]
 [OutputType(typeof(void))]
+[Alias("ziprm")]
 public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _cache = new(ZipArchiveMode.Update);

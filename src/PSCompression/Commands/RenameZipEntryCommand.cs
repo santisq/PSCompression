@@ -10,6 +10,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Rename, "ZipEntry", SupportsShouldProcess = true)]
 [OutputType(typeof(ZipEntryFile), typeof(ZipEntryDirectory))]
+[Alias("zipren")]
 public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly ZipArchiveCache _zipArchiveCache = new(ZipArchiveMode.Update);

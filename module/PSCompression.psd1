@@ -103,20 +103,27 @@
 
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
     AliasesToExport    = @(
-        'togzipstring'
-        'fromgzipstring'
-        'zipcompress'
-        'fromzlibstring'
-        'tozlibstring'
-        'fromdeflatestring'
-        'todeflatestring'
-        'frombrotlistring'
-        'tobrotlistring'
-        'zipge'
-        'zipgc'
-        'tarcompress'
-        'targe'
-        'targc'
+        'tarcompress'       # Compress-TarArchive
+        'zipcompress'       # Compress-ZipArchive
+        'frombrotlistring'  # ConvertFrom-BrotliString
+        'fromdeflatestring' # ConvertFrom-DeflateString
+        'fromgzipstring'    # ConvertFrom-GzipString
+        'fromzlibstring'    # ConvertFrom-ZlibString
+        'tobrotlistring'    # ConvertTo-BrotliString
+        'todeflatestring'   # ConvertTo-DeflateString
+        'togzipstring'      # ConvertTo-GzipString
+        'tozlibstring'      # ConvertTo-ZlibString
+        'untar'             # Expand-TarArchive
+        'untarentry'        # Expand-TarEntry
+        'unzipentry'        # Expand-ZipEntry
+        'targe'             # Get-TarEntry
+        'targec'            # Get-TarEntryContent
+        'zipge'             # Get-ZipEntry
+        'zipgec'            # Get-ZipEntryContent
+        'zipne'             # New-ZipEntry
+        'ziprm'             # Remove-ZipEntry
+        'zipren'            # Rename-ZipEntry
+        'zipsc'             # Set-ZipEntryContent
     )
 
     # DSC resources to export from this module

@@ -10,7 +10,7 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsCommon.Get, "TarEntryContent", DefaultParameterSetName = "Stream")]
 [OutputType(typeof(string), ParameterSetName = ["Stream"])]
 [OutputType(typeof(byte), ParameterSetName = ["Bytes"])]
-[Alias("targc")]
+[Alias("targec")]
 public sealed class GetTarEntryContentCommand : GetEntryContentCommandBase<TarEntryFile>
 {
     private byte[]? _buffer;

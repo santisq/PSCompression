@@ -13,6 +13,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.New, "ZipEntry", DefaultParameterSetName = "Value")]
 [OutputType(typeof(ZipEntryDirectory), typeof(ZipEntryFile))]
+[Alias("zipne")]
 public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 {
     private readonly List<ZipArchiveEntry> _entries = [];

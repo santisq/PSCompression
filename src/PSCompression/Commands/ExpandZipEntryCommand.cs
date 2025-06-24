@@ -7,6 +7,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Expand, "ZipEntry")]
 [OutputType(typeof(FileInfo), typeof(DirectoryInfo))]
+[Alias("unzipentry")]
 public sealed class ExpandZipEntryCommand : ExpandEntryCommandBase<ZipEntryBase>, IDisposable
 {
     private readonly ZipArchiveCache _cache = new();

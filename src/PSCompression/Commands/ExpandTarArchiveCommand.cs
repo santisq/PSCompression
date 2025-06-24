@@ -14,6 +14,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Expand, "TarArchive")]
 [OutputType(typeof(FileInfo), typeof(DirectoryInfo))]
+[Alias("untar")]
 public sealed class ExpandTarArchiveCommand : CommandWithPathBase
 {
     private bool _shouldInferAlgo;
