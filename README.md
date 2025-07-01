@@ -153,7 +153,7 @@
   <tr>
     <td><a href="docs/en-US/ConvertTo-GzipString.md">ConvertTo-GzipString</a></td>
     <td><code>togzipstring</code></td>
-    <td>Compresses a string using Gzip to Base64 or raw bytes.</td>
+    <td>Compresses a string using Gzip.</td>
   </tr>
   <tr>
     <td><a href="docs/en-US/ConvertTo-ZlibString.md">ConvertTo-ZlibString</a></td>
