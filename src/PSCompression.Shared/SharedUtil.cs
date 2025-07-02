@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace PowerShellKusto.Shared;
+namespace PSCompression.Shared;
 
+[ExcludeFromCodeCoverage]
 internal sealed class SharedUtil
 {
     public static void AddAssemblyInfo(Type type, Dictionary<string, object> data)

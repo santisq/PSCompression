@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 
 namespace PSCompression.Shared;
 
+[ExcludeFromCodeCoverage]
 public sealed class LoadContext : AssemblyLoadContext
 {
     private static LoadContext? _instance;
@@ -65,8 +67,7 @@ public sealed class LoadContext : AssemblyLoadContext
                 Path.GetDirectoryName(assemblyPath)!,
                 $"{moduleName}.dll");
 
-            _instance = new LoadContext(modulePath);
-            return _instance._moduleAssembly;
+            return new LoadContext(modulePath)._moduleAssembly;
         }
     }
 }
