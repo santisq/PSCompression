@@ -2,7 +2,7 @@
 
 ## 07/02/2025
 
-- Added `AssemblyLoadContext` support for PowerShell 7 (.NET 8.0) to resolve DLL hell by isolating module dependencies. No support for PowerShell 5.1 (.NET Framework) due to lack of `AssemblyLoadContext` in that runtime.
+- Added `AssemblyLoadContext` support for PowerShell 7 (.NET 8.0 or later) to resolve DLL hell by isolating module dependencies. PowerShell 5.1 (.NET Framework) users can't get around this issue due to lack of `AssemblyLoadContext` in that runtime.
 
 ## 06/23/2025
 
