@@ -20,8 +20,6 @@
 - __Tar Entry Management__: List, extract, and retrieve content from individual tar entries.
 - __String Compression__: Compress and decompress strings using Brotli, Deflate, Gzip, and Zlib algorithms.
 
-# Cmdlets
-
 ## Cmdlets
 
 ### Zip Archive Cmdlets
