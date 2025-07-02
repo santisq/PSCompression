@@ -20,6 +20,10 @@
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.0' ">
+    <ProjectReference Include="../PSCompression.Shared/PSCompression.Shared.csproj" />
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>

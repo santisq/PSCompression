@@ -8,12 +8,7 @@
 
 @{
     # Script module or binary module file associated with this manifest.
-    RootModule         = if ($PSEdition -eq 'Core') {
-        'bin/net8.0/PSCompression.dll'
-    }
-    else {
-        'bin/netstandard2.0/PSCompression.dll'
-    }
+    RootModule         = 'PSCompression.psm1'
 
     # Version number of this module.
     ModuleVersion      = '3.0.1'
