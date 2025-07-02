@@ -18,13 +18,22 @@ public sealed class Project
 
     public string? TestFramework
     {
-        get => _info.PowerShellVersion is { Major: 5, Minor: 1 }
-            ? TargetFrameworks
-                .Where(e => Regex.Match(e, "^net(?:4|standard)").Success)
-                .FirstOrDefault()
-            : TargetFrameworks
-                .Where(e => !e.StartsWith("net4"))
-                .FirstOrDefault();
+        get
+        {
+            if (TargetFrameworks is { Length: 1 })
+            {
+                return TargetFrameworks.First();
+            }
+
+            return _info.PowerShellVersion is { Major: 5, Minor: 1 }
+                ? TargetFrameworks
+                    .Where(e => Regex.Match(e, "^net(?:4|standard)").Success)
+                    .FirstOrDefault()
+
+                : TargetFrameworks
+                    .Where(e => !Regex.Match(e, "^net(?:4|standard)").Success)
+                    .FirstOrDefault();
+        }
     }
 
     private Configuration Configuration { get => _info.Configuration; }
