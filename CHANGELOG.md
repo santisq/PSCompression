@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 07/02/2025
+
+- Added `AssemblyLoadContext` support for PowerShell 7 (.NET 8.0) to resolve DLL hell by isolating module dependencies. No support for PowerShell 5.1 (.NET Framework) due to lack of `AssemblyLoadContext` in that runtime.
+
 ## 06/23/2025
 
 - Added commands supporting several algorithms to compress and decompress strings:

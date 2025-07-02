@@ -113,6 +113,8 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
 
     private FileSystemInfo ExtractEntry(TarEntry entry, TarInputStream tar)
     {
+        Dbg.Assert(Destination is not null);
+
         string destination = IO.Path.GetFullPath(
             IO.Path.Combine(Destination, entry.Name));
 
@@ -124,7 +126,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
         }
 
         FileInfo file = new(destination);
-        file.Directory.Create();
+        file.Directory?.Create();
 
         using (FileStream destStream = File.Open(
             destination,

@@ -5,7 +5,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
-using BrotliSharpLib;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Tar;
 using SharpCompress.Compressors.LZMA;
@@ -54,7 +53,10 @@ internal static class CompressionExtensions
         this ZipArchive zip,
         string path,
         [NotNullWhen(true)] out ZipArchiveEntry? entry)
-        => (entry = zip.GetEntry(path)) is not null;
+    {
+        entry = zip.GetEntry(path);
+        return entry is not null;
+    }
 
     internal static string ChangeName(
         this ZipEntryFile file,
@@ -91,7 +93,7 @@ internal static class CompressionExtensions
 
     internal static void WriteLinesToPipeline(this StreamReader reader, PSCmdlet cmdlet)
     {
-        string line;
+        string? line;
         while ((line = reader.ReadLine()) is not null)
         {
             cmdlet.WriteObject(line);
@@ -114,11 +116,11 @@ internal static class CompressionExtensions
         }
     }
 
-    internal static BrotliStream AsBrotliCompressedStream(
+    internal static BrotliSharpLib.BrotliStream AsBrotliCompressedStream(
         this Stream stream,
         CompressionLevel compressionLevel)
     {
-        BrotliStream brotli = new(stream, CompressionMode.Compress);
+        BrotliSharpLib.BrotliStream brotli = new(stream, CompressionMode.Compress);
         brotli.SetQuality(compressionLevel switch
         {
             CompressionLevel.NoCompression => 0,

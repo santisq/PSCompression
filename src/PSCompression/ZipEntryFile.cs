@@ -55,11 +55,13 @@ public sealed class ZipEntryFile : ZipEntryBase
 
     internal void Refresh(ZipArchive zip)
     {
-        ZipArchiveEntry entry = zip.GetEntry(RelativePath);
-        Length = entry.Length;
-        CompressedLength = entry.CompressedLength;
+        if (zip.TryGetEntry(RelativePath, out ZipArchiveEntry? entry))
+        {
+            Length = entry.Length;
+            CompressedLength = entry.CompressedLength;
+        }
     }
 
     protected override string GetFormatDirectoryPath() =>
-        $"/{Path.GetDirectoryName(RelativePath).NormalizeEntryPath()}";
+        $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
 }

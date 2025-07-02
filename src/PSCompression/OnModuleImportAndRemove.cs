@@ -44,7 +44,7 @@ public class OnModuleImportAndRemove : IModuleAssemblyInitializer, IModuleAssemb
     /// <returns></returns>
     private static Assembly? MyResolveEventHandler(object? sender, ResolveEventArgs args)
     {
-        string libDirectory = Path.GetDirectoryName(typeof(OnModuleImportAndRemove).Assembly.Location);
+        string? libDirectory = Path.GetDirectoryName(typeof(OnModuleImportAndRemove).Assembly.Location);
         List<string> directoriesToSearch = [];
 
         if (!string.IsNullOrEmpty(libDirectory))
@@ -85,6 +85,6 @@ public class OnModuleImportAndRemove : IModuleAssemblyInitializer, IModuleAssemb
     /// Determine if the current runtime is .NET Framework
     /// </summary>
     /// <returns></returns>
-    private bool IsNetFramework() => RuntimeInformation.FrameworkDescription
+    private static bool IsNetFramework() => RuntimeInformation.FrameworkDescription
         .StartsWith(".NET Framework", StringComparison.OrdinalIgnoreCase);
 }
