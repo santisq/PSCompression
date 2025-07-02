@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace PSCompression.Abstractions;
@@ -11,6 +12,7 @@ public abstract class EntryBase(string source)
 
     internal string? FormatDirectoryPath { get => _formatDirectoryPath ??= GetFormatDirectoryPath(); }
 
+    [MemberNotNullWhen(true, nameof(_stream))]
     internal bool FromStream { get => _stream is not null; }
 
     public string Source { get; } = source;

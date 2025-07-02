@@ -69,7 +69,7 @@ public abstract class ToCompressedFileCommandBase<T> : CommandWithPathBase, IDis
 
         try
         {
-            Directory.CreateDirectory(IOPath.GetDirectoryName(Destination));
+            Directory.CreateDirectory(IOPath.GetDirectoryName(Destination)!);
 
             _destination = File.Open(Destination, FileMode);
             _archive = CreateCompressionStream(_destination);
@@ -116,7 +116,7 @@ public abstract class ToCompressedFileCommandBase<T> : CommandWithPathBase, IDis
     {
         _queue.Enqueue(dir);
         IEnumerable<FileSystemInfo> enumerator;
-        int length = dir.Parent.FullName.Length + 1;
+        int length = dir.Parent!.FullName.Length + 1;
 
         while (_queue.Count > 0)
         {

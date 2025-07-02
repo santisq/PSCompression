@@ -97,7 +97,7 @@ public abstract class ZipEntryBase(ZipArchiveEntry entry, string source) : Entry
 
     public FileSystemInfo ExtractTo(string destination, bool overwrite)
     {
-        using ZipArchive zip = _stream is not null
+        using ZipArchive zip = FromStream
             ? new ZipArchive(_stream, ZipArchiveMode.Read, leaveOpen: true)
             : ZipFile.OpenRead(Source);
 
@@ -120,10 +120,13 @@ public abstract class ZipEntryBase(ZipArchiveEntry entry, string source) : Entry
         }
 
         FileInfo file = new(destination);
-        file.Directory.Create();
+        file.Directory?.Create();
 
-        ZipArchiveEntry entry = zip.GetEntry(RelativePath);
-        entry.ExtractToFile(destination, overwrite);
+        if (zip.TryGetEntry(RelativePath, out ZipArchiveEntry? entry))
+        {
+            entry.ExtractToFile(destination, overwrite);
+        }
+
         return file;
     }
 }

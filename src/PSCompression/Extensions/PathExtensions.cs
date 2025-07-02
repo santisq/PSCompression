@@ -83,14 +83,14 @@ public static class PathExtensions
 
     internal static PSObject AppendPSProperties(this FileSystemInfo info)
     {
-        string parent = info is DirectoryInfo dir
-            ? dir.Parent.FullName
+        string? parent = info is DirectoryInfo dir
+            ? dir.Parent?.FullName
             : Unsafe.As<FileInfo>(info).DirectoryName;
 
         return info.AppendPSProperties(parent);
     }
 
-    internal static PSObject AppendPSProperties(this FileSystemInfo info, string parent)
+    internal static PSObject AppendPSProperties(this FileSystemInfo info, string? parent)
     {
         const string provider = @"Microsoft.PowerShell.Core\FileSystem::";
         PSObject pso = PSObject.AsPSObject(info);

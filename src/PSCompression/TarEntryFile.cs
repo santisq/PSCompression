@@ -30,7 +30,7 @@ public sealed class TarEntryFile : TarEntryBase
     }
 
     protected override string GetFormatDirectoryPath() =>
-        $"/{Path.GetDirectoryName(RelativePath).NormalizeEntryPath()}";
+        $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
 
     internal bool GetContentStream(Stream destination)
     {

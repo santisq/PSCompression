@@ -40,7 +40,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     public string[]? EntryPath
     {
         get => _entryPath;
-        set => _entryPath = [.. value.Select(e => e.NormalizePath())];
+        set => _entryPath = [.. value!.Select(e => e.NormalizePath())];
     }
 
     [Parameter]
@@ -194,17 +194,18 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         foreach (ZipArchiveEntry entry in _entries)
         {
-            if (string.IsNullOrEmpty(entry.Name))
+            if (!zip.TryGetEntry(entry.FullName, out ZipArchiveEntry? zipEntry))
             {
-                _result.Add(new ZipEntryDirectory(
-                    zip.GetEntry(entry.FullName),
-                    Destination));
                 continue;
             }
 
-            _result.Add(new ZipEntryFile(
-                zip.GetEntry(entry.FullName),
-                Destination));
+            if (string.IsNullOrEmpty(entry.Name))
+            {
+                _result.Add(new ZipEntryDirectory(zipEntry, Destination));
+                continue;
+            }
+
+            _result.Add(new ZipEntryFile(zipEntry, Destination));
         }
 
         return _result.ToEntrySort();
