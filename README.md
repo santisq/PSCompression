@@ -25,78 +25,42 @@
 ### Zip Archive Cmdlets
 
 <table>
-  <thead>
-    <tr>
-      <th style="text-align:left; width:280px;">Cmdlet</th>
-      <th style="text-align:left;">Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="vertical-align:top; padding:10px 0;">
-        <code><a href="docs/en-US/Compress-ZipArchive.md">Compress-ZipArchive</a></code>
-      </td>
-      <td style="vertical-align:top; padding:10px 0;">
-        Compresses files and folders into a zip archive, overcoming built-in PowerShell limitations.
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align:top; padding:10px 0;">
-        <code><a href="docs/en-US/Expand-ZipEntry.md">Expand-ZipEntry</a></code>
-      </td>
-      <td style="vertical-align:top; padding:10px 0;">
-        Extracts individual zip entries to a destination directory.
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align:top; padding:10px 0;">
-        <code><a href="docs/en-US/Get-ZipEntry.md">Get-ZipEntry</a></code>
-      </td>
-      <td style="vertical-align:top; padding:10px 0;">
-        Lists zip archive entries from paths or streams, serving as the entry point for zip cmdlets.
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align:top; padding:10px 0;">
-        <code><a href="docs/en-US/Get-ZipEntryContent.md">Get-ZipEntryContent</a></code>
-      </td>
-      <td style="vertical-align:top; padding:10px 0;">
-        Retrieves the content of zip entries as text or bytes.
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align:top; padding:10px 0;">
-        <code><a href="docs/en-US/New-ZipEntry.md">New-ZipEntry</a></code>
-      </td>
-      <td style="vertical-align:top; padding:10px 0;">
-        Adds new entries to a zip archive from files or paths.
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align:top; padding:10px 0;">
-        <code><a href="docs/en-US/Remove-ZipEntry.md">Remove-ZipEntry</a></code>
-      </td>
-      <td style="vertical-align:top; padding:10px 0;">
-        Removes entries from one or more zip archives.
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align:top; padding:10px 0;">
-        <code><a href="docs/en-US/Rename-ZipEntry.md">Rename-ZipEntry</a></code>
-      </td>
-      <td style="vertical-align:top; padding:10px 0;">
-        Renames entries in one or more zip archives.
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align:top; padding:10px 0;">
-        <code><a href="docs/en-US/Set-ZipEntryContent.md">Set-ZipEntryContent</a></code>
-      </td>
-      <td style="vertical-align:top; padding:10px 0;">
-        Sets or appends content to a zip entry.
-      </td>
-    </tr>
-  </tbody>
+  <tr>
+    <th>Cmdlet</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td width="220"><a href="docs/en-US/Compress-ZipArchive.md"><code>Compress-ZipArchive</code></a></td>
+    <td>Compresses files and folders into a zip archive, overcoming built-in PowerShell limitations.</td>
+  </tr>
+  <tr>
+    <td><a href="docs/en-US/Expand-ZipEntry.md"><code>Expand-ZipEntry</code></a></td>
+    <td>Extracts individual zip entries to a destination directory.</td>
+  </tr>
+  <tr>
+    <td><a href="docs/en-US/Get-ZipEntry.md"><code>Get-ZipEntry</code></a></td>
+    <td>Lists zip archive entries from paths or streams, serving as the entry point for zip cmdlets.</td>
+  </tr>
+  <tr>
+    <td><a href="docs/en-US/Get-ZipEntryContent.md"><code>Get-ZipEntryContent</code></a></td>
+    <td>Retrieves the content of zip entries as text or bytes.</td>
+  </tr>
+  <tr>
+    <td><a href="docs/en-US/New-ZipEntry.md"><code>New-ZipEntry</code></a></td>
+    <td>Adds new entries to a zip archive from files or paths.</td>
+  </tr>
+  <tr>
+    <td><a href="docs/en-US/Remove-ZipEntry.md"><code>Remove-ZipEntry</code></a></td>
+    <td>Removes entries from one or more zip archives.</td>
+  </tr>
+  <tr>
+    <td><a href="docs/en-US/Rename-ZipEntry.md"><code>Rename-ZipEntry</code></a></td>
+    <td>Renames entries in one or more zip archives.</td>
+  </tr>
+  <tr>
+    <td><a href="docs/en-US/Set-ZipEntryContent.md"><code>Set-ZipEntryContent</code></a></td>
+    <td>Sets or appends content to a zip entry.</td>
+  </tr>
 </table>
 
 > [!NOTE]
