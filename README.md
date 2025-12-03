@@ -33,7 +33,7 @@
   </thead>
   <tbody>
     <tr>
-      <td width="220">
+      <td width="250">
         <a href="docs/en-US/Compress-ZipArchive.md">Compress-ZipArchive</a> (<code>zipcompress</code>)
       </td>
       <td>Compresses files and folders into a zip archive, overcoming built-in PowerShell limitations.</td>
