@@ -13,16 +13,30 @@ using SharpCompressors = SharpCompress.Compressors;
 
 namespace PSCompression.Extensions;
 
-internal static class CompressionExtensions
+internal static partial class CompressionExtensions
 {
+    private const string DirectorySeparator = "/";
+
+#if NETCOREAPP
+    [GeneratedRegex(
+        @"[^/]+(?=/$)",
+        RegexOptions.Compiled | RegexOptions.RightToLeft)]
+    private static partial Regex GetDirectoryName();
+
+    private static readonly Regex s_reGetDirName = GetDirectoryName();
+
+    internal static string RelativeTo(this DirectoryInfo directory, int length) =>
+        string.Concat(directory.FullName.AsSpan(length), DirectorySeparator)
+            .NormalizeEntryPath();
+#else
     private static readonly Regex s_reGetDirName = new(
         @"[^/]+(?=/$)",
         RegexOptions.Compiled | RegexOptions.RightToLeft);
 
-    private const string _directorySeparator = "/";
-
     internal static string RelativeTo(this DirectoryInfo directory, int length) =>
-        (directory.FullName.Substring(length) + _directorySeparator).NormalizeEntryPath();
+        $"{directory.FullName.Substring(length)}{DirectorySeparator}"
+            .NormalizeEntryPath();
+#endif
 
     internal static string RelativeTo(this FileInfo file, int length) =>
         file.FullName.Substring(length).NormalizeFileEntryPath();
@@ -64,13 +78,13 @@ internal static class CompressionExtensions
     {
         string normalized = file.RelativePath.NormalizePath();
 
-        if (normalized.IndexOf(_directorySeparator) == -1)
+        if (!normalized.Contains(DirectorySeparator))
         {
             return newname;
         }
 
         return string.Join(
-            _directorySeparator,
+            DirectorySeparator,
             normalized.Substring(0, normalized.Length - file.Name.Length - 1),
             newname);
     }

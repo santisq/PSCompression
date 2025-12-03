@@ -81,11 +81,11 @@ public abstract class ToCompressedFileCommandBase<T> : CommandWithPathBase, IDis
 
         if (Exclude is not null)
         {
-            const WildcardOptions options = WildcardOptions.Compiled
+            const WildcardOptions Options = WildcardOptions.Compiled
                 | WildcardOptions.CultureInvariant
                 | WildcardOptions.IgnoreCase;
 
-            _excludePatterns = [.. Exclude.Select(pattern => new WildcardPattern(pattern, options))];
+            _excludePatterns = [.. Exclude.Select(pattern => new WildcardPattern(pattern, Options))];
         }
     }
 

@@ -46,18 +46,18 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
             return;
         }
 
-        const WildcardOptions options = WildcardOptions.Compiled
+        const WildcardOptions Options = WildcardOptions.Compiled
             | WildcardOptions.CultureInvariant
             | WildcardOptions.IgnoreCase;
 
         if (Exclude is not null)
         {
-            _excludePatterns = [.. Exclude.Select(e => new WildcardPattern(e, options))];
+            _excludePatterns = [.. Exclude.Select(e => new WildcardPattern(e, Options))];
         }
 
         if (Include is not null)
         {
-            _includePatterns = [.. Include.Select(e => new WildcardPattern(e, options))];
+            _includePatterns = [.. Include.Select(e => new WildcardPattern(e, Options))];
         }
     }
 

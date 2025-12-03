@@ -25,51 +25,62 @@
 ### Zip Archive Cmdlets
 
 <table>
-  <tr>
-    <th>Cmdlet</th>
-    <th>Alias</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td colspan="1" width="220"><a href="docs/en-US/Compress-ZipArchive.md">Compress-ZipArchive</a></td>
-    <td><code>zipcompress</code></td>
-    <td>Compresses files and folders into a zip archive, overcoming built-in PowerShell limitations.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/Expand-ZipEntry.md">Expand-ZipEntry</a></td>
-    <td><code>unzipentry</code></td>
-    <td>Extracts individual zip entries to a destination directory.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/Get-ZipEntry.md">Get-ZipEntry</a></td>
-    <td><code>zipge</code></td>
-    <td>Lists zip archive entries from paths or streams, serving as the entry point for zip cmdlets.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/Get-ZipEntryContent.md">Get-ZipEntryContent</a></td>
-    <td><code>zipgec</code></td>
-    <td>Retrieves the content of zip entries as text or bytes.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/New-ZipEntry.md">New-ZipEntry</a></td>
-    <td><code>zipne</code></td>
-    <td>Adds new entries to a zip archive from files or paths.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/Remove-ZipEntry.md">Remove-ZipEntry</a></td>
-    <td><code>ziprm</code></td>
-    <td>Removes entries from one or more zip archives.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/Rename-ZipEntry.md">Rename-ZipEntry</a></td>
-    <td><code>zipren</code></td>
-    <td>Renames entries in one or more zip archives.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/Set-ZipEntryContent.md">Set-ZipEntryContent</a></td>
-    <td><code>zipsc</code></td>
-    <td>Sets or appends content to a zip entry.</td>
-  </tr>
+  <thead>
+    <tr>
+      <th>Cmdlet</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td width="220">
+        <a href="docs/en-US/Compress-ZipArchive.md">Compress-ZipArchive</a> (<code>zipcompress</code>)
+      </td>
+      <td>Compresses files and folders into a zip archive, overcoming built-in PowerShell limitations.</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="docs/en-US/Expand-ZipEntry.md">Expand-ZipEntry</a> (<code>unzipentry</code>)
+      </td>
+      <td>Extracts individual zip entries to a destination directory.</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="docs/en-US/Get-ZipEntry.md">Get-ZipEntry</a> (<code>zipge</code>)
+      </td>
+      <td>Lists zip archive entries from paths or streams, serving as the entry point for zip cmdlets.</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="docs/en-US/Get-ZipEntryContent.md">Get-ZipEntryContent</a> (<code>zipgec</code>)
+      </td>
+      <td>Retrieves the content of zip entries as text or bytes.</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="docs/en-US/New-ZipEntry.md">New-ZipEntry</a> (<code>zipne</code>)
+      </td>
+      <td>Adds new entries to a zip archive from files or paths.</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="docs/en-US/Remove-ZipEntry.md">Remove-ZipEntry</a> (<code>ziprm</code>)
+      </td>
+      <td>Removes entries from one or more zip archives.</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="docs/en-US/Rename-ZipEntry.md">Rename-ZipEntry</a> (<code>zipren</code>)
+      </td>
+      <td>Renames entries in one or more zip archives.</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="docs/en-US/Set-ZipEntryContent.md">Set-ZipEntryContent</a> (<code>zipsc</code>)
+      </td>
+      <td>Sets or appends content to a zip entry.</td>
+    </tr>
+  </tbody>
 </table>
 
 > [!NOTE]

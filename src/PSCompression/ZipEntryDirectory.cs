@@ -10,7 +10,7 @@ namespace PSCompression;
 
 public sealed class ZipEntryDirectory : ZipEntryBase
 {
-    private const StringComparison _comparer = StringComparison.InvariantCultureIgnoreCase;
+    private const StringComparison Comparer = StringComparison.InvariantCultureIgnoreCase;
 
     public override EntryType Type => EntryType.Directory;
 
@@ -28,8 +28,8 @@ public sealed class ZipEntryDirectory : ZipEntryBase
 
     internal IEnumerable<ZipArchiveEntry> GetChilds(ZipArchive zip) =>
         zip.Entries.Where(e =>
-            !string.Equals(e.FullName, RelativePath, _comparer)
-            && e.FullName.StartsWith(RelativePath, _comparer));
+            !string.Equals(e.FullName, RelativePath, Comparer)
+            && e.FullName.StartsWith(RelativePath, Comparer));
 
     protected override string GetFormatDirectoryPath() =>
         $"/{RelativePath.NormalizeEntryPath()}";
