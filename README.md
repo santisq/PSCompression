@@ -89,6 +89,30 @@
 ### Tar Archive Cmdlets
 
 <table>
+  <thead>
+    <tr>
+      <th style="text-align: left;">Cmdlet</th>
+      <th style="text-align: left;">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code><a href="docs/en-US/Compress-ZipArchive.md">Compress-ZipArchive</a></code> <code style="color:#888; font-size:0.9em;">(zipcompress)</code></td>
+      <td>Compresses files and folders into a zip archive, overcoming built-in PowerShell limitations.</td>
+    </tr>
+    <tr>
+      <td><code><a href="docs/en-US/Expand-ZipEntry.md">Expand-ZipEntry</a></code> <code style="color:#888; font-size:0.9em;">(unzipentry)</code></td>
+      <td>Extracts individual zip entries to a destination directory.</td>
+    </tr>
+    <tr>
+      <td><code><a href="docs/en-US/Get-ZipEntry.md">Get-ZipEntry</a></code> <code style="color:#888; font-size:0.9em;">(zipge)</code></td>
+      <td>Lists zip archive entries from paths or streams.</td>
+    </tr>
+    <!-- repeat the same pattern for the rest -->
+  </tbody>
+</table>
+
+<table>
   <tr>
     <th>Cmdlet</th>
     <th>Alias</th>
