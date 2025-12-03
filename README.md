@@ -24,52 +24,14 @@
 
 ### Zip Archive Cmdlets
 
-<table>
-  <tr>
-    <th>Cmdlet</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td style="text-align:right;" width="220" height="65">
-      <a href="docs/en-US/Compress-ZipArchive.md"><code>Compress-ZipArchive</code></a>
-    </td>
-    <td>
-      Compresses files and folders into a zip archive, overcoming built-in PowerShell limitations.
-    </td>
-  </tr>
-  <tr>
-    <td style="text-align:right;" width="220" height="65">
-      <a href="docs/en-US/Expand-ZipEntry.md"><code>Expand-ZipEntry</code></a>
-    </td>
-    <td>Extracts individual zip entries to a destination directory.</td>
-  </tr>
-  <tr>
-    <td style="text-align:right;" width="220" height="65">
-      <a href="docs/en-US/Get-ZipEntry.md"><code>Get-ZipEntry</code></a>
-    </td>
-    <td>Lists zip archive entries from paths or streams, serving as the entry point for zip cmdlets.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/Get-ZipEntryContent.md"><code>Get-ZipEntryContent</code></a></td>
-    <td>Retrieves the content of zip entries as text or bytes.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/New-ZipEntry.md"><code>New-ZipEntry</code></a></td>
-    <td>Adds new entries to a zip archive from files or paths.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/Remove-ZipEntry.md"><code>Remove-ZipEntry</code></a></td>
-    <td>Removes entries from one or more zip archives.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/Rename-ZipEntry.md"><code>Rename-ZipEntry</code></a></td>
-    <td>Renames entries in one or more zip archives.</td>
-  </tr>
-  <tr>
-    <td><a href="docs/en-US/Set-ZipEntryContent.md"><code>Set-ZipEntryContent</code></a></td>
-    <td>Sets or appends content to a zip entry.</td>
-  </tr>
-</table>
+- [`Compress-ZipArchive`](docs/en-US/Compress-ZipArchive.md) — Compresses files and folders into a zip archive, overcoming built-in PowerShell limitations.
+- [`Expand-ZipEntry`](docs/en-US/Expand-ZipEntry.md) — Extracts individual zip entries to a destination directory.
+- [`Get-ZipEntry`](docs/en-US/Get-ZipEntry.md) — Lists zip archive entries from paths or streams, serving as the entry point for zip cmdlets.
+- [`Get-ZipEntryContent`](docs/en-US/Get-ZipEntryContent.md) — Retrieves the content of zip entries as text or bytes.
+- [`New-ZipEntry`](docs/en-US/New-ZipEntry.md) — Adds new entries to a zip archive from files or paths.
+- [`Remove-ZipEntry`](docs/en-US/Remove-ZipEntry.md) — Removes entries from one or more zip archives.
+- [`Rename-ZipEntry`](docs/en-US/Rename-ZipEntry.md) — Renames entries in one or more zip archives.
+- [`Set-ZipEntryContent`](docs/en-US/Set-ZipEntryContent.md) — Sets or appends content to a zip entry.
 
 > [!NOTE]
 > Due to a .NET limitation, cmdlets like `New-ZipEntry`, `Compress-ZipArchive` with `-Update`, and `Set-ZipEntryContent` may fail when handling files or content > 2 GB __in existing zip archives__. As a workaround, recreate the zip archive or use tools like 7-Zip, which support larger files. See [issue #19](https://github.com/santisq/PSCompression/issues/19) for details.
