@@ -30,15 +30,15 @@
     <th>Description</th>
   </tr>
   <tr>
-    <td width="220"><a href="docs/en-US/Compress-ZipArchive.md"><code>Compress-ZipArchive</code></a></td>
+    <td width="220" height="70"><a href="docs/en-US/Compress-ZipArchive.md"><code>Compress-ZipArchive</code></a></td>
     <td>Compresses files and folders into a zip archive, overcoming built-in PowerShell limitations.</td>
   </tr>
   <tr>
-    <td><a href="docs/en-US/Expand-ZipEntry.md"><code>Expand-ZipEntry</code></a></td>
+    <td width="220" height="70"><a href="docs/en-US/Expand-ZipEntry.md"><code>Expand-ZipEntry</code></a></td>
     <td>Extracts individual zip entries to a destination directory.</td>
   </tr>
   <tr>
-    <td><a href="docs/en-US/Get-ZipEntry.md"><code>Get-ZipEntry</code></a></td>
+    <td width="220" height="70"><a href="docs/en-US/Get-ZipEntry.md"><code>Get-ZipEntry</code></a></td>
     <td>Lists zip archive entries from paths or streams, serving as the entry point for zip cmdlets.</td>
   </tr>
   <tr>
