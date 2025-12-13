@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 12/13/2025
+
+- Zip entries are now created directly from `ICSharpCode.SharpZipLib.Zip.ZipEntry`.  
+  This adds the following new properties to `ZipEntryBase`:
+  - `IsEncrypted` (`bool`)
+  - `AESKeySize` (`int`)
+  - `CompressionMethod` (`ICSharpCode.SharpZipLib.Zip.CompressionMethod`)
+  - `Comment` (`string`)
+
+- `Get-ZipEntryContent` and `Expand-ZipEntry` now support reading and extracting encrypted entries.  
+  A new parameter has been added to both cmdlets:
+
+  ```powershell
+  -Password <SecureString>
+  ```
+
+  If an entry is encrypted and no password is provided, the cmdlets will securely prompt for one.
+
 ## 07/02/2025
 
 - Added `AssemblyLoadContext` support for PowerShell 7 (.NET 8.0 or later) to resolve DLL hell by isolating module dependencies. PowerShell 5.1 (.NET Framework) users can't get around this issue due to lack of `AssemblyLoadContext` in that runtime.

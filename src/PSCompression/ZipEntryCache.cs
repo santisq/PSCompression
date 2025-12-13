@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using ICSharpCode.SharpZipLib.Zip;
-
-// using System.IO.Compression;
 using PSCompression.Abstractions;
 using PSCompression.Extensions;
 

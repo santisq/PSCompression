@@ -1,8 +1,10 @@
 using System;
-using System.IO.Compression;
 using System.Management.Automation;
+using System.Security;
+using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
 using PSCompression.Exceptions;
+using PSCompression.Extensions;
 
 namespace PSCompression.Commands;
 
@@ -12,15 +14,27 @@ namespace PSCompression.Commands;
 [Alias("zipgec")]
 public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEntryFile>, IDisposable
 {
-    private readonly ZipArchiveCache<ZipArchive> _cache = new(entry => entry.OpenRead());
+    [Parameter]
+    public SecureString? Password { get; set; }
+
+    private ZipArchiveCache<ZipFile>? _cache;
 
     protected override void ProcessRecord()
     {
+        _cache ??= new ZipArchiveCache<ZipFile>(entry => entry.OpenRead(Password));
+
+        ZipFile zip;
         foreach (ZipEntryFile entry in Entry)
         {
             try
             {
-                ZipContentReader reader = new(_cache.GetOrCreate(entry));
+                zip = _cache.GetOrCreate(entry);
+                if (entry.IsEncrypted && Password is null)
+                {
+                    PromptForCredential(entry, zip);
+                }
+
+                ZipContentReader reader = new(zip);
                 ReadEntry(entry, reader);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
@@ -55,6 +69,16 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
         }
 
         reader.StreamLines(entry, Encoding, this);
+    }
+
+    private void PromptForCredential(ZipEntryFile entry, ZipFile zip)
+    {
+        Host.UI.Write(
+            $"Encrypted entry '{entry.RelativePath}' in '{entry.Source}' requires a password.\n" +
+            "Tip: Use -Password <SecureString> to avoid this prompt in the future.\n" +
+            "Enter password: ");
+
+        zip.Password = Host.UI.ReadLineAsSecureString().AsPlainText();
     }
 
     public void Dispose()

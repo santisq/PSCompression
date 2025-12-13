@@ -5,7 +5,7 @@ using PSCompression.Abstractions;
 
 namespace PSCompression;
 
-internal sealed class ZipContentWriter : ZipContentOpsBase
+internal sealed class ZipContentWriter : ZipContentOpsBase<ZipArchive>
 {
     private int _index;
 
@@ -16,8 +16,8 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
     internal ZipContentWriter(ZipEntryFile entry, bool append, int bufferSize)
         : base(entry.OpenWrite())
     {
-        _stream = entry.Open(_zip);
-        _buffer = new byte[bufferSize];
+        _stream = entry.Open(ZipArchive);
+        Buffer = new byte[bufferSize];
 
         if (append)
         {
@@ -38,7 +38,7 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
     internal ZipContentWriter(ZipEntryFile entry, bool append, Encoding encoding)
         : base(entry.OpenWrite())
     {
-        _stream = entry.Open(_zip);
+        _stream = entry.Open(ZipArchive);
         _writer = new StreamWriter(_stream, encoding);
 
         if (append)
@@ -65,28 +65,28 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
 
     internal void WriteBytes(byte[] bytes)
     {
-        if (_buffer is null)
+        if (Buffer is null)
         {
             return;
         }
 
         foreach (byte b in bytes)
         {
-            if (_index == _buffer.Length)
+            if (_index == Buffer.Length)
             {
-                _stream.Write(_buffer, 0, _index);
+                _stream.Write(Buffer, 0, _index);
                 _index = 0;
             }
 
-            _buffer[_index++] = b;
+            Buffer[_index++] = b;
         }
     }
 
     public void Flush()
     {
-        if (_index > 0 && _buffer is not null)
+        if (_index > 0 && Buffer is not null)
         {
-            _stream.Write(_buffer, 0, _index);
+            _stream.Write(Buffer, 0, _index);
             _index = 0;
             _stream.Flush();
         }
@@ -110,18 +110,9 @@ internal sealed class ZipContentWriter : ZipContentOpsBase
 
     protected override void Dispose(bool disposing)
     {
-        try
-        {
-            if (disposing && !_disposed)
-            {
-                Flush();
-            }
-        }
-        finally
-        {
-            _writer?.Dispose();
-            _stream.Dispose();
-            base.Dispose(disposing);
-        }
+        Flush();
+        _writer?.Dispose();
+        _stream.Dispose();
+        base.Dispose(disposing);
     }
 }

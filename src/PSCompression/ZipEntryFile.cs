@@ -57,6 +57,16 @@ public sealed class ZipEntryFile : ZipEntryBase
         return entry.Open();
     }
 
+    internal Stream Open(ICSharpCode.SharpZipLib.Zip.ZipFile zip)
+    {
+        zip.ThrowIfNotFound(
+            path: RelativePath,
+            source: Source,
+            out ZipEntry entry);
+
+        return zip.GetInputStream(entry);
+    }
+
     internal void Refresh()
     {
         this.ThrowIfFromStream();

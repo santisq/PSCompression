@@ -1,21 +1,21 @@
 using System;
-using System.IO.Compression;
 
 namespace PSCompression.Abstractions;
 
-internal abstract class ZipContentOpsBase(ZipArchive zip) : IDisposable
+internal abstract class ZipContentOpsBase<TArchive>(TArchive zip) : IDisposable
+    where TArchive : IDisposable
 {
-    protected byte[]? _buffer;
+    protected byte[]? Buffer { get; set; }
 
-    protected ZipArchive _zip = zip;
+    protected TArchive ZipArchive { get; } = zip;
 
-    protected bool _disposed;
+    private bool _disposed;
 
     protected virtual void Dispose(bool disposing)
     {
         if (disposing && !_disposed)
         {
-            _zip.Dispose();
+            ZipArchive.Dispose();
             _disposed = true;
         }
     }

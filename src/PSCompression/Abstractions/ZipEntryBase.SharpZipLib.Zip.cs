@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
+using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;
 
@@ -17,9 +19,28 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source)
 
     public long CompressedLength { get; internal set; } = entry.CompressedSize;
 
+    public bool IsEncrypted { get; } = entry.IsCrypted;
+
+    public int AESKeySize { get; } = entry.AESKeySize;
+
+    public CompressionMethod CompressionMethod { get; } = entry.CompressionMethod;
+
+    public string Comment { get; } = entry.Comment;
+
     protected ZipEntryBase(ZipEntry entry, Stream? stream)
         : this(entry, $"InputStream.{Guid.NewGuid()}")
     {
         _stream = stream;
+    }
+
+    internal ZipFile OpenRead(SecureString? password)
+    {
+        ZipFile zip = FromStream ? new(_stream) : new(Source);
+        if (password?.Length > 0)
+        {
+            zip.Password = password.AsPlainText();
+        }
+
+        return zip;
     }
 }

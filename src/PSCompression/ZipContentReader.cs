@@ -1,15 +1,15 @@
 using System.IO;
-using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
+using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
 using PSCompression.Extensions;
 
 namespace PSCompression;
 
-internal sealed class ZipContentReader : ZipContentOpsBase
+internal sealed class ZipContentReader : ZipContentOpsBase<ZipFile>
 {
-    internal ZipContentReader(ZipArchive zip) : base(zip)
+    internal ZipContentReader(ZipFile zip) : base(zip)
     { }
 
     internal void StreamBytes(
@@ -18,21 +18,21 @@ internal sealed class ZipContentReader : ZipContentOpsBase
         PSCmdlet cmdlet)
     {
         int bytes;
-        using Stream entryStream = entry.Open(_zip);
-        _buffer ??= new byte[bufferSize];
+        using Stream entryStream = entry.Open(ZipArchive);
+        Buffer ??= new byte[bufferSize];
 
-        while ((bytes = entryStream.Read(_buffer, 0, bufferSize)) > 0)
+        while ((bytes = entryStream.Read(Buffer, 0, bufferSize)) > 0)
         {
             for (int i = 0; i < bytes; i++)
             {
-                cmdlet.WriteObject(_buffer[i]);
+                cmdlet.WriteObject(Buffer[i]);
             }
         }
     }
 
     internal void ReadAllBytes(ZipEntryFile entry, PSCmdlet cmdlet)
     {
-        using Stream entryStream = entry.Open(_zip);
+        using Stream entryStream = entry.Open(ZipArchive);
         using MemoryStream mem = new();
 
         entryStream.CopyTo(mem);
@@ -44,7 +44,7 @@ internal sealed class ZipContentReader : ZipContentOpsBase
         Encoding encoding,
         PSCmdlet cmdlet)
     {
-        using Stream entryStream = entry.Open(_zip);
+        using Stream entryStream = entry.Open(ZipArchive);
         using StreamReader reader = new(entryStream, encoding);
         reader.WriteLinesToPipeline(cmdlet);
     }
@@ -54,7 +54,7 @@ internal sealed class ZipContentReader : ZipContentOpsBase
         Encoding encoding,
         PSCmdlet cmdlet)
     {
-        using Stream entryStream = entry.Open(_zip);
+        using Stream entryStream = entry.Open(ZipArchive);
         using StreamReader reader = new(entryStream, encoding);
         reader.WriteAllTextToPipeline(cmdlet);
     }
