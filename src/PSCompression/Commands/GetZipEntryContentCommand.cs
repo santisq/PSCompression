@@ -1,5 +1,6 @@
 using System;
 using System.Management.Automation;
+using System.Management.Automation.Host;
 using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
@@ -21,9 +22,9 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
 
     protected override void ProcessRecord()
     {
+        ZipFile zip;
         _cache ??= new ZipArchiveCache<ZipFile>(entry => entry.OpenRead(Password));
 
-        ZipFile zip;
         foreach (ZipEntryFile entry in Entry)
         {
             try
@@ -31,7 +32,7 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
                 zip = _cache.GetOrCreate(entry);
                 if (entry.IsEncrypted && Password is null)
                 {
-                    PromptForCredential(entry, zip);
+                    entry.PromptForCredential(zip, Host);
                 }
 
                 ZipContentReader reader = new(zip);
@@ -69,16 +70,6 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
         }
 
         reader.StreamLines(entry, Encoding, this);
-    }
-
-    private void PromptForCredential(ZipEntryFile entry, ZipFile zip)
-    {
-        Host.UI.Write(
-            $"Encrypted entry '{entry.RelativePath}' in '{entry.Source}' requires a password.\n" +
-            "Tip: Use -Password <SecureString> to avoid this prompt in the future.\n" +
-            "Enter password: ");
-
-        zip.Password = Host.UI.ReadLineAsSecureString().AsPlainText();
     }
 
     public void Dispose()
