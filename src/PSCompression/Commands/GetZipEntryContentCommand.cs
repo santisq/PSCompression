@@ -1,4 +1,5 @@
 using System;
+using System.IO.Compression;
 using System.Management.Automation;
 using PSCompression.Abstractions;
 using PSCompression.Exceptions;
@@ -11,7 +12,7 @@ namespace PSCompression.Commands;
 [Alias("zipgec")]
 public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEntryFile>, IDisposable
 {
-    private readonly ZipArchiveCache _cache = new();
+    private readonly ZipArchiveCache<ZipArchive> _cache = new(entry => entry.OpenRead());
 
     protected override void ProcessRecord()
     {
@@ -19,7 +20,7 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
         {
             try
             {
-                ZipContentReader reader = new(_cache.GetOrAdd(entry));
+                ZipContentReader reader = new(_cache.GetOrCreate(entry));
                 ReadEntry(entry, reader);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)

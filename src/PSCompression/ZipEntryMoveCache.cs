@@ -53,7 +53,7 @@ internal sealed class ZipEntryMoveCache
     }
 
     internal Dictionary<string, Dictionary<string, string>> GetMappings(
-        ZipArchiveCache cache)
+        ZipArchiveCache<ZipArchive> cache)
     {
         foreach (var source in _cache)
         {
@@ -64,7 +64,7 @@ internal sealed class ZipEntryMoveCache
     }
 
     private Dictionary<string, string> GetChildMappings(
-        ZipArchiveCache cache,
+        ZipArchiveCache<ZipArchive> cache,
         Dictionary<string, EntryWithPath> pathChanges)
     {
         string newpath;

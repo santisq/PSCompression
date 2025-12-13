@@ -13,7 +13,8 @@ namespace PSCompression.Commands;
 [Alias("zipren")]
 public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 {
-    private readonly ZipArchiveCache _zipArchiveCache = new(ZipArchiveMode.Update);
+    private readonly ZipArchiveCache<ZipArchive> _zipArchiveCache = new(
+        entry => entry.OpenZip(ZipArchiveMode.Update));
 
     private ZipEntryCache? _zipEntryCache;
 

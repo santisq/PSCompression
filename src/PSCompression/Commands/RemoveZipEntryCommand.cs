@@ -11,7 +11,8 @@ namespace PSCompression.Commands;
 [Alias("ziprm")]
 public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
 {
-    private readonly ZipArchiveCache _cache = new(ZipArchiveMode.Update);
+    private readonly ZipArchiveCache<ZipArchive> _cache = new(
+        entry => entry.OpenZip(ZipArchiveMode.Update));
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
     public ZipEntryBase[] InputObject { get; set; } = null!;
@@ -24,7 +25,7 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
             {
                 if (ShouldProcess(target: entry.ToString(), action: "Remove"))
                 {
-                    entry.Remove(_cache.GetOrAdd(entry));
+                    entry.Remove(_cache.GetOrCreate(entry));
                 }
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)

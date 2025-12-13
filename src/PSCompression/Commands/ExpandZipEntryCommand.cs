@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 using System.Management.Automation;
 using PSCompression.Abstractions;
 
@@ -10,10 +11,10 @@ namespace PSCompression.Commands;
 [Alias("unzipentry")]
 public sealed class ExpandZipEntryCommand : ExpandEntryCommandBase<ZipEntryBase>, IDisposable
 {
-    private readonly ZipArchiveCache _cache = new();
+    private readonly ZipArchiveCache<ZipArchive> _cache = new(entry => entry.OpenRead());
 
     protected override FileSystemInfo Extract(ZipEntryBase entry) =>
-        entry.ExtractTo(Destination!, Force, _cache.GetOrAdd(entry));
+        entry.ExtractTo(Destination!, Force, _cache.GetOrCreate(entry));
 
     public void Dispose()
     {
