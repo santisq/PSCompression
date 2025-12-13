@@ -1,5 +1,6 @@
 using System.IO;
 using System.IO.Compression;
+using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
 using PSCompression.Exceptions;
 using PSCompression.Extensions;
@@ -8,21 +9,31 @@ namespace PSCompression;
 
 public sealed class ZipEntryFile : ZipEntryBase
 {
-    public string CompressionRatio => GetRatio(Length, CompressedLength);
+    public string CompressionRatio { get; }
 
     public override EntryType Type => EntryType.Archive;
 
-    public string BaseName => Path.GetFileNameWithoutExtension(Name);
+    public string BaseName { get; }
 
-    public string Extension => Path.GetExtension(RelativePath);
+    public string Extension { get; }
 
-    internal ZipEntryFile(ZipArchiveEntry entry, string source)
+    internal ZipEntryFile(ZipEntry entry, string source)
         : base(entry, source)
-    { }
+    {
+        CompressionRatio = GetRatio(Length, CompressedLength);
+        Name = Path.GetFileName(entry.Name);
+        BaseName = Path.GetFileNameWithoutExtension(Name);
+        Extension = Path.GetExtension(RelativePath);
+    }
 
-    internal ZipEntryFile(ZipArchiveEntry entry, Stream? stream)
+    internal ZipEntryFile(ZipEntry entry, Stream? stream)
         : base(entry, stream)
-    { }
+    {
+        CompressionRatio = GetRatio(Length, CompressedLength);
+        Name = Path.GetFileName(entry.Name);
+        BaseName = Path.GetFileNameWithoutExtension(Name);
+        Extension = Path.GetExtension(RelativePath);
+    }
 
     private static string GetRatio(long size, long compressedSize)
     {

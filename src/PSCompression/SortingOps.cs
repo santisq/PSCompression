@@ -14,11 +14,9 @@ internal static class SortingOps
     private static int SortByLength(EntryBase entry) =>
         entry.RelativePath.Count(e => e == '/');
 
-    private static string SortByName(EntryBase entry) =>
-        entry.Name;
+    private static string SortByName(EntryBase entry) => entry.Name!;
 
-    private static EntryType SortByType(EntryBase entry) =>
-        entry.Type;
+    private static EntryType SortByType(EntryBase entry) => entry.Type;
 
     internal static IEnumerable<EntryBase> ToEntrySort(
         this IEnumerable<EntryBase> entryCollection)

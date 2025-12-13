@@ -8,6 +8,7 @@ using System.Text;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
 using PSCompression.Abstractions;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace PSCompression.Commands;
 
@@ -61,7 +62,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            _zip = ZipFile.Open(Destination, ZipArchiveMode.Update);
+            _zip = System.IO.Compression.ZipFile.Open(Destination, ZipArchiveMode.Update);
 
             if (ParameterSetName == "Value")
             {
@@ -175,7 +176,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             }
 
             _zip?.Dispose();
-            WriteObject(GetResult(), enumerateCollection: true);
+            GetResult();
         }
         catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
         {
@@ -187,28 +188,24 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
     }
 
-    private IEnumerable<EntryBase> GetResult()
+    private void GetResult()
     {
-        using ZipArchive zip = ZipFile.OpenRead(Destination);
+        using ICSharpCode.SharpZipLib.Zip.ZipFile zip = new(Destination);
         List<EntryBase> _result = new(_entries.Count);
 
         foreach (ZipArchiveEntry entry in _entries)
         {
-            if (!zip.TryGetEntry(entry.FullName, out ZipArchiveEntry? zipEntry))
+            if (!zip.TryGetEntry(entry.FullName, out ZipEntry? zipEntry))
             {
                 continue;
             }
 
-            if (string.IsNullOrEmpty(entry.Name))
-            {
-                _result.Add(new ZipEntryDirectory(zipEntry, Destination));
-                continue;
-            }
-
-            _result.Add(new ZipEntryFile(zipEntry, Destination));
+            _result.Add(zipEntry.IsDirectory
+                ? new ZipEntryDirectory(zipEntry, Destination)
+                : new ZipEntryFile(zipEntry, Destination));
         }
 
-        return _result.ToEntrySort();
+        WriteObject(_result.ToEntrySort(), enumerateCollection: true);
     }
 
     public void Dispose()

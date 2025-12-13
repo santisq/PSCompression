@@ -7,6 +7,7 @@ using System;
 using PSCompression.Exceptions;
 using ICSharpCode.SharpZipLib.Tar;
 using ZstdSharp;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace PSCompression.Abstractions;
 
@@ -167,6 +168,6 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
     protected bool ShouldSkipEntry(bool isDirectory) =>
         isDirectory && Type is EntryType.Archive || !isDirectory && Type is EntryType.Directory;
 
-    private bool IsInvalidArchive(Exception exception) =>
-        exception is InvalidDataException or TarException or ZstdException or IOException;
+    private static bool IsInvalidArchive(Exception exception) =>
+        exception is ZipException or TarException or ZstdException or IOException;
 }

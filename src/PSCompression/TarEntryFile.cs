@@ -11,21 +11,27 @@ public sealed class TarEntryFile : TarEntryBase
 {
     private readonly Algorithm _algorithm;
 
-    public string BaseName => Path.GetFileNameWithoutExtension(Name);
+    public string BaseName { get; }
 
-    public string Extension => Path.GetExtension(RelativePath);
+    public string Extension { get; }
 
     public override EntryType Type => EntryType.Archive;
 
     internal TarEntryFile(TarEntry entry, string source, Algorithm algorithm)
         : base(entry, source)
     {
+        Name = Path.GetFileName(entry.Name);
+        BaseName = Path.GetFileNameWithoutExtension(Name);
+        Extension = Path.GetExtension(RelativePath);
         _algorithm = algorithm;
     }
 
     internal TarEntryFile(TarEntry entry, Stream? stream, Algorithm algorithm)
         : base(entry, stream)
     {
+        Name = Path.GetFileName(entry.Name);
+        BaseName = Path.GetFileNameWithoutExtension(Name);
+        Extension = Path.GetExtension(RelativePath);
         _algorithm = algorithm;
     }
 

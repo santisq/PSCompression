@@ -7,6 +7,7 @@ using System.Management.Automation;
 using System.Text.RegularExpressions;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Tar;
+using ICSharpCode.SharpZipLib.Zip;
 using SharpCompress.Compressors.LZMA;
 using ZstdSharp;
 using SharpCompressors = SharpCompress.Compressors;
@@ -18,8 +19,7 @@ internal static partial class CompressionExtensions
     private const string DirectorySeparator = "/";
 
 #if NETCOREAPP
-    [GeneratedRegex(
-        @"[^/]+(?=/$)",
+    [GeneratedRegex(@"[^/]+(?=/$)",
         RegexOptions.Compiled | RegexOptions.RightToLeft)]
     private static partial Regex GetDirectoryName();
 
@@ -72,6 +72,15 @@ internal static partial class CompressionExtensions
         return entry is not null;
     }
 
+    internal static bool TryGetEntry(
+        this ICSharpCode.SharpZipLib.Zip.ZipFile zip,
+        string path,
+        [NotNullWhen(true)] out ZipEntry? entry)
+    {
+        entry = zip.GetEntry(path);
+        return entry is not null;
+    }
+
     internal static string ChangeName(
         this ZipEntryFile file,
         string newname)
@@ -85,7 +94,7 @@ internal static partial class CompressionExtensions
 
         return string.Join(
             DirectorySeparator,
-            normalized.Substring(0, normalized.Length - file.Name.Length - 1),
+            normalized.Substring(0, normalized.Length - file.Name!.Length - 1),
             newname);
     }
 
@@ -96,8 +105,8 @@ internal static partial class CompressionExtensions
             directory.RelativePath.NormalizePath(),
             newname);
 
-    internal static string GetDirectoryName(this ZipArchiveEntry entry)
-        => s_reGetDirName.Match(entry.FullName).Value;
+    internal static string GetDirectoryName(this ZipEntry entry)
+        => s_reGetDirName.Match(entry.Name).Value;
 
     internal static string GetDirectoryName(this TarEntry entry)
         => s_reGetDirName.Match(entry.Name).Value;

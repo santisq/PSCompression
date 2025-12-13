@@ -7,7 +7,7 @@ namespace PSCompression.Abstractions;
 
 public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(source)
 {
-    public override string Name { get; protected set; } = Path.GetFileName(entry.Name);
+    public override string? Name { get; protected set; }
 
     public override string RelativePath { get; } = entry.Name;
 

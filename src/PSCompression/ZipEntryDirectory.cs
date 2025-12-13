@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
 using PSCompression.Extensions;
 
@@ -14,13 +15,13 @@ public sealed class ZipEntryDirectory : ZipEntryBase
 
     public override EntryType Type => EntryType.Directory;
 
-    internal ZipEntryDirectory(ZipArchiveEntry entry, string source)
+    internal ZipEntryDirectory(ZipEntry entry, string source)
         : base(entry, source)
     {
         Name = entry.GetDirectoryName();
     }
 
-    internal ZipEntryDirectory(ZipArchiveEntry entry, Stream? stream)
+    internal ZipEntryDirectory(ZipEntry entry, Stream? stream)
         : base(entry, stream)
     {
         Name = entry.GetDirectoryName();

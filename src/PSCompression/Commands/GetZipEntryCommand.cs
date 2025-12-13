@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.IO.Compression;
+// using System.IO.Compression;
 using System.Management.Automation;
 using System.IO;
 using PSCompression.Abstractions;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace PSCompression.Commands;
 
@@ -16,23 +17,21 @@ public sealed class GetZipEntryCommand : GetEntryCommandBase
     protected override IEnumerable<EntryBase> GetEntriesFromFile(string path)
     {
         List<EntryBase> entries = [];
-        using (ZipArchive zip = ZipFile.OpenRead(path))
+        using (ZipFile zip = new(path))
         {
-            foreach (ZipArchiveEntry entry in zip.Entries)
+            foreach (ZipEntry entry in zip)
             {
-                bool isDirectory = string.IsNullOrEmpty(entry.Name);
-
-                if (ShouldSkipEntry(isDirectory))
+                if (ShouldSkipEntry(entry.IsDirectory))
                 {
                     continue;
                 }
 
-                if (!ShouldInclude(entry.FullName) || ShouldExclude(entry.FullName))
+                if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
                 {
                     continue;
                 }
 
-                entries.Add(isDirectory
+                entries.Add(entry.IsDirectory
                     ? new ZipEntryDirectory(entry, path)
                     : new ZipEntryFile(entry, path));
             }
@@ -44,23 +43,21 @@ public sealed class GetZipEntryCommand : GetEntryCommandBase
     protected override IEnumerable<EntryBase> GetEntriesFromStream(Stream stream)
     {
         List<EntryBase> entries = [];
-        using (ZipArchive zip = new(stream, ZipArchiveMode.Read, true))
+        using (ZipFile zip = new(stream, leaveOpen: true))
         {
-            foreach (ZipArchiveEntry entry in zip.Entries)
+            foreach (ZipEntry entry in zip)
             {
-                bool isDirectory = string.IsNullOrEmpty(entry.Name);
-
-                if (ShouldSkipEntry(isDirectory))
+                if (ShouldSkipEntry(entry.IsDirectory))
                 {
                     continue;
                 }
 
-                if (!ShouldInclude(entry.FullName) || ShouldExclude(entry.FullName))
+                if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
                 {
                     continue;
                 }
 
-                entries.Add(isDirectory
+                entries.Add(entry.IsDirectory
                     ? new ZipEntryDirectory(entry, stream)
                     : new ZipEntryFile(entry, stream));
             }

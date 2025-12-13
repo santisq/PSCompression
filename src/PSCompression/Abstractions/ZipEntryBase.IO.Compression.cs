@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.IO.Compression;
 using PSCompression.Exceptions;
@@ -6,27 +5,10 @@ using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;
 
-public abstract class ZipEntryBase(ZipArchiveEntry entry, string source) : EntryBase(source)
+public abstract partial class ZipEntryBase
 {
-    public override string Name { get; protected set; } = entry.Name;
-
-    public override string RelativePath { get; } = entry.FullName;
-
-    public override DateTime LastWriteTime { get; } = entry.LastWriteTime.LocalDateTime;
-
-    public override long Length { get; internal set; } = entry.Length;
-
-    public long CompressedLength { get; internal set; } = entry.CompressedLength;
-
-    protected ZipEntryBase(ZipArchiveEntry entry, Stream? stream)
-        : this(entry, $"InputStream.{Guid.NewGuid()}")
-    {
-        _stream = stream;
-    }
-
-    public ZipArchive OpenRead() => FromStream
-        ? new ZipArchive(_stream)
-        : ZipFile.OpenRead(Source);
+    public ZipArchive OpenRead() =>
+        FromStream ? new ZipArchive(_stream) : ZipFile.OpenRead(Source);
 
     public ZipArchive OpenWrite()
     {
