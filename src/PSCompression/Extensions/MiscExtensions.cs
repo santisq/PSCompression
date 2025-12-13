@@ -20,16 +20,13 @@ internal static class MiscExtensions
     internal static string AsPlainText(this SecureString secureString) =>
         new NetworkCredential(string.Empty, secureString).Password;
 
-    internal static void PromptForCredential(
-        this ZipEntryFile entry,
-        ZipFile zip,
-        PSHost host)
+    internal static string PromptForCredential(this ZipEntryFile entry, PSHost host)
     {
         host.UI.Write(
             $"Encrypted entry '{entry.RelativePath}' in '{entry.Source}' requires a password.\n" +
             "Tip: Use -Password <SecureString> to avoid this prompt in the future.\n" +
             "Enter password: ");
 
-        zip.Password = host.UI.ReadLineAsSecureString().AsPlainText();
+        return host.UI.ReadLineAsSecureString().AsPlainText();
     }
 }

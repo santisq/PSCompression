@@ -32,7 +32,7 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
                 zip = _cache.GetOrCreate(entry);
                 if (entry.IsEncrypted && Password is null)
                 {
-                    entry.PromptForCredential(zip, Host);
+                    zip.Password = entry.PromptForCredential(Host);
                 }
 
                 ZipContentReader reader = new(zip);
