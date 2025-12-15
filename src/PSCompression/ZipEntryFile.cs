@@ -11,7 +11,7 @@ public sealed class ZipEntryFile : ZipEntryBase
 {
     public string CompressionRatio { get; }
 
-    public override EntryType Type => EntryType.Archive;
+    public override EntryType Type { get => EntryType.Archive; }
 
     public string BaseName { get; }
 
@@ -52,7 +52,7 @@ public sealed class ZipEntryFile : ZipEntryBase
         zip.ThrowIfNotFound(
             path: RelativePath,
             source: Source,
-            out ZipArchiveEntry entry);
+            out ZipArchiveEntry? entry);
 
         return entry.Open();
     }
@@ -62,7 +62,7 @@ public sealed class ZipEntryFile : ZipEntryBase
         zip.ThrowIfNotFound(
             path: RelativePath,
             source: Source,
-            out ZipEntry entry);
+            out ZipEntry? entry);
 
         return zip.GetInputStream(entry);
     }

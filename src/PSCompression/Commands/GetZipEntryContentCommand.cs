@@ -1,6 +1,5 @@
 using System;
 using System.Management.Automation;
-using System.Management.Automation.Host;
 using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
@@ -22,17 +21,16 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
 
     protected override void ProcessRecord()
     {
-        ZipFile zip;
         _cache ??= new ZipArchiveCache<ZipFile>(entry => entry.OpenRead(Password));
 
         foreach (ZipEntryFile entry in Entry)
         {
             try
             {
-                zip = _cache.GetOrCreate(entry);
+                ZipFile zip = _cache.GetOrCreate(entry);
                 if (entry.IsEncrypted && Password is null)
                 {
-                    zip.Password = entry.PromptForCredential(Host);
+                    zip.Password = entry.PromptForPassword(Host);
                 }
 
                 ZipContentReader reader = new(zip);

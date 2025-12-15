@@ -13,7 +13,7 @@ internal sealed class ZipArchiveCache<TArchive> : IDisposable
 
     internal ZipArchiveCache(Func<ZipEntryBase, TArchive> factory)
     {
-        _cache = [];
+        _cache = new(StringComparer.OrdinalIgnoreCase);
         _factory = factory;
     }
 

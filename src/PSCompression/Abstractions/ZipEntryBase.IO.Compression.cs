@@ -1,7 +1,6 @@
 using System.IO;
 using System.IO.Compression;
 using PSCompression.Exceptions;
-using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;
 
@@ -76,39 +75,4 @@ public abstract partial class ZipEntryBase
         FromStream
             ? new ZipArchive(_stream, mode, true)
             : ZipFile.Open(Source, mode);
-
-    public FileSystemInfo ExtractTo(string destination, bool overwrite)
-    {
-        using ZipArchive zip = FromStream
-            ? new ZipArchive(_stream, ZipArchiveMode.Read, leaveOpen: true)
-            : ZipFile.OpenRead(Source);
-
-        return ExtractTo(destination, overwrite, zip);
-    }
-
-    internal FileSystemInfo ExtractTo(
-        string destination,
-        bool overwrite,
-        ZipArchive zip)
-    {
-        destination = Path.GetFullPath(
-            Path.Combine(destination, RelativePath));
-
-        if (Type == EntryType.Directory)
-        {
-            DirectoryInfo dir = new(destination);
-            dir.Create(overwrite);
-            return dir;
-        }
-
-        FileInfo file = new(destination);
-        file.Directory?.Create();
-
-        if (zip.TryGetEntry(RelativePath, out ZipArchiveEntry? entry))
-        {
-            entry.ExtractToFile(destination, overwrite);
-        }
-
-        return file;
-    }
 }

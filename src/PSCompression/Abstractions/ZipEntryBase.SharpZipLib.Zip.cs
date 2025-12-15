@@ -35,12 +35,57 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source)
 
     internal ZipFile OpenRead(SecureString? password)
     {
-        ZipFile zip = FromStream ? new(_stream) : new(Source);
+        ZipFile zip = FromStream ? new(_stream, leaveOpen: true) : new(Source);
         if (password?.Length > 0)
         {
             zip.Password = password.AsPlainText();
         }
 
         return zip;
+    }
+
+    public FileSystemInfo ExtractTo(
+        string destination,
+        bool overwrite,
+        SecureString? password = null)
+    {
+        using ZipFile zip = FromStream
+            ? new(_stream, leaveOpen: true)
+            : new(Source);
+
+        if (password?.Length > 0)
+        {
+            zip.Password = password.AsPlainText();
+        }
+
+        return ExtractTo(destination, overwrite, zip);
+    }
+
+    internal FileSystemInfo ExtractTo(
+        string destination,
+        bool overwrite,
+        ZipFile zip)
+    {
+        destination = Path.GetFullPath(
+            Path.Combine(destination, RelativePath));
+
+        if (Type == EntryType.Directory)
+        {
+            DirectoryInfo dir = new(destination);
+            dir.Create(overwrite);
+            return dir;
+        }
+
+        FileInfo file = new(destination);
+        file.Directory?.Create();
+
+        if (zip.TryGetEntry(RelativePath, out ZipEntry? entry))
+        {
+            using Stream source = zip.GetInputStream(entry);
+            using FileStream fs = file.OpenWrite();
+            source.CopyTo(fs);
+        }
+
+        return file;
     }
 }

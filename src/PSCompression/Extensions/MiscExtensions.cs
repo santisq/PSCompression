@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Management.Automation.Host;
 using System.Net;
 using System.Security;
-using ICSharpCode.SharpZipLib.Zip;
 
 namespace PSCompression.Extensions;
 
@@ -20,7 +19,7 @@ internal static class MiscExtensions
     internal static string AsPlainText(this SecureString secureString) =>
         new NetworkCredential(string.Empty, secureString).Password;
 
-    internal static string PromptForCredential(this ZipEntryFile entry, PSHost host)
+    internal static string PromptForPassword(this ZipEntryFile entry, PSHost host)
     {
         host.UI.Write(
             $"Encrypted entry '{entry.RelativePath}' in '{entry.Source}' requires a password.\n" +
