@@ -1,5 +1,5 @@
 ---
-external help file: PSCompression-help.xml
+external help file: PSCompression.dll-Help.xml
 Module Name: PSCompression
 online version: https://github.com/santisq/PSCompression
 schema: 2.0.0
@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Expands Gzip Base64 compressed input strings.
+Decompresses Gzip-compressed Base64-encoded strings.
 
 ## SYNTAX
 
@@ -23,11 +23,11 @@ ConvertFrom-GzipString
 
 ## DESCRIPTION
 
-The `ConvertFrom-GzipString` cmdlet can expand Base64 encoded Gzip compressed strings using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). This cmdlet is the counterpart of [`ConvertTo-GzipString`](ConvertTo-GzipString.md).
+The `ConvertFrom-GzipString` cmdlet decompresses Base64-encoded strings that were compressed using GZip compression (via the [`GZipStream` class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream)). It is the counterpart to [`ConvertTo-GzipString`](./ConvertTo-GzipString.md).
 
 ## EXAMPLES
 
-### Example 1: Expanding a Gzip compressed string
+### Example 1: Decompress a GZip-compressed Base64 string
 
 ```powershell
 PS ..\pwsh> ConvertFrom-GzipString H4sIAAAAAAAACstIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
@@ -37,34 +37,32 @@ world
 !
 ```
 
-### Example 2: Demonstrates how `-NoNewLine` works
+This example decompresses a GZip-compressed Base64 string, restoring the original multi-line text.
+
+### Example 2: Compare default behavior with the `-Raw` switch
 
 ```powershell
 PS ..\pwsh> $strings = 'hello', 'world', '!'
-
-# New lines are preserved when the cmdlet receives an array of strings.
-PS ..\pwsh> $strings | ConvertTo-GzipString | ConvertFrom-GzipString
+PS ..\pwsh> $compressed = $strings | ConvertTo-GzipString
+PS ..\pwsh> $decompressed = $compressed | ConvertFrom-GzipString -Raw
+PS ..\pwsh> $decompressed.GetType() # System.String
+PS ..\pwsh> $decompressed
 
 hello
 world
 !
-
-# When using the `-NoNewLine` switch, all strings are concatenated
-PS ..\pwsh> $strings | ConvertTo-GzipString -NoNewLine | ConvertFrom-GzipString
-
-helloworld!
 ```
 
-This example shows how the `-Raw` switch concatenates the expanded strings into a single string with newlines preserved.
+This example compares the default behavior (outputting an array of strings split on newlines) with the `-Raw` switch (returning a single string with newlines preserved).
 
 ## PARAMETERS
 
 ### -Encoding
 
-Determines the character encoding used when expanding the input strings.
+Specifies the text encoding to use for the decompressed output string(s).
 
 > [!NOTE]
-> The default encoding is __`utf8NoBOM`__.
+> The default encoding is UTF-8 without BOM.
 
 ```yaml
 Type: Encoding
@@ -73,14 +71,14 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: Utf8
+Default value: utf8NoBOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -InputObject
 
-Specifies the input string or strings to expand.
+Specifies the GZip-compressed Base64 string(s) to decompress.
 
 ```yaml
 Type: String[]
@@ -96,8 +94,7 @@ Accept wildcard characters: False
 
 ### -Raw
 
-Outputs the expanded string as a single string with newlines preserved.
-By default, newline characters in the expanded string are used as delimiters to separate the input into an array of strings.
+By default, the cmdlet splits the decompressed text on newline characters and outputs an array of strings. The `-Raw` switch returns the entire decompressed text as a single string (with newlines preserved).
 
 ```yaml
 Type: SwitchParameter
@@ -117,21 +114,21 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### System.String
+### System.String[]
 
-You can pipe Gzip Base64 strings to this cmdlet.
+You can pipe GZip-compressed Base64 strings to this cmdlet.
 
 ## OUTPUTS
 
 ### System.String
 
-By default, this cmdlet streams strings. When the `-Raw` switch is used, it returns a single multi-line string.
+By default: `System.String[]` (one element per line). With `-Raw`: `System.String` (single multi-line string).
 
 ## NOTES
 
 ## RELATED LINKS
 
-[__ConvertTo-GzipString__](https://github.com/santisq/PSCompression)
+[__`ConvertTo-GzipString`__](./ConvertTo-GzipString.md)
 
 [__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)
 

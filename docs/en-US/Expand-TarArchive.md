@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Extracts files from a tar archive, optionally compressed with gzip, bzip2, Zstandard, or lzip.
+Extracts files and directories from a tar archive, optionally compressed with gzip, bzip2, Zstandard, or lzip.
 
 ## SYNTAX
 
@@ -39,7 +39,7 @@ Expand-TarArchive
 
 ## DESCRIPTION
 
-The `Expand-TarArchive` cmdlet extracts files and directories from a tar archive, with support for compressed tar formats using gzip (`.tar.gz`), bzip2 (`.tar.bz2`), Zstandard (`.tar.zst`), lzip (`.tar.lz`), or uncompressed tar (`.tar`). It uses libraries such as `SharpZipLib` for tar handling, `System.IO.Compression` for gzip, `SharpCompress` for lzip, and `ZstdSharp` for Zstandard. This cmdlet is the counterpart to [`Compress-TarArchive`](./Compress-TarArchive.md). By default, files are extracted to the current directory unless a `-Destination` is specified. Use `-Force` to overwrite existing files and `-PassThru` to output the extracted file and directory objects.
+The `Expand-TarArchive` cmdlet extracts files and directories from a tar archive, with support for compressed formats such as gzip (`.tar.gz`), bzip2 (`.tar.bz2`), Zstandard (`.tar.zst`), lzip (`.tar.lz`), or uncompressed tar (`.tar`). It uses libraries such as `SharpZipLib` for tar handling, `System.IO.Compression` for gzip, `SharpCompress` for lzip, and `ZstdSharp` for Zstandard. This cmdlet is the counterpart to [`Compress-TarArchive`](./Compress-TarArchive.md). By default, contents are extracted to the current directory unless `-Destination` is specified. Use `-Force` to overwrite existing files and `-PassThru` to output `FileInfo` and `DirectoryInfo` objects for the extracted items.
 
 > [!NOTE]
 > When the `-Algorithm` parameter is not specified, the cmdlet infers the compression algorithm from the file extension (e.g., `.tar.gz` for gzip, `.tar.zst` for Zstandard, `.tar` for uncompressed). See the `-Algorithm` parameter for supported extensions.
@@ -50,7 +50,6 @@ The `Expand-TarArchive` cmdlet extracts files and directories from a tar archive
 
 ```powershell
 PS C:\> Expand-TarArchive -Path .\archive.tar
-
 PS C:\> Get-ChildItem
     Directory: C:\
 
@@ -61,13 +60,12 @@ d----          2025-06-23  7:00 PM                folder1
 -a---          2025-06-23  7:00 PM           2048 file2.txt
 ```
 
-Extracts the contents of `archive.tar` to the current directory, creating `folder1`, `file1.txt`, and `file2.txt`.
+This example extracts the contents of an uncompressed `archive.tar` file to the current directory, creating folders and files while preserving the archive structure.
 
 ### Example 2: Extract a gzip-compressed tar archive to a specific destination
 
 ```powershell
 PS C:\> Expand-TarArchive -Path .\archive.tar.gz -Destination .\extracted
-
 PS C:\> Get-ChildItem .\extracted
     Directory: C:\extracted
 
@@ -78,7 +76,7 @@ d----          2025-06-23  7:00 PM                folder1
 -a---          2025-06-23  7:00 PM           2048 file2.txt
 ```
 
-Extracts `archive.tar.gz` to the `extracted` directory using the gzip algorithm, creating the directory if it doesn’t exist.
+This example extracts a gzip-compressed tar archive (`archive.tar.gz`) to the specified `.\extracted` directory. The destination directory is created if it does not exist.
 
 ### Example 3: Extract multiple Zstandard-compressed tar archives with PassThru
 
@@ -96,13 +94,12 @@ d----          2025-06-23  7:00 PM                folder2
 -a---          2025-06-23  7:00 PM           4096 file3.txt
 ```
 
-Extracts all `.tar.zst` files in the current directory and outputs the extracted files and directories to the pipeline.
+This example pipes multiple Zstandard-compressed tar archives (`.tar.zst`) to the cmdlet and uses `-PassThru` to output `FileInfo` and `DirectoryInfo` objects for all extracted items.
 
-### Example 4: Overwrite existing files with Force
+### Example 4: Overwrite existing files with `-Force`
 
 ```powershell
 PS C:\> Expand-TarArchive -Path .\archive.tar -Destination .\extracted -Force
-
 PS C:\> Get-ChildItem .\extracted
     Directory: C:\extracted
 
@@ -111,7 +108,7 @@ Mode                 LastWriteTime         Length Name
 -a---          2025-06-23  7:00 PM           1024 file1.txt
 ```
 
-Extracts `archive.tar` to the `extracted` directory, overwriting any existing `file1.txt` due to the `-Force` parameter.
+This example extracts `archive.tar` to the `.\extracted` directory and overwrites any existing files with the same name due to the `-Force` parameter.
 
 ## PARAMETERS
 
@@ -136,7 +133,7 @@ Accepted values: gz, bz2, zst, lz, none
 
 Required: False
 Position: Named
-Default value: None
+Default value: (Inferred from extension)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -159,7 +156,7 @@ Accept wildcard characters: False
 
 ### -Force
 
-Overwrites existing files in the destination directory without prompting. If not specified, the cmdlet skips files that already exist.
+Overwrites existing files in the destination directory without prompting. Without `-Force`, the cmdlet skips files that already exist.
 
 ```yaml
 Type: SwitchParameter
@@ -191,7 +188,7 @@ Accept wildcard characters: False
 
 ### -PassThru
 
-Outputs `System.IO.FileInfo` and `System.IO.DirectoryInfo` objects representing the extracted files and directories to the pipeline. By default, no output is produced unless an error occurs.
+Outputs `System.IO.FileInfo` and `System.IO.DirectoryInfo` objects for the extracted files and directories. By default, the cmdlet produces no output.
 
 ```yaml
 Type: SwitchParameter
@@ -239,13 +236,13 @@ By default, this cmdlet returns no output.
 
 ### System.IO.FileSystemInfo
 
-When the `-PassThru` parameter is used, the cmdlet outputs objects representing the extracted files and directories.
+When the `-PassThru` parameter is used, the cmdlet outputs `FileInfo` and `DirectoryInfo` objects representing the extracted items.
 
 ## NOTES
 
 ## RELATED LINKS
 
-[__Compress-TarArchive__](https://github.com/santisq/PSCompression)
+[__`Compress-TarArchive`__](./Compress-TarArchive.md)
 
 [__SharpZipLib__](https://github.com/icsharpcode/SharpZipLib)
 
@@ -253,4 +250,4 @@ When the `-PassThru` parameter is used, the cmdlet outputs objects representing 
 
 [__ZstdSharp__](https://github.com/oleg-st/ZstdSharp)
 
-[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression?view=net-6.0)
+[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)

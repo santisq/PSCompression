@@ -1,5 +1,5 @@
 ---
-external help file: PSCompression-help.xml
+external help file: PSCompression.dll-Help.xml
 Module Name: PSCompression
 online version: https://github.com/santisq/PSCompression
 schema: 2.0.0
@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Creates a Gzip Base64 compressed string from a specified input string or strings.
+Compresses input strings into a Gzip-compressed Base64-encoded string.
 
 ## SYNTAX
 
@@ -25,11 +25,11 @@ ConvertTo-GzipString
 
 ## DESCRIPTION
 
-The `ConvertTo-GzipString` cmdlet can compress input strings into Gzip Base64 encoded strings or raw bytes using the [`GzipStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). For expansion of Base64 Gzip strings, see [`ConvertFrom-GzipString`](ConvertFrom-GzipString.md).
+The `ConvertTo-GzipString` cmdlet compresses input strings into Gzip-compressed Base64-encoded strings or raw bytes using the [`GzipStream` class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream). It is the counterpart to [`ConvertFrom-GzipString`](ConvertFrom-GzipString.md).
 
 ## EXAMPLES
 
-### Example 1: Compress strings to Gzip compressed Base64 encoded string
+### Example 1: Compress strings into a GZip-compressed Base64 string
 
 ```powershell
 PS ..\pwsh> $strings = 'hello', 'world', '!'
@@ -45,21 +45,21 @@ PS ..\pwsh> $strings | ConvertTo-GzipString
 H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
 ```
 
-This example demonstrates compressing an array of strings into a single Brotli Base64 encoded string using either positional binding or pipeline input.
+This example shows how to compress an array of strings into a single Gzip-compressed Base64 string, using either argument or pipeline input.
 
-### Example 2: Create a Gzip compressed file from a string
+### Example 2: Save Gzip-compressed bytes to a file using `-AsByteStream`
 
 ```powershell
 PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream | Set-Content -FilePath .\helloworld.gz -AsByteStream
 
-# To read the file back you can use `ConvertFrom-BrotliString` following these steps:
+# To read the file back you can use `ConvertFrom-GzipString` following these steps:
 PS ..\pwsh> $path = Convert-Path .\helloworld.gz
 PS ..\pwsh> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-GzipString
 
 hello world!
 ```
 
-Demonstrates how `-AsByteStream` outputs a byte array that can be saved to a file using `Set-Content` or `Out-File`. Note that the byte array is not enumerated.
+This example shows how to use `-AsByteStream` to output raw compressed bytes that can be written to a file using `Set-Content` or `Out-File`. Note that the byte array is not enumerated.
 
 > [!NOTE]
 > The example uses `-AsByteStream` with `Set-Content`, which is available in PowerShell 7+. In Windows PowerShell 5.1, use `-Encoding Byte` with `Set-Content` or `Out-File` to write the byte array to a file.
@@ -74,9 +74,9 @@ PS ..\pwsh> 'ñ' | ConvertTo-GzipString -Encoding utf8BOM | ConvertFrom-GzipStri
 ñ
 ```
 
-The default Encoding is `utf8NoBom`.
+This example shows how different encodings affect the compression and decompression of special characters. The default encoding is `utf8NoBOM`.
 
-### Example 4: Compressing multiple files into one Gzip Base64 string
+### Example 4: Compress the contents of multiple files into a single GZip-compressed Base64 string
 
 ```powershell
 # Check the total length of the files
@@ -88,7 +88,7 @@ PS ..\pwsh> (Get-Content myLogs\*.txt | ConvertTo-GzipString).Length / 1kb
 35.123456789
 ```
 
-This example demonstrates compressing the contents of multiple text files into a single Gzip Base64 string and compares the total length before and after compression.
+This example demonstrates compressing the contents of multiple text files into a single GZip-compressed Base64 string and compares the total length before and after compression.
 
 ## PARAMETERS
 
@@ -113,8 +113,7 @@ Accept wildcard characters: False
 
 ### -CompressionLevel
 
-Define the compression level that should be used.
-__See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details__.
+Specifies the compression level for the GZip algorithm, balancing speed and compression size. See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details.
 
 ```yaml
 Type: CompressionLevel
@@ -134,7 +133,7 @@ Accept wildcard characters: False
 Determines the character encoding used when compressing the input strings.
 
 > [!NOTE]
-> The default encoding is __`utf8NoBOM`__.
+> The default encoding is UTF-8 without BOM.
 
 ```yaml
 Type: Encoding
@@ -143,7 +142,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: Utf8
+Default value: utf8NoBOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -166,8 +165,7 @@ Accept wildcard characters: False
 
 ### -NoNewLine
 
-The encoded string representation of the input objects are concatenated to form the output.
-No new line character is added after each output string when this switch is used.
+The encoded string representations of the input objects are concatenated to form the output. No newline character is added after each input string when this switch is used.
 
 ```yaml
 Type: SwitchParameter
@@ -189,23 +187,23 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ### String
 
-You can pipe strings to this cmdlet.
+You can pipe one or more strings to this cmdlet.
 
 ## OUTPUTS
 
-### String
+### System.String
 
-By default, this cmdlet outputs a single string.
+By default, this cmdlet outputs a single Base64-encoded string.
 
-### Byte[]
+### System.Byte[]
 
-When the `-AsByteStream` switch is used this cmdlet outputs a byte array down the pipeline.
+When the `-AsByteStream` switch is used, this cmdlet outputs a byte array down the pipeline.
 
 ## NOTES
 
 ## RELATED LINKS
 
-[__ConvertFrom-GzipString__](https://github.com/santisq/PSCompression)
+[__`ConvertFrom-GzipString`__](./ConvertFrom-GzipString.md)
 
 [__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)
 

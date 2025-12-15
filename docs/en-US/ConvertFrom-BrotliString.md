@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Expands Brotli Base64 compressed input strings.
+Decompresses Brotli-compressed Base64-encoded strings.
 
 ## SYNTAX
 
@@ -23,11 +23,11 @@ ConvertFrom-BrotliString
 
 ## DESCRIPTION
 
-The `ConvertFrom-BrotliString` cmdlet expands Base64 encoded Brotli compressed strings using the `BrotliStream` class from the `BrotliSharpLib` library. This cmdlet is the counterpart of [`ConvertTo-BrotliString`](./ConvertTo-BrotliString.md).
+The `ConvertFrom-BrotliString` cmdlet decompresses Base64-encoded strings that were compressed using Brotli compression (via the `BrotliStream` class from the `BrotliSharpLib` library). It is the counterpart to [`ConvertTo-BrotliString`](./ConvertTo-BrotliString.md).
 
 ## EXAMPLES
 
-### Example 1: Expanding a Brotli compressed string
+### Example 1: Decompress a Brotli-compressed Base64 string
 
 ```powershell
 PS ..\pwsh> ConvertFrom-BrotliString CwiAaGVsbG8NCndvcmxkDQohDQoD
@@ -37,36 +37,32 @@ world
 !
 ```
 
-This example expands a Brotli Base64 encoded string back to its original strings.
+This example decompresses a Brotli-compressed Base64 string, restoring the original multi-line text.
 
-### Example 2: Demonstrates how `-Raw` works
+### Example 2: Compare default behavior with the `-Raw` switch
 
 ```powershell
 PS ..\pwsh> $strings = 'hello', 'world', '!'
-
-# New lines are preserved when the cmdlet receives an array of strings.
-PS ..\pwsh> $strings | ConvertTo-BrotliString | ConvertFrom-BrotliString
+PS ..\pwsh> $compressed = $strings | ConvertTo-BrotliString
+PS ..\pwsh> $decompressed = $compressed | ConvertFrom-BrotliString -Raw
+PS ..\pwsh> $decompressed.GetType() # System.String
+PS ..\pwsh> $decompressed
 
 hello
 world
 !
-
-# When using the `-Raw` switch, all strings are returned as a single string
-PS ..\pwsh> $strings | ConvertTo-BrotliString -NoNewLine | ConvertFrom-BrotliString -Raw
-
-helloworld!
 ```
 
-This example shows how the `-Raw` switch concatenates the expanded strings into a single string with newlines preserved.
+This example compares the default behavior (outputting an array of strings split on newlines) with the `-Raw` switch (returning a single string with newlines preserved).
 
 ## PARAMETERS
 
 ### -Encoding
 
-Determines the character encoding used when expanding the input strings.
+Specifies the text encoding to use for the decompressed output string(s).
 
 > [!NOTE]
-> The default encoding is `utf8NoBOM`.
+> The default encoding is UTF-8 without BOM.
 
 ```yaml
 Type: Encoding
@@ -75,7 +71,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: Utf8
+Default value: utf8NoBOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -98,7 +94,7 @@ Accept wildcard characters: False
 
 ### -Raw
 
-Outputs the expanded string as a single string with newlines preserved. By default, newline characters in the expanded string are used as delimiters to separate the input into an array of strings.
+By default, the cmdlet splits the decompressed text on newline characters and outputs an array of strings. The `-Raw` switch returns the entire decompressed text as a single string (with newlines preserved).
 
 ```yaml
 Type: SwitchParameter
@@ -126,13 +122,13 @@ You can pipe Brotli Base64 strings to this cmdlet.
 
 ### System.String
 
-By default, this cmdlet streams strings. When the `-Raw` switch is used, it returns a single multi-line string.
+By default: `System.String[]` (one element per line). With `-Raw`: `System.String` (single multi-line string).
 
 ## NOTES
 
 ## RELATED LINKS
 
-[__ConvertTo-BrotliString__](https://github.com/santisq/PSCompression/)
+[__`ConvertTo-BrotliString`__](./ConvertTo-BrotliString.md)
 
 [__BrotliSharpLib__](https://github.com/master131/BrotliSharpLib)
 

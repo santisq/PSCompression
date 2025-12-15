@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Lists tar archive entries from a specified path or input stream.
+Lists entries from tar archives, supporting file paths and input streams.
 
 ## SYNTAX
 
@@ -51,7 +51,7 @@ Get-TarEntry
 
 ## DESCRIPTION
 
-The `Get-TarEntry` cmdlet lists entries in tar archives, including both uncompressed (`.tar`) and compressed formats (e.g., `.tar.gz`, `.tar.bz2`, `.tar.zst`, `.tar.lz`). It supports input from file paths or streams and outputs `TarEntryFile` or `TarEntryDirectory` objects, which can be piped to cmdlets like [`Expand-TarEntry`](./Expand-TarEntry.md) and [`Get-TarEntryContent`](./Get-TarEntryContent.md). The cmdlet uses libraries such as `SharpZipLib` for tar handling, `System.IO.Compression` for gzip, `SharpCompress` for lzip, and `ZstdSharp` for Zstandard. Use `-Include` and `-Exclude` to filter entries by name and `-Type` to filter by entry type (file or directory).
+The `Get-TarEntry` cmdlet lists entries in tar archives, supporting both uncompressed (`.tar`) and compressed formats (e.g., `.tar.gz`, `.tar.bz2`, `.tar.zst`, `.tar.lz`). It accepts input from file paths and streams, and outputs `TarEntryFile` or `TarEntryDirectory` objects that can be piped to cmdlets like [`Expand-TarEntry`](./Expand-TarEntry.md) and [`Get-TarEntryContent`](./Get-TarEntryContent.md). The cmdlet uses `SharpZipLib` for tar handling, `System.IO.Compression` for gzip, `SharpCompress` for lzip, and `ZstdSharp` for Zstandard.
 
 ## EXAMPLES
 
@@ -69,7 +69,7 @@ Archive            6/23/2025 11:08 PM         1.00 KB file1.txt
 Archive            6/23/2025 11:08 PM         2.00 KB file2.txt
 ```
 
-Lists all entries in `archive.tar`, including directories and files.
+This example lists all entries in an uncompressed tar archive (`archive.tar`).
 
 ### Example 2: List entries from all gzip-compressed tar archives in the current directory
 
@@ -85,8 +85,7 @@ Archive            6/23/2025 11:08 PM         1.00 KB file1.txt
 Archive            6/23/2025 11:08 PM         2.00 KB file2.txt
 ```
 
-> [!TIP]
-> The `-Path` parameter supports wildcards.
+This example lists entries from all gzip-compressed tar archives in the current directory using wildcard matching.
 
 ### Example 3: List all file entries from a tar archive
 
@@ -101,7 +100,7 @@ Archive            6/23/2025 11:08 PM         1.00 KB file1.txt
 Archive            6/23/2025 11:08 PM         2.00 KB file2.txt
 ```
 
-Filters entries to show only files using `-Type Archive`.
+This example lists only file entries (excluding directories) from `archive.tar` using `-Type Archive`.
 
 ### Example 4: Filter entries with Include and Exclude parameters
 
@@ -116,7 +115,7 @@ Directory          2025-06-23  7:00 PM                 folder1
 Archive            2025-06-23  7:00 PM         3.00 KB image.png
 ```
 
-Filters entries to include only those under `folder1/` but excludes `.txt` files.
+This example lists entries under `folder1/` while excluding any `.txt` files.
 
 > [!NOTE]
 > If not specified, the cmdlet infers the compression algorithm from the file extension: `gz` for `.gz`, `.gzip`, `.tgz`; `bz2` for `.bz2`, `.bzip2`, `.tbz2`, `.tbz`; `zst` for `.zst`; `lz` for `.lz`; `none` for `.tar`. If the extension is unrecognized, it defaults to `none` (uncompressed tar).
@@ -136,10 +135,10 @@ Archive            2025-06-23  7:00 PM         1.50 KB readme.md
 Archive            2025-06-23  7:00 PM         2.50 KB license.txt
 ```
 
-Lists the first three entries from a gzip-compressed tar archive stream, specifying `-Algorithm gz`.
+This example lists the first three entries from a gzip-compressed tar archive retrieved via a web request.
 
 > [!NOTE]
-> When processing a stream, the cmdlet defaults to the `gz` (gzip) algorithm. Specify `-Algorithm` (e.g., `-Algorithm bz2` for bzip2) to match the compression type, or an error may occur if the stream is not gzip-compressed.
+> When processing a stream, the cmdlet defaults to the `gz` (gzip) algorithm. Specify `-Algorithm` (e.g., `-Algorithm bz2` for bzip2) if the stream uses a different compression format.
 
 ## PARAMETERS
 
@@ -262,7 +261,7 @@ Accept wildcard characters: True
 
 ### -Type
 
-Filters entries by type: `Archive` for files or `Directory` for directories.
+Filters output to include only files (`Archive`) or only directories (`Directory`).
 
 ```yaml
 Type: EntryType
@@ -303,11 +302,11 @@ Outputs objects representing directories or files in the tar archive.
 
 ## RELATED LINKS
 
-[__Expand-TarEntry__](https://github.com/santisq/PSCompression)
+[__`Expand-TarEntry`__](https://github.com/santisq/PSCompression)
 
-[__Expand-TarArchive__](https://github.com/santisq/PSCompression)
+[__`Expand-TarArchive`__](https://github.com/santisq/PSCompression)
 
-[__Get-TarEntryContent__](https://github.com/santisq/PSCompression)
+[__`Get-TarEntryContent`__](https://github.com/santisq/PSCompression)
 
 [__SharpZipLib__](https://github.com/icsharpcode/SharpZipLib)
 
@@ -315,4 +314,4 @@ Outputs objects representing directories or files in the tar archive.
 
 [__ZstdSharp__](https://github.com/oleg-st/ZstdSharp)
 
-[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression?view=net-6.0)
+[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)

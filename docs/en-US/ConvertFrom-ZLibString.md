@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Expands ZLib Base64 compressed input strings.
+Decompresses ZLib-compressed Base64-encoded strings.
 
 ## SYNTAX
 
@@ -23,11 +23,12 @@ ConvertFrom-ZLibString
 
 ## DESCRIPTION
 
-The `ConvertFrom-ZLibString` cmdlet expands Base64 encoded ZLib compressed strings using a custom Zlib implementation built on the [`DeflateStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.deflatestream). For the implementation details, see the PSCompression source code. This cmdlet is the counterpart of [`ConvertTo-ZLibString`](./ConvertTo-ZLibString.md).
+The `ConvertFrom-ZLibString` cmdlet decompresses Base64-encoded strings that were compressed using ZLib compression. It uses a custom ZLib implementation built on top of the [`DeflateStream` class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.deflatestream). For implementation details, see the PSCompression source code.
+This cmdlet is the counterpart of [`ConvertTo-ZLibString`](./ConvertTo-ZLibString.md)."
 
 ## EXAMPLES
 
-### Example 1: Expanding a ZLib compressed string
+### Example 1: Decompress a ZLib-compressed Base64 string
 
 ```powershell
 PS ..\pwsh> ConvertFrom-ZLibString eJzKSM3JyeflKs8vyknh5VLk5QIAAAD//wMAMosEow==
@@ -37,36 +38,32 @@ world
 !
 ```
 
-This example expands a ZLib Base64 encoded string back to its original strings.
+This example decompresses a ZLib-compressed Base64 string, restoring the original multi-line text.
 
-### Example 2: Demonstrates how `-Raw` works
+### Example 2: Compare default behavior with the `-Raw` switch
 
 ```powershell
 PS ..\pwsh> $strings = 'hello', 'world', '!'
-
-# New lines are preserved when the cmdlet receives an array of strings.
-PS ..\pwsh> $strings | ConvertTo-ZLibString | ConvertFrom-ZLibString
+PS ..\pwsh> $compressed = $strings | ConvertTo-ZlibString
+PS ..\pwsh> $decompressed = $compressed | ConvertFrom-ZlibString -Raw
+PS ..\pwsh> $decompressed.GetType() # System.String
+PS ..\pwsh> $decompressed
 
 hello
 world
 !
-
-# When using the `-Raw` switch, all strings are returned as a single string
-PS ..\pwsh> $strings | ConvertTo-ZLibString -NoNewLine | ConvertFrom-ZLibString -Raw
-
-helloworld!
 ```
 
-This example shows how the `-Raw` switch concatenates the expanded strings into a single string with newlines preserved.
+This example compares the default behavior (outputting an array of strings split on newlines) with the `-Raw` switch (returning a single string with newlines preserved).
 
 ## PARAMETERS
 
 ### -Encoding
 
-Determines the character encoding used when expanding the input strings.
+Specifies the text encoding to use for the decompressed output string(s).
 
 > [!NOTE]
-> The default encoding is `utf8NoBOM`.
+> The default encoding is UTF-8 without BOM.
 
 ```yaml
 Type: Encoding
@@ -75,14 +72,14 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: Utf8
+Default value: utf8NoBOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -InputObject
 
-Specifies the input string or strings to expand.
+Specifies the ZLib-compressed Base64 string(s) to decompress.
 
 ```yaml
 Type: String[]
@@ -98,7 +95,7 @@ Accept wildcard characters: False
 
 ### -Raw
 
-Outputs the expanded string as a single string with newlines preserved. By default, newline characters in the expanded string are used as delimiters to separate the input into an array of strings.
+By default, the cmdlet splits the decompressed text on newline characters and outputs an array of strings. The `-Raw` switch returns the entire decompressed text as a single string (with newlines preserved).
 
 ```yaml
 Type: SwitchParameter
@@ -120,19 +117,19 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ### System.String[]
 
-You can pipe ZLib Base64 strings to this cmdlet.
+You can pipe ZLib-compressed Base64 strings to this cmdlet.
 
 ## OUTPUTS
 
 ### System.String
 
-By default, this cmdlet streams strings. When the `-Raw` switch is used, it returns a single multi-line string.
+By default: `System.String[]` (one element per line). With `-Raw`: `System.String` (single multi-line string).
 
 ## NOTES
 
 ## RELATED LINKS
 
-[__ConvertTo-ZLibString__](https://github.com/santisq/PSCompression)
+[__`ConvertTo-ZLibString`__](./ConvertTo-ZLibString.md)
 
 [__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)
 

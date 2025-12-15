@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Lists zip archive entries from a specified path or input stream.
+Lists entries from zip archives, supporting file paths and input streams.
 
 ## SYNTAX
 
@@ -48,7 +48,7 @@ Get-ZipEntry
 
 ## DESCRIPTION
 
-The `Get-ZipEntry` cmdlet is the main entry point for the `*-ZipEntry` cmdlets in this module. It can list zip archive entries from specified paths or input stream.
+The `Get-ZipEntry` cmdlet lists entries in zip archives. It supports input from file paths and streams, and outputs `ZipEntryFile` or `ZipEntryDirectory` objects that can be piped to other `*-ZipEntry` cmdlets such as [`Expand-ZipEntry`](./Expand-ZipEntry.md) or [`Get-ZipEntryContent`](./Get-ZipEntryContent.md).
 
 ## EXAMPLES
 
@@ -58,13 +58,15 @@ The `Get-ZipEntry` cmdlet is the main entry point for the `*-ZipEntry` cmdlets i
 PS ..\pwsh> Get-ZipEntry path\to\myZip.zip
 ```
 
+This example lists all entries in the specified zip archive.
+
 ### Example 2: List entries from all files with `.zip` extension in the current directory
 
 ```powershell
 PS ..\pwsh> Get-ZipEntry *.zip
 ```
 
-The `-Path` parameter supports wildcards.
+This example lists entries from all `.zip` files in the current directory. The `-Path` parameter supports wildcards.
 
 ### Example 3: List all `Archive` entries from a Zip file
 
@@ -166,11 +168,13 @@ Type                    LastWriteTime  CompressedSize            Size Name
 Archive            11/6/2024 10:29 PM       635.00  B         1.55 KB 3212d87de09c4241a06e0166a08c3b13.psmdcp
 ```
 
+This example downloads a NuGet package (a zip archive) from PowerShell Gallery and lists the first five entries from the streamed content.
+
 ## PARAMETERS
 
 ### -Type
 
-Filters entries by type: `Archive` for files or `Directory` for directories.
+Filters output to include only files (`Archive`) or only directories (`Directory`).
 
 ```yaml
 Type: EntryType
@@ -260,7 +264,7 @@ Accept wildcard characters: True
 Specifies an input stream containing a zip archive.
 
 > [!TIP]
-> Output from `Invoke-WebRequest` is bound to this paremeter automatically.
+> Output from `Invoke-WebRequest` is automatically bound to this parameter.
 
 ```yaml
 Type: Stream
@@ -280,16 +284,26 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### String
+### System.String[]
 
 You can pipe a string that contains a paths to this cmdlet.  Output from `Get-ChildItem` or `Get-Item` can be piped to this cmdlet.
 
-### Stream
+### System.IO.Stream
 
-You can pipe a Stream to this cmdlet. Output from `Invoke-WebRequest` can be piped to this cmdlet.
+You can pipe a stream containing a zip archive (e.g., output from `Invoke-WebRequest`) to this cmdlet via the `-InputStream` parameter.
 
 ## OUTPUTS
 
 ### PSCompression.ZipEntryDirectory
 
 ### PSCompression.ZipEntryFile
+
+## NOTES
+
+## RELATED LINKS
+
+[__SharpZipLib__](https://github.com/icsharpcode/SharpZipLib)
+
+[__ZipFile__](https://icsharpcode.github.io/SharpZipLib/help/api/ICSharpCode.SharpZipLib.Zip.ZipFile.html)
+
+[__ZipEntry__](https://icsharpcode.github.io/SharpZipLib/api/ICSharpCode.SharpZipLib.Zip.ZipEntry.html)
