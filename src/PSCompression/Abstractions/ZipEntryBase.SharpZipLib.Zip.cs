@@ -82,7 +82,10 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source)
         if (zip.TryGetEntry(RelativePath, out ZipEntry? entry))
         {
             using Stream source = zip.GetInputStream(entry);
-            using FileStream fs = file.OpenWrite();
+            using FileStream fs = file.Open(
+                overwrite ? FileMode.Create : FileMode.CreateNew,
+                FileAccess.Write);
+
             source.CopyTo(fs);
         }
 

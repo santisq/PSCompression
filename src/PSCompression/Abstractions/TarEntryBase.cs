@@ -38,8 +38,7 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
         FileInfo file = new(destination);
         file.Directory?.Create();
 
-        using FileStream destStream = File.Open(
-            destination,
+        using FileStream destStream = file.Open(
             overwrite ? FileMode.Create : FileMode.CreateNew,
             FileAccess.Write);
 
