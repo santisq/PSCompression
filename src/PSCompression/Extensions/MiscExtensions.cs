@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Management.Automation.Host;
 using System.Net;
 using System.Security;
@@ -19,6 +20,7 @@ internal static class MiscExtensions
     internal static string AsPlainText(this SecureString secureString) =>
         new NetworkCredential(string.Empty, secureString).Password;
 
+    [ExcludeFromCodeCoverage]
     internal static string PromptForPassword(this ZipEntryFile entry, PSHost host)
     {
         host.UI.Write(

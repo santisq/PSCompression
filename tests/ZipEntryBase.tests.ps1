@@ -14,6 +14,8 @@ Describe 'ZipEntryBase Class' {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
         'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
         New-ZipEntry $zip.FullName -EntryPath somefolder/
+        $encryptedZip = Get-Item $PSScriptRoot/../assets/helloworld.zip
+        $encryptedZip | Out-Null
     }
 
     It 'Can extract an entry' {
@@ -37,6 +39,22 @@ Describe 'ZipEntryBase Class' {
         $file = $entry.ExtractTo([Path]::Combine($TestDrive, 'myTestFolder'), $false)
 
         $file.FullName | Should -BeExactly ([Path]::Combine($TestDrive, 'myTestFolder', $entry.Name))
+    }
+
+    It 'Can extract an encrypted entry' {
+        $passw = ConvertTo-SecureString 'test' -AsPlainText -Force
+        $dest = Join-Path $TestDrive encryptedTestFolder
+        Use-Object ($stream = $encryptedZip.OpenRead()) {
+            $info = ($stream | Get-ZipEntry -Type Archive).ExtractTo($dest, $false, $passw)
+            $info | Should -BeOfType ([FileInfo])
+            Get-Content $info.FullName | Should -BeExactly 'hello world!'
+            $info.Delete()
+        }
+
+        $info = ($encryptedZip | Get-ZipEntry).ExtractTo($dest, $false, $passw)
+        $info | Should -BeOfType ([FileInfo])
+        Get-Content $info.FullName | Should -BeExactly 'hello world!'
+        $info.Delete()
     }
 
     It 'Can extract folders' {
@@ -97,5 +115,13 @@ Describe 'ZipEntryBase Class' {
                 Use-Object ($stream | Get-ZipEntry).OpenWrite() { }
             } | Should -Throw
         }
+    }
+
+    It 'Should throw if the entry to extract no longer exists in the source zip' {
+        $entry = New-ZipEntry $zip.FullName -EntryPath toberemoved.txt
+        $entry | Remove-ZipEntry
+        {
+            $entry.ExtractTo($TestDrive, $false)
+        } | Should -Throw
     }
 }

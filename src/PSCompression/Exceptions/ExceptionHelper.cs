@@ -90,7 +90,7 @@ internal static class ExceptionHelper
             "might be compressed using an unsupported method, " +
             "or could be corrupted.";
 
-        if (type is ArchiveType.tar && isStream)
+        if (type == ArchiveType.tar && isStream)
         {
             basemsg += " When reading a tar archive from a stream, " +
                 "use the -Algorithm parameter to specify the compression type.";

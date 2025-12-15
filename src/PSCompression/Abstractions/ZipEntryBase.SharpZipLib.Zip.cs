@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
+using PSCompression.Exceptions;
 using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;
@@ -25,7 +26,7 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source)
 
     public CompressionMethod CompressionMethod { get; } = entry.CompressionMethod;
 
-    public string Comment { get; } = entry.Comment;
+    public string Comment { get; } = entry.Comment ?? string.Empty;
 
     protected ZipEntryBase(ZipEntry entry, Stream? stream)
         : this(entry, $"InputStream.{Guid.NewGuid()}")
@@ -66,6 +67,11 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source)
         bool overwrite,
         ZipFile zip)
     {
+        zip.ThrowIfNotFound(
+            RelativePath,
+            Source,
+            out ZipEntry? entry);
+
         destination = Path.GetFullPath(
             Path.Combine(destination, RelativePath));
 
@@ -79,15 +85,12 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source)
         FileInfo file = new(destination);
         file.Directory?.Create();
 
-        if (zip.TryGetEntry(RelativePath, out ZipEntry? entry))
-        {
-            using Stream source = zip.GetInputStream(entry);
-            using FileStream fs = file.Open(
-                overwrite ? FileMode.Create : FileMode.CreateNew,
-                FileAccess.Write);
+        using Stream source = zip.GetInputStream(entry);
+        using FileStream fs = file.Open(
+            overwrite ? FileMode.Create : FileMode.CreateNew,
+            FileAccess.Write);
 
-            source.CopyTo(fs);
-        }
+        source.CopyTo(fs);
 
         return file;
     }
