@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Management.Automation;
 using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
@@ -33,8 +34,7 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
                     zip.Password = entry.PromptForPassword(Host);
                 }
 
-                ZipContentReader reader = new(zip);
-                ReadEntry(entry, reader);
+                ReadEntry(entry.Open(zip));
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -47,27 +47,29 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
         }
     }
 
-    private void ReadEntry(ZipEntryFile entry, ZipContentReader reader)
+    private void ReadEntry(Stream stream)
     {
         if (AsByteStream)
         {
+            using EntryByteReader byteReader = new(stream, Buffer!);
             if (Raw)
             {
-                reader.ReadAllBytes(entry, this);
+                byteReader.ReadAllBytes(this);
                 return;
             }
 
-            reader.StreamBytes(entry, BufferSize, this);
+            byteReader.StreamBytes(this);
             return;
         }
 
-        if (Raw.IsPresent)
+        using StreamReader stringReader = new(stream, Encoding);
+        if (Raw)
         {
-            reader.ReadToEnd(entry, Encoding, this);
+            stringReader.ReadToEnd(this);
             return;
         }
 
-        reader.StreamLines(entry, Encoding, this);
+        stringReader.ReadLines(this);
     }
 
     public void Dispose()

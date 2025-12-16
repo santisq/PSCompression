@@ -83,7 +83,7 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source)
         }
 
         FileInfo file = new(destination);
-        file.Directory?.Create();
+        file.Directory!.Create();
 
         using Stream source = zip.GetInputStream(entry);
         using FileStream fs = file.Open(

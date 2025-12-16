@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Net;
 using System.Security;
@@ -29,5 +31,33 @@ internal static class MiscExtensions
             "Enter password: ");
 
         return host.UI.ReadLineAsSecureString().AsPlainText();
+    }
+
+    internal static void ReadToEnd(this StreamReader reader, PSCmdlet cmdlet)
+        => cmdlet.WriteObject(reader.ReadToEnd());
+
+    internal static void ReadLines(this StreamReader reader, PSCmdlet cmdlet)
+    {
+        string? line;
+        while ((line = reader.ReadLine()) is not null)
+        {
+            cmdlet.WriteObject(line);
+        }
+    }
+
+    internal static void WriteLines(this StreamWriter writer, string[] lines)
+    {
+        foreach (string line in lines)
+        {
+            writer.WriteLine(line);
+        }
+    }
+
+    internal static void WriteContent(this StreamWriter writer, string[] lines)
+    {
+        foreach (string line in lines)
+        {
+            writer.Write(line);
+        }
     }
 }

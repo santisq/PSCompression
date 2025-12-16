@@ -8,6 +8,8 @@ namespace PSCompression.Abstractions;
 public abstract class GetEntryContentCommandBase<T> : PSCmdlet
     where T : EntryBase
 {
+    protected byte[]? Buffer { get; set; }
+
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
     public T[] Entry { get; set; } = null!;
 
@@ -26,4 +28,12 @@ public abstract class GetEntryContentCommandBase<T> : PSCmdlet
     [Parameter(ParameterSetName = "Bytes")]
     [ValidateNotNullOrEmpty]
     public int BufferSize { get; set; } = 128_000;
+
+    protected override void BeginProcessing()
+    {
+        if (ParameterSetName == "Bytes")
+        {
+            Buffer = new byte[BufferSize];
+        }
+    }
 }

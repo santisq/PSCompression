@@ -13,8 +13,6 @@ namespace PSCompression.Commands;
 [Alias("targec")]
 public sealed class GetTarEntryContentCommand : GetEntryContentCommandBase<TarEntryFile>
 {
-    private byte[]? _buffer;
-
     protected override void ProcessRecord()
     {
         foreach (TarEntryFile entry in Entry)
@@ -37,7 +35,6 @@ public sealed class GetTarEntryContentCommand : GetEntryContentCommandBase<TarEn
     private void ReadEntry(TarEntryFile entry)
     {
         using MemoryStream mem = new();
-
         if (!entry.GetContentStream(mem))
         {
             return;
@@ -51,32 +48,18 @@ public sealed class GetTarEntryContentCommand : GetEntryContentCommandBase<TarEn
                 return;
             }
 
-            StreamBytes(mem);
+            using EntryByteReader byteReader = new(mem, Buffer!);
+            byteReader.StreamBytes(this);
             return;
         }
 
         using StreamReader reader = new(mem, Encoding);
-
-        if (Raw.IsPresent)
+        if (Raw)
         {
-            reader.WriteAllTextToPipeline(this);
+            reader.ReadToEnd(this);
             return;
         }
 
-        reader.WriteLinesToPipeline(this);
-    }
-
-    private void StreamBytes(Stream stream)
-    {
-        int bytesRead;
-        _buffer ??= new byte[BufferSize];
-
-        while ((bytesRead = stream.Read(_buffer, 0, BufferSize)) > 0)
-        {
-            for (int i = 0; i < bytesRead; i++)
-            {
-                WriteObject(_buffer[i]);
-            }
-        }
+        reader.ReadLines(this);
     }
 }

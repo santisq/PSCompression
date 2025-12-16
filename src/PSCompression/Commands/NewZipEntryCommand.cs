@@ -21,7 +21,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     private ZipArchive? _zip;
 
-    private ZipContentWriter[]? _writers;
+    private StreamWriter[]? _writers;
 
     private string[]? _entryPath;
 
@@ -104,6 +104,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 share: FileShare.ReadWrite);
 
             EntryPath ??= [SourcePath.NormalizePath()];
+
             foreach (string entry in EntryPath)
             {
                 if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
@@ -148,11 +149,12 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            _writers ??= [.. _entries
+            _writers ??= _entries
                 .Where(e => !string.IsNullOrEmpty(e.Name))
-                .Select(e => new ZipContentWriter(_zip, e, Encoding))];
+                .Select(e => new StreamWriter(e.Open(), Encoding))
+                .ToArray();
 
-            foreach (ZipContentWriter writer in _writers)
+            foreach (StreamWriter writer in _writers)
             {
                 writer.WriteLines(Value);
             }
@@ -167,16 +169,10 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (_writers is not null)
-            {
-                foreach (ZipContentWriter writer in _writers)
-                {
-                    writer.Close();
-                }
-            }
-
-            _zip?.Dispose();
-            GetResult();
+            Dispose();
+            WriteObject(
+                GetEntries().ToEntrySort(),
+                enumerateCollection: true);
         }
         catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
         {
@@ -188,33 +184,27 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
     }
 
-    private void GetResult()
+    private IEnumerable<EntryBase> GetEntries()
     {
         using ICSharpCode.SharpZipLib.Zip.ZipFile zip = new(Destination);
-        List<EntryBase> _result = new(_entries.Count);
-
         foreach (ZipArchiveEntry entry in _entries)
         {
-            if (!zip.TryGetEntry(entry.FullName, out ZipEntry? zipEntry))
+            if (zip.TryGetEntry(entry.FullName, out ZipEntry? zipEntry))
             {
-                continue;
+                yield return zipEntry.IsDirectory
+                    ? new ZipEntryDirectory(zipEntry, Destination)
+                    : new ZipEntryFile(zipEntry, Destination);
             }
-
-            _result.Add(zipEntry.IsDirectory
-                ? new ZipEntryDirectory(zipEntry, Destination)
-                : new ZipEntryFile(zipEntry, Destination));
         }
-
-        WriteObject(_result.ToEntrySort(), enumerateCollection: true);
     }
 
     public void Dispose()
     {
         if (_writers is not null)
         {
-            foreach (ZipContentWriter writer in _writers)
+            foreach (StreamWriter writer in _writers)
             {
-                writer?.Dispose();
+                writer.Dispose();
             }
         }
 

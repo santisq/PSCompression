@@ -1,21 +1,19 @@
 using System;
+using System.IO;
 
 namespace PSCompression.Abstractions;
 
-internal abstract class ZipContentOpsBase<TArchive>(TArchive zip) : IDisposable
-    where TArchive : IDisposable
+internal abstract class EntryStreamOpsBase(Stream stream) : IDisposable
 {
-    protected byte[]? Buffer { get; set; }
-
-    protected TArchive ZipArchive { get; } = zip;
-
     private bool _disposed;
+
+    protected Stream Stream { get; } = stream;
 
     protected virtual void Dispose(bool disposing)
     {
         if (disposing && !_disposed)
         {
-            ZipArchive.Dispose();
+            Stream.Dispose();
             _disposed = true;
         }
     }
