@@ -28,6 +28,8 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source)
 
     public string Comment { get; } = entry.Comment ?? string.Empty;
 
+    public long Crc { get; } = entry.Crc;
+
     protected ZipEntryBase(ZipEntry entry, Stream? stream)
         : this(entry, $"InputStream.{Guid.NewGuid()}")
     {

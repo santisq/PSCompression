@@ -11,7 +11,7 @@
     RootModule         = 'PSCompression.psm1'
 
     # Version number of this module.
-    ModuleVersion      = '3.0.1'
+    ModuleVersion      = '3.1.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()

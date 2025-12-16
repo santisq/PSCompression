@@ -76,6 +76,10 @@ Describe 'ZipEntryBase Class' {
         ($zip | Get-ZipEntry).CompressionRatio | Should -BeOfType ([string])
     }
 
+    It 'Has a Crc Property' {
+        ($zip | Get-ZipEntry).Crc | Should -BeOfType ([long])
+    }
+
     It 'Can remove an entry in the source zip' {
         { $zip | Get-ZipEntry | ForEach-Object Remove } |
             Should -Not -Throw

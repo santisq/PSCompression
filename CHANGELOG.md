@@ -2,21 +2,35 @@
 
 ## 12/13/2025
 
-- Zip entries are now created directly from `ICSharpCode.SharpZipLib.Zip.ZipEntry`.  
-  This adds the following new properties to `ZipEntryBase`:
-  - `IsEncrypted` (`bool`)
-  - `AESKeySize` (`int`)
-  - `CompressionMethod` (`ICSharpCode.SharpZipLib.Zip.CompressionMethod`)
-  - `Comment` (`string`)
+- **Native Zip Entry Objects**
 
-- `Get-ZipEntryContent` and `Expand-ZipEntry` now support reading and extracting encrypted entries.  
-  A new parameter has been added to both cmdlets:
+  Zip entries returned by `Get-ZipEntry` (and created by `New-ZipEntry`) are now backed directly by `ICSharpCode.SharpZipLib.Zip.ZipEntry`.  
+  This exposes additional useful properties on `ZipEntryBase` derived objects:
+  - `IsEncrypted` (`bool`) – Indicates whether the entry is encrypted.
+  - `AESKeySize` (`int`) – AES key size (0, 128, 192, or 256) if AES encryption is used.
+  - `CompressionMethod` (`ICSharpCode.SharpZipLib.Zip.CompressionMethod`) – The actual compression method used.
+  - `Comment` (`string`) – The entry comment.
+  - `Crc` (`long`) – Cyclic redundancy check.
+
+- **Support for Encrypted Zip Entries**  
+
+  `Get-ZipEntryContent` and `Expand-ZipEntry` now fully support reading and extracting password-protected entries.  
+  A new common parameter has been added to both cmdlets:
 
   ```powershell
   -Password <SecureString>
   ```
 
-  If an entry is encrypted and no password is provided, the cmdlets will securely prompt for one.
+  - If an entry is encrypted and no password is provided, the cmdlets will securely prompt for one.
+  - Examples and detailed guidance for handling encrypted entries have been added to the help documentation.
+  
+- **Documentation Improvements**
+
+  All cmdlet help files have been reviewed and updated for consistency and clarity.
+  Significant enhancements to `Get-ZipEntryContent` and `Expand-ZipEntry` help:
+    - Added dedicated examples demonstrating password-protected entry handling.
+    - Updated parameter descriptions and notes for the new `-Password` parameter.
+    - Improved phrasing, removed outdated example output, and ensured uniform formatting across the module.
 
 ## 07/02/2025
 
