@@ -8,6 +8,7 @@ using System.Text;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
 using PSCompression.Abstractions;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace PSCompression.Commands;
 
@@ -20,7 +21,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
     private ZipArchive? _zip;
 
-    private ZipContentWriter[]? _writers;
+    private StreamWriter[]? _writers;
 
     private string[]? _entryPath;
 
@@ -61,7 +62,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            _zip = ZipFile.Open(Destination, ZipArchiveMode.Update);
+            _zip = System.IO.Compression.ZipFile.Open(Destination, ZipArchiveMode.Update);
 
             if (ParameterSetName == "Value")
             {
@@ -103,6 +104,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 share: FileShare.ReadWrite);
 
             EntryPath ??= [SourcePath.NormalizePath()];
+
             foreach (string entry in EntryPath)
             {
                 if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
@@ -147,11 +149,12 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
 
         try
         {
-            _writers ??= [.. _entries
+            _writers ??= _entries
                 .Where(e => !string.IsNullOrEmpty(e.Name))
-                .Select(e => new ZipContentWriter(_zip, e, Encoding))];
+                .Select(e => new StreamWriter(e.Open(), Encoding))
+                .ToArray();
 
-            foreach (ZipContentWriter writer in _writers)
+            foreach (StreamWriter writer in _writers)
             {
                 writer.WriteLines(Value);
             }
@@ -166,16 +169,10 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (_writers is not null)
-            {
-                foreach (ZipContentWriter writer in _writers)
-                {
-                    writer.Close();
-                }
-            }
-
-            _zip?.Dispose();
-            WriteObject(GetResult(), enumerateCollection: true);
+            Dispose();
+            WriteObject(
+                GetEntries().ToEntrySort(),
+                enumerateCollection: true);
         }
         catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
         {
@@ -187,37 +184,27 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         }
     }
 
-    private IEnumerable<EntryBase> GetResult()
+    private IEnumerable<EntryBase> GetEntries()
     {
-        using ZipArchive zip = ZipFile.OpenRead(Destination);
-        List<EntryBase> _result = new(_entries.Count);
-
+        using ICSharpCode.SharpZipLib.Zip.ZipFile zip = new(Destination);
         foreach (ZipArchiveEntry entry in _entries)
         {
-            if (!zip.TryGetEntry(entry.FullName, out ZipArchiveEntry? zipEntry))
+            if (zip.TryGetEntry(entry.FullName, out ZipEntry? zipEntry))
             {
-                continue;
+                yield return zipEntry.IsDirectory
+                    ? new ZipEntryDirectory(zipEntry, Destination)
+                    : new ZipEntryFile(zipEntry, Destination);
             }
-
-            if (string.IsNullOrEmpty(entry.Name))
-            {
-                _result.Add(new ZipEntryDirectory(zipEntry, Destination));
-                continue;
-            }
-
-            _result.Add(new ZipEntryFile(zipEntry, Destination));
         }
-
-        return _result.ToEntrySort();
     }
 
     public void Dispose()
     {
         if (_writers is not null)
         {
-            foreach (ZipContentWriter writer in _writers)
+            foreach (StreamWriter writer in _writers)
             {
-                writer?.Dispose();
+                writer.Dispose();
             }
         }
 

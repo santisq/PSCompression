@@ -17,7 +17,7 @@ public abstract class EntryBase(string source)
 
     public string Source { get; } = source;
 
-    public abstract string Name { get; protected set; }
+    public abstract string? Name { get; protected set; }
 
     public abstract string RelativePath { get; }
 

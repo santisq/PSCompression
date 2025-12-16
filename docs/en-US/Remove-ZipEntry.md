@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Removes zip entries from one or more zip archives.
+Removes specified entries from zip archives.
 
 ## SYNTAX
 
@@ -23,7 +23,7 @@ Remove-ZipEntry
 
 ## DESCRIPTION
 
-The `Remove-ZipEntry` cmdlet can remove Zip Archive Entries from one or more Zip Archives. This cmdlet takes input from and is intended to be used in combination with the [`Get-ZipEntry`](./Get-ZipEntry.md) cmdlet.
+The `Remove-ZipEntry` cmdlet removes `ZipEntryFile` or `ZipEntryDirectory` objects produced by [`Get-ZipEntry`](./Get-ZipEntry.md) or [`New-ZipEntry`](./New-ZipEntry.md) from their parent zip archives.
 
 ## EXAMPLES
 
@@ -33,11 +33,15 @@ The `Remove-ZipEntry` cmdlet can remove Zip Archive Entries from one or more Zip
 PS ..pwsh\> Get-ZipEntry .\myZip.zip | Remove-ZipEntry
 ```
 
+This example removes all entries from `myZip.zip`, effectively emptying the archive.
+
 ### Example 2: Remove all `.txt` Entries from a Zip Archive
 
 ```powershell
 PS ..pwsh\> Get-ZipEntry .\myZip.zip -Include *.txt | Remove-ZipEntry
 ```
+
+This example removes only the entries matching the `*.txt` pattern from `myZip.zip`.
 
 ### Example 3: Prompt for confirmation before removing entries
 
@@ -50,13 +54,13 @@ Performing the operation "Remove" on target "test/helloworld.txt".
 [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"):
 ```
 
-This cmdlet supports [`ShouldProcess`](https://learn.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-shouldprocess?view=powershell-7.3), you can prompt for confirmation before removing entries with `-Confirm` or check what the cmdlet would do without performing any action with `-WhatIf`.
+This example prompts for confirmation before removing each matching entry. The cmdlet supports [`ShouldProcess`](https://learn.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-shouldprocess): use `-Confirm` to prompt or `-WhatIf` to preview changes without applying them.
 
 ## PARAMETERS
 
 ### -InputObject
 
-The entries that should be removed. This parameter can be and is meant to be bound from pipeline however can be also used as a named parameter.
+Specifies the zip entries to remove. This parameter accepts pipeline input from `Get-ZipEntry` or `New-ZipEntry` and can also be used as a named argument.
 
 ```yaml
 Type: ZipEntryBase[]
@@ -88,8 +92,7 @@ Accept wildcard characters: False
 
 ### -WhatIf
 
-Shows what would happen if the cmdlet runs.
-The cmdlet is not run.
+Shows what would happen if the cmdlet runs. The cmdlet is not run.
 
 ```yaml
 Type: SwitchParameter
@@ -109,12 +112,24 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### PSCompression.Abstractions.ZipEntryBase
+### PSCompression.Abstractions.ZipEntryBase[]
 
-You can pipe instances of `ZipEntryFile` and `ZipEntryDirectory` to this cmdlet. These instances are produced by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
+You can pipe one or more `ZipEntryFile` or `ZipEntryDirectory` objects produced by [`Get-ZipEntry`](./Get-ZipEntry.md) or [`New-ZipEntry`](./New-ZipEntry.md) to this cmdlet.
 
 ## OUTPUTS
 
 ### None
 
 This cmdlet produces no output.
+
+## NOTES
+
+## RELATED LINKS
+
+[__`Get-ZipEntry`__](./Get-ZipEntry.md)
+
+[__`New-ZipEntry`__](./New-ZipEntry.md)
+
+[__System.IO.Compression.ZipArchive__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive)
+
+[__System.IO.Compression.ZipArchiveEntry__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchiveentry)

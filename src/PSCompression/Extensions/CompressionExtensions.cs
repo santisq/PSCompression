@@ -3,26 +3,39 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
-using System.Management.Automation;
 using System.Text.RegularExpressions;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Tar;
+using ICSharpCode.SharpZipLib.Zip;
 using SharpCompress.Compressors.LZMA;
 using ZstdSharp;
 using SharpCompressors = SharpCompress.Compressors;
 
 namespace PSCompression.Extensions;
 
-internal static class CompressionExtensions
+internal static partial class CompressionExtensions
 {
+    private const string DirectorySeparator = "/";
+
+#if NETCOREAPP
+    [GeneratedRegex(@"[^/]+(?=/$)",
+        RegexOptions.Compiled | RegexOptions.RightToLeft)]
+    private static partial Regex GetDirectoryName();
+
+    private static readonly Regex s_reGetDirName = GetDirectoryName();
+
+    internal static string RelativeTo(this DirectoryInfo directory, int length) =>
+        string.Concat(directory.FullName.AsSpan(length), DirectorySeparator)
+            .NormalizeEntryPath();
+#else
     private static readonly Regex s_reGetDirName = new(
         @"[^/]+(?=/$)",
         RegexOptions.Compiled | RegexOptions.RightToLeft);
 
-    private const string _directorySeparator = "/";
-
     internal static string RelativeTo(this DirectoryInfo directory, int length) =>
-        (directory.FullName.Substring(length) + _directorySeparator).NormalizeEntryPath();
+        $"{directory.FullName.Substring(length)}{DirectorySeparator}"
+            .NormalizeEntryPath();
+#endif
 
     internal static string RelativeTo(this FileInfo file, int length) =>
         file.FullName.Substring(length).NormalizeFileEntryPath();
@@ -58,20 +71,29 @@ internal static class CompressionExtensions
         return entry is not null;
     }
 
+    internal static bool TryGetEntry(
+        this ICSharpCode.SharpZipLib.Zip.ZipFile zip,
+        string path,
+        [NotNullWhen(true)] out ZipEntry? entry)
+    {
+        entry = zip.GetEntry(path);
+        return entry is not null;
+    }
+
     internal static string ChangeName(
         this ZipEntryFile file,
         string newname)
     {
         string normalized = file.RelativePath.NormalizePath();
 
-        if (normalized.IndexOf(_directorySeparator) == -1)
+        if (!normalized.Contains(DirectorySeparator))
         {
             return newname;
         }
 
         return string.Join(
-            _directorySeparator,
-            normalized.Substring(0, normalized.Length - file.Name.Length - 1),
+            DirectorySeparator,
+            normalized.Substring(0, normalized.Length - file.Name!.Length - 1),
             newname);
     }
 
@@ -82,39 +104,11 @@ internal static class CompressionExtensions
             directory.RelativePath.NormalizePath(),
             newname);
 
-    internal static string GetDirectoryName(this ZipArchiveEntry entry)
-        => s_reGetDirName.Match(entry.FullName).Value;
+    internal static string GetDirectoryName(this ZipEntry entry)
+        => s_reGetDirName.Match(entry.Name).Value;
 
     internal static string GetDirectoryName(this TarEntry entry)
         => s_reGetDirName.Match(entry.Name).Value;
-
-    internal static void WriteAllTextToPipeline(this StreamReader reader, PSCmdlet cmdlet)
-        => cmdlet.WriteObject(reader.ReadToEnd());
-
-    internal static void WriteLinesToPipeline(this StreamReader reader, PSCmdlet cmdlet)
-    {
-        string? line;
-        while ((line = reader.ReadLine()) is not null)
-        {
-            cmdlet.WriteObject(line);
-        }
-    }
-
-    internal static void WriteLines(this StreamWriter writer, string[] lines)
-    {
-        foreach (string line in lines)
-        {
-            writer.WriteLine(line);
-        }
-    }
-
-    internal static void WriteContent(this StreamWriter writer, string[] lines)
-    {
-        foreach (string line in lines)
-        {
-            writer.Write(line);
-        }
-    }
 
     internal static BrotliSharpLib.BrotliStream AsBrotliCompressedStream(
         this Stream stream,

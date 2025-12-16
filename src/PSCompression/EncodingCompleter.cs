@@ -13,8 +13,7 @@ public sealed class EncodingCompleter : IArgumentCompleter
 
     static EncodingCompleter()
     {
-        List<string> set = new(
-        [
+        List<string> set = new([
             "ascii",
             "bigendianUtf32",
             "unicode",

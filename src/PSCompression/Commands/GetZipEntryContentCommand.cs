@@ -1,7 +1,11 @@
 using System;
+using System.IO;
 using System.Management.Automation;
+using System.Security;
+using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
 using PSCompression.Exceptions;
+using PSCompression.Extensions;
 
 namespace PSCompression.Commands;
 
@@ -11,16 +15,26 @@ namespace PSCompression.Commands;
 [Alias("zipgec")]
 public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEntryFile>, IDisposable
 {
-    private readonly ZipArchiveCache _cache = new();
+    [Parameter]
+    public SecureString? Password { get; set; }
+
+    private ZipArchiveCache<ZipFile>? _cache;
 
     protected override void ProcessRecord()
     {
+        _cache ??= new ZipArchiveCache<ZipFile>(entry => entry.OpenRead(Password));
+
         foreach (ZipEntryFile entry in Entry)
         {
             try
             {
-                ZipContentReader reader = new(_cache.GetOrAdd(entry));
-                ReadEntry(entry, reader);
+                ZipFile zip = _cache.GetOrCreate(entry);
+                if (entry.IsEncrypted && Password is null)
+                {
+                    zip.Password = entry.PromptForPassword(Host);
+                }
+
+                ReadEntry(entry.Open(zip));
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -33,27 +47,29 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
         }
     }
 
-    private void ReadEntry(ZipEntryFile entry, ZipContentReader reader)
+    private void ReadEntry(Stream stream)
     {
         if (AsByteStream)
         {
+            using EntryByteReader byteReader = new(stream, Buffer!);
             if (Raw)
             {
-                reader.ReadAllBytes(entry, this);
+                byteReader.ReadAllBytes(this);
                 return;
             }
 
-            reader.StreamBytes(entry, BufferSize, this);
+            byteReader.StreamBytes(this);
             return;
         }
 
-        if (Raw.IsPresent)
+        using StreamReader stringReader = new(stream, Encoding);
+        if (Raw)
         {
-            reader.ReadToEnd(entry, Encoding, this);
+            stringReader.ReadToEnd(this);
             return;
         }
 
-        reader.StreamLines(entry, Encoding, this);
+        stringReader.ReadLines(this);
     }
 
     public void Dispose()

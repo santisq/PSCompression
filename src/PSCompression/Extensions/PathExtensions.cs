@@ -8,13 +8,22 @@ using PSCompression.Exceptions;
 
 namespace PSCompression.Extensions;
 
-public static class PathExtensions
+public static partial class PathExtensions
 {
+#if NETCOREAPP
+    [GeneratedRegex(
+        @"(?:^[a-z]:)?[\\/]+|(?<![\\/])$",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled)]
+    private static partial Regex NormalizeRegex();
+
+    private static readonly Regex s_reNormalize = NormalizeRegex();
+#else
     private static readonly Regex s_reNormalize = new(
         @"(?:^[a-z]:)?[\\/]+|(?<![\\/])$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
+#endif
 
-    private const string _directorySeparator = "/";
+    private const string DirectorySeparator = "/";
 
     public static string NormalizePath(this string path) =>
         path.EndsWith("/") || path.EndsWith("\\")
@@ -64,11 +73,13 @@ public static class PathExtensions
         return path;
     }
 
-    internal static string NormalizeEntryPath(this string path) =>
-        s_reNormalize.Replace(path, _directorySeparator).TrimStart('/');
+    internal static string NormalizeEntryPath(this string path)
+        => s_reNormalize
+            .Replace(path, DirectorySeparator)
+            .TrimStart('/');
 
-    internal static string NormalizeFileEntryPath(this string path) =>
-        NormalizeEntryPath(path).TrimEnd('/');
+    internal static string NormalizeFileEntryPath(this string path)
+        => NormalizeEntryPath(path).TrimEnd('/');
 
     internal static void Create(this DirectoryInfo dir, bool force)
     {
@@ -92,10 +103,10 @@ public static class PathExtensions
 
     internal static PSObject AppendPSProperties(this FileSystemInfo info, string? parent)
     {
-        const string provider = @"Microsoft.PowerShell.Core\FileSystem::";
+        const string Provider = @"Microsoft.PowerShell.Core\FileSystem::";
         PSObject pso = PSObject.AsPSObject(info);
-        pso.Properties.Add(new PSNoteProperty("PSPath", $"{provider}{info.FullName}"));
-        pso.Properties.Add(new PSNoteProperty("PSParentPath", $"{provider}{parent}"));
+        pso.Properties.Add(new PSNoteProperty("PSPath", $"{Provider}{info.FullName}"));
+        pso.Properties.Add(new PSNoteProperty("PSParentPath", $"{Provider}{parent}"));
         return pso;
     }
 }

@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.IO;
 
 namespace PSCompression.Shared;
 
@@ -47,19 +47,13 @@ public sealed class LoadContext : AssemblyLoadContext
 
     public static Assembly Initialize()
     {
-        LoadContext? instance = _instance;
-        if (instance is not null)
+        if (_instance is not null)
         {
-            return instance._moduleAssembly;
+            return _instance._moduleAssembly;
         }
 
         lock (s_sync)
         {
-            if (_instance is not null)
-            {
-                return _instance._moduleAssembly;
-            }
-
             string assemblyPath = typeof(LoadContext).Assembly.Location;
             string assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
             string moduleName = assemblyName[..^7];
@@ -67,7 +61,8 @@ public sealed class LoadContext : AssemblyLoadContext
                 Path.GetDirectoryName(assemblyPath)!,
                 $"{moduleName}.dll");
 
-            return new LoadContext(modulePath)._moduleAssembly;
+            _instance = new LoadContext(modulePath);
+            return _instance._moduleAssembly;
         }
     }
 }

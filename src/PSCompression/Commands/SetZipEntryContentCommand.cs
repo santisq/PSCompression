@@ -1,7 +1,10 @@
 using System;
+using System.IO;
+using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
 using PSCompression.Exceptions;
+using PSCompression.Extensions;
 
 namespace PSCompression.Commands;
 
@@ -10,7 +13,11 @@ namespace PSCompression.Commands;
 [Alias("zipsc")]
 public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
 {
-    private ZipContentWriter? _zipWriter;
+    private ZipArchive? _zip;
+
+    private ZipEntryByteWriter? _byteWriter;
+
+    private StreamWriter? _stringWriter;
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
     public object[] Value { get; set; } = null!;
@@ -40,19 +47,24 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            if (AsByteStream.IsPresent)
+            _zip = SourceEntry.OpenWrite();
+            Stream stream = SourceEntry.Open(_zip);
+
+            if (AsByteStream)
             {
-                _zipWriter = new ZipContentWriter(
-                    entry: SourceEntry,
-                    append: Append.IsPresent,
-                    bufferSize: BufferSize);
+                _byteWriter = new ZipEntryByteWriter(stream, BufferSize, Append);
                 return;
             }
 
-            _zipWriter = new ZipContentWriter(
-                entry: SourceEntry,
-                append: Append.IsPresent,
-                encoding: Encoding);
+            _stringWriter = new StreamWriter(stream, Encoding);
+
+            if (Append)
+            {
+                _stringWriter.BaseStream.Seek(0, SeekOrigin.End);
+                return;
+            }
+
+            _stringWriter.BaseStream.SetLength(0);
         }
         catch (Exception exception)
         {
@@ -64,16 +76,13 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
     {
         try
         {
-            Dbg.Assert(_zipWriter is not null);
-
-            if (AsByteStream.IsPresent)
+            if (AsByteStream)
             {
-                _zipWriter.WriteBytes(LanguagePrimitives.ConvertTo<byte[]>(Value));
+                _byteWriter!.WriteBytes(LanguagePrimitives.ConvertTo<byte[]>(Value));
                 return;
             }
 
-            _zipWriter.WriteLines(
-                LanguagePrimitives.ConvertTo<string[]>(Value));
+            _stringWriter!.WriteLines(LanguagePrimitives.ConvertTo<string[]>(Value));
         }
         catch (Exception exception)
         {
@@ -83,16 +92,11 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
 
     protected override void EndProcessing()
     {
-        Dbg.Assert(_zipWriter is not null);
-
-        if (!PassThru.IsPresent)
-        {
-            return;
-        }
+        if (!PassThru) return;
 
         try
         {
-            _zipWriter.Dispose();
+            Dispose();
             SourceEntry.Refresh();
             WriteObject(SourceEntry);
         }
@@ -104,7 +108,9 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
 
     public void Dispose()
     {
-        _zipWriter?.Dispose();
+        _byteWriter?.Dispose();
+        _stringWriter?.Dispose();
+        _zip?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

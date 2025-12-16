@@ -1,21 +1,19 @@
 using System;
-using System.IO.Compression;
+using System.IO;
 
 namespace PSCompression.Abstractions;
 
-internal abstract class ZipContentOpsBase(ZipArchive zip) : IDisposable
+internal abstract class EntryStreamOpsBase(Stream stream) : IDisposable
 {
-    protected byte[]? _buffer;
+    private bool _disposed;
 
-    protected ZipArchive _zip = zip;
-
-    protected bool _disposed;
+    protected Stream Stream { get; } = stream;
 
     protected virtual void Dispose(bool disposing)
     {
         if (disposing && !_disposed)
         {
-            _zip.Dispose();
+            Stream.Dispose();
             _disposed = true;
         }
     }

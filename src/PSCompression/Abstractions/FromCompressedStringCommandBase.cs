@@ -35,11 +35,11 @@ public abstract class FromCompressedStringCommandBase : PSCmdlet
 
         if (Raw)
         {
-            reader.WriteAllTextToPipeline(this);
+            reader.ReadToEnd(this);
             return;
         }
 
-        reader.WriteLinesToPipeline(this);
+        reader.ReadLines(this);
     }
 
     protected abstract Stream CreateDecompressionStream(Stream inputStream);

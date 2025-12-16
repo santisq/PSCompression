@@ -31,6 +31,5 @@ internal static class AlgorithmMappings
     };
 
     internal static Algorithm Parse(string path) =>
-        _mappings.TryGetValue(Path.GetExtension(path), out Algorithm value)
-            ? value : Algorithm.none;
+        _mappings.TryGetValue(Path.GetExtension(path), out Algorithm value) ? value : Algorithm.none;
 }

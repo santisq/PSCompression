@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-The `Compress-TarArchive` cmdlet creates a compressed tar archive file from one or more specified files or directories. It supports multiple compression algorithms and provides flexible file inclusion and exclusion options, similar to the `Compress-ZipArchive` cmdlet.
+The `Compress-TarArchive` cmdlet creates a compressed tar archive file from one or more specified files or directories. It supports multiple compression algorithms and provides flexible file inclusion and exclusion options, similar to the `Compress-ZipArchive` cmdlet in this module.
 
 ## SYNTAX
 
@@ -43,7 +43,7 @@ Compress-TarArchive
 
 ## DESCRIPTION
 
-The `Compress-TarArchive` cmdlet creates a tar archive, optionally compressed with algorithms like gzip, bzip2, zstd, or lz4, in a PowerShell-native environment. It simplifies file and directory archiving by integrating seamlessly with PowerShell’s object-oriented pipeline, allowing flexible file selection through cmdlets like `Get-ChildItem` or `Get-Item`. With support for selective inclusion via `-Exclude`, customizable compression levels, and the ability to overwrite existing archives, it provides a convenient alternative to traditional tar utilities for PowerShell users, while preserving directory structures and metadata.
+The `Compress-TarArchive` cmdlet creates a tar archive, optionally compressed with algorithms like gzip, bzip2, zstd, or lz4, in a PowerShell-native environment. It simplifies file and directory archiving by integrating seamlessly with PowerShell’s object-oriented pipeline, allowing flexible file selection through cmdlets like `Get-ChildItem` or `Get-Item`. With support for selective exclusion via `-Exclude`, customizable compression levels, and the ability to overwrite existing archives, it provides a convenient alternative to traditional tar utilities for PowerShell users, while preserving directory structures and metadata.
 
 ## EXAMPLES
 
@@ -57,20 +57,20 @@ Get-ChildItem C:\Logs -Recurse -Filter *.log |
 This example demonstrates how to compress all `.log` files in the `C:\Logs` directory into a gzip-compressed tar archive named `logs.tar.gz` in the `C:\Archives` directory.
 
 > [!NOTE]
-> If not specified, the cmdlet will use the gzip algorithm as default.
+> If not specified, the cmdlet uses the gzip algorithm as default.
 
 ### Example 2: Compress a folder using `Fastest` Compression Level
 
 ```powershell
-Compress-TarArchive -Path .\path -Destination myPath.tar.gz -CompressionLevel Fastest
+Compress-TarArchive -Path . -Destination myPath.tar.gz -CompressionLevel Fastest
 ```
 
-This example shows how to compress the entire path directory into a gzip-compressed tar archive named `myPath.tar.gz` using the `Fastest` compression level for quicker processing.
+This example shows how to compress the current directory (`.`) into a gzip-compressed tar archive named `myPath.tar.gz` using the `Fastest` compression level for quicker processing.
 
-### Example 3: Replacing an existing Tar Archive
+### Example 3: Overwrite an existing tar archive
 
 ```powershell
-Compress-TarArchive -Path .\path -Destination dest.tar.gz -Force
+Compress-TarArchive -Path .\Path -Destination dest.tar.gz -Force
 ```
 
 This example illustrates how to create a new tar archive named `dest.tar.gz` from the path directory, overwriting any existing archive with the same name using the `-Force` parameter.
@@ -78,16 +78,14 @@ This example illustrates how to create a new tar archive named `dest.tar.gz` fro
 ### Example 4: Exclude files and folders from source
 
 ```powershell
-Compress-TarArchive -Path .\path -Destination myPath.tar.gz -Exclude *.xyz, *\test\*
+Compress-TarArchive -Path .\Path -Destination myPath.tar.gz -Exclude *.xyz, *\test\*
 ```
 
-This example shows how to compress all items in `path` excluding all files having a `.xyz` extension and excluding
-a folder with name `test` and all its child items.
+This example shows how to compress all items in `path` excluding all files having a `.xyz` extension, any folder named `test` and all its child items.
 
 > [!TIP]
 >
-> The `-Exclude` parameter supports [wildcard patterns](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_wildcards?view=powershell-7.4&viewFallbackFrom=powershell-7.3),
-exclusion patterns are tested against the items `.FullName` property.
+> The `-Exclude` parameter supports [wildcard patterns](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_wildcards). Exclusion patterns are tested against each item's `.FullName` property.
 
 ### Example 5: Compress a directory using bzip2 algorithm
 
@@ -113,14 +111,14 @@ Aliases:
 Accepted values: gz, bz2, zst, lz, none
 Required: False
 Position: Named
-Default value: none
+Default value: gz
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -CompressionLevel
 
-Specifies the compression level for the selected algorithm, balancing speed and file size. See [`CompressionLevel` Enum](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.compressionlevel) for details. The default is algorithm-dependent but typically `Optimal`.
+Specifies the compression level for the selected algorithm, balancing speed and file size. The default is algorithm-dependent but typically `Optimal`.
 
 ```yaml
 Type: CompressionLevel
@@ -155,9 +153,6 @@ Accept wildcard characters: False
 ### -Exclude
 
 Specifies an array of string patterns to exclude files or directories from the archive. Matching items are excluded based on their `.FullName` property. Wildcard characters are supported.
-
-> [!NOTE]
-> Patterns are tested against the object's `.FullName` property.
 
 ```yaml
 Type: String[]
@@ -263,7 +258,7 @@ This cmdlet is designed to provide a PowerShell-native way to create tar archive
 
 ## RELATED LINKS
 
-[__Compress-ZipArchive__](https://github.com/santisq/PSCompression)
+[__`Compress-ZipArchive`__](https://github.com/santisq/PSCompression)
 
 [__SharpZipLib__](https://github.com/icsharpcode/SharpZipLib)
 

@@ -42,6 +42,25 @@ Describe 'File Entry Types' {
         ($tarArchive | Get-TarEntry).Extension | Should -BeExactly .txt
     }
 
+    It 'Should Have an IsEncrypted Property' {
+        ($zip | Get-ZipEntry).IsEncrypted | Should -BeOfType ([bool])
+        ($zip | Get-ZipEntry).IsEncrypted | Should -BeFalse
+    }
+
+    It 'Should Have an AESKeySize Property' {
+        ($zip | Get-ZipEntry).AESKeySize | Should -BeOfType ([int])
+        ($zip | Get-ZipEntry).AESKeySize | Should -BeExactly 0
+    }
+
+    It 'Should Have a CompressionMethod Property' {
+        ($zip | Get-ZipEntry).CompressionMethod | Should -Be Deflated
+    }
+
+    It 'Should Have a Comment Property' {
+        ($zip | Get-ZipEntry).Comment | Should -BeOfType ([string])
+        ($zip | Get-ZipEntry).Comment | Should -BeExactly ''
+    }
+
     It 'Should Open the source zip' {
         Use-Object ($stream = ($zip | Get-ZipEntry).OpenRead()) {
             $stream | Should -BeOfType ([ZipArchive])

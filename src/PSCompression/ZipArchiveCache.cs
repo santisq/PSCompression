@@ -1,39 +1,37 @@
 using System;
 using System.Collections.Generic;
-using System.IO.Compression;
 using PSCompression.Abstractions;
 
 namespace PSCompression;
 
-internal sealed class ZipArchiveCache : IDisposable
+internal sealed class ZipArchiveCache<TArchive> : IDisposable
+    where TArchive : IDisposable
 {
-    private readonly Dictionary<string, ZipArchive> _cache;
+    private readonly Dictionary<string, TArchive> _cache;
 
-    private readonly ZipArchiveMode _mode = ZipArchiveMode.Read;
+    private readonly Func<ZipEntryBase, TArchive> _factory;
 
-    internal ZipArchiveCache() => _cache = [];
-
-    internal ZipArchiveCache(ZipArchiveMode mode)
+    internal ZipArchiveCache(Func<ZipEntryBase, TArchive> factory)
     {
-        _cache = [];
-        _mode = mode;
+        _cache = new(StringComparer.OrdinalIgnoreCase);
+        _factory = factory;
     }
 
-    internal ZipArchive this[string source] => _cache[source];
+    internal TArchive this[string source] => _cache[source];
 
     internal void TryAdd(ZipEntryBase entry)
     {
         if (!_cache.ContainsKey(entry.Source))
         {
-            _cache[entry.Source] = entry.OpenZip(_mode);
+            _cache[entry.Source] = _factory(entry);
         }
     }
 
-    internal ZipArchive GetOrAdd(ZipEntryBase entry)
+    internal TArchive GetOrCreate(ZipEntryBase entry)
     {
         if (!_cache.ContainsKey(entry.Source))
         {
-            _cache[entry.Source] = entry.OpenZip(_mode);
+            _cache[entry.Source] = _factory(entry);
         }
 
         return _cache[entry.Source];
@@ -41,7 +39,7 @@ internal sealed class ZipArchiveCache : IDisposable
 
     public void Dispose()
     {
-        foreach (ZipArchive zip in _cache.Values)
+        foreach (TArchive zip in _cache.Values)
         {
             zip?.Dispose();
         }

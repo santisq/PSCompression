@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Renames zip entries from one or more zip archives.
+Renames a zip entry (file or directory) within its archive.
 
 ## SYNTAX
 
@@ -25,8 +25,7 @@ Rename-ZipEntry
 
 ## DESCRIPTION
 
-The `Rename-ZipEntry` cmdlet changes the name of a specified item.
-This cmdlet does not affect the content of the item being renamed.
+The `Rename-ZipEntry` cmdlet renames a single `ZipEntryFile` or `ZipEntryDirectory` object produced by [`Get-ZipEntry`](./Get-ZipEntry.md) or [`New-ZipEntry`](./New-ZipEntry.md). The operation copies the entry with the new name and deletes the original.
 
 > [!NOTE]
 >
@@ -46,6 +45,8 @@ PS ..pwsh\> Get-ZipEntry .\myZip.zip -Type Archive -Include relativePath/to/myEn
     Rename-ZipEntry -NewName myNewName.ext
 ```
 
+This example renames a specific file entry inside the zip archive to `myNewName.ext`.
+
 ### Example 2: Rename all entries with `.ext` extension using a delay-bind scriptblock
 
 ```powershell
@@ -53,10 +54,10 @@ PS ..pwsh\> Get-ZipEntry .\myZip.zip -Type Archive -Include *.ext |
     Rename-ZipEntry -NewName { $_.BaseName + 'myNewName' + $_.Extension }
 ```
 
-[Delay-bind scriptblocks](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_script_blocks?view=powershell-7.4#using-delay-bind-script-blocks-with-parameters) is supported for renaming multiple entries.
+[Delay-bind scriptblocks](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_script_blocks#using-delay-bind-script-blocks-with-parameters) is supported for renaming multiple entries.
 
 > [!TIP]
-> In the context of the _delay-bind scriptblock_, [`$_` (`$PSItem`)](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psitem?view=powershell-7.4) represents the current pipeline item, in this case, an instance of `PSCompression.ZipEntryFile` or `PSCompression.ZipEntryDirectory`.
+> In the context of the _delay-bind scriptblock_, [`$_` (`$PSItem`)](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_psitem) represents the current pipeline item, in this case, an instance of `PSCompression.ZipEntryFile` or `PSCompression.ZipEntryDirectory`.
 
 ### Example 3: Rename a Zip Directory Entry
 
@@ -105,6 +106,8 @@ Archive            2/25/2024 12:41 PM       741.00  B         2.16 KB Rename-Zip
 Archive            2/25/2024 12:41 PM         1.55 KB         5.35 KB Set-ZipEntryContent.md
 ```
 
+This example renames a directory entry (`en-US/`) to `en-US123/`. All child entries are automatically updated to reflect the new parent path.
+
 ### Example 4: Prompt for confirmation before renaming entries
 
 ```powershell
@@ -116,6 +119,8 @@ Performing the operation "Rename" on target "PSCompression/docs/en-US123/".
 [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"):
 ```
 
+This example prompts for confirmation before renaming the directory entry. The cmdlet supports `ShouldProcess`: use `-Confirm` to prompt or `-WhatIf` to preview the operation.
+
 ## PARAMETERS
 
 ### -NewName
@@ -123,7 +128,7 @@ Performing the operation "Rename" on target "PSCompression/docs/en-US123/".
 Specifies the new name of the zip entry. Enter only a name, not a path and name.
 
 > [!TIP]
-> [Delay-bind scriptblock](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_script_blocks?view=powershell-7.4#using-delay-bind-script-blocks-with-parameters) is supported for this parameter. See [Example 2](#example-2-rename-all-entries-with-ext-extension-using-a-delay-bind-scriptblock).
+> [Delay-bind scriptblock](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_script_blocks#using-delay-bind-script-blocks-with-parameters) is supported for this parameter. See [Example 2](#example-2-rename-all-entries-with-ext-extension-using-a-delay-bind-scriptblock).
 
 ```yaml
 Type: String
@@ -139,7 +144,7 @@ Accept wildcard characters: False
 
 ### -PassThru
 
-The cmdlet outputs the `ZipEntryFile` and `ZipEntryDirectory` instances representing the renamed entries when this switch is used.
+Outputs the renamed `ZipEntryFile` or `ZipEntryDirectory` object. By default, the cmdlet produces no output.
 
 ```yaml
 Type: SwitchParameter
@@ -159,8 +164,8 @@ The zip entries to rename.
 
 > [!NOTE]
 >
-> - This parameter takes input from pipeline, however binding by name is also possible.
-> - The input are instances inheriting from `ZipEntryBase` (`ZipEntryFile` or `ZipEntryDirectory`) outputted by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
+> - This parameter accepts pipeline input (by value). Binding by property name is also supported.
+> - Input objects are instances of `ZipEntryFile` or `ZipEntryDirectory` produced by [`Get-ZipEntry`](./Get-ZipEntry.md) or [`New-ZipEntry`](./New-ZipEntry.md).
 
 ```yaml
 Type: ZipEntryBase
@@ -192,8 +197,7 @@ Accept wildcard characters: False
 
 ### -WhatIf
 
-Shows what would happen if the cmdlet runs.
-The cmdlet is not run.
+Shows what would happen if the cmdlet runs. The cmdlet is not run.
 
 ```yaml
 Type: SwitchParameter
@@ -215,7 +219,7 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ### PSCompression.Abstractions.ZipEntryBase
 
-You can pipe instances of `ZipEntryFile` or `ZipEntryDirectory` to this cmdlet. These instances are produced by [`Get-ZipEntry`](Get-ZipEntry.md) and [`New-ZipEntry`](New-ZipEntry.md) cmdlets.
+You can pipe a single `ZipEntryFile` or `ZipEntryDirectory` object produced by ['`Get-ZipEntry`'](./Get-ZipEntry.md) or [`New-ZipEntry`](./New-ZipEntry.md) to this cmdlet.
 
 ## OUTPUTS
 
@@ -227,4 +231,16 @@ By default, this cmdlet produces no output.
 
 ### PSCompression.ZipEntryDirectory
 
-This cmdlet outputs the renamed entries when the `-PassThru` switch is used.
+When the `-PassThru` switch is used, the cmdlet outputs the renamed entry object.
+
+## NOTES
+
+## RELATED LINKS
+
+[__`Get-ZipEntry`__](./Get-ZipEntry.md)
+
+[__`New-ZipEntry`__](./New-ZipEntry.md)
+
+[__System.IO.Compression.ZipArchive__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive)
+
+[__System.IO.Compression.ZipArchiveEntry__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchiveentry)

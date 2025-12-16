@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Sets or appends content to an existing zip entry.
+Sets or appends content to an existing zip file entry.
 
 ## SYNTAX
 
@@ -40,9 +40,9 @@ Set-ZipEntryContent
 
 ## DESCRIPTION
 
-The `Set-ZipEntryContent` cmdlet can write or append content to a Zip Archive Entry. By default, this cmdlet replaces the existing content of a Zip Archive Entry, if you need to append content you can use the `-Append` switch. This cmdlet also supports writing or appending raw bytes while using the `-AsByteStream` switch. To send content to `Set-ZipEntryContent` you can use the `-Value` parameter on the command line or send content through the pipeline.
+The `Set-ZipEntryContent` cmdlet writes or appends content to a `ZipEntryFile` object produced by [`Get-ZipEntry`](./Get-ZipEntry.md) or [`New-ZipEntry`](./New-ZipEntry.md). By default, it replaces existing content; use `-Append` to add to it. Content can be text (strings) or raw bytes (via `-AsByteStream`). Input can be piped or provided via `-Value`.
 
-If you need to create a new Zip Archive Entry you can use the [`New-ZipEntry` cmdlet](./New-ZipEntry.md).
+To create a new entry, use [`New-ZipEntry`](./New-ZipEntry.md).
 
 > [!NOTE]
 > Due to a .NET limitation, writing or appending content larger than 2 GB to an existing zip entry may fail. To handle such content, recreate the zip archive or use tools like 7-Zip. See [issue #19](https://github.com/santisq/PSCompression/issues/19) for details.
@@ -60,7 +60,7 @@ world
 !
 ```
 
-You can send content through the pipeline or using the `-Value` parameter as shown in the next example.
+This example creates a new file entry and pipes strings to set its content (replacing any existing data).
 
 ### Example 2: Append content to a Zip Archive Entry
 
@@ -75,6 +75,8 @@ world
 !
 ```
 
+This example appends additional strings to the existing entry content using `-Append`.
+
 ### Example 3: Write raw bytes to a Zip Archive Entry
 
 ```powershell
@@ -85,7 +87,7 @@ PS ..pwsh\> $entry | Get-ZipEntryContent
 hello world!
 ```
 
-The cmdlet supports writing and appending raw bytes while using the `-AsByteStream` switch.
+This example appends the same byte array to the entry using `-AsByteStream` and `-Append`.
 
 ### Example 4: Append raw bytes to a Zip Archive Entry
 
@@ -137,8 +139,8 @@ For efficiency purposes this cmdlet buffers bytes before writing them to the Zip
 
 > [!NOTE]
 >
-> - __This parameter is applicable only when `-AsByteStream` is used.__
-> The buffer default value is __128 KiB.__
+> - This parameter applies only when `-AsByteStream` is used.
+> - The default buffer size is __128 KiB.__
 
 ```yaml
 Type: Int32
@@ -158,8 +160,8 @@ The character encoding used to read the entry content.
 
 > [!NOTE]
 >
-> - __This parameter is applicable only when `-AsByteStream` is not used.__
-> - The default encoding is __`utf8NoBOM`__.
+> - This parameter applies only when `-AsByteStream` is not used.
+> - The default encoding is UTF-8 without BOM.
 
 ```yaml
 Type: Encoding
@@ -175,7 +177,7 @@ Accept wildcard characters: False
 
 ### -PassThru
 
-Outputs the object representing the updated zip archive entry. By default, this cmdlet does not generate any output.
+Outputs the updated `ZipEntryFile` object. By default, the cmdlet produces no output.
 
 ```yaml
 Type: SwitchParameter
@@ -227,16 +229,28 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ## INPUTS
 
-### System.Object
+### System.Object[]
 
-You can pipe strings or bytes to this cmdlet.
+You can pipe strings (for text content) or byte arrays (for binary content) to this cmdlet.
 
 ## OUTPUTS
 
 ### None
 
-This cmdlet produces no output by default .
+By default, this cmdlet produces no output.
 
 ### PSCompression.ZipEntryFile
 
-This cmdlet outputs the updated entry when the `-PassThru` switch is used.
+When the `-PassThru` switch is used, the cmdlet outputs the updated `ZipEntryFile` object.
+
+## NOTES
+
+## RELATED LINKS
+
+[__`Get-ZipEntry`__](./Get-ZipEntry.md)
+
+[__`New-ZipEntry`__](./New-ZipEntry.md)
+
+[__System.IO.Compression.ZipArchive__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive)
+
+[__System.IO.Compression.ZipArchiveEntry__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchiveentry)

@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-Creates a Deflate Base64 compressed string from a specified input string or strings.
+Compresses input strings into a Deflate-compressed Base64-encoded string.
 
 ## SYNTAX
 
@@ -25,7 +25,7 @@ ConvertTo-DeflateString
 
 ## DESCRIPTION
 
-The `ConvertTo-DeflateString` cmdlet compresses input strings into Deflate Base64 encoded strings or raw bytes using the [`DeflateStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.deflatestream). For expansion of Base64 Deflate strings, see [`ConvertFrom-DeflateString`](./ConvertFrom-DeflateString.md).
+The `ConvertTo-DeflateString` cmdlet compresses input strings into Deflate-compressed Base64-encoded strings or raw bytes using the [`DeflateStream` Class](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.deflatestream). It is the counterpart to [`ConvertFrom-DeflateString`](./ConvertFrom-DeflateString.md).
 
 ## EXAMPLES
 
@@ -43,21 +43,21 @@ PS ..\pwsh> $strings | ConvertTo-DeflateString
 ykjNycnn5SrPL8pJ4eVS5OUCAAAA//8DAA==
 ```
 
-This example demonstrates compressing an array of strings into a single Deflate Base64 encoded string using either positional binding or pipeline input.
+This example shows how to compress an array of strings into a single Deflate-compressed Base64 string, using either argument or pipeline input.
 
-### Example 2: Create a Deflate compressed file from a string
+### Example 2: Save Deflate-compressed bytes to a file using `-AsByteStream`
 
 ```powershell
 PS ..\pwsh> 'hello world!' | ConvertTo-DeflateString -AsByteStream | Set-Content -FilePath .\helloworld.deflate -AsByteStream
 
-# To read the file back you can use `ConvertFrom-BrotliString` following these steps:
+# To read the file back you can use `ConvertFrom-DeflateString` following these steps:
 PS ..\pwsh> $path = Convert-Path .\helloworld.deflate
 PS ..\pwsh> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-DeflateString
 
 hello world!
 ```
 
-Demonstrates how `-AsByteStream` outputs a byte array that can be saved to a file using `Set-Content` or `Out-File`. Note that the byte array is not enumerated.
+This example shows how to use `-AsByteStream` to output raw compressed bytes that can be written to a file using `Set-Content` or `Out-File`. Note that the byte array is not enumerated.
 
 > [!NOTE]
 > The example uses `-AsByteStream` with `Set-Content`, which is available in PowerShell 7+. In Windows PowerShell 5.1, use `-Encoding Byte` with `Set-Content` or `Out-File` to write the byte array to a file.
@@ -74,7 +74,7 @@ PS ..\pwsh> 'ñ' | ConvertTo-DeflateString -Encoding utf8BOM | ConvertFrom-Defla
 
 This example shows how different encodings affect the compression and decompression of special characters. The default encoding is `utf8NoBOM`.
 
-### Example 4: Compressing multiple files into one Deflate Base64 string
+### Example 4: Compress the contents of multiple files into a single Deflate Base64 string
 
 ```powershell
 # Check the total length of the files
@@ -86,7 +86,7 @@ PS ..\pwsh> (Get-Content myLogs\*.txt | ConvertTo-DeflateString).Length / 1kb
 35.123456789
 ```
 
-This example demonstrates compressing the contents of multiple text files into a single Deflate Base64 string and compares the total length before and after compression.
+This example demonstrates compressing the contents of multiple text files into a single Deflate-compressed Base64 string and compares the total length before and after compression.
 
 ## PARAMETERS
 
@@ -131,7 +131,7 @@ Accept wildcard characters: False
 Determines the character encoding used when compressing the input strings.
 
 > [!NOTE]
-> The default encoding is `utf8NoBOM`.
+> The default encoding is UTF-8 without BOM.
 
 ```yaml
 Type: Encoding
@@ -140,7 +140,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: Utf8
+Default value: utf8NoBOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -185,13 +185,13 @@ This cmdlet supports the common parameters. For more information, see [about_Com
 
 ### System.String[]
 
-You can pipe strings to this cmdlet.
+You can pipe one or more strings to this cmdlet.
 
 ## OUTPUTS
 
 ### System.String
 
-By default, this cmdlet outputs a single Base64 encoded string.
+By default, this cmdlet outputs a single Base64-encoded string.
 
 ### System.Byte[]
 
@@ -201,8 +201,8 @@ When the `-AsByteStream` switch is used, this cmdlet outputs a byte array down t
 
 ## RELATED LINKS
 
-[__ConvertFrom-DeflateString__](https://github.com/santisq/PSCompression)
+[__`ConvertFrom-DeflateString`__](./ConvertFrom-DeflateString.md)
 
-[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression?view=net-6.0)
+[__System.IO.Compression__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression)
 
 [__DeflateStream Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.deflatestream)

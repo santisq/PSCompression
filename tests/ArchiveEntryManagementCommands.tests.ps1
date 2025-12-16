@@ -32,7 +32,8 @@ Describe 'Archive Entry Management Commands' {
             Compress-TarArchive @compressTarArchiveSplat
         }
 
-        $zip, $file, $uri, $tarArchives, $itemCounts, $totalCount | Out-Null
+        $encryptedZip = Get-Item $PSScriptRoot/../assets/helloworld.zip
+        $zip, $file, $uri, $tarArchives, $itemCounts, $totalCount, $encryptedZip | Out-Null
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -355,6 +356,20 @@ Describe 'Archive Entry Management Commands' {
         It 'Should not attempt to read a directory entry' {
             { $zip | Get-ZipEntry -Type Directory | Get-ZipEntry } |
                 Should -Throw
+        }
+
+        It 'Can read encrypted entries' {
+            $passw = ConvertTo-SecureString 'test' -AsPlainText -Force
+
+            Use-Object ($stream = $encryptedZip.OpenRead()) {
+                $stream | Get-ZipEntry -Type Archive |
+                    Get-ZipEntryContent -Password $passw |
+                    Should -BeExactly 'hello world!'
+            }
+
+            $encryptedZip | Get-ZipEntry -Type Archive |
+                Get-ZipEntryContent -Password $passw |
+                Should -BeExactly 'hello world!'
         }
     }
 
@@ -679,6 +694,26 @@ Describe 'Archive Entry Management Commands' {
 
             Get-ChildItem -LiteralPath $destination -Recurse -File |
                 ForEach-Object { $_ | Get-Content | Should -BeExactly $content }
+        }
+
+        It 'Can extract an encrypted entry' {
+            $passw = ConvertTo-SecureString 'test' -AsPlainText -Force
+            $dest = Join-Path $TestDrive encryptedTestFolder
+            Use-Object ($stream = $encryptedZip.OpenRead()) {
+                $info = $stream | Get-ZipEntry -Type Archive |
+                    Expand-ZipEntry -Password $passw -Destination $dest -PassThru
+
+                $info | Should -BeOfType ([FileInfo])
+                Get-Content $info.FullName | Should -BeExactly 'hello world!'
+                $info.Delete()
+            }
+
+            $info = $encryptedZip | Get-ZipEntry |
+                Expand-ZipEntry -Password $passw -Destination $dest -PassThru
+
+            $info | Should -BeOfType ([FileInfo])
+            Get-Content $info.FullName | Should -BeExactly 'hello world!'
+            $info.Delete()
         }
     }
 

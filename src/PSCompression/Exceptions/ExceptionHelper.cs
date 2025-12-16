@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
+using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
 using PSCompression.Extensions;
 
@@ -89,7 +90,7 @@ internal static class ExceptionHelper
             "might be compressed using an unsupported method, " +
             "or could be corrupted.";
 
-        if (type is ArchiveType.tar && isStream)
+        if (type == ArchiveType.tar && isStream)
         {
             basemsg += " When reading a tar archive from a stream, " +
                 "use the -Algorithm parameter to specify the compression type.";
@@ -106,6 +107,18 @@ internal static class ExceptionHelper
         string path,
         string source,
         [NotNull] out ZipArchiveEntry? entry)
+    {
+        if (!zip.TryGetEntry(path, out entry))
+        {
+            throw EntryNotFoundException.Create(path, source);
+        }
+    }
+
+    internal static void ThrowIfNotFound(
+        this ICSharpCode.SharpZipLib.Zip.ZipFile zip,
+        string path,
+        string source,
+        [NotNull] out ZipEntry? entry)
     {
         if (!zip.TryGetEntry(path, out entry))
         {

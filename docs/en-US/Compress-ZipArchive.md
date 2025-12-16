@@ -1,5 +1,5 @@
 ---
-external help file: PSCompression-help.xml
+external help file: PSCompression.dll-Help.xml
 Module Name: PSCompression
 online version: https://github.com/santisq/PSCompression
 schema: 2.0.0
@@ -9,7 +9,7 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
-The `Compress-ZipArchive` cmdlet creates a compressed, or zipped, archive file from one or more specified files or directories. It aims to overcome a few limitations of [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7.2) while keeping similar pipeline capabilities.
+The `Compress-ZipArchive` cmdlet creates a compressed, or zipped, archive file from one or more specified files or directories. It aims to overcome a few limitations of [`Compress-Archive`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive) while keeping similar pipeline capabilities.
 
 ## SYNTAX
 
@@ -43,7 +43,7 @@ Compress-ZipArchive
 
 ## DESCRIPTION
 
-PowerShell cmdlet that overcomes the limitation that the built-in cmdlet `Compress-Archive` has:
+This cmdlet overcomes several limitations of the built-in `Compress-Archive` cmdlet:
 
 > The `Compress-Archive` cmdlet uses the Microsoft .NET API [`System.IO.Compression.ZipArchive`](https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive) to compress files. The maximum file size is 2 GB because there's a limitation of the underlying API.
 
@@ -53,9 +53,9 @@ However, there are 3 limitations while using this method:
 
    1. The source __must be a directory__, a single file cannot be compressed.
    2. All files (recursively) on the source folder __will be compressed__, we can't pick / filter files to compress.
-   3. It's not possible to __Update__ the entries of an existing Zip Archive.
+   3. It is not possible to update the entries of an existing zip archive.
 
-This cmdlet should be able to handle compression same as `ZipFile.CreateFromDirectory` Method but also allow filtering files and folders to compress while keeping the __file / folder structure intact__.
+This cmdlet handles compression like the `ZipFile.CreateFromDirectory` method but also allows filtering of files and folders while preserving the file and folder structure.
 
 > [!NOTE]
 > When appending to an existing zip archive using the [`-Update` parameter](#-update), a .NET limitation may cause failures for files larger than 2 GB. To handle such files, recreate the archive or use tools like 7-Zip. See [issue #19](https://github.com/santisq/PSCompression/issues/19) for details.
@@ -65,11 +65,11 @@ This cmdlet should be able to handle compression same as `ZipFile.CreateFromDire
 ### Example 1: Compress all `.ext` files from a specific folder
 
 ```powershell
-Get-ChildItem .\path -Recurse -Filter *.ext |
+Get-ChildItem .\Path -Recurse -Filter *.ext |
     Compress-ZipArchive -Destination dest.zip
 ```
 
-### Example 2: Compress all `.txt` files contained in all folders in the Current Directory
+### Example 2: Compress all `.txt` files from subfolders in the current directory
 
 ```powershell
 Compress-ZipArchive .\*\*.txt -Destination dest.zip
@@ -84,52 +84,51 @@ Compress-ZipArchive .\*.ext, .\*.ext2 -Destination dest.zip
 ### Example 4: Compress a folder using `Fastest` Compression Level
 
 ```powershell
-Compress-ZipArchive .\path -Destination myPath.zip -CompressionLevel Fastest
+Compress-ZipArchive .\Path -Destination myPath.zip -CompressionLevel Fastest
 ```
 
 ### Example 5: Compressing all directories in `.\Path`
 
 ```powershell
-Get-ChildItem .\path -Recurse -Directory |
+Get-ChildItem .\Path -Recurse -Directory |
     Compress-ZipArchive -Destination dest.zip
 ```
 
 ### Example 6: Replacing an existing Zip Archive
 
-Demonstrates the use of `-Force` parameter switch.
-
 ```powershell
-Compress-ZipArchive -Path .\path -Destination dest.zip -Force
+Compress-ZipArchive -Path .\Path -Destination dest.zip -Force
 ```
+
+Demonstrates the use of `-Force` parameter switch. This overwrites any existing archive at the destination path.
 
 ### Example 7: Adding and updating new entries to an existing Zip Archive
 
-Demonstrates the use of `-Update` parameter switch.
-
 ```powershell
-Get-ChildItem .\path -Recurse -Directory |
+Get-ChildItem .\Path -Recurse -Directory |
     Compress-ZipArchive -Destination dest.zip -Update
 ```
+
+Demonstrates the use of `-Update` parameter switch. This adds the directories to an existing archive or updates them if they already exist.
 
 ### Example 8: Exclude files and folders from source
 
 ```powershell
-Compress-ZipArchive .\path -Destination myPath.zip -Exclude *.xyz, *\test\*
+Compress-ZipArchive .\Path -Destination myPath.zip -Exclude *.xyz, *\test\*
 ```
 
-This example shows how to compress all items in `path` excluding all files having a `.xyz` extension and excluding
-a folder with name `test` and all its child items.
+This example shows how to compress all items in `Path` excluding all files having a `.xyz` extension and excluding
+a folder named `test` and all its child items.
 
 > [!TIP]
 >
-> The `-Exclude` parameter supports [wildcard patterns](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_wildcards?view=powershell-7.4&viewFallbackFrom=powershell-7.3),
-exclusion patterns are tested against the items `.FullName` property.
+> The `-Exclude` parameter supports [wildcard patterns](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_wildcards). Exclusion patterns are tested against each item's `.FullName` property.
 
 ## PARAMETERS
 
 ### -Path
 
-Specifies the path or paths to the files or directories to include in the archive file. To specify multiple paths and include files from multiple locations, use commas to separate the paths. This parameter accepts wildcard characters, allowing you to include all files in a directory or match specific patterns.
+Specifies the path and file name of the output zip archive. To specify multiple paths and include files from multiple locations, use commas to separate the paths. This parameter accepts wildcard characters, allowing you to include all files in a directory or match specific patterns.
 
 > [!TIP]
 > Using wildcards with a root directory affects the archive's contents:
@@ -226,7 +225,8 @@ Accept wildcard characters: True
 Updates the specified archive by replacing older file versions in the archive with newer file versions that have the same names. You can also use this parameter to add files to an existing archive.
 
 > [!NOTE]
-> If `-Force` and `-Update` are used together this cmdlet will add or update entries.
+>
+> When used with `-Force`, the cmdlet adds new entries or updates existing ones instead of overwriting the entire archive.
 
 ```yaml
 Type: SwitchParameter
@@ -242,14 +242,11 @@ Accept wildcard characters: False
 
 ### -Force
 
-Overwrites the destination archive if exists otherwise it creates a new one. All existing entries are lost.
-
-> [!NOTE]
-> If `-Force` and `-Update` are used together this cmdlet will add or update entries.
+Overwrites the destination archive if it exists; otherwise, creates a new one. All existing entries are lost.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: PathWithForce, LiteralPathWithForce
+Parameter Sets: (All)
 Aliases:
 
 Required: True
@@ -261,7 +258,7 @@ Accept wildcard characters: False
 
 ### -PassThru
 
-Outputs the object representing the compressed file. The cmdlet produces no output by default.
+Returns a `System.IO.FileInfo` object representing the created or updated zip archive.
 
 ```yaml
 Type: SwitchParameter
@@ -293,11 +290,11 @@ By default, this cmdlet produces no output.
 
 ### System.IO.FileInfo
 
-When the `-PassThru` switch is used this cmdlet outputs the `FileInfo` instance representing the compressed file.
+When the `-PassThru` switch is used, this cmdlet outputs a `System.IO.FileInfo` object representing the created or updated archive.
 
 ## NOTES
 
-This cmdlet was initially posted to address [this Stack Overflow question](https://stackoverflow.com/a/72611161/15339544). [Another question](https://stackoverflow.com/q/74129754/15339544) in the same site pointed out another limitation with the native cmdlet, it can't compress if another process has a handle on a file. To overcome this issue, and also to emulate explorer's behavior when compressing files used by another process, the cmdlet defaults to __[`FileShare 'ReadWrite, Delete'`](https://learn.microsoft.com/en-us/dotnet/api/system.io.fileshare?view=net-6.0)__ when opening a [`FileStream`](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.open?view=net-7.0).
+This cmdlet was initially posted to address [this Stack Overflow question](https://stackoverflow.com/a/72611161/15339544). [Another question](https://stackoverflow.com/q/74129754/15339544) in the same site pointed out another limitation with the native cmdlet, it can't compress if another process has a handle on a file. To overcome this issue, and also to emulate explorer's behavior when compressing files used by another process, the cmdlet defaults to __[FileShare `ReadWrite, Delete`](https://learn.microsoft.com/en-us/dotnet/api/system.io.fileshare)__ when opening a [`FileStream`](https://learn.microsoft.com/en-us/dotnet/api/system.io.file.open).
 
 ## RELATED LINKS
 
@@ -306,3 +303,5 @@ This cmdlet was initially posted to address [this Stack Overflow question](https
 [__ZipArchive Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchive)
 
 [__ZipArchiveEntry Class__](https://learn.microsoft.com/en-us/dotnet/api/system.io.compression.ziparchiveentry)
+
+[__`Compress-Archive`__](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.archive/compress-archive)
