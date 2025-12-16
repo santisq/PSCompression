@@ -18,7 +18,7 @@ __New in recent updates:__ Full support for reading and extracting __password-pr
 ## Features
 
 - __Zip Archive Management__: Create, list, extract, retrieve content, modify, and remove entries in zip archives with pipeline support.  
-  Now includes __full support for password-protected entries__ (traditional ZipCrypto and AES encryption) via `-Password` on `Get-ZipEntryContent` and `Expand-ZipEntry`. Zip entries also expose native properties like `IsEncrypted`, `AESKeySize`, `CompressionMethod`, `Comment`, and `Crc`.
+    Now includes __full support for reading and extracting password-protected entries__ (traditional ZipCrypto and AES encryption).
 - __Tar Archive Management__: Compress and extract tar archives with support for `gz`, `bz2`, `zst`, `lz`, and uncompressed (`none`) formats.
 - __Tar Entry Management__: List, extract, and retrieve content from individual tar entries.
 - __String Compression__: Compress and decompress strings using Brotli, Deflate, Gzip, and Zlib algorithms.
