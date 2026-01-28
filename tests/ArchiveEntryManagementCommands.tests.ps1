@@ -152,7 +152,7 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'Can list entries from a Stream' {
-            Invoke-WebRequest $uri | Get-ZipEntry |
+            Invoke-WebRequest $uri -UseBasicParsing | Get-ZipEntry |
                 Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
 
             Use-Object ($stream = $zip.OpenRead()) {
@@ -184,7 +184,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Should throw when a Stream is disposed' {
             {
-                (Use-Object ($stream = (Invoke-WebRequest $uri).RawContentStream) { $stream }) | Get-ZipEntry
+                (Use-Object ($stream = (Invoke-WebRequest $uri -UseBasicParsing).RawContentStream) { $stream }) | Get-ZipEntry
             } | Should -Throw -ExceptionType ([ObjectDisposedException])
         }
 
@@ -312,7 +312,7 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'Can read content from zip file entries created from input Stream' {
-            Invoke-WebRequest $uri | Get-ZipEntry -Type Archive -Include *.psd1 |
+            Invoke-WebRequest $uri -UseBasicParsing | Get-ZipEntry -Type Archive -Include *.psd1 |
                 Get-ZipEntryContent -Raw |
                 Invoke-Expression |
                 Should -BeOfType ([IDictionary])
@@ -320,7 +320,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Should throw when a Stream is Diposed' {
             {
-                $entry = Use-Object ($stream = (Invoke-WebRequest $uri).RawContentStream) {
+                $entry = Use-Object ($stream = (Invoke-WebRequest $uri -UseBasicParsing).RawContentStream) {
                     $stream | Get-ZipEntry -Type Archive -Include *.psd1
                 }
                 $entry | Get-ZipEntryContent -Raw
@@ -462,7 +462,7 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'Should throw if trying to remove entries created from input Stream' {
-            { Invoke-WebRequest $uri | Get-ZipEntry | Remove-ZipEntry } |
+            { Invoke-WebRequest $uri -UseBasicParsing | Get-ZipEntry | Remove-ZipEntry } |
                 Should -Throw -ExceptionType ([NotSupportedException])
         }
 
@@ -499,7 +499,7 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'Should throw if trying to write content to entries created from input Stream' {
-            $entry = Invoke-WebRequest $uri | Get-ZipEntry -Include *.psd1
+            $entry = Invoke-WebRequest $uri -UseBasicParsing | Get-ZipEntry -Include *.psd1
             { 'test' | Set-ZipEntryContent $entry } |
                 Should -Throw -ExceptionType ([NotSupportedException])
         }
@@ -562,7 +562,7 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'Should throw if trying to rename entries created from input Stream' {
-            { Invoke-WebRequest $uri | Get-ZipEntry | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
+            { Invoke-WebRequest $uri -UseBasicParsing | Get-ZipEntry | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
                 Should -Throw -ExceptionType ([NotSupportedException])
         }
 
@@ -636,7 +636,7 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'Can extract zip file entries created from input Stream' {
-            Invoke-WebRequest $uri | Get-ZipEntry -Type Archive -Include *.psd1 |
+            Invoke-WebRequest $uri -UseBasicParsing | Get-ZipEntry -Type Archive -Include *.psd1 |
                 Expand-ZipEntry -Destination $destination -PassThru -OutVariable psd1 |
                 Should -BeOfType ([FileInfo])
 
@@ -648,7 +648,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Should throw when a Stream is Diposed' {
             {
-                $entry = Use-Object ($stream = (Invoke-WebRequest $uri).RawContentStream) {
+                $entry = Use-Object ($stream = (Invoke-WebRequest $uri -UseBasicParsing).RawContentStream) {
                     $stream | Get-ZipEntry -Type Archive -Include *.psd1
                 }
                 $entry | Expand-ZipEntry -Destination $destination -Force
