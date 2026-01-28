@@ -52,11 +52,11 @@ __New in recent updates:__ Full support for reading and extracting __password-pr
 - [__`ConvertFrom-BrotliString`__](docs/en-US/ConvertFrom-BrotliString.md) — Decompresses a Brotli-compressed string.
 - [__`ConvertFrom-DeflateString`__](docs/en-US/ConvertFrom-DeflateString.md) — Decompresses a Deflate-compressed string.
 - [__`ConvertFrom-GzipString`__](docs/en-US/ConvertFrom-GzipString.md) — Decompresses a Gzip-compressed string.
-- [__`ConvertFrom-ZlibString`__](docs/en-US/ConvertFrom-ZlibString.md) — Decompresses a Zlib-compressed string.
+- [__`ConvertFrom-ZLibString`__](docs/en-US/ConvertFrom-ZLibString.md) — Decompresses a Zlib-compressed string.
 - [__`ConvertTo-BrotliString`__](docs/en-US/ConvertTo-BrotliString.md) — Compresses a string using Brotli.
 - [__`ConvertTo-DeflateString`__](docs/en-US/ConvertTo-DeflateString.md) — Compresses a string using Deflate.
 - [__`ConvertTo-GzipString`__](docs/en-US/ConvertTo-GzipString.md) — Compresses a string using Gzip.
-- [__`ConvertTo-ZlibString`__](docs/en-US/ConvertTo-ZlibString.md) — Compresses a string using Zlib.
+- [__`ConvertTo-ZLibString`__](docs/en-US/ConvertTo-ZLibString.md) — Compresses a string using Zlib.
 
 > [!NOTE]
 > The `Compress-GzipArchive` and `Expand-GzipArchive` cmdlets have been removed, as their single-file gzip functionality is now handled by `Compress-TarArchive` and `Expand-TarArchive`. For a workaround to compress or decompress single files using gzip, see [Example 2 in `ConvertTo-GzipString`](./docs/en-US/ConvertTo-GzipString.md#example-2-create-a-gzip-compressed-file-from-a-string).
