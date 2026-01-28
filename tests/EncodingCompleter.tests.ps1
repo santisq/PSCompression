@@ -30,21 +30,21 @@ Describe 'EncodingCompleter Class' {
     }
 
     It 'Completes results from a completion set' {
-        (Complete 'Test-Completer ').CompletionText |
+        (Complete-Input 'Test-Completer ').CompletionText |
             Should -BeExactly $encodingSet
     }
 
     It 'Completes results from a word to complete' {
-        (Complete 'Test-Completer utf').CompletionText |
+        (Complete-Input 'Test-Completer utf').CompletionText |
             Should -BeExactly ($encodingSet -match '^utf')
     }
 
     It 'Should not offer ansi as a completion result if the OS is not Windows' {
         if ($osIsWindows) {
-            (Complete 'Test-Completer ansi').CompletionText | Should -Not -BeNullOrEmpty
+            (Complete-Input 'Test-Completer ansi').CompletionText | Should -Not -BeNullOrEmpty
             return
         }
 
-        (Complete 'Test-Completer ansi').CompletionText | Should -BeNullOrEmpty
+        (Complete-Input 'Test-Completer ansi').CompletionText | Should -BeNullOrEmpty
     }
 }

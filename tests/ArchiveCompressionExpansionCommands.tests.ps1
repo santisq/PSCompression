@@ -18,7 +18,7 @@ Describe 'Archive Compression & Expansion Commands' -Tag 'Archive Compression & 
         $destName = 'CompressArchiveExtract'
         $testpath = Join-Path $TestDrive $sourceName
         $extractpath = Join-Path $TestDrive $destName
-        $itemCounts = Get-Structure | Build-Structure $testpath
+        $itemCounts = Get-Structure | New-Structure $testpath
         $extractpath, $algos, $itemCounts | Out-Null
     }
 

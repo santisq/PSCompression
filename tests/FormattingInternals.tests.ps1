@@ -15,7 +15,7 @@ Describe 'Formatting internals' {
         New-ZipEntry $zip.FullName -EntryPath afolder/
         $testTarName = 'formattingTarTest'
         $testTarpath = Join-Path $TestDrive $testTarName
-        Get-Structure | Build-Structure $testTarpath
+        Get-Structure | New-Structure $testTarpath
         $tarArchive = Compress-TarArchive $testTarpath -Destination $testTarName -PassThru
         $tarArchive | Out-Null
     }

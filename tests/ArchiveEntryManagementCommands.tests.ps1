@@ -18,7 +18,7 @@ Describe 'Archive Entry Management Commands' {
         $uri = 'https://www.powershellgallery.com/api/v2/package/PSCompression'
         $testTarName = 'TarEntryTests'
         $testTarpath = Join-Path $TestDrive $testTarName
-        $itemCounts = Get-Structure | Build-Structure $testTarpath
+        $itemCounts = Get-Structure | New-Structure $testTarpath
         $totalCount = $itemCounts.File + $itemCounts.Directory
         $algos = [PSCompression.Algorithm].GetEnumValues()
 

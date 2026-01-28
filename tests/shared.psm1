@@ -2,7 +2,7 @@
 using namespace System.Runtime.InteropServices
 using namespace PSCompression
 
-function Complete {
+function Complete-Input {
     param([string] $Expression)
 
     [CommandCompletion]::CompleteInput($Expression, $Expression.Length, $null).CompletionMatches
@@ -25,7 +25,7 @@ function Get-Structure {
     }
 }
 
-function Build-Structure {
+function New-Structure {
     param(
         [Parameter(ValueFromPipeline, Mandatory)]
         [string] $Item,
@@ -70,7 +70,7 @@ $osIsWindows | Out-Null
 
 $exportModuleMemberSplat = @{
     Variable = 'moduleName', 'manifestPath', 'osIsWindows'
-    Function = 'Decode', 'Complete', 'Test-Completer', 'Get-Structure', 'Build-Structure'
+    Function = 'Decode', 'Complete', 'Test-Completer', 'Get-Structure', 'New-Structure'
 }
 
 Export-ModuleMember @exportModuleMemberSplat
