@@ -70,7 +70,7 @@ $osIsWindows | Out-Null
 
 $exportModuleMemberSplat = @{
     Variable = 'moduleName', 'manifestPath', 'osIsWindows'
-    Function = 'Decode', 'Complete', 'Test-Completer', 'Get-Structure', 'New-Structure'
+    Function = 'Complete-Input', 'Test-Completer', 'Get-Structure', 'New-Structure'
 }
 
 Export-ModuleMember @exportModuleMemberSplat
