@@ -11,7 +11,7 @@ namespace PSCompression.Internal;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class _Format
 {
-    private static readonly CultureInfo _culture = CultureInfo.CurrentCulture;
+    private static readonly CultureInfo s_culture = CultureInfo.CurrentCulture;
 
     private readonly static string[] s_suffix =
     [
@@ -31,7 +31,7 @@ public static class _Format
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetFormattedDate(DateTime dateTime) =>
-        string.Format(_culture, "{0,10:d} {0,8:t}", dateTime);
+        string.Format(s_culture, "{0,10:d} {0,8:t}", dateTime);
 
     [Hidden, EditorBrowsable(EditorBrowsableState.Never)]
     public static string GetFormattedLength(long length)
