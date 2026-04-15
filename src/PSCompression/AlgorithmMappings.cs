@@ -6,7 +6,7 @@ namespace PSCompression;
 
 internal static class AlgorithmMappings
 {
-    private static readonly Dictionary<string, Algorithm> _mappings = new(
+    private static readonly Dictionary<string, Algorithm> s_mappings = new(
         StringComparer.InvariantCultureIgnoreCase)
     {
         // Gzip
@@ -31,5 +31,6 @@ internal static class AlgorithmMappings
     };
 
     internal static Algorithm Parse(string path) =>
-        _mappings.TryGetValue(Path.GetExtension(path), out Algorithm value) ? value : Algorithm.none;
+        s_mappings.TryGetValue(Path.GetExtension(path), out Algorithm value)
+            ? value : Algorithm.none;
 }
