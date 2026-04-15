@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.IO;
 
 namespace PSCompression.Shared;
 
