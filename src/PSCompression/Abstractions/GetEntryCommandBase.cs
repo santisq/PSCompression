@@ -80,9 +80,8 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
 
             try
             {
-                WriteObject(
-                    GetEntriesFromFile(path).SortEntries(),
-                    enumerateCollection: true);
+                foreach (EntryBase entry in GetEntriesFromFile(path).SortEntries())
+                    WriteObject(entry);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -108,9 +107,8 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
                 stream.Seek(0, SeekOrigin.Begin);
             }
 
-            WriteObject(
-                GetEntriesFromStream(stream).SortEntries(),
-                enumerateCollection: true);
+            foreach (EntryBase entry in GetEntriesFromStream(stream).SortEntries())
+                WriteObject(entry);
         }
         catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
         {

@@ -64,16 +64,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
 
             try
             {
-                FileSystemInfo[] output = ExtractArchive(path);
-
-                if (PassThru)
-                {
-                    IOrderedEnumerable<PSObject> result = output
-                        .Select(PathExtensions.AppendPSProperties)
-                        .OrderBy(pso => pso.Properties["PSParentPath"].Value);
-
-                    WriteObject(result, enumerateCollection: true);
-                }
+                ExtractArchive(path);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -86,18 +77,19 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
         }
     }
 
-    private FileSystemInfo[] ExtractArchive(string path)
+    private void ExtractArchive(string path)
     {
         using FileStream fs = File.OpenRead(path);
         using Stream decompress = Algorithm.FromCompressedStream(fs);
         using TarInputStream tar = new(decompress, Encoding.UTF8);
 
-        List<FileSystemInfo> result = [];
+        List<PSObject> result = [];
         foreach (TarEntry entry in tar.EnumerateEntries())
         {
             try
             {
-                result.Add(ExtractEntry(entry, tar));
+                FileSystemInfo info = ExtractEntry(entry, tar);
+                if (PassThru) result.Add(info.AppendPSProperties());
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -109,7 +101,16 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
             }
         }
 
-        return [.. result];
+        if (PassThru)
+        {
+            result.Sort((x, y) =>
+                string.Compare(
+                    (string)x.Properties["PSParentPath"].Value,
+                    (string)y.Properties["PSParentPath"].Value,
+                    ignoreCase: true));
+
+            foreach (PSObject entry in result) WriteObject(entry);
+        }
     }
 
     private FileSystemInfo ExtractEntry(TarEntry entry, TarInputStream tar)

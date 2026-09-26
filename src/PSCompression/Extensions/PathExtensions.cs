@@ -84,7 +84,7 @@ public static partial class PathExtensions
     {
         if (force || !dir.Exists)
         {
-            dir.Create(force);
+            dir.Create();
             return;
         }
 

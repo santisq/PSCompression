@@ -86,12 +86,12 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             return;
         }
 
-        WriteObject(
-            _zipEntryCache
-                .AddRange(_moveCache.GetPassThruMappings())
-                .GetEntries()
-                .SortEntries(),
-            enumerateCollection: true);
+        IEnumerable<EntryBase> entries = _zipEntryCache
+            .AddRange(_moveCache.GetPassThruMappings())
+            .GetEntries()
+            .SortEntries();
+
+        foreach (EntryBase entry in entries) WriteObject(entry);
     }
 
     private void Rename(KeyValuePair<string, Dictionary<string, string>> mapping)

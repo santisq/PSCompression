@@ -173,9 +173,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         try
         {
             Dispose();
-            WriteObject(
-                GetEntries().SortEntries(),
-                enumerateCollection: true);
+            foreach (EntryBase entry in GetEntries().SortEntries())
+                WriteObject(entry);
         }
         catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
         {
