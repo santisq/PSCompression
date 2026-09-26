@@ -21,14 +21,10 @@ public sealed class GetZipEntryCommand : GetEntryCommandBase
             foreach (ZipEntry entry in zip)
             {
                 if (ShouldSkipEntry(entry.IsDirectory))
-                {
                     continue;
-                }
 
                 if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
-                {
                     continue;
-                }
 
                 entries.Add(entry.IsDirectory
                     ? new ZipEntryDirectory(entry, path)
@@ -47,14 +43,10 @@ public sealed class GetZipEntryCommand : GetEntryCommandBase
             foreach (ZipEntry entry in zip)
             {
                 if (ShouldSkipEntry(entry.IsDirectory))
-                {
                     continue;
-                }
 
                 if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
-                {
                     continue;
-                }
 
                 entries.Add(entry.IsDirectory
                     ? new ZipEntryDirectory(entry, stream)

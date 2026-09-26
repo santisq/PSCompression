@@ -1,15 +1,13 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using PSCompression.Abstractions;
-using PSCompression.Extensions;
 
 namespace PSCompression;
 
 internal static class SortingOps
 {
     private static string? SortByParent(EntryBase entry) =>
-        Path.GetDirectoryName(entry.RelativePath)?.NormalizeEntryPath();
+        entry.FormatDirectoryPath;
 
     private static int SortByLength(EntryBase entry) =>
         entry.RelativePath.Count(e => e == '/');

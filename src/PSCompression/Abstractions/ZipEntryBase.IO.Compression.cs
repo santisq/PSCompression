@@ -7,7 +7,7 @@ namespace PSCompression.Abstractions;
 public abstract partial class ZipEntryBase
 {
     public ZipArchive OpenRead() =>
-        FromStream ? new ZipArchive(_stream) : ZipFile.OpenRead(Source);
+        FromStream ? new ZipArchive(Stream) : ZipFile.OpenRead(Source);
 
     public ZipArchive OpenWrite()
     {
@@ -73,6 +73,6 @@ public abstract partial class ZipEntryBase
 
     internal ZipArchive OpenZip(ZipArchiveMode mode) =>
         FromStream
-            ? new ZipArchive(_stream, mode, true)
+            ? new ZipArchive(Stream, mode, true)
             : ZipFile.Open(Source, mode);
 }

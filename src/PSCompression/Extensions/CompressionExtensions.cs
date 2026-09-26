@@ -139,7 +139,7 @@ internal static partial class CompressionExtensions
         return new BZip2OutputStream(stream, blockSize);
     }
 
-    internal static CompressionStream AsZstCompressedStream(
+    internal static Stream AsZstCompressedStream(
         this Stream stream,
         CompressionLevel compressionLevel)
     {
@@ -153,8 +153,8 @@ internal static partial class CompressionExtensions
         return new CompressionStream(stream, level);
     }
 
-    internal static LZipStream AsLzCompressedStream(this Stream outputStream) =>
-        new(outputStream, SharpCompressors.CompressionMode.Compress);
+    internal static LZipStream AsLzCompressedStream(this Stream outputStream)
+        => LZipStream.Create(outputStream, SharpCompressors.CompressionMode.Compress);
 
     internal static Stream ToCompressedStream(
         this Algorithm algorithm,
@@ -176,7 +176,7 @@ internal static partial class CompressionExtensions
         {
             Algorithm.gz => new GZipStream(stream, CompressionMode.Decompress),
             Algorithm.zst => new DecompressionStream(stream),
-            Algorithm.lz => new LZipStream(stream, SharpCompressors.CompressionMode.Decompress),
+            Algorithm.lz => LZipStream.Create(stream, SharpCompressors.CompressionMode.Decompress),
             Algorithm.bz2 => new BZip2InputStream(stream),
             _ => stream
         };

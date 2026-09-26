@@ -7,8 +7,7 @@ using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;
 
-public abstract partial class ZipEntryBase(ZipEntry entry, string source)
-    : EntryBase(source)
+public abstract partial class ZipEntryBase(ZipEntry entry, string source) : EntryBase(source)
 {
     public override string? Name { get; protected set; }
 
@@ -33,12 +32,12 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source)
     protected ZipEntryBase(ZipEntry entry, Stream? stream)
         : this(entry, $"InputStream.{Guid.NewGuid()}")
     {
-        _stream = stream;
+        Stream = stream;
     }
 
     internal ZipFile OpenRead(SecureString? password)
     {
-        ZipFile zip = FromStream ? new(_stream, leaveOpen: true) : new(Source);
+        ZipFile zip = FromStream ? new(Stream, leaveOpen: true) : new(Source);
         if (password?.Length > 0)
         {
             zip.Password = password.AsPlainText();
@@ -53,7 +52,7 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source)
         SecureString? password = null)
     {
         using ZipFile zip = FromStream
-            ? new(_stream, leaveOpen: true)
+            ? new(Stream, leaveOpen: true)
             : new(Source);
 
         if (password?.Length > 0)

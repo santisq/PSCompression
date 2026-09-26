@@ -32,14 +32,10 @@ public sealed class GetTarEntryCommand : GetEntryCommandBase
         foreach (TarEntry entry in tar.EnumerateEntries())
         {
             if (ShouldSkipEntry(entry.IsDirectory))
-            {
                 continue;
-            }
 
             if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
-            {
                 continue;
-            }
 
             yield return entry.IsDirectory
                 ? new TarEntryDirectory(entry, path)
@@ -55,14 +51,10 @@ public sealed class GetTarEntryCommand : GetEntryCommandBase
         foreach (TarEntry entry in tar.EnumerateEntries())
         {
             if (ShouldSkipEntry(entry.IsDirectory))
-            {
                 continue;
-            }
 
             if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
-            {
                 continue;
-            }
 
             yield return entry.IsDirectory
                 ? new TarEntryDirectory(entry, stream)

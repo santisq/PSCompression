@@ -17,12 +17,15 @@ public sealed class TarEntryFile : TarEntryBase
 
     public override EntryType Type => EntryType.Archive;
 
+    internal override string? FormatDirectoryPath { get; }
+
     internal TarEntryFile(TarEntry entry, string source, Algorithm algorithm)
         : base(entry, source)
     {
         Name = Path.GetFileName(entry.Name);
         BaseName = Path.GetFileNameWithoutExtension(Name);
         Extension = Path.GetExtension(RelativePath);
+        FormatDirectoryPath = $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
         _algorithm = algorithm;
     }
 
@@ -35,9 +38,6 @@ public sealed class TarEntryFile : TarEntryBase
         _algorithm = algorithm;
     }
 
-    protected override string GetFormatDirectoryPath() =>
-        $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
-
     internal bool GetContentStream(Stream destination)
     {
         Stream? sourceStream = null;
@@ -46,7 +46,7 @@ public sealed class TarEntryFile : TarEntryBase
 
         try
         {
-            sourceStream = _stream ?? File.OpenRead(Source);
+            sourceStream = Stream ?? File.OpenRead(Source);
             sourceStream.Seek(0, SeekOrigin.Begin);
             decompressedStream = _algorithm.FromCompressedStream(sourceStream);
             tar = new(decompressedStream, Encoding.UTF8);

@@ -6,14 +6,12 @@ namespace PSCompression.Abstractions;
 
 public abstract class EntryBase(string source)
 {
-    protected Stream? _stream;
+    protected Stream? Stream { get; set; }
 
-    protected string? _formatDirectoryPath;
+    internal abstract string? FormatDirectoryPath { get; }
 
-    internal string? FormatDirectoryPath { get => _formatDirectoryPath ??= GetFormatDirectoryPath(); }
-
-    [MemberNotNullWhen(true, nameof(_stream))]
-    internal bool FromStream { get => _stream is not null; }
+    [MemberNotNullWhen(true, nameof(Stream))]
+    internal bool FromStream { get => Stream is not null; }
 
     public string Source { get; } = source;
 
@@ -26,8 +24,6 @@ public abstract class EntryBase(string source)
     public abstract long Length { get; internal set; }
 
     public abstract EntryType Type { get; }
-
-    protected abstract string GetFormatDirectoryPath();
 
     public override string ToString() => RelativePath;
 }

@@ -123,5 +123,72 @@
         </TableRowEntries>
       </TableControl>
     </View>
+    <View>
+      <Name>rarentryview</Name>
+      <ViewSelectedBy>
+        <TypeName>PSCompression.RarEntry</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <ScriptBlock>[PSCompression.Internal._Format]::GetDirectoryPath($_)</ScriptBlock>
+        <Label>Directory</Label>
+      </GroupBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Width>10</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LastWriteTime</Label>
+            <Width>26</Width>
+            <Alignment>Right</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CompressedSize</Label>
+            <Width>15</Width>
+            <Alignment>Right</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Size</Label>
+            <Width>15</Width>
+            <Alignment>Right</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Type</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[PSCompression.Internal._Format]::GetFormattedDate($_.LastWriteTime)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.Type -eq [PSCompression.EntryType]::Archive) {
+                    [PSCompression.Internal._Format]::GetFormattedLength($_.CompressedLength)
+                  }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.Type -eq [PSCompression.EntryType]::Archive) {
+                    [PSCompression.Internal._Format]::GetFormattedLength($_.Length)
+                  }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
   </ViewDefinitions>
 </Configuration>

@@ -18,7 +18,7 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
     protected TarEntryBase(TarEntry entry, Stream? stream)
         : this(entry, $"InputStream.{Guid.NewGuid()}")
     {
-        _stream = stream;
+        Stream = stream;
     }
 
     internal FileSystemInfo ExtractTo(

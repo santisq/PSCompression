@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../PSCompression.Shared/PSCompression.Shared.csproj" />
+  <Project Path="PSCompression.csproj" />
+</Solution>

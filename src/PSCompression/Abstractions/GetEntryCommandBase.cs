@@ -8,6 +8,7 @@ using PSCompression.Exceptions;
 using ICSharpCode.SharpZipLib.Tar;
 using ZstdSharp;
 using ICSharpCode.SharpZipLib.Zip;
+using SharpCompress.Common;
 
 namespace PSCompression.Abstractions;
 
@@ -72,11 +73,8 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
 
         foreach (string path in EnumerateResolvedPaths())
         {
-            if (path.WriteErrorIfNotArchive(
-                IsLiteral ? nameof(LiteralPath) : nameof(Path), this))
-            {
+            if (path.WriteErrorIfNotArchive(IsLiteral ? nameof(LiteralPath) : nameof(Path), this))
                 continue;
-            }
 
             try
             {
@@ -131,36 +129,30 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
     protected abstract IEnumerable<EntryBase> GetEntriesFromStream(Stream stream);
 
     private static bool MatchAny(
-        string name,
+        string? name,
         WildcardPattern[] patterns)
     {
         foreach (WildcardPattern pattern in patterns)
         {
             if (pattern.IsMatch(name))
-            {
                 return true;
-            }
         }
 
         return false;
     }
 
-    protected bool ShouldInclude(string name)
+    protected bool ShouldInclude(string? name)
     {
         if (_includePatterns is null)
-        {
             return true;
-        }
 
         return MatchAny(name, _includePatterns);
     }
 
-    protected bool ShouldExclude(string name)
+    protected bool ShouldExclude(string? name)
     {
         if (_excludePatterns is null)
-        {
             return false;
-        }
 
         return MatchAny(name, _excludePatterns);
     }
@@ -169,5 +161,5 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
         isDirectory && Type is EntryType.Archive || !isDirectory && Type is EntryType.Directory;
 
     private static bool IsInvalidArchive(Exception exception) =>
-        exception is ZipException or TarException or ZstdException or IOException;
+        exception is ZipException or TarException or ZstdException or IOException or InvalidFormatException;
 }

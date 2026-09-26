@@ -3,5 +3,6 @@ namespace PSCompression;
 internal enum ArchiveType
 {
     zip,
-    tar
+    tar,
+    rar
 }

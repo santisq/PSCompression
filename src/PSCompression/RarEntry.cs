@@ -1,0 +1,49 @@
+using System;
+using System.IO;
+using PSCompression.Abstractions;
+using PSCompression.Extensions;
+using SharpCompress.Archives;
+
+namespace PSCompression;
+
+public sealed class RarEntry : EntryBase
+{
+    public IArchiveEntry Entry { get; }
+
+    public override string? Name { get; protected set; }
+
+    public override string RelativePath { get; }
+
+    public override DateTime LastWriteTime { get; }
+
+    public override long Length { get; internal set; }
+
+    public long CompressedLength { get; internal set; }
+
+    public override EntryType Type { get; }
+
+    public bool IsEncrypted { get; }
+
+    internal override string? FormatDirectoryPath { get; }
+
+    internal RarEntry(IArchiveEntry entry, string source) : base(source)
+    {
+        Entry = entry;
+        Name = Path.GetFileName(entry.Key);
+        RelativePath = entry.Key ?? "";
+        Type = entry.IsDirectory ? EntryType.Directory : EntryType.Archive;
+        Length = entry.Size;
+        CompressedLength = entry.CompressedSize;
+        LastWriteTime = entry.LastModifiedTime ?? DateTime.MinValue;
+        IsEncrypted = entry.IsEncrypted;
+        FormatDirectoryPath = Type == EntryType.Directory
+            ? $"/{RelativePath.NormalizeEntryPath()}"
+            : $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
+    }
+
+    internal RarEntry(IArchiveEntry entry, Stream stream)
+        : this(entry, $"InputStream.{Guid.NewGuid()}")
+    {
+        Stream = stream;
+    }
+}

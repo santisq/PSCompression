@@ -17,6 +17,8 @@ public sealed class ZipEntryFile : ZipEntryBase
 
     public string Extension { get; }
 
+    internal override string? FormatDirectoryPath { get; }
+
     internal ZipEntryFile(ZipEntry entry, string source)
         : base(entry, source)
     {
@@ -24,6 +26,7 @@ public sealed class ZipEntryFile : ZipEntryBase
         Name = Path.GetFileName(entry.Name);
         BaseName = Path.GetFileNameWithoutExtension(Name);
         Extension = Path.GetExtension(RelativePath);
+        FormatDirectoryPath = $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
     }
 
     internal ZipEntryFile(ZipEntry entry, Stream? stream)
@@ -33,6 +36,7 @@ public sealed class ZipEntryFile : ZipEntryBase
         Name = Path.GetFileName(entry.Name);
         BaseName = Path.GetFileNameWithoutExtension(Name);
         Extension = Path.GetExtension(RelativePath);
+        FormatDirectoryPath = $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
     }
 
     private static string GetRatio(long size, long compressedSize)
@@ -82,7 +86,4 @@ public sealed class ZipEntryFile : ZipEntryBase
             CompressedLength = entry.CompressedLength;
         }
     }
-
-    protected override string GetFormatDirectoryPath() =>
-        $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
 }
