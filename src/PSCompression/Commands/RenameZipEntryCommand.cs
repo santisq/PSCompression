@@ -5,6 +5,8 @@ using System.Management.Automation;
 using PSCompression.Abstractions;
 using PSCompression.Exceptions;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Common;
+using PSCompression.FormatHandlers.Zip;
 
 namespace PSCompression.Commands;
 
@@ -88,7 +90,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             _zipEntryCache
                 .AddRange(_moveCache.GetPassThruMappings())
                 .GetEntries()
-                .ToEntrySort(),
+                .SortEntries(),
             enumerateCollection: true);
     }
 

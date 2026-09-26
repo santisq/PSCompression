@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using PSCompression.Abstractions;
+using PSCompression.FormatHandlers.Rar;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;
 
@@ -11,7 +12,7 @@ namespace PSCompression.Commands;
 [OutputType(typeof(RarEntry))]
 public sealed class ExpandRarArchive : GetEntryCommandBase
 {
-    internal override ArchiveType ArchiveType => ArchiveType.rar;
+    internal override Enum.ArchiveType ArchiveType => Enum.ArchiveType.rar;
 
     protected override IEnumerable<EntryBase> GetEntriesFromFile(string path)
     {

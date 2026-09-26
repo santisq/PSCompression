@@ -1,6 +1,5 @@
 ﻿using namespace System.Management.Automation
 using namespace System.Runtime.InteropServices
-using namespace PSCompression
 
 function Complete-Input {
     param([string] $Expression)
@@ -10,7 +9,7 @@ function Complete-Input {
 
 function Test-Completer {
     param(
-        [ArgumentCompleter([EncodingCompleter])]
+        [ArgumentCompleter([PSCompression.Attributes.EncodingCompleter])]
         [string] $Test
     )
 }

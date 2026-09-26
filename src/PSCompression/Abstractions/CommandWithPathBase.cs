@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Management.Automation;
-using PSCompression.Exceptions;
 using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;

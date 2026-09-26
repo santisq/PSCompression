@@ -9,6 +9,9 @@ using PSCompression.Extensions;
 using PSCompression.Exceptions;
 using PSCompression.Abstractions;
 using ICSharpCode.SharpZipLib.Zip;
+using PSCompression.Attributes;
+using PSCompression.FormatHandlers.Zip;
+using PSCompression.FormatHandlers.Common;
 
 namespace PSCompression.Commands;
 
@@ -171,7 +174,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         {
             Dispose();
             WriteObject(
-                GetEntries().ToEntrySort(),
+                GetEntries().SortEntries(),
                 enumerateCollection: true);
         }
         catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)

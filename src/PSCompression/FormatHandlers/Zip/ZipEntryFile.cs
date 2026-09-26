@@ -2,10 +2,10 @@ using System.IO;
 using System.IO.Compression;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
-using PSCompression.Exceptions;
+using PSCompression.Enum;
 using PSCompression.Extensions;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Zip;
 
 public sealed class ZipEntryFile : ZipEntryBase
 {

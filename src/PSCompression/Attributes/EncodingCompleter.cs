@@ -5,7 +5,7 @@ using System.Management.Automation.Language;
 using System;
 using System.Runtime.InteropServices;
 
-namespace PSCompression;
+namespace PSCompression.Attributes;
 
 public sealed class EncodingCompleter : IArgumentCompleter
 {

@@ -2,6 +2,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using PSCompression.Abstractions;
+using PSCompression.FormatHandlers.Streams;
 
 namespace PSCompression.Commands;
 

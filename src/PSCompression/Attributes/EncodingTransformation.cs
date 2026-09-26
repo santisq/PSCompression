@@ -3,7 +3,7 @@ using System.Management.Automation;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace PSCompression;
+namespace PSCompression.Attributes;
 
 public sealed class EncodingTransformation : ArgumentTransformationAttribute
 {

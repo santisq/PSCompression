@@ -6,8 +6,9 @@ using System.Management.Automation;
 using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
 using PSCompression.Abstractions;
-using PSCompression.Exceptions;
+using PSCompression.Enum;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Tar;
 using IO = System.IO;
 
 namespace PSCompression.Commands;
@@ -40,7 +41,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
 
         if (File.Exists(Destination))
         {
-            ThrowTerminatingError(ExceptionHelper.NotDirectoryPath(
+            ThrowTerminatingError(ExceptionExtensions.NotDirectoryPath(
                 Destination, nameof(Destination)));
         }
 

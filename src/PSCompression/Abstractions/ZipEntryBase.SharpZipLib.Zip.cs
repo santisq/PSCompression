@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
-using PSCompression.Exceptions;
+using PSCompression.Enum;
 using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;

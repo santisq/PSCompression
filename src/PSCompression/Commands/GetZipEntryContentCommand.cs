@@ -4,8 +4,9 @@ using System.Management.Automation;
 using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
-using PSCompression.Exceptions;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Common;
+using PSCompression.FormatHandlers.Zip;
 
 namespace PSCompression.Commands;
 

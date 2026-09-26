@@ -4,7 +4,6 @@ using System.Management.Automation;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Microsoft.PowerShell.Commands;
-using PSCompression.Exceptions;
 
 namespace PSCompression.Extensions;
 
@@ -85,7 +84,7 @@ public static partial class PathExtensions
     {
         if (force || !dir.Exists)
         {
-            dir.Create();
+            dir.Create(force);
             return;
         }
 

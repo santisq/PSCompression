@@ -5,6 +5,7 @@ using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Zip;
 
 namespace PSCompression.Commands;
 

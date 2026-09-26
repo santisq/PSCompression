@@ -2,7 +2,8 @@ using System;
 using System.IO.Compression;
 using System.Management.Automation;
 using PSCompression.Abstractions;
-using PSCompression.Exceptions;
+using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Zip;
 
 namespace PSCompression.Commands;
 

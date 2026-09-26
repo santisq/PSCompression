@@ -3,9 +3,10 @@ using System.Linq;
 using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
 using PSCompression.Abstractions;
+using PSCompression.Enum;
 using PSCompression.Extensions;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Tar;
 
 public sealed class TarEntryFile : TarEntryBase
 {
@@ -35,6 +36,7 @@ public sealed class TarEntryFile : TarEntryBase
         Name = Path.GetFileName(entry.Name);
         BaseName = Path.GetFileNameWithoutExtension(Name);
         Extension = Path.GetExtension(RelativePath);
+        FormatDirectoryPath = $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
         _algorithm = algorithm;
     }
 

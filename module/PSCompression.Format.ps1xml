@@ -48,14 +48,14 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_ -is [PSCompression.ZipEntryFile]) {
+                  if ($_ -is [PSCompression.FormatHandlers.Zip.ZipEntryFile]) {
                     [PSCompression.Internal._Format]::GetFormattedLength($_.CompressedLength)
                   }
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_ -is [PSCompression.ZipEntryFile]) {
+                  if ($_ -is [PSCompression.FormatHandlers.Zip.ZipEntryFile]) {
                     [PSCompression.Internal._Format]::GetFormattedLength($_.Length)
                   }
                 </ScriptBlock>
@@ -110,7 +110,7 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_ -is [PSCompression.TarEntryFile]) {
+                  if ($_ -is [PSCompression.FormatHandlers.Tar.TarEntryFile]) {
                     [PSCompression.Internal._Format]::GetFormattedLength($_.Length)
                   }
                 </ScriptBlock>
@@ -170,14 +170,14 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_.Type -eq [PSCompression.EntryType]::Archive) {
+                  if ($_.Type -eq [PSCompression.Enum.EntryType]::Archive) {
                     [PSCompression.Internal._Format]::GetFormattedLength($_.CompressedLength)
                   }
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_.Type -eq [PSCompression.EntryType]::Archive) {
+                  if ($_.Type -eq [PSCompression.Enum.EntryType]::Archive) {
                     [PSCompression.Internal._Format]::GetFormattedLength($_.Length)
                   }
                 </ScriptBlock>

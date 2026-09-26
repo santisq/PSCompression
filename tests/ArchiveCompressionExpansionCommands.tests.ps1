@@ -13,7 +13,7 @@ Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
 Describe 'Archive Compression & Expansion Commands' -Tag 'Archive Compression & Expansion Commands' {
     BeforeAll {
-        $algos = [PSCompression.Algorithm].GetEnumValues()
+        $algos = [PSCompression.Enum.Algorithm].GetEnumValues()
         $sourceName = 'CompressArchiveTests'
         $destName = 'CompressArchiveExtract'
         $testpath = Join-Path $TestDrive $sourceName

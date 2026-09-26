@@ -3,6 +3,7 @@ using System.Management.Automation;
 using System.IO;
 using PSCompression.Abstractions;
 using ICSharpCode.SharpZipLib.Zip;
+using PSCompression.FormatHandlers.Zip;
 
 namespace PSCompression.Commands;
 
@@ -11,7 +12,7 @@ namespace PSCompression.Commands;
 [Alias("zipge")]
 public sealed class GetZipEntryCommand : GetEntryCommandBase
 {
-    internal override ArchiveType ArchiveType => ArchiveType.zip;
+    internal override Enum.ArchiveType ArchiveType => Enum.ArchiveType.zip;
 
     protected override IEnumerable<EntryBase> GetEntriesFromFile(string path)
     {

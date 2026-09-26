@@ -5,7 +5,7 @@ using System.Management.Automation;
 using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
 using PSCompression.Abstractions;
-using PSCompression.Exceptions;
+using PSCompression.Enum;
 using PSCompression.Extensions;
 
 namespace PSCompression.Commands;

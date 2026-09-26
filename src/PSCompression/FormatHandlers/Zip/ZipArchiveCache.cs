@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using PSCompression.Abstractions;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Zip;
 
 internal sealed class ZipArchiveCache<TArchive> : IDisposable
     where TArchive : IDisposable

@@ -21,9 +21,9 @@ Describe 'File Entry Types' {
     }
 
     It 'Should be of type Archive' {
-        ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.EntryType]::Archive)
+        ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
 
-        ($tarArchive | Get-TarEntry).Type | Should -BeExactly ([PSCompression.EntryType]::Archive)
+        ($tarArchive | Get-TarEntry).Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
     }
 
     It 'Should Have a BaseName Property' {

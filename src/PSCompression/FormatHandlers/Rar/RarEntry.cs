@@ -1,10 +1,11 @@
 using System;
 using System.IO;
 using PSCompression.Abstractions;
+using PSCompression.Enum;
 using PSCompression.Extensions;
 using SharpCompress.Archives;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Rar;
 
 public sealed class RarEntry : EntryBase
 {

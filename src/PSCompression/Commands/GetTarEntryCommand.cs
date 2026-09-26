@@ -5,6 +5,7 @@ using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
 using PSCompression.Abstractions;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Tar;
 
 namespace PSCompression.Commands;
 
@@ -14,9 +15,9 @@ namespace PSCompression.Commands;
 public sealed class GetTarEntryCommand : GetEntryCommandBase
 {
     [Parameter]
-    public Algorithm Algorithm { get; set; }
+    public Enum.Algorithm Algorithm { get; set; }
 
-    internal override ArchiveType ArchiveType => ArchiveType.tar;
+    internal override Enum.ArchiveType ArchiveType => Enum.ArchiveType.tar;
 
     protected override IEnumerable<EntryBase> GetEntriesFromFile(string path)
     {

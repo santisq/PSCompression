@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using PSCompression.Enum;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Tar;
 
 internal static class AlgorithmMappings
 {

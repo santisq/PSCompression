@@ -7,6 +7,8 @@ using System.Text.RegularExpressions;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
+using PSCompression.Enum;
+using PSCompression.FormatHandlers.Zip;
 using SharpCompress.Compressors.LZMA;
 using ZstdSharp;
 using SharpCompressors = SharpCompress.Compressors;

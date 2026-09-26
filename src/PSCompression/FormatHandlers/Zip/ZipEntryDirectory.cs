@@ -5,9 +5,10 @@ using System.IO.Compression;
 using System.Linq;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
+using PSCompression.Enum;
 using PSCompression.Extensions;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Zip;
 
 public sealed class ZipEntryDirectory : ZipEntryBase
 {

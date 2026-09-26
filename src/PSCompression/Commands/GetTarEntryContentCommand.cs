@@ -2,8 +2,9 @@ using System;
 using System.IO;
 using System.Management.Automation;
 using PSCompression.Abstractions;
-using PSCompression.Exceptions;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Common;
+using PSCompression.FormatHandlers.Tar;
 
 namespace PSCompression.Commands;
 

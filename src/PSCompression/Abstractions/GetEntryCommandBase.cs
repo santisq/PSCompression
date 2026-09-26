@@ -4,18 +4,20 @@ using System.IO;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System;
-using PSCompression.Exceptions;
 using ICSharpCode.SharpZipLib.Tar;
 using ZstdSharp;
 using ICSharpCode.SharpZipLib.Zip;
 using SharpCompress.Common;
+using PSCompression.Extensions;
+using PSCompression.Enum;
+using PSCompression.FormatHandlers.Common;
 
 namespace PSCompression.Abstractions;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class GetEntryCommandBase : CommandWithPathBase
 {
-    internal abstract ArchiveType ArchiveType { get; }
+    internal abstract Enum.ArchiveType ArchiveType { get; }
 
     [Parameter(
         ParameterSetName = "Stream",
@@ -79,7 +81,7 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
             try
             {
                 WriteObject(
-                    GetEntriesFromFile(path).ToEntrySort(),
+                    GetEntriesFromFile(path).SortEntries(),
                     enumerateCollection: true);
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
@@ -107,7 +109,7 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
             }
 
             WriteObject(
-                GetEntriesFromStream(stream).ToEntrySort(),
+                GetEntriesFromStream(stream).SortEntries(),
                 enumerateCollection: true);
         }
         catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
@@ -116,7 +118,7 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
         }
         catch (Exception exception) when (IsInvalidArchive(exception))
         {
-            ThrowTerminatingError(exception.ToInvalidArchive(ArchiveType, isStream: true));
+            ThrowTerminatingError(exception.ToInvalidArchive(ArchiveType));
         }
         catch (Exception exception)
         {
@@ -161,5 +163,9 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
         isDirectory && Type is EntryType.Archive || !isDirectory && Type is EntryType.Directory;
 
     private static bool IsInvalidArchive(Exception exception) =>
-        exception is ZipException or TarException or ZstdException or IOException or InvalidFormatException;
+        exception is ZipException
+            or TarException
+            or ZstdException
+            or IOException
+            or InvalidFormatException;
 }

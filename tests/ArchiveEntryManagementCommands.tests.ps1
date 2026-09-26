@@ -20,7 +20,7 @@ Describe 'Archive Entry Management Commands' {
         $testTarpath = Join-Path $TestDrive $testTarName
         $itemCounts = Get-Structure | New-Structure $testTarpath
         $totalCount = $itemCounts.File + $itemCounts.Directory
-        $algos = [PSCompression.Algorithm].GetEnumValues()
+        $algos = [PSCompression.Enum.Algorithm].GetEnumValues()
 
         $tarArchives = foreach ($algo in $algos) {
             $compressTarArchiveSplat = @{
@@ -64,12 +64,12 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Can create new zip file entries' {
             New-ZipEntry $zip.FullName -EntryPath test\newentry.txt |
-                Should -BeOfType ([PSCompression.ZipEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryFile])
         }
 
         It 'Can create new zip directory entries' {
             New-ZipEntry $zip.FullName -EntryPath test\ |
-                Should -BeOfType ([PSCompression.ZipEntryDirectory])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryDirectory])
         }
 
         It 'Can create multiple entries' {
@@ -195,12 +195,12 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Can list zip file entries' {
             $zip | Get-ZipEntry -Type Archive |
-                Should -BeOfType ([PSCompression.ZipEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryFile])
         }
 
         It 'Can list zip directory entries' {
             $zip | Get-ZipEntry -Type Directory |
-                Should -BeOfType ([PSCompression.ZipEntryDirectory])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryDirectory])
         }
 
         It 'Can list a specific entry with the -Include parameter' {
@@ -284,17 +284,17 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Can list tar file entries' {
             $tarArchives | Get-TarEntry -Type Archive |
-                Should -BeOfType ([PSCompression.TarEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Tar.TarEntryFile])
         }
 
         It 'Can list tar directory entries' {
             $tarArchives | Get-TarEntry -Type Directory |
-                Should -BeOfType ([PSCompression.TarEntryDirectory])
+                Should -BeOfType ([PSCompression.FormatHandlers.Tar.TarEntryDirectory])
         }
 
         It 'Can list a specific entry with the -Include parameter' {
             $tarArchives | Get-TarEntry -Include "${testTarName}/testfolder05/testfile00.txt" |
-                Should -BeOfType ([PSCompression.TarEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Tar.TarEntryFile])
         }
 
         It 'Can exclude entries using the -Exclude parameter' {
@@ -458,7 +458,7 @@ Describe 'Archive Entry Management Commands' {
             { $zip | Get-ZipEntry -Type Archive | Remove-ZipEntry } |
                 Should -Not -Throw
 
-            $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.ZipEntryFile])
+            $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryFile])
         }
 
         It 'Should throw if trying to remove entries created from input Stream' {
@@ -469,7 +469,7 @@ Describe 'Archive Entry Management Commands' {
         It 'Can remove directory entries' {
             $entries = $zip | Get-ZipEntry -Type Directory
             { Remove-ZipEntry -InputObject $entries } | Should -Not -Throw
-            $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.ZipEntryDirectory])
+            $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryDirectory])
         }
 
         It 'Should not throw if there are no entries to remove' {
@@ -531,7 +531,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Outputs the source entry with -PassThru' {
             'hello world!' | Set-ZipEntryContent $entry -PassThru |
-                Should -BeOfType ([PSCompression.ZipEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryFile])
         }
     }
 
@@ -569,7 +569,7 @@ Describe 'Archive Entry Management Commands' {
         It 'Produces output with -PassThru' {
             $zip | Get-ZipEntry -Type Archive |
                 Rename-ZipEntry -NewName { $_.Name -replace 'test' } -PassThru |
-                Should -BeOfType ([PSCompression.ZipEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryFile])
         }
 
         It 'Can rename directory entries and all its child entries' {
@@ -720,7 +720,7 @@ Describe 'Archive Entry Management Commands' {
     Context 'Expand-TarEntry' -Tag 'Expand-TarEntry' {
         It 'Can extract entries to a destination directory' {
             $tarArchives | ForEach-Object {
-                $destination = "extract_$($_.Extension)"
+                $destination = "extract_$($_.Extension.TrimStart('.'))"
 
                 { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination } |
                     Should -Not -Throw
@@ -732,12 +732,8 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Can extract tar entries created from input Stream' {
             foreach ($archive in $tarArchives) {
-                if ($archive.Extension -eq '.tar') {
-                    $algo = 'none'
-                }
-                else {
-                    $algo = $archive.Extension.TrimStart('.')
-                }
+                $algo = $archive.Extension.TrimStart('.')
+                if ($algo -eq 'tar') { $algo = 'none' }
 
                 $destination = "extract_${algo}_fromStream"
 
@@ -753,14 +749,10 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Should throw when a Stream is Diposed' {
             foreach ($archive in $tarArchives) {
-                if ($archive.Extension -eq '.tar') {
-                    $algo = 'none'
-                }
-                else {
-                    $algo = $archive.Extension.TrimStart('.')
-                }
+                $algo = $archive.Extension.TrimStart('.')
+                if ($algo -eq 'tar') { $algo = 'none' }
 
-                $destination = "extract_$($_.Extension)_fromStream"
+                $destination = "extract_${algo}_fromStream"
 
                 $entries = Use-Object ($stream = $archive.OpenRead()) {
                     $stream | Get-TarEntry -Algorithm $algo
@@ -784,7 +776,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Should not overwrite files without -Force' {
             $tarArchives | ForEach-Object {
-                $destination = "extract_$($_.Extension)"
+                $destination = "extract_$($_.Extension.TrimStart('.'))"
 
                 { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination } |
                     Should -Throw -ExceptionType ([IOException])
@@ -793,7 +785,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Can overwrite files if using -Force' {
             $tarArchives | ForEach-Object {
-                $destination = "extract_$($_.Extension)"
+                $destination = "extract_$($_.Extension.TrimStart('.'))"
 
                 { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination -Force } |
                     Should -Not -Throw
@@ -803,7 +795,7 @@ Describe 'Archive Entry Management Commands' {
         It 'Should extract entries to the current directory when -Destination is not specified' {
             foreach ($archive in $tarArchives) {
                 try {
-                    New-Item "expandToCurrent_$($archive.Extension)" -ItemType Directory | Push-Location
+                    New-Item "expandToCurrent_$($archive.Extension.TrimStart('.'))" -ItemType Directory | Push-Location
                     { $archive | Get-TarEntry | Expand-TarEntry } | Should -Not -Throw
                     Get-ChildItem | Should -Not -HaveCount 0
                 }

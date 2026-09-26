@@ -17,7 +17,7 @@ Describe 'Directory Entry Types' {
     }
 
     It 'Should be of type Directory' {
-        ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.EntryType]::Directory)
-        ($tarArchive | Get-TarEntry).Type | Should -BeExactly ([PSCompression.EntryType]::Directory)
+        ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Directory)
+        ($tarArchive | Get-TarEntry).Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Directory)
     }
 }

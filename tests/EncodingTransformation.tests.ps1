@@ -34,7 +34,7 @@ Describe 'EncodingTransformation Class' {
             $encodings['ansi'] = [Encoding]::GetEncoding([Acp]::GetACP())
         }
 
-        $transform = [PSCompression.EncodingTransformation]::new()
+        $transform = [PSCompression.Attributes.EncodingTransformation]::new()
         $transform | Out-Null
     }
 

@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
+using PSCompression.Enum;
 using PSCompression.Extensions;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Zip;
 
 public sealed class ZipEntryCache
 {
@@ -58,3 +59,7 @@ public sealed class ZipEntryCache
         }
     }
 }
+
+internal record struct EntryWithPath(ZipEntryBase ZipEntry, string Path);
+
+internal record struct PathWithType(string Path, EntryType EntryType);

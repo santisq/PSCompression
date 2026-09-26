@@ -1,4 +1,4 @@
-namespace PSCompression;
+namespace PSCompression.Enum;
 
 public enum Algorithm
 {

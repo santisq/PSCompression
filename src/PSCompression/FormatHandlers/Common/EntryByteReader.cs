@@ -2,7 +2,7 @@ using System.IO;
 using System.Management.Automation;
 using PSCompression.Abstractions;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Common;
 
 internal sealed class EntryByteReader : EntryStreamOpsBase
 {

@@ -1,9 +1,10 @@
 using System.IO;
 using ICSharpCode.SharpZipLib.Tar;
 using PSCompression.Abstractions;
+using PSCompression.Enum;
 using PSCompression.Extensions;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Tar;
 
 public sealed class TarEntryDirectory : TarEntryBase
 {

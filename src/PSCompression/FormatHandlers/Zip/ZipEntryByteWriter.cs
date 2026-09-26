@@ -1,7 +1,7 @@
 using System.IO;
 using PSCompression.Abstractions;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Zip;
 
 internal sealed class ZipEntryByteWriter : EntryStreamOpsBase
 {

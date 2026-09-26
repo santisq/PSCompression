@@ -267,6 +267,7 @@ __pycache__/
 
 ### Custom entries ###
 output/
+rar/
 tools/Modules
 test.settings.json
 tests/integration/.vagrant

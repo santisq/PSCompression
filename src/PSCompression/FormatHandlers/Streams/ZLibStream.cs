@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Streams;
 
 // ain't nobody got time for that
 [ExcludeFromCodeCoverage]

@@ -1,6 +1,6 @@
 using System.IO;
 using System.IO.Compression;
-using PSCompression.Exceptions;
+using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;
 

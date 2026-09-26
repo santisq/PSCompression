@@ -4,9 +4,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using PSCompression.Abstractions;
+using PSCompression.Enum;
 using PSCompression.Extensions;
 
-namespace PSCompression;
+namespace PSCompression.FormatHandlers.Zip;
 
 internal sealed class ZipEntryMoveCache
 {

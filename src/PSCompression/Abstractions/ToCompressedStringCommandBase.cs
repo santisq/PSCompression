@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
-using PSCompression.Exceptions;
+using PSCompression.Attributes;
 using PSCompression.Extensions;
 
 namespace PSCompression.Abstractions;

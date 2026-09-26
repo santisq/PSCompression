@@ -5,7 +5,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
 using PSCompression.Extensions;
-using PSCompression.Exceptions;
 using System.ComponentModel;
 using IOPath = System.IO.Path;
 

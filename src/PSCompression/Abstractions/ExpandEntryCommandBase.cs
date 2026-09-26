@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Management.Automation;
 using PSCompression.Extensions;
-using PSCompression.Exceptions;
 using System.ComponentModel;
 
 namespace PSCompression.Abstractions;
@@ -33,7 +32,7 @@ public abstract class ExpandEntryCommandBase<T> : PSCmdlet
 
         if (File.Exists(Destination))
         {
-            ThrowTerminatingError(ExceptionHelper.NotDirectoryPath(
+            ThrowTerminatingError(ExceptionExtensions.NotDirectoryPath(
                 Destination, nameof(Destination)));
         }
 

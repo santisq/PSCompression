@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Management.Automation;
 using System.Text;
+using PSCompression.Attributes;
 
 namespace PSCompression.Abstractions;
 
