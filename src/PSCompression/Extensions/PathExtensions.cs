@@ -80,17 +80,6 @@ public static partial class PathExtensions
     internal static string NormalizeFileEntryPath(this string path)
         => NormalizeEntryPath(path).TrimEnd('/');
 
-    internal static void Create(this DirectoryInfo dir, bool force)
-    {
-        if (force || !dir.Exists)
-        {
-            dir.Create();
-            return;
-        }
-
-        throw new IOException($"The directory '{dir.FullName}' already exists.");
-    }
-
     internal static PSObject AppendPSProperties(this FileSystemInfo info)
     {
         string? parent = info is DirectoryInfo dir

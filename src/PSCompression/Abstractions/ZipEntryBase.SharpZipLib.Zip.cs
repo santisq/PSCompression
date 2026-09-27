@@ -79,7 +79,7 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source) : Entr
         if (Type == EntryType.Directory)
         {
             DirectoryInfo dir = new(destination);
-            dir.Create(overwrite);
+            dir.Create();
             return dir;
         }
 

@@ -123,7 +123,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
         if (entry.IsDirectory)
         {
             DirectoryInfo dir = new(destination);
-            dir.Create(Force);
+            dir.Create();
             return dir;
         }
 

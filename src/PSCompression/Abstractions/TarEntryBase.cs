@@ -32,12 +32,12 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
         if (this is not TarEntryFile entryFile)
         {
             DirectoryInfo dir = new(destination);
-            dir.Create(overwrite);
+            dir.Create();
             return dir;
         }
 
         FileInfo file = new(destination);
-        file.Directory!.Create();
+        file.Directory?.Create();
 
         using FileStream destStream = file.Open(
             overwrite ? FileMode.Create : FileMode.CreateNew,

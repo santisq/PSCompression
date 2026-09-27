@@ -199,8 +199,6 @@ internal static partial class CompressionExtensions
     {
         TarEntry? entry;
         while ((entry = tar.GetNextEntry()) is not null)
-        {
             yield return entry;
-        }
     }
 }
