@@ -15,26 +15,21 @@ namespace PSCompression.Commands;
 [Alias("unzipentry")]
 public sealed class ExpandZipEntryCommand : ExpandEntryCommandBase<ZipEntryBase>, IDisposable
 {
+    private ArchiveCache<ZipFile, ZipEntryBase>? _cache;
+
     [Parameter]
     public SecureString? Password { get; set; }
 
-    private ArchiveCache<ZipFile, ZipEntryBase>? _cache;
-
-    protected override FileSystemInfo Extract(ZipEntryBase entry)
+    protected override FileSystemInfo Extract(ZipEntryBase entry, string destination)
     {
         _cache ??= new(entry => entry.OpenRead(Password));
         ZipFile zip = _cache.GetOrCreate(entry);
 
         if (entry.IsEncrypted && Password is null && entry is ZipEntryFile fileEntry)
-        {
             zip.Password = fileEntry.PromptForPassword(Host);
-        }
 
-        return entry.ExtractTo(Destination!, Force, zip);
+        return entry.ExtractTo(destination, Force, zip);
     }
 
-    public void Dispose()
-    {
-        _cache?.Dispose();
-    }
+    public void Dispose() => _cache?.Dispose();
 }

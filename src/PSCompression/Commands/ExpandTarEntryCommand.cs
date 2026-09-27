@@ -9,6 +9,6 @@ namespace PSCompression.Commands;
 [Alias("untarentry")]
 public sealed class ExpandTarEntryCommand : ExpandEntryCommandBase<TarEntryBase>
 {
-    protected override FileSystemInfo Extract(TarEntryBase entry) =>
-        entry.ExtractTo(Destination!, Force);
+    protected override FileSystemInfo Extract(TarEntryBase entry, string destination) =>
+        entry.ExtractTo(destination, Force);
 }

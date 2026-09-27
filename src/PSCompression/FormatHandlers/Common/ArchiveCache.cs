@@ -40,6 +40,6 @@ internal sealed class ArchiveCache<TArchive, TEntry> : IDisposable
     public void Dispose()
     {
         foreach (TArchive archive in _cache.Values)
-            archive?.Dispose();
+            archive.Dispose();
     }
 }

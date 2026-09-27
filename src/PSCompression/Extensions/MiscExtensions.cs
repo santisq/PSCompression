@@ -6,7 +6,6 @@ using System.Management.Automation.Host;
 using System.Net;
 using System.Security;
 using PSCompression.Abstractions;
-using PSCompression.FormatHandlers.Zip;
 
 namespace PSCompression.Extensions;
 

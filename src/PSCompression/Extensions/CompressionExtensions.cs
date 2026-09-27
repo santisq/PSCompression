@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text.RegularExpressions;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Enum;
+using PSCompression.FormatHandlers.Rar;
 using PSCompression.FormatHandlers.Zip;
+using SharpCompress.Archives;
+using SharpCompress.Archives.Rar;
 using SharpCompress.Compressors.LZMA;
 using ZstdSharp;
 using SharpCompressors = SharpCompress.Compressors;
@@ -201,4 +205,9 @@ internal static partial class CompressionExtensions
         while ((entry = tar.GetNextEntry()) is not null)
             yield return entry;
     }
+
+    internal static IArchiveEntry GetEntry(this IRarArchive rar, RarEntry entry) =>
+        rar.Entries.FirstOrDefault(e => e.Key == entry.RelativePath)
+            ?? throw new IOException(
+                $"The entry '{entry.RelativePath}' was not found in RAR archive '{entry.Source}'.");
 }

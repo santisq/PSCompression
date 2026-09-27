@@ -39,9 +39,7 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source) : Entr
     {
         ZipFile zip = FromStream ? new(Stream, leaveOpen: true) : new(Source);
         if (password is { Length: > 0 })
-        {
             zip.Password = password.AsPlainText();
-        }
 
         return zip;
     }

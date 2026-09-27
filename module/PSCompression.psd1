@@ -98,6 +98,7 @@
         'Expand-TarArchive'
         'Get-RarEntry'
         'Get-RarEntryContent'
+        'Expand-RarEntry'
     )
 
     # Variables to export from this module
@@ -118,16 +119,17 @@
         'untar'             # Expand-TarArchive
         'untarentry'        # Expand-TarEntry
         'unzipentry'        # Expand-ZipEntry
+        'unrarentry'        # Expand-RarEntry
         'targe'             # Get-TarEntry
-        'targec'            # Get-TarEntryContent
         'zipge'             # Get-ZipEntry
+        'rarge'             # Get-RarEntry
+        'targec'            # Get-TarEntryContent
         'zipgec'            # Get-ZipEntryContent
+        'rargec'            # Get-RarEntryContent
         'zipne'             # New-ZipEntry
         'ziprm'             # Remove-ZipEntry
         'zipren'            # Rename-ZipEntry
         'zipsc'             # Set-ZipEntryContent
-        'rarge'             # Get-RarEntry
-        'rargec'            # Get-RarEntryContent
     )
 
     # DSC resources to export from this module

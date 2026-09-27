@@ -4,6 +4,8 @@ using PSCompression.Abstractions;
 using PSCompression.Enum;
 using PSCompression.Extensions;
 using SharpCompress.Archives;
+using SharpCompress.Archives.Rar;
+using SharpCompress.Readers;
 
 namespace PSCompression.FormatHandlers.Rar;
 
@@ -44,4 +46,8 @@ public sealed class RarEntry : EntryBase
     {
         Stream = stream;
     }
+
+    internal IRarArchive OpenRead() => FromStream
+        ? RarArchive.OpenArchive(Stream, new ReaderOptions { LeaveStreamOpen = true })
+        : RarArchive.OpenArchive(Source);
 }

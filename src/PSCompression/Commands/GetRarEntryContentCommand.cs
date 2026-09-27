@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
 using System.Security;
 using PSCompression.Abstractions;
@@ -18,7 +17,7 @@ namespace PSCompression.Commands;
 [Alias("rargec")]
 public sealed class GetRarEntryContentCommand : GetEntryContentCommandBase<RarEntry>, IDisposable
 {
-    private readonly ArchiveCache<IRarArchive, RarEntry> _cache = new(e => RarArchive.OpenArchive(e.Source));
+    private readonly ArchiveCache<IRarArchive, RarEntry> _cache = new(e => e.OpenRead());
 
     [Parameter]
     public SecureString? Password { get; set; }
@@ -32,19 +31,16 @@ public sealed class GetRarEntryContentCommand : GetEntryContentCommandBase<RarEn
 
             try
             {
-                IRarArchive archive = _cache.GetOrCreate(entry);
+                IRarArchive rar = _cache.GetOrCreate(entry);
 
                 if (entry.IsEncrypted)
                 {
-                    archive.ReaderOptions.Password = Password is null
+                    rar.ReaderOptions.Password = Password is null
                         ? entry.PromptForPassword(Host)
                         : Password.AsPlainText();
                 }
 
-                IArchiveEntry? rarEntry = archive.Entries
-                    .FirstOrDefault(e => e.Key == entry.RelativePath);
-
-                if (rarEntry is not null) ReadEntry(rarEntry);
+                ReadEntry(rar.GetEntry(entry));
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {

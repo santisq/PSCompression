@@ -47,12 +47,8 @@ public abstract class ExpandEntryCommandBase<T> : PSCmdlet
         {
             try
             {
-                FileSystemInfo info = Extract(entry);
-
-                if (PassThru)
-                {
-                    WriteObject(info.AppendPSProperties());
-                }
+                FileSystemInfo info = Extract(entry, Destination);
+                if (PassThru) WriteObject(info.AppendPSProperties());
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -65,5 +61,5 @@ public abstract class ExpandEntryCommandBase<T> : PSCmdlet
         }
     }
 
-    protected abstract FileSystemInfo Extract(T entry);
+    protected abstract FileSystemInfo Extract(T entry, string destination);
 }

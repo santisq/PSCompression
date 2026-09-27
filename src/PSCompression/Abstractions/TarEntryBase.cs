@@ -25,8 +25,7 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
         string destination,
         bool overwrite)
     {
-        destination = Path.GetFullPath(
-            Path.Combine(destination, RelativePath));
+        destination = Path.GetFullPath(Path.Combine(destination, RelativePath));
 
         if (this is not TarEntryFile entryFile)
         {
