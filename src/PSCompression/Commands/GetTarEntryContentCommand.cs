@@ -36,10 +36,7 @@ public sealed class GetTarEntryContentCommand : GetEntryContentCommandBase<TarEn
     private void ReadEntry(TarEntryFile entry)
     {
         using MemoryStream mem = new();
-        if (!entry.GetContentStream(mem))
-        {
-            return;
-        }
+        if (!entry.GetContentStream(mem)) return;
 
         if (AsByteStream)
         {

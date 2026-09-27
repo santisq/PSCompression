@@ -10,6 +10,7 @@ namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Get, "RarEntry", DefaultParameterSetName = "Path")]
 [OutputType(typeof(RarEntry))]
+[Alias("rarge")]
 public sealed class ExpandRarArchive : GetEntryCommandBase
 {
     internal override Enum.ArchiveType ArchiveType => Enum.ArchiveType.rar;

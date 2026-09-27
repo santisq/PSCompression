@@ -205,12 +205,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         if (_writers is not null)
         {
             foreach (StreamWriter writer in _writers)
-            {
                 writer.Dispose();
-            }
         }
 
         _zip?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

@@ -9,8 +9,6 @@ namespace PSCompression.FormatHandlers.Rar;
 
 public sealed class RarEntry : EntryBase
 {
-    public IArchiveEntry Entry { get; }
-
     public override string? Name { get; protected set; }
 
     public override string RelativePath { get; }
@@ -29,7 +27,6 @@ public sealed class RarEntry : EntryBase
 
     internal RarEntry(IArchiveEntry entry, string source) : base(source)
     {
-        Entry = entry;
         Name = Path.GetFileName(entry.Key);
         RelativePath = entry.Key ?? "";
         Type = entry.IsDirectory ? EntryType.Directory : EntryType.Archive;

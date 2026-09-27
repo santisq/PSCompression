@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using ICSharpCode.SharpZipLib.Tar;
-using PSCompression.Extensions;
 using PSCompression.FormatHandlers.Tar;
 
 namespace PSCompression.Abstractions;

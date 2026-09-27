@@ -32,7 +32,7 @@ Describe 'Archive Entry Management Commands' {
             Compress-TarArchive @compressTarArchiveSplat
         }
 
-        $encryptedZip = Get-Item $PSScriptRoot/../assets/helloworld.zip
+        $encryptedZip = Get-Item $PSScriptRoot/../assets/test.zip
         $zip, $file, $uri, $tarArchives, $itemCounts, $totalCount, $encryptedZip | Out-Null
     }
 

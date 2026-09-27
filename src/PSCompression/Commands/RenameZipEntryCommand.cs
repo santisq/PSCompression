@@ -15,10 +15,10 @@ namespace PSCompression.Commands;
 [Alias("zipren")]
 public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 {
-    private readonly ZipArchiveCache<ZipArchive> _zipArchiveCache = new(
+    private readonly ArchiveCache<ZipArchive, ZipEntryBase> _archiveCache = new(
         entry => entry.OpenZip(ZipArchiveMode.Update));
 
-    private ZipEntryCache? _zipEntryCache;
+    private ZipEntryCache? _entryCache;
 
     private readonly ZipEntryMoveCache _moveCache = new();
 
@@ -39,24 +39,19 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void BeginProcessing()
     {
-        if (PassThru.IsPresent)
-        {
-            _zipEntryCache = new();
-        }
+        if (PassThru) _entryCache = new();
     }
 
     protected override void ProcessRecord()
     {
         if (!ShouldProcess(target: ZipEntry.ToString(), action: "Rename"))
-        {
             return;
-        }
 
         try
         {
             ZipEntry.ThrowIfFromStream();
             NewName.ThrowIfInvalidNameChar();
-            _zipArchiveCache.TryAdd(ZipEntry);
+            _archiveCache.TryAdd(ZipEntry);
             _moveCache.AddEntry(ZipEntry, NewName);
         }
         catch (NotSupportedException exception)
@@ -75,18 +70,14 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     protected override void EndProcessing()
     {
-        foreach (var mapping in _moveCache.GetMappings(_zipArchiveCache))
-        {
+        Dictionary<string, Dictionary<string, string>> mappings = _moveCache.GetMappings(_archiveCache);
+        foreach (KeyValuePair<string, Dictionary<string, string>> mapping in mappings)
             Rename(mapping);
-        }
 
-        _zipArchiveCache?.Dispose();
-        if (!PassThru.IsPresent || _zipEntryCache is null)
-        {
-            return;
-        }
+        _archiveCache?.Dispose();
+        if (!PassThru.IsPresent || _entryCache is null) return;
 
-        IEnumerable<EntryBase> entries = _zipEntryCache
+        IEnumerable<EntryBase> entries = _entryCache
             .AddRange(_moveCache.GetPassThruMappings())
             .GetEntries()
             .SortEntries();
@@ -104,7 +95,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
                     sourceRelativePath: source,
                     destination: destination,
                     sourceZipPath: mapping.Key,
-                    _zipArchiveCache[mapping.Key]);
+                    _archiveCache[mapping.Key]);
             }
             catch (DuplicatedEntryException exception)
             {
@@ -128,7 +119,6 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     public void Dispose()
     {
-        _zipArchiveCache?.Dispose();
-        GC.SuppressFinalize(this);
+        _archiveCache?.Dispose();
     }
 }

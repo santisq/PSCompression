@@ -112,6 +112,5 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         _byteWriter?.Dispose();
         _stringWriter?.Dispose();
         _zip?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

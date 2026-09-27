@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using PSCompression.Abstractions;
 using PSCompression.Enum;
 using PSCompression.Extensions;
-
+using PSCompression.FormatHandlers.Common;
 namespace PSCompression.FormatHandlers.Zip;
 
 internal sealed class ZipEntryMoveCache
@@ -54,9 +54,9 @@ internal sealed class ZipEntryMoveCache
     }
 
     internal Dictionary<string, Dictionary<string, string>> GetMappings(
-        ZipArchiveCache<ZipArchive> cache)
+        ArchiveCache<ZipArchive, ZipEntryBase> cache)
     {
-        foreach (var source in _cache)
+        foreach (KeyValuePair<string, Dictionary<string, EntryWithPath>> source in _cache)
         {
             _mappings[source.Key] = GetChildMappings(cache, source.Value);
         }
@@ -64,8 +64,8 @@ internal sealed class ZipEntryMoveCache
         return _mappings;
     }
 
-    private Dictionary<string, string> GetChildMappings(
-        ZipArchiveCache<ZipArchive> cache,
+    private static Dictionary<string, string> GetChildMappings(
+        ArchiveCache<ZipArchive, ZipEntryBase> cache,
         Dictionary<string, EntryWithPath> pathChanges)
     {
         string newpath;

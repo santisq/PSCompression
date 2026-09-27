@@ -14,7 +14,7 @@ Describe 'ZipEntryBase Class' {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
         'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
         New-ZipEntry $zip.FullName -EntryPath somefolder/
-        $encryptedZip = Get-Item $PSScriptRoot/../assets/helloworld.zip
+        $encryptedZip = Get-Item $PSScriptRoot/../assets/test.zip
         $encryptedZip | Out-Null
     }
 

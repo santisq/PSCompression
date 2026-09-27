@@ -5,6 +5,7 @@ using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Abstractions;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Common;
 using PSCompression.FormatHandlers.Zip;
 
 namespace PSCompression.Commands;
@@ -17,11 +18,11 @@ public sealed class ExpandZipEntryCommand : ExpandEntryCommandBase<ZipEntryBase>
     [Parameter]
     public SecureString? Password { get; set; }
 
-    private ZipArchiveCache<ZipFile>? _cache;
+    private ArchiveCache<ZipFile, ZipEntryBase>? _cache;
 
     protected override FileSystemInfo Extract(ZipEntryBase entry)
     {
-        _cache ??= new ZipArchiveCache<ZipFile>(entry => entry.OpenRead(Password));
+        _cache ??= new(entry => entry.OpenRead(Password));
         ZipFile zip = _cache.GetOrCreate(entry);
 
         if (entry.IsEncrypted && Password is null && entry is ZipEntryFile fileEntry)
@@ -35,6 +36,5 @@ public sealed class ExpandZipEntryCommand : ExpandEntryCommandBase<ZipEntryBase>
     public void Dispose()
     {
         _cache?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

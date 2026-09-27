@@ -19,11 +19,11 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
     [Parameter]
     public SecureString? Password { get; set; }
 
-    private ZipArchiveCache<ZipFile>? _cache;
+    private ArchiveCache<ZipFile, ZipEntryFile>? _cache;
 
     protected override void ProcessRecord()
     {
-        _cache ??= new ZipArchiveCache<ZipFile>(entry => entry.OpenRead(Password));
+        _cache ??= new(entry => entry.OpenRead(Password));
 
         foreach (ZipEntryFile entry in Entry)
         {
@@ -31,9 +31,7 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
             {
                 ZipFile zip = _cache.GetOrCreate(entry);
                 if (entry.IsEncrypted && Password is null)
-                {
                     zip.Password = entry.PromptForPassword(Host);
-                }
 
                 ReadEntry(entry.Open(zip));
             }
@@ -76,6 +74,5 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
     public void Dispose()
     {
         _cache?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

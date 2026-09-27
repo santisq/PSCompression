@@ -97,6 +97,7 @@
         'Expand-TarEntry'
         'Expand-TarArchive'
         'Get-RarEntry'
+        'Get-RarEntryContent'
     )
 
     # Variables to export from this module
@@ -125,6 +126,8 @@
         'ziprm'             # Remove-ZipEntry
         'zipren'            # Rename-ZipEntry
         'zipsc'             # Set-ZipEntryContent
+        'rarge'             # Get-RarEntry
+        'rargec'            # Get-RarEntryContent
     )
 
     # DSC resources to export from this module
