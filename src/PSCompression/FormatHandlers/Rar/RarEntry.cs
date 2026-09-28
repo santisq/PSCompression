@@ -11,6 +11,8 @@ namespace PSCompression.FormatHandlers.Rar;
 
 public sealed class RarEntry : EntryBase
 {
+    private static readonly ReaderOptions s_readerOptions = new() { LeaveStreamOpen = true };
+
     public override string? Name { get; protected set; }
 
     public override string RelativePath { get; }
@@ -44,14 +46,13 @@ public sealed class RarEntry : EntryBase
     internal RarEntry(IArchiveEntry entry, Stream stream)
         : this(entry, $"InputStream.{Guid.NewGuid()}")
     {
-        stream.Seek(0, SeekOrigin.Begin);
         Stream = stream;
     }
 
     internal IRarArchive OpenRead()
     {
         if (!FromStream) return RarArchive.OpenArchive(Source);
-        Stream.Seek(0, SeekOrigin.Begin);
-        return RarArchive.OpenArchive(Stream, new ReaderOptions { LeaveStreamOpen = true });
+        Stream.Position = 0;
+        return RarArchive.OpenArchive(Stream, s_readerOptions);
     }
 }

@@ -60,7 +60,7 @@ internal static partial class CompressionExtensions
                 return zip.CreateEntry(entry);
             }
 
-            fileStream.Seek(0, SeekOrigin.Begin);
+            fileStream.Position = 0;
             ZipArchiveEntry newentry = zip.CreateEntry(entry, compressionLevel);
 
             using (Stream stream = newentry.Open())

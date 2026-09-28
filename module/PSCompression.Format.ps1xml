@@ -5,7 +5,7 @@
       <Name>entryview</Name>
       <ViewSelectedBy>
         <TypeName>PSCompression.FormatHandlers.Rar.RarEntry</TypeName>
-        <TypeName>PSCompression.Abstractions.ZipEntryBase</TypeName>
+        <TypeName>PSCompression.FormatHandlers.Zip.ZipEntryBase</TypeName>
       </ViewSelectedBy>
       <GroupBy>
         <ScriptBlock>[PSCompression.Internal._Format]::GetDirectoryPath($_)</ScriptBlock>

@@ -49,7 +49,7 @@ public sealed class TarEntryFile : TarEntryBase
         try
         {
             sourceStream = Stream ?? File.OpenRead(Source);
-            sourceStream.Seek(0, SeekOrigin.Begin);
+            sourceStream.Position = 0;
             decompressedStream = _algorithm.FromCompressedStream(sourceStream);
             tar = new(decompressedStream, Encoding.UTF8);
 
@@ -63,7 +63,7 @@ public sealed class TarEntryFile : TarEntryBase
             }
 
             tar.CopyTo(destination, (int)entry.Size);
-            destination.Seek(0, SeekOrigin.Begin);
+            destination.Position = 0;
             return true;
         }
         finally

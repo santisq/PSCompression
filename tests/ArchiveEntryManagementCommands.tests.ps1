@@ -33,7 +33,9 @@ Describe 'Archive Entry Management Commands' {
         }
 
         $encryptedZip = Get-Item $PSScriptRoot/../assets/test.zip
-        $zip, $file, $uri, $tarArchives, $itemCounts, $totalCount, $encryptedZip | Out-Null
+        $rar = Get-Item $PSScriptRoot/../assets/test.rar
+        $encryptedRar = Get-Item $PSScriptRoot/../assets/testEncrypted.rar
+        $zip, $file, $uri, $tarArchives, $itemCounts, $totalCount, $encryptedZip, $rar, $encryptedRar | Out-Null
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -304,6 +306,34 @@ Describe 'Archive Entry Management Commands' {
         }
     }
 
+    Context 'Get-RarEntry' -Tag 'Get-RarEntry' {
+        It 'Lists entries from path' {
+            Get-RarEntry $rar | Should -BeOfType ([PSCompression.FormatHandlers.Rar.RarEntry])
+        }
+
+        It 'Can list by entry type' {
+            [PSCompression.Enum.EntryType].GetEnumNames() | ForEach-Object {
+                (Get-RarEntry $rar -Type $_).Type | Sort-Object -Unique | Should -Be $_
+            }
+        }
+
+        It 'Can include entries by pattern' {
+            Get-RarEntry $rar -Include *.txt | Should -HaveCount 1
+        }
+
+        It 'Can exclude entries by pattern' {
+            Get-RarEntry $rar -Exclude *.txt | Should -HaveCount 2
+        }
+
+        It 'List entries from a stream' {
+            Use-Object ($stream = (Get-Item $rar).OpenRead()) {
+                $stream | Get-RarEntry | Should -BeOfType ([PSCompression.FormatHandlers.Rar.RarEntry])
+            }
+
+            { $stream | Get-RarEntry } | Should -Throw -ExceptionType ([ObjectDisposedException])
+        }
+    }
+
     Context 'Get-ZipEntryContent' -Tag 'Get-ZipEntryContent' {
         It 'Can read content from zip file entries' {
             $zip | Get-ZipEntry -Type Archive |
@@ -445,6 +475,51 @@ Describe 'Archive Entry Management Commands' {
         It 'Should not attempt to read a directory entry' {
             { $tarArchives | Get-TarEntry -Type Directory | Get-TarEntryContent } |
                 Should -Throw
+        }
+    }
+
+    Context 'Get-RarEntryContent' -Tag 'Get-RarEntryContent' {
+        BeforeAll {
+            $entry = Get-RarEntry $rar -Include *.txt
+            $encryptedEntry = Get-RarEntry $encryptedRar -Include *.txt
+            $entry, $encryptedEntry | Out-Null
+        }
+
+        It 'Can read content from an entry' {
+            $entry | Get-RarEntryContent | Should -BeExactly 1, 2, 3
+        }
+
+        It 'Can read all content as a single string' {
+            $entry | Get-RarEntryContent -Raw | Should -HaveCount 1
+        }
+
+        It 'Can read as a byte stream' {
+            $entry | Get-RarEntryContent -AsByteStream | Should -BeExactly 49, 10, 50, 10, 51, 10
+        }
+
+        It 'Can read bytes and output as a single byte array' {
+            $entry | Get-RarEntryContent -AsByteStream -Raw | Should -BeOfType ([byte[]])
+        }
+
+        It 'Can read encrypted entries' {
+            $encryptedEntry.IsEncrypted | Should -BeTrue
+            $passw = ConvertTo-SecureString test -AsPlainText -Force
+            $encryptedEntry | Get-RarEntryContent -Password $passw | Should -BeExactly 'hello world!'
+            $passw = ConvertTo-SecureString foo -AsPlainText -Force
+            { $encryptedEntry | Get-RarEntryContent -Password $passw } | Should -Throw
+        }
+
+        It 'Can read from a stream' {
+            Use-Object ($stream = (Get-Item $rar).OpenRead()) {
+                $stream, $stream | Get-RarEntry -Include *.txt |
+                    Get-RarEntryContent | Should -BeExactly 1, 2, 3, 1, 2, 3
+            }
+
+            $disposed = Use-Object ($stream = (Get-Item $rar).OpenRead()) {
+                $stream | Get-RarEntry -Include *.txt
+            }
+
+            { $disposed | Get-RarEntryContent } | Should -Throw -ExceptionType ([ObjectDisposedException])
         }
     }
 

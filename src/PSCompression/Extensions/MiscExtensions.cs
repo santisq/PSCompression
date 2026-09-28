@@ -32,8 +32,8 @@ internal static class MiscExtensions
         internal string PromptForPassword(EntryBase entry)
         {
             host.UI.Write(
-                $"Encrypted entry '{entry.RelativePath}' in '{entry.Source}' requires a password. " +
-                "Use -Password <SecureString> to avoid this prompt in the future.\n" +
+                $"Encrypted entry '{entry.RelativePath}' in '{entry.Source}' requires a password.\n" +
+                "Use -Password <SecureString> to avoid this prompt in the future.\n\n" +
                 "Enter password: ");
 
             return host.UI.ReadLineAsSecureString().AsPlainText();
@@ -42,9 +42,8 @@ internal static class MiscExtensions
         [ExcludeFromCodeCoverage]
         internal string PromptForPassword(string message)
         {
-            if (!message.EndsWith(". ")) message += " ";
-            host.UI.Write(message +
-                "Use -Password <SecureString> to avoid this prompt in the future.\n" +
+            host.UI.Write(message + "\n" +
+                "Use -Password <SecureString> to avoid this prompt in the future.\n\n" +
                 "Enter password: ");
 
             return host.UI.ReadLineAsSecureString().AsPlainText();
