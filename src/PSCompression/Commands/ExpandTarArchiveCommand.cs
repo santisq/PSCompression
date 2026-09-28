@@ -41,7 +41,7 @@ public sealed class ExpandTarArchiveCommand : ExpandArchiveCommandBase
         {
             try
             {
-                FileSystemInfo info = ExtractEntry(entry, tar);
+                FileSystemInfo info = ExtractEntry(entry, tar, destination);
                 if (PassThru) result.Add(info.AppendPSProperties());
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
@@ -57,12 +57,9 @@ public sealed class ExpandTarArchiveCommand : ExpandArchiveCommandBase
         return [.. result];
     }
 
-    private FileSystemInfo ExtractEntry(TarEntry entry, TarInputStream tar)
+    private FileSystemInfo ExtractEntry(TarEntry entry, TarInputStream tar, string destination)
     {
-        Dbg.Assert(Destination is not null);
-
-        string destination = IO.Path.GetFullPath(
-            IO.Path.Combine(Destination, entry.Name));
+        destination = IO.Path.GetFullPath(IO.Path.Combine(destination, entry.Name));
 
         if (entry.IsDirectory)
         {

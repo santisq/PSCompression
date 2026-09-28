@@ -36,7 +36,7 @@ public sealed class GetRarEntryContentCommand : GetEntryContentCommandBase<RarEn
                 if (entry.IsEncrypted)
                 {
                     rar.ReaderOptions.Password = Password is null
-                        ? entry.PromptForPassword(Host)
+                        ? Host.PromptForPassword(entry)
                         : Password.AsPlainText();
                 }
 

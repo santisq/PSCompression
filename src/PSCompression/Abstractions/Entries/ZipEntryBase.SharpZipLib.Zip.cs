@@ -35,14 +35,8 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source) : Entr
         Stream = stream;
     }
 
-    internal ZipFile OpenRead(SecureString? password)
-    {
-        ZipFile zip = FromStream ? new(Stream, leaveOpen: true) : new(Source);
-        if (password is { Length: > 0 })
-            zip.Password = password.AsPlainText();
-
-        return zip;
-    }
+    internal ZipFile OpenSharpZipLibArchive()
+        => FromStream ? new(Stream, leaveOpen: true) : new(Source);
 
     public FileSystemInfo ExtractTo(
         string destination,
@@ -53,10 +47,8 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source) : Entr
             ? new(Stream, leaveOpen: true)
             : new(Source);
 
-        if (password?.Length > 0)
-        {
+        if (password is { Length: > 0 })
             zip.Password = password.AsPlainText();
-        }
 
         return ExtractTo(destination, overwrite, zip);
     }

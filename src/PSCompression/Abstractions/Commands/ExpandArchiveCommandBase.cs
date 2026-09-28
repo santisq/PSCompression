@@ -45,7 +45,7 @@ public abstract class ExpandArchiveCommandBase : PathCommandBase
             {
                 List<PSObject> result = ExtractArchive(path, Destination);
 
-                if (PassThru)
+                if (PassThru && result.Count > 0)
                 {
                     result.Sort((x, y) =>
                         string.Compare(

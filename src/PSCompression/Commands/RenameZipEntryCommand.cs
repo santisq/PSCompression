@@ -75,7 +75,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
             Rename(mapping);
 
         _archiveCache?.Dispose();
-        if (!PassThru.IsPresent || _entryCache is null) return;
+        if (!PassThru || _entryCache is null) return;
 
         IEnumerable<EntryBase> entries = _entryCache
             .AddRange(_moveCache.GetPassThruMappings())

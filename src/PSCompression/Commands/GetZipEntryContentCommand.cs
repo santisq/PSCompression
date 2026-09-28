@@ -23,15 +23,20 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
 
     protected override void ProcessRecord()
     {
-        _cache ??= new(entry => entry.OpenRead(Password));
+        _cache ??= new(entry => entry.OpenSharpZipLibArchive());
 
         foreach (ZipEntryFile entry in Entry)
         {
             try
             {
                 ZipFile zip = _cache.GetOrCreate(entry);
-                if (entry.IsEncrypted && Password is null)
-                    zip.Password = entry.PromptForPassword(Host);
+
+                if (entry.IsEncrypted)
+                {
+                    zip.Password = Password is null
+                        ? Host.PromptForPassword(entry)
+                        : Password.AsPlainText();
+                }
 
                 ReadEntry(entry.Open(zip));
             }

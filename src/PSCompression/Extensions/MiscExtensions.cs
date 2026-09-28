@@ -26,14 +26,25 @@ internal static class MiscExtensions
             => new NetworkCredential(string.Empty, secureString).Password;
     }
 
-    extension(EntryBase entry)
+    extension(PSHost host)
     {
         [ExcludeFromCodeCoverage]
-        internal string PromptForPassword(PSHost host)
+        internal string PromptForPassword(EntryBase entry)
         {
             host.UI.Write(
-                $"Encrypted entry '{entry.RelativePath}' in '{entry.Source}' requires a password.\n" +
-                "Tip: Use -Password <SecureString> to avoid this prompt in the future.\n" +
+                $"Encrypted entry '{entry.RelativePath}' in '{entry.Source}' requires a password. " +
+                "Use -Password <SecureString> to avoid this prompt in the future.\n" +
+                "Enter password: ");
+
+            return host.UI.ReadLineAsSecureString().AsPlainText();
+        }
+
+        [ExcludeFromCodeCoverage]
+        internal string PromptForPassword(string message)
+        {
+            if (!message.EndsWith(". ")) message += " ";
+            host.UI.Write(message +
+                "Use -Password <SecureString> to avoid this prompt in the future.\n" +
                 "Enter password: ");
 
             return host.UI.ReadLineAsSecureString().AsPlainText();

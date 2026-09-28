@@ -78,8 +78,8 @@
         'Get-ZipEntry'
         'Get-ZipEntryContent'
         'Set-ZipEntryContent'
-        'Remove-ZipEntry'
         'New-ZipEntry'
+        'Remove-ZipEntry'
         'Expand-ZipEntry'
         'ConvertTo-GzipString'
         'ConvertFrom-GzipString'
@@ -99,6 +99,7 @@
         'Get-RarEntry'
         'Get-RarEntryContent'
         'Expand-RarEntry'
+        'Expand-RarArchive'
     )
 
     # Variables to export from this module
@@ -117,6 +118,7 @@
         'togzipstring'      # ConvertTo-GzipString
         'tozlibstring'      # ConvertTo-ZlibString
         'untar'             # Expand-TarArchive
+        'unrar'             # Expand-RarArchive
         'untarentry'        # Expand-TarEntry
         'unzipentry'        # Expand-ZipEntry
         'unrarentry'        # Expand-RarEntry

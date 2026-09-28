@@ -49,7 +49,7 @@ public abstract class ToCompressedStringCommandBase : PSCmdlet, IDisposable
             _compressStream ??= CreateCompressionStream(_outstream, CompressionLevel);
             _writer ??= new StreamWriter(_compressStream, Encoding);
 
-            if (NoNewLine.IsPresent)
+            if (NoNewLine)
             {
                 _writer.WriteContent(InputObject);
                 return;

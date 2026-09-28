@@ -11,10 +11,10 @@ using IOPath = System.IO.Path;
 namespace PSCompression.Abstractions.Commands;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposable
-    where T : IDisposable
+public abstract class CompressArchiveCommandBase<TArchive> : PathCommandBase, IDisposable
+    where TArchive : IDisposable
 {
-    private T? _archive;
+    private TArchive? _archive;
 
     private FileStream? _destination;
 
@@ -59,7 +59,7 @@ public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposa
     [ValidateNotNullOrEmpty]
     public string[]? Exclude { get; set; }
 
-    protected abstract T CreateCompressionStream(Stream outputStream);
+    protected abstract TArchive CreateCompressionStream(Stream outputStream);
 
     protected override void BeginProcessing()
     {
@@ -69,7 +69,6 @@ public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposa
         try
         {
             Directory.CreateDirectory(IOPath.GetDirectoryName(Destination)!);
-
             _destination = File.Open(Destination, FileMode);
             _archive = CreateCompressionStream(_destination);
         }
@@ -96,9 +95,7 @@ public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposa
         foreach (string path in EnumerateResolvedPaths())
         {
             if (ShouldExclude(path) || ItemIsDestination(path, Destination))
-            {
                 continue;
-            }
 
             if (Directory.Exists(path))
             {
@@ -111,7 +108,7 @@ public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposa
         }
     }
 
-    private void Traverse(DirectoryInfo dir, T archive)
+    private void Traverse(DirectoryInfo dir, TArchive archive)
     {
         _queue.Enqueue(dir);
         IEnumerable<FileSystemInfo> enumerator;
@@ -135,11 +132,9 @@ public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposa
             foreach (FileSystemInfo item in enumerator)
             {
                 if (ShouldExclude(item.FullName))
-                {
                     continue;
-                }
 
-                if (item is DirectoryInfo directory)
+                if (item is DirectoryInfo directory && !IsReparsePoint(directory))
                 {
                     _queue.Enqueue(directory);
                     continue;
@@ -147,9 +142,7 @@ public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposa
 
                 FileInfo file = (FileInfo)item;
                 if (ItemIsDestination(file.FullName, Destination))
-                {
                     continue;
-                }
 
                 CreateOrUpdateFileEntry(archive, file, file.RelativeTo(length));
             }
@@ -157,12 +150,12 @@ public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposa
     }
 
     protected abstract void CreateDirectoryEntry(
-        T archive,
+        TArchive archive,
         DirectoryInfo directory,
         string path);
 
     protected abstract void CreateOrUpdateFileEntry(
-        T archive,
+        TArchive archive,
         FileInfo file,
         string path);
 
@@ -177,22 +170,13 @@ public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposa
 
     private bool ShouldExclude(string path)
     {
-        if (!_processed.Add(path))
-        {
-            return true;
-        }
-
-        if (_excludePatterns is null)
-        {
-            return false;
-        }
+        if (!_processed.Add(path)) return true;
+        if (_excludePatterns is null) return false;
 
         foreach (WildcardPattern pattern in _excludePatterns)
         {
             if (pattern.IsMatch(path))
-            {
                 return true;
-            }
         }
 
         return false;
@@ -203,12 +187,15 @@ public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposa
         _archive?.Dispose();
         _destination?.Dispose();
 
-        if (PassThru.IsPresent && _destination is not null)
+        if (PassThru && _destination is not null)
         {
-            FileInfo passthru = new(_destination.Name);
-            WriteObject(passthru.AppendPSProperties(passthru.DirectoryName));
+            FileInfo destination = new(_destination.Name);
+            WriteObject(destination.AppendPSProperties(destination.DirectoryName));
         }
     }
+
+    private static bool IsReparsePoint(DirectoryInfo dir)
+        => dir.Attributes.HasFlag(FileAttributes.ReparsePoint);
 
     protected virtual void Dispose(bool disposing)
     {

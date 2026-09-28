@@ -7,7 +7,9 @@ namespace PSCompression.Abstractions.Entries;
 public abstract partial class ZipEntryBase
 {
     public ZipArchive OpenRead() =>
-        FromStream ? new ZipArchive(Stream) : ZipFile.OpenRead(Source);
+        FromStream
+            ? new ZipArchive(Stream, ZipArchiveMode.Read, leaveOpen: true)
+            : ZipFile.OpenRead(Source);
 
     public ZipArchive OpenWrite()
     {

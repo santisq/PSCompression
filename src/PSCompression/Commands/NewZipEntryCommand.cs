@@ -76,7 +76,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 {
                     if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
                     {
-                        if (!Force.IsPresent)
+                        if (!Force)
                         {
                             WriteError(DuplicatedEntryException
                                 .Create(entry, Destination)
@@ -112,7 +112,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             {
                 if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
                 {
-                    if (!Force.IsPresent)
+                    if (!Force)
                     {
                         WriteError(DuplicatedEntryException
                             .Create(entry, Destination)

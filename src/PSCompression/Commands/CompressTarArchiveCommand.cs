@@ -13,7 +13,7 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsData.Compress, "TarArchive")]
 [OutputType(typeof(FileInfo))]
 [Alias("tarcompress")]
-public sealed class CompressTarArchiveCommand : ToCompressedFileCommandBase<TarOutputStream>
+public sealed class CompressTarArchiveCommand : CompressArchiveCommandBase<TarOutputStream>
 {
     private Stream? _compressionStream;
 
