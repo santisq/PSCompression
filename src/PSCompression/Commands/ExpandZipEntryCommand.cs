@@ -34,5 +34,5 @@ public sealed class ExpandZipEntryCommand : ExpandEntryCommandBase<ZipEntryBase>
         return entry.ExtractTo(destination, Force, zip);
     }
 
-    public void Dispose() => _cache?.Dispose();
+    public void Dispose() => _cache.Dispose();
 }

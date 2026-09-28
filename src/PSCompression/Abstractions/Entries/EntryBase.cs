@@ -20,7 +20,7 @@ public abstract class EntryBase(string source)
 
     public abstract string RelativePath { get; }
 
-    public abstract DateTime LastWriteTime { get; }
+    public abstract DateTime? LastWriteTime { get; }
 
     public abstract long Length { get; internal set; }
 

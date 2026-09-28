@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace PSCompression;
 
+[ExcludeFromCodeCoverage]
 internal static class Dbg
 {
     [Conditional("DEBUG")]

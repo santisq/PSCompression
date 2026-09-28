@@ -13,7 +13,7 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source) : Entr
 
     public override string RelativePath { get; } = entry.Name;
 
-    public override DateTime LastWriteTime { get; } = entry.DateTime;
+    public override DateTime? LastWriteTime { get; } = entry.DateTime;
 
     public override long Length { get; internal set; } = entry.Size;
 
@@ -73,7 +73,8 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source) : Entr
         }
 
         FileInfo file = new(destination);
-        file.Directory?.Create();
+        Dbg.Assert(file.Directory is not null, "Files must always have a parent directory.");
+        file.Directory.Create();
 
         using Stream source = zip.GetInputStream(entry);
         using FileStream fs = file.Open(

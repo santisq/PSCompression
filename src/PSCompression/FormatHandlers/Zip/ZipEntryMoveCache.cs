@@ -76,7 +76,7 @@ internal sealed class ZipEntryMoveCache
             (ZipEntryBase entry, string newname) = pair.Value;
             if (entry.Type is EntryType.Archive)
             {
-                newpath = ((ZipEntryFile)entry).ChangeName(newname);
+                newpath = ((ZipEntryFile)entry).GetNewName(newname);
                 result[pair.Key] = newpath;
                 continue;
             }

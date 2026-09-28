@@ -89,19 +89,15 @@ internal static partial class CompressionExtensions
 
     extension(ZipEntryFile file)
     {
-        internal string ChangeName(string newname)
+        internal string GetNewName(string newname)
         {
             string normalized = file.RelativePath.NormalizePath();
-
-            if (!normalized.Contains(DirectorySeparator))
-            {
-                return newname;
-            }
-
-            return string.Join(
-                DirectorySeparator,
-                normalized.Substring(0, normalized.Length - file.Name!.Length - 1),
-                newname);
+            return normalized.Contains(DirectorySeparator)
+                ? string.Join(
+                    DirectorySeparator,
+                    normalized.Substring(0, normalized.Length - file.Name!.Length - 1),
+                    newname)
+                : newname;
         }
     }
 

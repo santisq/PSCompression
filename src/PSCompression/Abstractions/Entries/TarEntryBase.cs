@@ -11,7 +11,7 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
 
     public override string RelativePath { get; } = entry.Name;
 
-    public override DateTime LastWriteTime { get; } = entry.ModTime;
+    public override DateTime? LastWriteTime { get; } = entry.ModTime;
 
     public override long Length { get; internal set; } = entry.Size;
 
@@ -35,7 +35,8 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
         }
 
         FileInfo file = new(destination);
-        file.Directory?.Create();
+        Dbg.Assert(file.Directory is not null, "Files must always have a parent directory.");
+        file.Directory.Create();
 
         using FileStream destStream = file.Open(
             overwrite ? FileMode.Create : FileMode.CreateNew,

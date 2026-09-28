@@ -46,6 +46,6 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
 
     public void Dispose()
     {
-        _cache?.Dispose();
+        _cache.Dispose();
     }
 }

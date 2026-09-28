@@ -19,12 +19,10 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
     [Parameter]
     public SecureString? Password { get; set; }
 
-    private ArchiveCache<ZipFile, ZipEntryFile>? _cache;
+    private ArchiveCache<ZipFile, ZipEntryFile> _cache = new(entry => entry.OpenSharpZipLibArchive());
 
     protected override void ProcessRecord()
     {
-        _cache ??= new(entry => entry.OpenSharpZipLibArchive());
-
         foreach (ZipEntryFile entry in Entry)
         {
             try
@@ -78,6 +76,6 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
 
     public void Dispose()
     {
-        _cache?.Dispose();
+        _cache.Dispose();
     }
 }

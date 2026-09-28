@@ -74,7 +74,7 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
         foreach (KeyValuePair<string, Dictionary<string, string>> mapping in mappings)
             Rename(mapping);
 
-        _archiveCache?.Dispose();
+        _archiveCache.Dispose();
         if (!PassThru || _entryCache is null) return;
 
         IEnumerable<EntryBase> entries = _entryCache
@@ -119,6 +119,6 @@ public sealed class RenameZipEntryCommand : PSCmdlet, IDisposable
 
     public void Dispose()
     {
-        _archiveCache?.Dispose();
+        _archiveCache.Dispose();
     }
 }

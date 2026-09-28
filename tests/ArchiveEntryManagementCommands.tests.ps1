@@ -81,7 +81,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Should not create an entry with the same path' {
             { New-ZipEntry $zip.FullName -EntryPath foo.txt, bar.txt, baz.txt } |
-                Should -Throw
+                Should -Throw -ExceptionType ([PSCompression.Exceptions.DuplicatedEntryException])
         }
 
         It 'Can replace an existing entry with -Force' {
@@ -480,8 +480,8 @@ Describe 'Archive Entry Management Commands' {
 
     Context 'Get-RarEntryContent' -Tag 'Get-RarEntryContent' {
         BeforeAll {
-            $entry = Get-RarEntry $rar -Include *.txt
-            $encryptedEntry = Get-RarEntry $encryptedRar -Include *.txt
+            $entry = Get-RarEntry $rar
+            $encryptedEntry = Get-RarEntry $encryptedRar
             $entry, $encryptedEntry | Out-Null
         }
 

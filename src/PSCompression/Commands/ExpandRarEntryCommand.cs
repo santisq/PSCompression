@@ -46,7 +46,8 @@ public sealed class ExpandRarEntryCommand : ExpandEntryCommandBase<RarEntry>
 
         IArchiveEntry rarEntry = rar.GetEntry(entry);
         FileInfo file = new(destination);
-        file.Directory?.Create();
+        Dbg.Assert(file.Directory is not null, "Files must always have a parent directory.");
+        file.Directory.Create();
         rarEntry.WriteToFile(destination, _options);
         return file;
     }

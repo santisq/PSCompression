@@ -17,7 +17,7 @@ public sealed class RarEntry : EntryBase
 
     public override string RelativePath { get; }
 
-    public override DateTime LastWriteTime { get; }
+    public override DateTime? LastWriteTime { get; }
 
     public override long Length { get; internal set; }
 
@@ -32,15 +32,14 @@ public sealed class RarEntry : EntryBase
     internal RarEntry(IArchiveEntry entry, string source) : base(source)
     {
         Name = Path.GetFileName(entry.Key);
-        RelativePath = entry.Key ?? "";
-        Type = entry.IsDirectory ? EntryType.Directory : EntryType.Archive;
+        RelativePath = $"{entry.Key}";
         Length = entry.Size;
         CompressedLength = entry.CompressedSize;
-        LastWriteTime = entry.LastModifiedTime ?? DateTime.MinValue;
+        LastWriteTime = entry.LastModifiedTime;
         IsEncrypted = entry.IsEncrypted;
-        FormatDirectoryPath = Type == EntryType.Directory
-            ? $"/{RelativePath.NormalizeEntryPath()}"
-            : $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
+        (Type, FormatDirectoryPath) = entry.IsDirectory
+            ? (EntryType.Directory, $"/{RelativePath.NormalizeEntryPath()}")
+            : (EntryType.Archive, $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}");
     }
 
     internal RarEntry(IArchiveEntry entry, Stream stream)

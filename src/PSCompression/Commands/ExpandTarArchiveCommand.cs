@@ -69,7 +69,8 @@ public sealed class ExpandTarArchiveCommand : ExpandArchiveCommandBase
         }
 
         FileInfo file = new(destination);
-        file.Directory?.Create();
+        Dbg.Assert(file.Directory is not null, "Files must always have a parent directory.");
+        file.Directory.Create();
 
         using (FileStream destStream = File.Open(
             destination,
