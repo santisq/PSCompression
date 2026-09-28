@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Commands;
+using PSCompression.Abstractions.Entries;
 using PSCompression.FormatHandlers.Rar;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;

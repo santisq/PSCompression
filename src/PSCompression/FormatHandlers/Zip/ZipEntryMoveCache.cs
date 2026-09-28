@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Enum;
 using PSCompression.Extensions;
 using PSCompression.FormatHandlers.Common;

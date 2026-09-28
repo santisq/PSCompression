@@ -5,7 +5,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Enum;
 using PSCompression.Extensions;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Entries;
 
 public abstract partial class ZipEntryBase(ZipEntry entry, string source) : EntryBase(source)
 {
@@ -71,8 +71,7 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source) : Entr
             Source,
             out ZipEntry? entry);
 
-        destination = Path.GetFullPath(
-            Path.Combine(destination, RelativePath));
+        destination = Path.GetFullPath(Path.Combine(destination, RelativePath));
 
         if (Type == EntryType.Directory)
         {
@@ -82,7 +81,7 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source) : Entr
         }
 
         FileInfo file = new(destination);
-        file.Directory!.Create();
+        file.Directory?.Create();
 
         using Stream source = zip.GetInputStream(entry);
         using FileStream fs = file.Open(
@@ -90,7 +89,6 @@ public abstract partial class ZipEntryBase(ZipEntry entry, string source) : Entr
             FileAccess.Write);
 
         source.CopyTo(fs);
-
         return file;
     }
 }

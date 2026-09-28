@@ -5,60 +5,77 @@ using System.Management.Automation;
 using System.Management.Automation.Host;
 using System.Net;
 using System.Security;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 
 namespace PSCompression.Extensions;
 
 internal static class MiscExtensions
 {
-    internal static void Deconstruct<TKey, TValue>(
-        this KeyValuePair<TKey, TValue> keyv,
-        out TKey key,
-        out TValue value)
+    extension<TKey, TValue>(KeyValuePair<TKey, TValue> keyValue)
     {
-        key = keyv.Key;
-        value = keyv.Value;
-    }
-
-    internal static string AsPlainText(this SecureString secureString) =>
-        new NetworkCredential(string.Empty, secureString).Password;
-
-    [ExcludeFromCodeCoverage]
-    internal static string PromptForPassword(this EntryBase entry, PSHost host)
-    {
-        host.UI.Write(
-            $"Encrypted entry '{entry.RelativePath}' in '{entry.Source}' requires a password.\n" +
-            "Tip: Use -Password <SecureString> to avoid this prompt in the future.\n" +
-            "Enter password: ");
-
-        return host.UI.ReadLineAsSecureString().AsPlainText();
-    }
-
-    internal static void ReadToEnd(this StreamReader reader, PSCmdlet cmdlet)
-        => cmdlet.WriteObject(reader.ReadToEnd());
-
-    internal static void ReadLines(this StreamReader reader, PSCmdlet cmdlet)
-    {
-        string? line;
-        while ((line = reader.ReadLine()) is not null)
+        internal void Deconstruct(out TKey key, out TValue value)
         {
-            cmdlet.WriteObject(line);
+            key = keyValue.Key;
+            value = keyValue.Value;
         }
     }
 
-    internal static void WriteLines(this StreamWriter writer, string[] lines)
+    extension(SecureString secureString)
     {
-        foreach (string line in lines)
+        internal string AsPlainText()
+            => new NetworkCredential(string.Empty, secureString).Password;
+    }
+
+    extension(EntryBase entry)
+    {
+        [ExcludeFromCodeCoverage]
+        internal string PromptForPassword(PSHost host)
         {
-            writer.WriteLine(line);
+            host.UI.Write(
+                $"Encrypted entry '{entry.RelativePath}' in '{entry.Source}' requires a password.\n" +
+                "Tip: Use -Password <SecureString> to avoid this prompt in the future.\n" +
+                "Enter password: ");
+
+            return host.UI.ReadLineAsSecureString().AsPlainText();
         }
     }
 
-    internal static void WriteContent(this StreamWriter writer, string[] lines)
+    extension(StreamReader reader)
     {
-        foreach (string line in lines)
+        internal void ReadToEnd(PSCmdlet cmdlet) => cmdlet.WriteObject(reader.ReadToEnd());
+
+        internal void ReadLines(PSCmdlet cmdlet)
         {
-            writer.Write(line);
+            string? line;
+            while ((line = reader.ReadLine()) is not null)
+            {
+                cmdlet.WriteObject(line);
+            }
         }
+    }
+
+    extension(StreamWriter writer)
+    {
+        internal void WriteLines(string[] lines)
+        {
+            foreach (string line in lines)
+            {
+                writer.WriteLine(line);
+            }
+        }
+
+        internal void WriteContent(string[] lines)
+        {
+            foreach (string line in lines)
+            {
+                writer.Write(line);
+            }
+        }
+    }
+
+    extension(InvocationInfo invocation)
+    {
+        internal bool HasBound(string parameter)
+            => invocation.BoundParameters.ContainsKey(parameter);
     }
 }

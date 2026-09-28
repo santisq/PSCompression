@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Enum;
 
 namespace PSCompression.FormatHandlers.Common;

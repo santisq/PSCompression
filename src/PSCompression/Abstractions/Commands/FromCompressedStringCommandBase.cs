@@ -6,7 +6,7 @@ using System.Text;
 using PSCompression.Attributes;
 using PSCompression.Extensions;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Commands;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class FromCompressedStringCommandBase : PSCmdlet

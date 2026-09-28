@@ -8,10 +8,10 @@ using PSCompression.Extensions;
 using System.ComponentModel;
 using IOPath = System.IO.Path;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Commands;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class ToCompressedFileCommandBase<T> : CommandWithPathBase, IDisposable
+public abstract class ToCompressedFileCommandBase<T> : PathCommandBase, IDisposable
     where T : IDisposable
 {
     private T? _archive;

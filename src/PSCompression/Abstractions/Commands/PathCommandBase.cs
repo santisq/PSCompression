@@ -5,16 +5,16 @@ using System.ComponentModel;
 using System.Management.Automation;
 using PSCompression.Extensions;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Commands;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class CommandWithPathBase : PSCmdlet
+public abstract class PathCommandBase : PSCmdlet
 {
     protected string[] _paths = [];
 
     protected bool IsLiteral
     {
-        get => MyInvocation.BoundParameters.ContainsKey("LiteralPath");
+        get => MyInvocation.HasBound(nameof(LiteralPath));
     }
 
     [Parameter(

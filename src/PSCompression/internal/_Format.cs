@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Management.Automation;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 
 namespace PSCompression.Internal;
 

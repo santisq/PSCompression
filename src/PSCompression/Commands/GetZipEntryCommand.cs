@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Management.Automation;
 using System.IO;
-using PSCompression.Abstractions;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.FormatHandlers.Zip;
+using PSCompression.Abstractions.Entries;
+using PSCompression.Abstractions.Commands;
 
 namespace PSCompression.Commands;
 

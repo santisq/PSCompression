@@ -3,8 +3,9 @@ using System.IO;
 using System.Management.Automation;
 using PSCompression.Extensions;
 using System.ComponentModel;
+using PSCompression.Abstractions.Entries;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Commands;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class ExpandEntryCommandBase<T> : PSCmdlet

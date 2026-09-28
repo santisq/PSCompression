@@ -3,7 +3,7 @@ using System.IO;
 using ICSharpCode.SharpZipLib.Tar;
 using PSCompression.FormatHandlers.Tar;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Entries;
 
 public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(source)
 {
@@ -15,9 +15,10 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
 
     public override long Length { get; internal set; } = entry.Size;
 
-    protected TarEntryBase(TarEntry entry, Stream? stream)
+    protected TarEntryBase(TarEntry entry, Stream stream)
         : this(entry, $"InputStream.{Guid.NewGuid()}")
     {
+        stream.Seek(0, SeekOrigin.Begin);
         Stream = stream;
     }
 

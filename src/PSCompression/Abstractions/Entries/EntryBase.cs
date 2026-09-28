@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using PSCompression.Enum;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Entries;
 
 public abstract class EntryBase(string source)
 {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ICSharpCode.SharpZipLib.Zip;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Enum;
 using PSCompression.Extensions;
 

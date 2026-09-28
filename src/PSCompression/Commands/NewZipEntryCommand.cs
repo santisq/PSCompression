@@ -7,11 +7,11 @@ using System.Management.Automation;
 using System.Text;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
-using PSCompression.Abstractions;
 using ICSharpCode.SharpZipLib.Zip;
 using PSCompression.Attributes;
 using PSCompression.FormatHandlers.Zip;
 using PSCompression.FormatHandlers.Common;
+using PSCompression.Abstractions.Entries;
 
 namespace PSCompression.Commands;
 

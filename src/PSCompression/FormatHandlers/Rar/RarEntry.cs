@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Enum;
 using PSCompression.Extensions;
 using SharpCompress.Archives;
@@ -44,10 +44,14 @@ public sealed class RarEntry : EntryBase
     internal RarEntry(IArchiveEntry entry, Stream stream)
         : this(entry, $"InputStream.{Guid.NewGuid()}")
     {
+        stream.Seek(0, SeekOrigin.Begin);
         Stream = stream;
     }
 
-    internal IRarArchive OpenRead() => FromStream
-        ? RarArchive.OpenArchive(Stream, new ReaderOptions { LeaveStreamOpen = true })
-        : RarArchive.OpenArchive(Source);
+    internal IRarArchive OpenRead()
+    {
+        if (!FromStream) return RarArchive.OpenArchive(Source);
+        Stream.Seek(0, SeekOrigin.Begin);
+        return RarArchive.OpenArchive(Stream, new ReaderOptions { LeaveStreamOpen = true });
+    }
 }

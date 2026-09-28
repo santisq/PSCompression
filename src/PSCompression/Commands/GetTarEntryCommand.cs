@@ -3,7 +3,8 @@ using System.IO;
 using System.Management.Automation;
 using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Commands;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Extensions;
 using PSCompression.FormatHandlers.Tar;
 
@@ -21,7 +22,7 @@ public sealed class GetTarEntryCommand : GetEntryCommandBase
 
     protected override IEnumerable<EntryBase> GetEntriesFromFile(string path)
     {
-        if (!MyInvocation.BoundParameters.ContainsKey(nameof(Algorithm)))
+        if (!MyInvocation.HasBound(nameof(Algorithm)))
         {
             Algorithm = AlgorithmMappings.Parse(path);
         }

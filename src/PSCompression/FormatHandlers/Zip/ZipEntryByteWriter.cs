@@ -1,5 +1,5 @@
 using System.IO;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 
 namespace PSCompression.FormatHandlers.Zip;
 

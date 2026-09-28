@@ -11,11 +11,12 @@ using SharpCompress.Common;
 using PSCompression.Extensions;
 using PSCompression.Enum;
 using PSCompression.FormatHandlers.Common;
+using PSCompression.Abstractions.Entries;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Commands;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class GetEntryCommandBase : CommandWithPathBase
+public abstract class GetEntryCommandBase : PathCommandBase
 {
     internal abstract Enum.ArchiveType ArchiveType { get; }
 
@@ -45,24 +46,17 @@ public abstract class GetEntryCommandBase : CommandWithPathBase
 
     protected override void BeginProcessing()
     {
-        if (Exclude is null && Include is null)
-        {
-            return;
-        }
+        if (Exclude is null && Include is null) return;
 
         const WildcardOptions Options = WildcardOptions.Compiled
             | WildcardOptions.CultureInvariant
             | WildcardOptions.IgnoreCase;
 
         if (Exclude is not null)
-        {
             _excludePatterns = [.. Exclude.Select(e => new WildcardPattern(e, Options))];
-        }
 
         if (Include is not null)
-        {
             _includePatterns = [.. Include.Select(e => new WildcardPattern(e, Options))];
-        }
     }
 
     protected override void ProcessRecord()

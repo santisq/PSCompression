@@ -2,7 +2,7 @@ using System.IO;
 using System.IO.Compression;
 using PSCompression.Extensions;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Entries;
 
 public abstract partial class ZipEntryBase
 {

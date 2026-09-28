@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Entries;
 
 internal abstract class EntryStreamOpsBase(Stream stream) : IDisposable
 {

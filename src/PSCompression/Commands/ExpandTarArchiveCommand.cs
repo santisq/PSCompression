@@ -4,7 +4,7 @@ using System.IO;
 using System.Management.Automation;
 using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Commands;
 using PSCompression.Enum;
 using PSCompression.Extensions;
 using PSCompression.FormatHandlers.Tar;
@@ -15,70 +15,24 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsData.Expand, "TarArchive")]
 [OutputType(typeof(FileInfo), typeof(DirectoryInfo))]
 [Alias("untar")]
-public sealed class ExpandTarArchiveCommand : CommandWithPathBase
+public sealed class ExpandTarArchiveCommand : ExpandArchiveCommandBase
 {
     private bool _shouldInferAlgo;
-
-    [Parameter(Position = 1)]
-    public string? Destination { get; set; }
 
     [Parameter]
     public Algorithm Algorithm { get; set; }
 
-    [Parameter]
-    public SwitchParameter Force { get; set; }
-
-    [Parameter]
-    public SwitchParameter PassThru { get; set; }
-
     protected override void BeginProcessing()
     {
-        Destination = Destination is null
-            // PowerShell is retarded and decided to mix up ProviderPath & Path
-            ? SessionState.Path.CurrentFileSystemLocation.ProviderPath
-            : Destination.ResolvePath(this);
-
-        if (File.Exists(Destination))
-        {
-            ThrowTerminatingError(ExceptionExtensions.NotDirectoryPath(
-                Destination, nameof(Destination)));
-        }
-
-        Directory.CreateDirectory(Destination);
-
-        _shouldInferAlgo = !MyInvocation.BoundParameters
-            .ContainsKey(nameof(Algorithm));
+        base.BeginProcessing();
+        _shouldInferAlgo = !MyInvocation.HasBound(nameof(Algorithm));
     }
 
-    protected override void ProcessRecord()
+    protected override PSObject[] ExtractArchive(string source, string destination)
     {
-        Dbg.Assert(Destination is not null);
+        if (_shouldInferAlgo) Algorithm = AlgorithmMappings.Parse(source);
 
-        foreach (string path in EnumerateResolvedPaths())
-        {
-            if (_shouldInferAlgo)
-            {
-                Algorithm = AlgorithmMappings.Parse(path);
-            }
-
-            try
-            {
-                ExtractArchive(path);
-            }
-            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                WriteError(exception.ToWriteError(path));
-            }
-        }
-    }
-
-    private void ExtractArchive(string path)
-    {
-        using FileStream fs = File.OpenRead(path);
+        using FileStream fs = File.OpenRead(source);
         using Stream decompress = Algorithm.FromCompressedStream(fs);
         using TarInputStream tar = new(decompress, Encoding.UTF8);
 
@@ -100,16 +54,7 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
             }
         }
 
-        if (PassThru)
-        {
-            result.Sort((x, y) =>
-                string.Compare(
-                    (string)x.Properties["PSParentPath"].Value,
-                    (string)y.Properties["PSParentPath"].Value,
-                    ignoreCase: true));
-
-            foreach (PSObject entry in result) WriteObject(entry);
-        }
+        return [.. result];
     }
 
     private FileSystemInfo ExtractEntry(TarEntry entry, TarInputStream tar)

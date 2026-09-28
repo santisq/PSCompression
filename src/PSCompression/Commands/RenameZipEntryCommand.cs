@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Management.Automation;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Exceptions;
 using PSCompression.Extensions;
 using PSCompression.FormatHandlers.Common;

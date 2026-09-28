@@ -1,7 +1,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Commands;
 
 namespace PSCompression.Commands;
 

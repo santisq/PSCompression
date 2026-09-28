@@ -1,4 +1,4 @@
-#if !NETCOREAPP
+#if NETFRAMEWORK
 
 namespace System.Diagnostics.CodeAnalysis;
 

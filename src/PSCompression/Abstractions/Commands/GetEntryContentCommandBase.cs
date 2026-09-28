@@ -1,9 +1,10 @@
 using System.ComponentModel;
 using System.Management.Automation;
 using System.Text;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Attributes;
 
-namespace PSCompression.Abstractions;
+namespace PSCompression.Abstractions.Commands;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class GetEntryContentCommandBase<T> : PSCmdlet

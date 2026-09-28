@@ -1,6 +1,6 @@
 using System.IO;
 using ICSharpCode.SharpZipLib.Tar;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Enum;
 using PSCompression.Extensions;
 
@@ -19,7 +19,7 @@ public sealed class TarEntryDirectory : TarEntryBase
         FormatDirectoryPath = $"/{RelativePath.NormalizeEntryPath()}";
     }
 
-    internal TarEntryDirectory(TarEntry entry, Stream? stream)
+    internal TarEntryDirectory(TarEntry entry, Stream stream)
         : base(entry, stream)
     {
         Name = entry.GetDirectoryName();

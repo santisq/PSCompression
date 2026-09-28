@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using ICSharpCode.SharpZipLib.Zip;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Enum;
 using PSCompression.Exceptions;
 
@@ -62,16 +62,16 @@ internal static class ExceptionExtensions
     extension(ProviderInfo provider)
     {
         internal ErrorRecord ToInvalidProviderError(string path) =>
-        new(
-            new NotSupportedException(
-                $"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
-            "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
+            new(
+                new NotSupportedException(
+                    $"The resolved path '{path}' is not a FileSystem path but '{provider.Name}'."),
+                "NotFileSystemPath", ErrorCategory.InvalidArgument, path);
     }
 
     extension(Exception exception)
     {
         internal ErrorRecord ToOpenError(string path) =>
-        new(exception, "EntryOpen", ErrorCategory.OpenError, path);
+            new(exception, "EntryOpen", ErrorCategory.OpenError, path);
 
         internal ErrorRecord ToResolvePathError(string path) =>
             new(exception, "ResolvePath", ErrorCategory.NotSpecified, path);
@@ -88,8 +88,7 @@ internal static class ExceptionExtensions
         internal ErrorRecord ToEnumerationError(object item) =>
             new(exception, "EnumerationError", ErrorCategory.ReadError, item);
 
-        internal ErrorRecord ToInvalidArchive(
-            ArchiveType type)
+        internal ErrorRecord ToInvalidArchive(ArchiveType type)
         {
             string basemsg = $"Specified path or stream is not a valid {type} archive, " +
                 "might be compressed using an unsupported method, " +
@@ -107,27 +106,27 @@ internal static class ExceptionExtensions
     extension(DuplicatedEntryException exception)
     {
         internal ErrorRecord ToDuplicatedEntryError() =>
-        new(exception, "DuplicatedEntry", ErrorCategory.WriteError, exception._path);
+            new(exception, "DuplicatedEntry", ErrorCategory.WriteError, exception._path);
     }
 
     extension(InvalidNameException exception)
     {
         internal ErrorRecord ToInvalidNameError(string name) =>
-        new(exception, "InvalidName", ErrorCategory.InvalidArgument, name);
+            new(exception, "InvalidName", ErrorCategory.InvalidArgument, name);
     }
 
     extension(EntryNotFoundException exception)
     {
         internal ErrorRecord ToEntryNotFoundError() =>
-        new(exception, "EntryNotFound", ErrorCategory.ObjectNotFound, exception._path);
+            new(exception, "EntryNotFound", ErrorCategory.ObjectNotFound, exception._path);
     }
 
     extension(ZipArchive zip)
     {
         internal void ThrowIfNotFound(
-        string path,
-        string source,
-        [NotNull] out ZipArchiveEntry? entry)
+            string path,
+            string source,
+            [NotNull] out ZipArchiveEntry? entry)
         {
             if (!zip.TryGetEntry(path, out entry))
             {
@@ -149,9 +148,9 @@ internal static class ExceptionExtensions
     extension(ICSharpCode.SharpZipLib.Zip.ZipFile zip)
     {
         internal void ThrowIfNotFound(
-        string path,
-        string source,
-        [NotNull] out ZipEntry? entry)
+            string path,
+            string source,
+            [NotNull] out ZipEntry? entry)
         {
             if (!zip.TryGetEntry(path, out entry))
             {

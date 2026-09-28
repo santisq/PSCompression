@@ -2,7 +2,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Enum;
 using PSCompression.Extensions;
 
@@ -30,7 +30,7 @@ public sealed class TarEntryFile : TarEntryBase
         _algorithm = algorithm;
     }
 
-    internal TarEntryFile(TarEntry entry, Stream? stream, Algorithm algorithm)
+    internal TarEntryFile(TarEntry entry, Stream stream, Algorithm algorithm)
         : base(entry, stream)
     {
         Name = Path.GetFileName(entry.Name);

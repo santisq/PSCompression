@@ -1,7 +1,7 @@
 using System.IO;
 using System.Management.Automation;
 using System.Security;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Commands;
 using PSCompression.Extensions;
 using PSCompression.FormatHandlers.Common;
 using PSCompression.FormatHandlers.Rar;
