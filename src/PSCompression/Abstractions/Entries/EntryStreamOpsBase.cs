@@ -21,6 +21,5 @@ internal abstract class EntryStreamOpsBase(Stream stream) : IDisposable
     public void Dispose()
     {
         Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 }

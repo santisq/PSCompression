@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Management.Automation;
@@ -42,7 +43,7 @@ public abstract class ExpandArchiveCommandBase : PathCommandBase
         {
             try
             {
-                PSObject[] result = ExtractArchive(path, Destination);
+                List<PSObject> result = ExtractArchive(path, Destination);
 
                 if (PassThru)
                 {
@@ -69,5 +70,5 @@ public abstract class ExpandArchiveCommandBase : PathCommandBase
         }
     }
 
-    protected abstract PSObject[] ExtractArchive(string source, string destination);
+    protected abstract List<PSObject> ExtractArchive(string source, string destination);
 }

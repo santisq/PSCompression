@@ -28,7 +28,7 @@ public sealed class ExpandTarArchiveCommand : ExpandArchiveCommandBase
         _shouldInferAlgo = !MyInvocation.HasBound(nameof(Algorithm));
     }
 
-    protected override PSObject[] ExtractArchive(string source, string destination)
+    protected override List<PSObject> ExtractArchive(string source, string destination)
     {
         if (_shouldInferAlgo) Algorithm = AlgorithmMappings.Parse(source);
 
