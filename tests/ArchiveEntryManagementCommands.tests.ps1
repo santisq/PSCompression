@@ -481,7 +481,7 @@ Describe 'Archive Entry Management Commands' {
     Context 'Get-RarEntryContent' -Tag 'Get-RarEntryContent' {
         BeforeAll {
             $entry = Get-RarEntry $rar
-            $encryptedEntry = Get-RarEntry $encryptedRar
+            $encryptedEntry = Get-RarEntry $encryptedRar -Include *.txt
             $entry, $encryptedEntry | Out-Null
         }
 
