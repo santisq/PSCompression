@@ -148,16 +148,16 @@ Describe 'Archive Entry Management Commands' {
     Context 'Get-ZipEntry' -Tag 'Get-ZipEntry' {
         It 'Can list entries in a zip archive' {
             $zip | Get-ZipEntry |
-                Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
+                Should -BeOfType ([PSCompression.Abstractions.Entries.ZipEntryBase])
         }
 
         It 'Can list entries from a Stream' {
             Invoke-WebRequest $uri -UseBasicParsing | Get-ZipEntry |
-                Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
+                Should -BeOfType ([PSCompression.Abstractions.Entries.ZipEntryBase])
 
             Use-Object ($stream = $zip.OpenRead()) {
                 $stream | Get-ZipEntry |
-                    Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
+                    Should -BeOfType ([PSCompression.Abstractions.Entries.ZipEntryBase])
             }
         }
 
@@ -218,7 +218,7 @@ Describe 'Archive Entry Management Commands' {
     Context 'Get-TarEntry' -Tag 'Get-TarEntry' {
         It 'Can list entries in a tar archive' {
             $tarArchives | Get-TarEntry |
-                Should -BeOfType ([PSCompression.Abstractions.TarEntryBase])
+                Should -BeOfType ([PSCompression.Abstractions.Entries.TarEntryBase])
         }
 
         It 'Can list entries from a Stream' {
@@ -232,7 +232,7 @@ Describe 'Archive Entry Management Commands' {
 
                 Use-Object ($stream = $archive.OpenRead()) {
                     $stream | Get-TarEntry -Algorithm $algo |
-                        Should -BeOfType ([PSCompression.Abstractions.TarEntryBase])
+                        Should -BeOfType ([PSCompression.Abstractions.Entries.TarEntryBase])
                 }
             }
         }

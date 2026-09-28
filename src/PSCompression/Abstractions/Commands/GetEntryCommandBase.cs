@@ -96,11 +96,7 @@ public abstract class GetEntryCommandBase : PathCommandBase
     {
         try
         {
-            if (stream.CanSeek)
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-            }
-
+            if (stream.CanSeek) stream.Seek(0, SeekOrigin.Begin);
             foreach (EntryBase entry in GetEntriesFromStream(stream).SortEntries())
                 WriteObject(entry);
         }

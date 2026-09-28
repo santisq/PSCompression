@@ -18,7 +18,6 @@ public abstract class TarEntryBase(TarEntry entry, string source) : EntryBase(so
     protected TarEntryBase(TarEntry entry, Stream stream)
         : this(entry, $"InputStream.{Guid.NewGuid()}")
     {
-        stream.Seek(0, SeekOrigin.Begin);
         Stream = stream;
     }
 
