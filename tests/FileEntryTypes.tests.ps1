@@ -13,49 +13,57 @@ Describe 'File Entry Types' {
     BeforeAll {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
         $zipEntry = 'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
+        $rarEntry = Get-RarEntry $PSScriptRoot/../assets/test.rar -Include *.txt
         $tarEntry = New-Item (Join-Path $TestDrive helloworld.txt) -ItemType File -Force |
             Compress-TarArchive -Destination 'testTarDirectory' -PassThru |
             Get-TarEntry
-
-        $tarArchive, $zipEntry, $tarEntry | Out-Null
+        $tarArchive, $zipEntry, $tarEntry, $rarEntry | Out-Null
     }
 
     It 'Should be of type Archive' {
         $zipEntry.Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
         $tarEntry.Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
+        $rarEntry.Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
     }
 
-    It 'Should Have a BaseName Property' {
-        $zipEntry.BaseName | Should -BeOfType ([string])
+    It 'Should have a BaseName property' {
         $zipEntry.BaseName | Should -BeExactly helloworld
-
-        $tarEntry.BaseName | Should -BeOfType ([string])
+        $rarEntry.BaseName | Should -BeExactly test
         $tarEntry.BaseName | Should -BeExactly helloworld
     }
 
-    It 'Should Have an Extension Property' {
-        $zipEntry.Extension | Should -BeOfType ([string])
+    It 'Should have an Extension property' {
         $zipEntry.Extension | Should -BeExactly .txt
-
-        $tarEntry.Extension | Should -BeOfType ([string])
         $tarEntry.Extension | Should -BeExactly .txt
+        $rarEntry.Extension | Should -BeExactly .txt
     }
 
-    It 'Should Have an IsEncrypted Property' {
-        $zipEntry.IsEncrypted | Should -BeOfType ([bool])
+    It 'Should have an IsEncrypted property' {
         $zipEntry.IsEncrypted | Should -BeFalse
+        $rarEntry.IsEncrypted | Should -BeFalse
     }
 
-    It 'Should Have an AESKeySize Property' {
+    It 'Should have an AESKeySize property' {
         $zipEntry.AESKeySize | Should -BeOfType ([int])
         $zipEntry.AESKeySize | Should -BeExactly 0
     }
 
-    It 'Should Have a CompressionMethod Property' {
+    It 'Should have a CompressionMethod property' {
         $zipEntry.CompressionMethod | Should -Be Deflated
     }
 
-    It 'Should Have a Comment Property' {
+    It 'Should have a CompressionRatio property' {
+        $zipEntry.CompressionRatio | Should -BeOfType ([string])
+        $rarEntry.CompressionRatio | Should -BeOfType ([string])
+    }
+
+    It 'Should have a LastWriteTime property' {
+        $zipEntry.LastWriteTime | Should -BeOfType ([datetime])
+        $rarEntry.LastWriteTime | Should -BeOfType ([datetime])
+        $tarEntry.LastWriteTime | Should -BeOfType ([datetime])
+    }
+
+    It 'Should have a Comment property' {
         $zipEntry.Comment | Should -BeOfType ([string])
         $zipEntry.Comment | Should -BeExactly ''
     }
