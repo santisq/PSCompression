@@ -29,7 +29,7 @@
     Copyright          = '(c) Santiago Squarzon. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description        = 'Zip, tar, and string compression utilities for PowerShell!'
+    Description        = 'Zip, tar, rar, and string compression utilities for PowerShell!'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion  = '5.1'
@@ -153,6 +153,8 @@
                 'zip-compression'
                 'tar'
                 'tar-compression'
+                'rar'
+                'rar-compression'
                 'gzip'
                 'gzip-compression'
                 'bzip2'
