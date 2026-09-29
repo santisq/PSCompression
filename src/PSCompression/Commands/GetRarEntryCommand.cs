@@ -6,14 +6,17 @@ using PSCompression.Abstractions.Entries;
 using PSCompression.FormatHandlers.Rar;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;
+using SharpCompress.Readers;
 
 namespace PSCompression.Commands;
 
 [Cmdlet(VerbsCommon.Get, "RarEntry", DefaultParameterSetName = "Path")]
 [OutputType(typeof(RarEntry))]
 [Alias("rarge")]
-public sealed class ExpandRarArchive : GetEntryCommandBase
+public sealed class GetRarEntryCommand : GetEntryCommandBase
 {
+    private static readonly ReaderOptions s_readerOptions = new() { LeaveStreamOpen = true };
+
     internal override Enum.ArchiveType ArchiveType => Enum.ArchiveType.rar;
 
     protected override IEnumerable<EntryBase> GetEntriesFromFile(string path)
@@ -33,7 +36,7 @@ public sealed class ExpandRarArchive : GetEntryCommandBase
 
     protected override IEnumerable<EntryBase> GetEntriesFromStream(Stream stream)
     {
-        IRarArchive rar = RarArchive.OpenArchive(stream);
+        using IRarArchive rar = RarArchive.OpenArchive(stream, s_readerOptions);
         foreach (IArchiveEntry entry in rar.Entries)
         {
             if (ShouldSkipEntry(entry.IsDirectory))

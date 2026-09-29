@@ -112,7 +112,7 @@ public abstract class CompressArchiveCommandBase<TArchive> : PathCommandBase, ID
     {
         _queue.Enqueue(dir);
         IEnumerable<FileSystemInfo> enumerator;
-        int length = dir.Parent!.FullName.Length + 1;
+        int length = dir.Parent?.FullName.Length + 1 ?? 0;
 
         while (_queue.Count > 0)
         {

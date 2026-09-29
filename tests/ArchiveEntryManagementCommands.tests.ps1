@@ -328,9 +328,16 @@ Describe 'Archive Entry Management Commands' {
         It 'List entries from a stream' {
             Use-Object ($stream = (Get-Item $rar).OpenRead()) {
                 $stream | Get-RarEntry | Should -BeOfType ([PSCompression.FormatHandlers.Rar.RarEntry])
+                [PSCompression.Enum.EntryType].GetEnumNames() | ForEach-Object {
+                    ($stream | Get-RarEntry -Type $_).Type | Sort-Object -Unique | Should -Be $_
+                }
             }
 
             { $stream | Get-RarEntry } | Should -Throw -ExceptionType ([ObjectDisposedException])
+        }
+
+        It 'Should throw on invalid RAR archive' {
+            { Get-RarEntry $zip.FullName } | Should -Throw -ExceptionType ([InvalidDataException])
         }
     }
 
@@ -885,10 +892,12 @@ Describe 'Archive Entry Management Commands' {
     Context 'Expand-RarEntry' -Tag 'Expand-RarEntry' {
         BeforeAll {
             $entries = $rar | Get-RarEntry
-            $destination = New-Item (Join-Path $TestDrive 'ExtractRarEntryTests') -ItemType Directory
+            $destination = New-Item (Join-Path $TestDrive 'ExpandRarEntryTests') -ItemType Directory
             $destination | Push-Location
             $entries | Out-Null
         }
+
+        AfterAll { Pop-Location }
 
         It 'Can extract entries to the current directory' {
             { $entries | Expand-RarEntry } | Should -Not -Throw
@@ -931,6 +940,8 @@ Describe 'Archive Entry Management Commands' {
             $extracted = $entries | Expand-RarEntry -Destination $tmp.FullName -PassThru
             $extracted | Should -HaveCount 3
             $extracted | Should -BeOfType ([FileSystemInfo])
+            $extracted | Where-Object Extension -EQ '.txt' | Get-Content |
+                Should -BeExactly 1, 2, 3
         }
 
         It 'Can extract encrypted entries' {
@@ -941,6 +952,10 @@ Describe 'Archive Entry Management Commands' {
 
             $file = Get-ChildItem $tmp.FullName -Filter *.txt -Recurse
             Get-Content $file.FullName | Should -BeExactly 'hello world!'
+
+            $passw = ConvertTo-SecureString foo -AsPlainText -Force
+            { Get-RarEntry $encryptedRar | Expand-RarEntry -Destination $tmp.FullName -Password $passw -Force } |
+                Should -Throw
         }
     }
 }
