@@ -42,7 +42,7 @@ Describe 'ZipEntryBase Class' {
     }
 
     It 'Can extract an encrypted entry' {
-        $passw = ConvertTo-SecureString 'test' -AsPlainText -Force
+        $passw = ConvertTo-SecureString test -AsPlainText -Force
         $dest = Join-Path $TestDrive encryptedTestFolder
         Use-Object ($stream = $encryptedZip.OpenRead()) {
             $info = ($stream | Get-ZipEntry -Type Archive).ExtractTo($dest, $false, $passw)

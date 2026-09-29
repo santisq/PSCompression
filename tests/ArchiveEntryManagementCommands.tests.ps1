@@ -389,7 +389,7 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'Can read encrypted entries' {
-            $passw = ConvertTo-SecureString 'test' -AsPlainText -Force
+            $passw = ConvertTo-SecureString test -AsPlainText -Force
 
             Use-Object ($stream = $encryptedZip.OpenRead()) {
                 $stream | Get-ZipEntry -Type Archive |
@@ -772,7 +772,7 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'Can extract an encrypted entry' {
-            $passw = ConvertTo-SecureString 'test' -AsPlainText -Force
+            $passw = ConvertTo-SecureString test -AsPlainText -Force
             $dest = Join-Path $TestDrive encryptedTestFolder
             Use-Object ($stream = $encryptedZip.OpenRead()) {
                 $info = $stream | Get-ZipEntry -Type Archive |
@@ -879,6 +879,68 @@ Describe 'Archive Entry Management Commands' {
                 }
 
             }
+        }
+    }
+
+    Context 'Expand-RarEntry' -Tag 'Expand-RarEntry' {
+        BeforeAll {
+            $entries = $rar | Get-RarEntry
+            $destination = New-Item (Join-Path $TestDrive 'ExtractRarEntryTests') -ItemType Directory
+            $destination | Push-Location
+            $entries | Out-Null
+        }
+
+        It 'Can extract entries to the current directory' {
+            { $entries | Expand-RarEntry } | Should -Not -Throw
+            Get-ChildItem -Recurse | Should -HaveCount 4
+        }
+
+        It 'Should throw if files already exist in destination' {
+            { $entries | Expand-RarEntry } | Should -Throw -ExceptionType ([IOException])
+        }
+
+        It 'Can overwrite files' {
+            { $entries | Expand-RarEntry -Force } | Should -Not -Throw
+        }
+
+        It 'Can extract entries to a specified destination' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            { $entries | Expand-RarEntry -Destination $tmp.FullName } | Should -Not -Throw
+            Get-ChildItem $tmp.FullName -Recurse | Should -HaveCount 4
+        }
+
+        It 'Can extract entries from a stream' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            Use-Object ($stream = $rar.OpenRead()) {
+                { $stream | Get-RarEntry | Expand-RarEntry -Destination $tmp.FullName } |
+                    Should -Not -Throw
+            }
+
+            Get-ChildItem $tmp.FullName -Recurse | Should -HaveCount 4
+
+            $disposedStreamEntries = Use-Object ($stream = $rar.OpenRead()) {
+                $stream | Get-RarEntry
+            }
+
+            { $disposedStreamEntries | Expand-RarEntry -Destination $tmp.FullName -Force } |
+                Should -Throw -ExceptionType ([ObjectDisposedException])
+        }
+
+        It 'Can output the extracted entries' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            $extracted = $entries | Expand-RarEntry -Destination $tmp.FullName -PassThru
+            $extracted | Should -HaveCount 3
+            $extracted | Should -BeOfType ([FileSystemInfo])
+        }
+
+        It 'Can extract encrypted entries' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            $passw = ConvertTo-SecureString test -AsPlainText -Force
+            { Get-RarEntry $encryptedRar | Expand-RarEntry -Destination $tmp.FullName -Password $passw } |
+                Should -Not -Throw
+
+            $file = Get-ChildItem $tmp.FullName -Filter *.txt -Recurse
+            Get-Content $file.FullName | Should -BeExactly 'hello world!'
         }
     }
 }

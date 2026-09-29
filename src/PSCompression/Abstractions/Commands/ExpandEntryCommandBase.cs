@@ -33,8 +33,9 @@ public abstract class ExpandEntryCommandBase<T> : PSCmdlet
 
         if (File.Exists(Destination))
         {
-            ThrowTerminatingError(ExceptionExtensions.NotDirectoryPath(
-                Destination, nameof(Destination)));
+            ThrowTerminatingError(
+                ExceptionExtensions.NotDirectoryPath(
+                    Destination, nameof(Destination)));
         }
 
         Directory.CreateDirectory(Destination);
