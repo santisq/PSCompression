@@ -31,7 +31,7 @@ This cmdlet is the counterpart of [`ConvertTo-ZLibString`](./ConvertTo-ZLibStrin
 ### Example 1: Decompress a ZLib-compressed Base64 string
 
 ```powershell
-PS ..\pwsh> ConvertFrom-ZLibString eJzKSM3JyeflKs8vyknh5VLk5QIAAAD//wMAMosEow==
+PS /> ConvertFrom-ZLibString eJzKSM3JyeflKs8vyknh5VLk5QIAAAD//wMAMosEow==
 
 hello
 world
@@ -43,11 +43,11 @@ This example decompresses a ZLib-compressed Base64 string, restoring the origina
 ### Example 2: Compare default behavior with the `-Raw` switch
 
 ```powershell
-PS ..\pwsh> $strings = 'hello', 'world', '!'
-PS ..\pwsh> $compressed = $strings | ConvertTo-ZlibString
-PS ..\pwsh> $decompressed = $compressed | ConvertFrom-ZlibString -Raw
-PS ..\pwsh> $decompressed.GetType() # System.String
-PS ..\pwsh> $decompressed
+PS /> $strings = 'hello', 'world', '!'
+PS /> $compressed = $strings | ConvertTo-ZlibString
+PS /> $decompressed = $compressed | ConvertFrom-ZlibString -Raw
+PS /> $decompressed.GetType() # System.String
+PS /> $decompressed
 
 hello
 world

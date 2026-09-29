@@ -11,24 +11,20 @@ namespace PSCompression.FormatHandlers.Zip;
 
 internal sealed class ZipEntryMoveCache
 {
-    private readonly Dictionary<string, Dictionary<string, EntryWithPath>> _cache;
+    private readonly Dictionary<string, Dictionary<string, EntryWithPath>> _cache = new(
+        StringComparer.InvariantCultureIgnoreCase);
 
-    private readonly Dictionary<string, Dictionary<string, string>> _mappings;
-
-    internal ZipEntryMoveCache()
-    {
-        _cache = new(StringComparer.InvariantCultureIgnoreCase);
-        _mappings = [];
-    }
+    private readonly Dictionary<string, Dictionary<string, string>> _mappings = [];
 
     private Dictionary<string, EntryWithPath> WithSource(ZipEntryBase entry)
     {
-        if (!_cache.ContainsKey(entry.Source))
+        if (!_cache.TryGetValue(entry.Source, out Dictionary<string, EntryWithPath>? source))
         {
-            _cache[entry.Source] = [];
+            source = [];
+            _cache[entry.Source] = source;
         }
 
-        return _cache[entry.Source];
+        return source;
     }
 
     internal bool IsDirectoryEntry(string source, string path) =>
@@ -41,16 +37,8 @@ internal sealed class ZipEntryMoveCache
     internal IEnumerable<(string, PathWithType)> GetPassThruMappings()
     {
         foreach (var source in _cache)
-        {
             foreach ((string path, EntryWithPath entryWithPath) in source.Value)
-            {
-                yield return (
-                    source.Key,
-                    new PathWithType(
-                        _mappings[source.Key][path],
-                        entryWithPath.ZipEntry.Type));
-            }
-        }
+                yield return (source.Key, new(_mappings[source.Key][path], entryWithPath.ZipEntry.Type));
     }
 
     internal Dictionary<string, Dictionary<string, string>> GetMappings(

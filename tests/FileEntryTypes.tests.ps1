@@ -12,57 +12,56 @@ Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 Describe 'File Entry Types' {
     BeforeAll {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
-        'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
+        $zipEntry = 'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
+        $tarEntry = New-Item (Join-Path $TestDrive helloworld.txt) -ItemType File -Force |
+            Compress-TarArchive -Destination 'testTarDirectory' -PassThru |
+            Get-TarEntry
 
-        $tarArchive = New-Item (Join-Path $TestDrive helloworld.txt) -ItemType File -Force |
-            Compress-TarArchive -Destination 'testTarDirectory' -PassThru
-
-        $tarArchive | Out-Null
+        $tarArchive, $zipEntry, $tarEntry | Out-Null
     }
 
     It 'Should be of type Archive' {
-        ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
-
-        ($tarArchive | Get-TarEntry).Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
+        $zipEntry.Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
+        $tarEntry.Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
     }
 
     It 'Should Have a BaseName Property' {
-        ($zip | Get-ZipEntry).BaseName | Should -BeOfType ([string])
-        ($zip | Get-ZipEntry).BaseName | Should -BeExactly helloworld
+        $zipEntry.BaseName | Should -BeOfType ([string])
+        $zipEntry.BaseName | Should -BeExactly helloworld
 
-        ($tarArchive | Get-TarEntry).BaseName | Should -BeOfType ([string])
-        ($tarArchive | Get-TarEntry).BaseName | Should -BeExactly helloworld
+        $tarEntry.BaseName | Should -BeOfType ([string])
+        $tarEntry.BaseName | Should -BeExactly helloworld
     }
 
     It 'Should Have an Extension Property' {
-        ($zip | Get-ZipEntry).Extension | Should -BeOfType ([string])
-        ($zip | Get-ZipEntry).Extension | Should -BeExactly .txt
+        $zipEntry.Extension | Should -BeOfType ([string])
+        $zipEntry.Extension | Should -BeExactly .txt
 
-        ($tarArchive | Get-TarEntry).Extension | Should -BeOfType ([string])
-        ($tarArchive | Get-TarEntry).Extension | Should -BeExactly .txt
+        $tarEntry.Extension | Should -BeOfType ([string])
+        $tarEntry.Extension | Should -BeExactly .txt
     }
 
     It 'Should Have an IsEncrypted Property' {
-        ($zip | Get-ZipEntry).IsEncrypted | Should -BeOfType ([bool])
-        ($zip | Get-ZipEntry).IsEncrypted | Should -BeFalse
+        $zipEntry.IsEncrypted | Should -BeOfType ([bool])
+        $zipEntry.IsEncrypted | Should -BeFalse
     }
 
     It 'Should Have an AESKeySize Property' {
-        ($zip | Get-ZipEntry).AESKeySize | Should -BeOfType ([int])
-        ($zip | Get-ZipEntry).AESKeySize | Should -BeExactly 0
+        $zipEntry.AESKeySize | Should -BeOfType ([int])
+        $zipEntry.AESKeySize | Should -BeExactly 0
     }
 
     It 'Should Have a CompressionMethod Property' {
-        ($zip | Get-ZipEntry).CompressionMethod | Should -Be Deflated
+        $zipEntry.CompressionMethod | Should -Be Deflated
     }
 
     It 'Should Have a Comment Property' {
-        ($zip | Get-ZipEntry).Comment | Should -BeOfType ([string])
-        ($zip | Get-ZipEntry).Comment | Should -BeExactly ''
+        $zipEntry.Comment | Should -BeOfType ([string])
+        $zipEntry.Comment | Should -BeExactly ''
     }
 
     It 'Should Open the source zip' {
-        Use-Object ($stream = ($zip | Get-ZipEntry).OpenRead()) {
+        Use-Object ($stream = $zipEntry.OpenRead()) {
             $stream | Should -BeOfType ([ZipArchive])
         }
     }

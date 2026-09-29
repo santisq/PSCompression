@@ -9,15 +9,16 @@ Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 Describe 'Directory Entry Types' {
     BeforeAll {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
-        New-ZipEntry $zip.FullName -EntryPath afolder/
-        $tarArchive = New-Item (Join-Path $TestDrive afolder) -ItemType Directory -Force |
-            Compress-TarArchive -Destination 'testTarFile' -PassThru
+        $zipEntry = New-ZipEntry $zip.FullName -EntryPath afolder/
+        $tarEntry = New-Item (Join-Path $TestDrive afolder) -ItemType Directory -Force |
+            Compress-TarArchive -Destination 'testTarFile' -PassThru |
+            Get-TarEntry
 
-        $tarArchive | Out-Null
+        $zipEntry, $tarEntry | Out-Null
     }
 
     It 'Should be of type Directory' {
-        ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Directory)
-        ($tarArchive | Get-TarEntry).Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Directory)
+        $zipEntry.Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Directory)
+        $tarEntry.Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Directory)
     }
 }

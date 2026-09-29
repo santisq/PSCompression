@@ -52,9 +52,9 @@ To create a new entry, use [`New-ZipEntry`](./New-ZipEntry.md).
 ### Example 1: Write new content to a Zip Archive Entry
 
 ```powershell
-PS ..pwsh\> $entry = New-ZipEntry .\test.zip -EntryPath test\helloworld.txt
-PS ..pwsh\> 'hello', 'world', '!' | Set-ZipEntryContent $entry
-PS ..pwsh\> $entry | Get-ZipEntryContent
+PS /> $entry = New-ZipEntry .\test.zip -EntryPath test\helloworld.txt
+PS /> 'hello', 'world', '!' | Set-ZipEntryContent $entry
+PS /> $entry | Get-ZipEntryContent
 hello
 world
 !
@@ -65,8 +65,8 @@ This example creates a new file entry and pipes strings to set its content (repl
 ### Example 2: Append content to a Zip Archive Entry
 
 ```powershell
-PS ..pwsh\> Set-ZipEntryContent $entry -Value 'hello', 'world', '!' -Append
-PS ..pwsh\> $entry | Get-ZipEntryContent
+PS /> Set-ZipEntryContent $entry -Value 'hello', 'world', '!' -Append
+PS /> $entry | Get-ZipEntryContent
 hello
 world
 !
@@ -80,10 +80,10 @@ This example appends additional strings to the existing entry content using `-Ap
 ### Example 3: Write raw bytes to a Zip Archive Entry
 
 ```powershell
-PS ..pwsh\> $entry = Get-ZipEntry .\test.zip -Include test/helloworld.txt
-PS ..pwsh\> $bytes = [System.Text.Encoding]::UTF8.GetBytes('hello world!')
-PS ..pwsh\> $bytes | Set-ZipEntryContent $entry -AsByteStream
-PS ..pwsh\> $entry | Get-ZipEntryContent
+PS /> $entry = Get-ZipEntry .\test.zip -Include test/helloworld.txt
+PS /> $bytes = [System.Text.Encoding]::UTF8.GetBytes('hello world!')
+PS /> $bytes | Set-ZipEntryContent $entry -AsByteStream
+PS /> $entry | Get-ZipEntryContent
 hello world!
 ```
 
@@ -92,8 +92,8 @@ This example appends the same byte array to the entry using `-AsByteStream` and 
 ### Example 4: Append raw bytes to a Zip Archive Entry
 
 ```powershell
-PS ..pwsh\> $bytes | Set-ZipEntryContent $entry -AsByteStream -Append
-PS ..pwsh\> $entry | Get-ZipEntryContent
+PS /> $bytes | Set-ZipEntryContent $entry -AsByteStream -Append
+PS /> $entry | Get-ZipEntryContent
 hello world!hello world!
 ```
 
@@ -239,7 +239,7 @@ You can pipe strings (for text content) or byte arrays (for binary content) to t
 
 By default, this cmdlet produces no output.
 
-### PSCompression.ZipEntryFile
+### PSCompression.FormatHandlers.Zip.ZipEntryFile
 
 When the `-PassThru` switch is used, the cmdlet outputs the updated `ZipEntryFile` object.
 

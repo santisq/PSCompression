@@ -9,6 +9,8 @@ namespace PSCompression.FormatHandlers.Zip;
 
 public sealed class ZipEntryFile : ZipEntryBase
 {
+    internal override string? FormatDirectoryPath { get; }
+
     public string CompressionRatio { get; }
 
     public override EntryType Type { get => EntryType.Archive; }
@@ -17,12 +19,10 @@ public sealed class ZipEntryFile : ZipEntryBase
 
     public string Extension { get; }
 
-    internal override string? FormatDirectoryPath { get; }
-
     internal ZipEntryFile(ZipEntry entry, string source)
         : base(entry, source)
     {
-        CompressionRatio = GetRatio(Length, CompressedLength);
+        CompressionRatio = Length.CalculateRatio(CompressedLength);
         Name = Path.GetFileName(entry.Name);
         BaseName = Path.GetFileNameWithoutExtension(Name);
         Extension = Path.GetExtension(RelativePath);
@@ -32,23 +32,11 @@ public sealed class ZipEntryFile : ZipEntryBase
     internal ZipEntryFile(ZipEntry entry, Stream? stream)
         : base(entry, stream)
     {
-        CompressionRatio = GetRatio(Length, CompressedLength);
+        CompressionRatio = Length.CalculateRatio(CompressedLength);
         Name = Path.GetFileName(entry.Name);
         BaseName = Path.GetFileNameWithoutExtension(Name);
         Extension = Path.GetExtension(RelativePath);
         FormatDirectoryPath = $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}";
-    }
-
-    private static string GetRatio(long size, long compressedSize)
-    {
-        float compressedRatio = (float)compressedSize / size;
-
-        if (float.IsNaN(compressedRatio))
-        {
-            compressedRatio = 0;
-        }
-
-        return string.Format("{0:F2}%", 100 - (compressedRatio * 100));
     }
 
     internal Stream Open(ZipArchive zip)

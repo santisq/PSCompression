@@ -13,6 +13,8 @@ public sealed class RarEntry : EntryBase
 {
     private static readonly ReaderOptions s_readerOptions = new() { LeaveStreamOpen = true };
 
+    internal override string? FormatDirectoryPath { get; }
+
     public override string? Name { get; protected set; }
 
     public override string RelativePath { get; }
@@ -27,7 +29,11 @@ public sealed class RarEntry : EntryBase
 
     public bool IsEncrypted { get; }
 
-    internal override string? FormatDirectoryPath { get; }
+    public string? CompressionRatio { get; }
+
+    public string? BaseName { get; }
+
+    public string? Extension { get; }
 
     internal RarEntry(IArchiveEntry entry, string source) : base(source)
     {
@@ -40,6 +46,13 @@ public sealed class RarEntry : EntryBase
         (Type, FormatDirectoryPath) = entry.IsDirectory
             ? (EntryType.Directory, $"/{RelativePath.NormalizeEntryPath()}")
             : (EntryType.Archive, $"/{Path.GetDirectoryName(RelativePath)?.NormalizeEntryPath()}");
+
+        if (!entry.IsDirectory)
+        {
+            CompressionRatio = Length.CalculateRatio(CompressedLength);
+            BaseName = Path.GetFileNameWithoutExtension(Name);
+            Extension = Path.GetExtension(RelativePath);
+        }
     }
 
     internal RarEntry(IArchiveEntry entry, Stream stream)

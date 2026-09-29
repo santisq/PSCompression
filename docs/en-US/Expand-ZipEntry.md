@@ -32,7 +32,7 @@ The `Expand-ZipEntry` cmdlet extracts zip entries produced by [`Get-ZipEntry`](.
 ### Example 1: Extract all `.txt` files from a Zip Archive to the current directory
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Include *.txt | Expand-ZipEntry
+PS /> Get-ZipEntry path\to\myZip.zip -Include *.txt | Expand-ZipEntry
 ```
 
 This example extracts only the `.txt` files from a zip archive to the current directory, preserving their relative paths within the archive.
@@ -40,7 +40,7 @@ This example extracts only the `.txt` files from a zip archive to the current di
 ### Example 2: Extract all `.txt` files from a Zip Archive to the a desired directory
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Include *.txt | Expand-ZipEntry -Destination path\to\myfolder
+PS /> Get-ZipEntry path\to\myZip.zip -Include *.txt | Expand-ZipEntry -Destination path\to\myfolder
 ```
 
 This example extracts only the `.txt` files from a zip archive to the specified destination directory (created automatically if needed).
@@ -48,7 +48,7 @@ This example extracts only the `.txt` files from a zip archive to the specified 
 ### Example 3: Extract all entries excluding `.txt` files to the current directory
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Exclude *.txt | Expand-ZipEntry
+PS /> Get-ZipEntry path\to\myZip.zip -Exclude *.txt | Expand-ZipEntry
 ```
 
 This example extracts everything except `.txt` files from a zip archive to the current directory, preserving the original structure.
@@ -56,7 +56,7 @@ This example extracts everything except `.txt` files from a zip archive to the c
 ### Example 4: Extract all entries excluding `.txt` files to the current directory overwritting existing files
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Exclude *.txt | Expand-ZipEntry -Force
+PS /> Get-ZipEntry path\to\myZip.zip -Exclude *.txt | Expand-ZipEntry -Force
 ```
 
 This example extracts everything except `.txt` files and overwrites any existing files with the same name due to the `-Force` switch.
@@ -64,7 +64,7 @@ This example extracts everything except `.txt` files and overwrites any existing
 ### Example 5: Extract all entries excluding `.txt` files to the current directory outputting the expanded entries
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Exclude *.txt | Expand-ZipEntry -PassThru
+PS /> Get-ZipEntry path\to\myZip.zip -Exclude *.txt | Expand-ZipEntry -PassThru
 ```
 
 This example extracts everything except `.txt` files and uses `-PassThru` to output `FileInfo` and `DirectoryInfo` objects for the extracted items. By default, the cmdlet produces no output.
@@ -72,9 +72,9 @@ This example extracts everything except `.txt` files and uses `-PassThru` to out
 ### Example 6: Extract an entry from input Stream
 
 ```powershell
-PS ..\pwsh> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
-PS ..\pwsh> $file = $package | Get-ZipEntry -Include *.psd1 | Expand-ZipEntry -PassThru
-PS ..\pwsh> Get-Content $file.FullName -Raw | Invoke-Expression
+PS /> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
+PS /> $file = $package | Get-ZipEntry -Include *.psd1 | Expand-ZipEntry -PassThru
+PS /> Get-Content $file.FullName -Raw | Invoke-Expression
 
 Name                           Value
 ----                           -----
@@ -100,12 +100,12 @@ This example downloads a NuGet package (which is a zip archive) from PowerShell 
 ### Example 7: Expand a password protected entry to the current directory
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry .\myZip.zip -Include myEncryptedEntry.txt | Expand-ZipEntry -Password (Read-Host -AsSecureString)
+PS /> Get-ZipEntry .\myZip.zip -Include myEncryptedEntry.txt | Expand-ZipEntry -Password (Read-Host -AsSecureString)
 ```
 
 This example demonstrates how to expand an encrypted entry using `Read-Host -AsSecureString` to provide the password.
 
-> [!TIP]
+> [!NOTE]
 > If an entry is encrypted and no password is supplied, the cmdlet will prompt for one.
 
 ## PARAMETERS
@@ -131,7 +131,7 @@ Accept wildcard characters: False
 
 ### -Force
 
-Overwrites existing files in the destination directory. Without `-Force`, existing files are skipped.
+Overwrites existing files in the destination directory. Without `-Force`, attempting to extract an entry over an existing file results in a non-terminating error.
 
 ```yaml
 Type: SwitchParameter
@@ -165,7 +165,7 @@ Accept wildcard characters: False
 
 Specifies the password as a `SecureString` to extract the encrypted zip entry.
 
-> [!TIP]
+> [!NOTE]
 > If an entry is encrypted and no password is supplied, the cmdlet will prompt for one.
 
 ```yaml
@@ -217,7 +217,9 @@ You can pipe instances of `ZipEntryFile` or `ZipEntryDirectory` to this cmdlet. 
 
 By default, this cmdlet produces no output.
 
-### System.IO.FileSystemInfo
+### System.IO.FileInfo
+
+### System.IO.DirectoryInfo
 
 When the `-PassThru` switch is used, the cmdlet outputs `FileInfo` and `DirectoryInfo` objects representing the extracted items.
 

@@ -72,7 +72,7 @@
     <View>
       <Name>tarentryview</Name>
       <ViewSelectedBy>
-        <TypeName>PSCompression.Abstractions.TarEntryBase</TypeName>
+        <TypeName>PSCompression.Abstractions.Entries.TarEntryBase</TypeName>
       </ViewSelectedBy>
       <GroupBy>
         <ScriptBlock>[PSCompression.Internal._Format]::GetDirectoryPath($_)</ScriptBlock>

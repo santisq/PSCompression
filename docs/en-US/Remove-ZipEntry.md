@@ -30,7 +30,7 @@ The `Remove-ZipEntry` cmdlet removes `ZipEntryFile` or `ZipEntryDirectory` objec
 ### Example 1: Remove all Zip Archive Entries from a Zip Archive
 
 ```powershell
-PS ..pwsh\> Get-ZipEntry .\myZip.zip | Remove-ZipEntry
+PS /> Get-ZipEntry .\myZip.zip | Remove-ZipEntry
 ```
 
 This example removes all entries from `myZip.zip`, effectively emptying the archive.
@@ -38,7 +38,7 @@ This example removes all entries from `myZip.zip`, effectively emptying the arch
 ### Example 2: Remove all `.txt` Entries from a Zip Archive
 
 ```powershell
-PS ..pwsh\> Get-ZipEntry .\myZip.zip -Include *.txt | Remove-ZipEntry
+PS /> Get-ZipEntry .\myZip.zip -Include *.txt | Remove-ZipEntry
 ```
 
 This example removes only the entries matching the `*.txt` pattern from `myZip.zip`.
@@ -46,7 +46,7 @@ This example removes only the entries matching the `*.txt` pattern from `myZip.z
 ### Example 3: Prompt for confirmation before removing entries
 
 ```powershell
-PS ..pwsh\> Get-ZipEntry .\myZip.zip -Include *.txt | Remove-ZipEntry -Confirm
+PS /> Get-ZipEntry .\myZip.zip -Include *.txt | Remove-ZipEntry -Confirm
 
 Confirm
 Are you sure you want to perform this action?

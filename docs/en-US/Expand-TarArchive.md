@@ -49,8 +49,9 @@ The `Expand-TarArchive` cmdlet extracts files and directories from a tar archive
 ### Example 1: Extract an uncompressed tar archive
 
 ```powershell
-PS C:\> Expand-TarArchive -Path .\archive.tar
-PS C:\> Get-ChildItem
+PS /> Expand-TarArchive -Path .\archive.tar
+PS /> Get-ChildItem
+
     Directory: C:\
 
 Mode                 LastWriteTime         Length Name
@@ -65,8 +66,9 @@ This example extracts the contents of an uncompressed `archive.tar` file to the 
 ### Example 2: Extract a gzip-compressed tar archive to a specific destination
 
 ```powershell
-PS C:\> Expand-TarArchive -Path .\archive.tar.gz -Destination .\extracted
-PS C:\> Get-ChildItem .\extracted
+PS /> Expand-TarArchive -Path .\archive.tar.gz -Destination .\extracted
+PS /> Get-ChildItem .\extracted
+
     Directory: C:\extracted
 
 Mode                 LastWriteTime         Length Name
@@ -81,7 +83,7 @@ This example extracts a gzip-compressed tar archive (`archive.tar.gz`) to the sp
 ### Example 3: Extract multiple Zstandard-compressed tar archives with PassThru
 
 ```powershell
-PS C:\> Get-ChildItem *.tar.zst | Expand-TarArchive -PassThru
+PS /> Get-ChildItem *.tar.zst | Expand-TarArchive -PassThru
 
     Directory: C:\
 
@@ -99,8 +101,9 @@ This example pipes multiple Zstandard-compressed tar archives (`.tar.zst`) to th
 ### Example 4: Overwrite existing files with `-Force`
 
 ```powershell
-PS C:\> Expand-TarArchive -Path .\archive.tar -Destination .\extracted -Force
-PS C:\> Get-ChildItem .\extracted
+PS /> Expand-TarArchive -Path .\archive.tar -Destination .\extracted -Force
+PS /> Get-ChildItem .\extracted
+
     Directory: C:\extracted
 
 Mode                 LastWriteTime         Length Name
@@ -156,7 +159,7 @@ Accept wildcard characters: False
 
 ### -Force
 
-Overwrites existing files in the destination directory without prompting. Without `-Force`, the cmdlet skips files that already exist.
+Overwrites existing files in the destination directory. Without `-Force`, attempting to extract an entry over an existing file results in a non-terminating error.
 
 ```yaml
 Type: SwitchParameter
@@ -234,7 +237,9 @@ You can pipe paths to tar archives to this cmdlet via the `-Path` parameter or p
 
 By default, this cmdlet returns no output.
 
-### System.IO.FileSystemInfo
+### System.IO.FileInfo
+
+### System.IO.DirectoryInfo
 
 When the `-PassThru` parameter is used, the cmdlet outputs `FileInfo` and `DirectoryInfo` objects representing the extracted items.
 

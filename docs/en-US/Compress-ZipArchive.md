@@ -65,39 +65,39 @@ This cmdlet handles compression like the `ZipFile.CreateFromDirectory` method bu
 ### Example 1: Compress all `.ext` files from a specific folder
 
 ```powershell
-Get-ChildItem .\Path -Recurse -Filter *.ext |
+PS /> Get-ChildItem .\Path -Recurse -Filter *.ext |
     Compress-ZipArchive -Destination dest.zip
 ```
 
 ### Example 2: Compress all `.txt` files from subfolders in the current directory
 
 ```powershell
-Compress-ZipArchive .\*\*.txt -Destination dest.zip
+PS /> Compress-ZipArchive .\*\*.txt -Destination dest.zip
 ```
 
 ### Example 3: Compress all `.ext` and `.ext2` from a specific folder
 
 ```powershell
-Compress-ZipArchive .\*.ext, .\*.ext2 -Destination dest.zip
+PS /> Compress-ZipArchive .\*.ext, .\*.ext2 -Destination dest.zip
 ```
 
 ### Example 4: Compress a folder using `Fastest` Compression Level
 
 ```powershell
-Compress-ZipArchive .\Path -Destination myPath.zip -CompressionLevel Fastest
+PS /> Compress-ZipArchive .\Path -Destination myPath.zip -CompressionLevel Fastest
 ```
 
 ### Example 5: Compressing all directories in `.\Path`
 
 ```powershell
-Get-ChildItem .\Path -Recurse -Directory |
+PS /> Get-ChildItem .\Path -Recurse -Directory |
     Compress-ZipArchive -Destination dest.zip
 ```
 
 ### Example 6: Replacing an existing Zip Archive
 
 ```powershell
-Compress-ZipArchive -Path .\Path -Destination dest.zip -Force
+PS /> Compress-ZipArchive -Path .\Path -Destination dest.zip -Force
 ```
 
 Demonstrates the use of `-Force` parameter switch. This overwrites any existing archive at the destination path.
@@ -105,7 +105,7 @@ Demonstrates the use of `-Force` parameter switch. This overwrites any existing 
 ### Example 7: Adding and updating new entries to an existing Zip Archive
 
 ```powershell
-Get-ChildItem .\Path -Recurse -Directory |
+PS /> Get-ChildItem .\Path -Recurse -Directory |
     Compress-ZipArchive -Destination dest.zip -Update
 ```
 
@@ -114,7 +114,7 @@ Demonstrates the use of `-Update` parameter switch. This adds the directories to
 ### Example 8: Exclude files and folders from source
 
 ```powershell
-Compress-ZipArchive .\Path -Destination myPath.zip -Exclude *.xyz, *\test\*
+PS /> Compress-ZipArchive .\Path -Destination myPath.zip -Exclude *.xyz, *\test\*
 ```
 
 This example shows how to compress all items in `Path` excluding all files having a `.xyz` extension and excluding

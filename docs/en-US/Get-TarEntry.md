@@ -58,7 +58,7 @@ The `Get-TarEntry` cmdlet lists entries in tar archives, supporting both uncompr
 ### Example 1: List entries for a specified tar archive
 
 ```powershell
-PS ..\pwsh> Get-TarEntry .\archive.tar
+PS /> Get-TarEntry .\archive.tar
 
    Directory: /folder1/
 
@@ -74,7 +74,7 @@ This example lists all entries in an uncompressed tar archive (`archive.tar`).
 ### Example 2: List entries from all gzip-compressed tar archives in the current directory
 
 ```powershell
-PS ..\pwsh> Get-TarEntry *.tar.gz
+PS /> Get-TarEntry *.tar.gz
 
    Directory: /folder1/
 
@@ -90,7 +90,7 @@ This example lists entries from all gzip-compressed tar archives in the current 
 ### Example 3: List all file entries from a tar archive
 
 ```powershell
-PS C:\> Get-TarEntry .\archive.tar -Type Archive
+PS /> Get-TarEntry .\archive.tar -Type Archive
 
    Directory: /folder1/
 
@@ -105,7 +105,7 @@ This example lists only file entries (excluding directories) from `archive.tar` 
 ### Example 4: Filter entries with Include and Exclude parameters
 
 ```powershell
-PS C:\> Get-TarEntry .\archive.tbz2 -Include folder1/* -Exclude *.txt
+PS /> Get-TarEntry .\archive.tbz2 -Include folder1/* -Exclude *.txt
 
    Directory: /folder1/
 
@@ -123,8 +123,8 @@ This example lists entries under `folder1/` while excluding any `.txt` files.
 ### Example 5: List entries from an input stream
 
 ```powershell
-PS C:\> $stream = Invoke-WebRequest https://example.com/archive.tar.gz
-PS C:\> $stream | Get-TarEntry -Algorithm gz | Select-Object -First 3
+PS /> $stream = Invoke-WebRequest https://example.com/archive.tar.gz
+PS /> $stream | Get-TarEntry -Algorithm gz | Select-Object -First 3
 
    Directory: /docs/
 
@@ -292,9 +292,9 @@ You can pipe strings containing paths to tar archives, such as output from `Get-
 
 ## OUTPUTS
 
-### PSCompression.TarEntryDirectory
+### PSCompression.FormatHandlers.Tar.TarEntryDirectory
 
-### PSCompression.TarEntryFile
+### PSCompression.FormatHandlers.Tar.TarEntryFile
 
 Outputs objects representing directories or files in the tar archive.
 

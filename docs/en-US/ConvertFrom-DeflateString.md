@@ -30,7 +30,7 @@ The ConvertFrom-DeflateString cmdlet decompresses Base64-encoded strings that we
 ### Example 1: Decompress a Deflate-compressed Base64 string
 
 ```powershell
-PS ..\pwsh> ConvertFrom-DeflateString ykjNycnn5SrPL8pJ4eVS5OUCAAAA//8DAA==
+PS /> ConvertFrom-DeflateString ykjNycnn5SrPL8pJ4eVS5OUCAAAA//8DAA==
 
 hello
 world
@@ -42,11 +42,11 @@ This example decompresses a Deflate-compressed Base64 string, restoring the orig
 ### Example 2: Compare default behavior with the `-Raw` switch
 
 ```powershell
-PS ..\pwsh> $strings = 'hello', 'world', '!'
-PS ..\pwsh> $compressed = $strings | ConvertTo-DeflateString
-PS ..\pwsh> $decompressed = $compressed | ConvertFrom-DeflateString -Raw
-PS ..\pwsh> $decompressed.GetType() # System.String
-PS ..\pwsh> $decompressed
+PS /> $strings = 'hello', 'world', '!'
+PS /> $compressed = $strings | ConvertTo-DeflateString
+PS /> $decompressed = $compressed | ConvertFrom-DeflateString -Raw
+PS /> $decompressed.GetType() # System.String
+PS /> $decompressed
 
 hello
 world

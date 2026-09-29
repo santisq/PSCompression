@@ -88,4 +88,14 @@ internal static class MiscExtensions
         internal bool HasBound(string parameter)
             => invocation.BoundParameters.ContainsKey(parameter);
     }
+
+    extension(long size)
+    {
+        internal string CalculateRatio(long compressedSize)
+        {
+            float compressedRatio = (float)compressedSize / size;
+            if (float.IsNaN(compressedRatio)) compressedRatio = 0;
+            return string.Format("{0:F2}%", 100 - (compressedRatio * 100));
+        }
+    }
 }

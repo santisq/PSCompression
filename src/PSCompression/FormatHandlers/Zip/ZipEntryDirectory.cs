@@ -14,9 +14,9 @@ public sealed class ZipEntryDirectory : ZipEntryBase
 {
     private const StringComparison Comparer = StringComparison.InvariantCultureIgnoreCase;
 
-    public override EntryType Type => EntryType.Directory;
-
     internal override string? FormatDirectoryPath { get; }
+
+    public override EntryType Type => EntryType.Directory;
 
     internal ZipEntryDirectory(ZipEntry entry, string source)
         : base(entry, source)
