@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using PSCompression.Abstractions.Entries;
 
@@ -28,7 +29,10 @@ internal sealed class ZipEntryByteWriter : EntryStreamOpsBase
 
     internal void WriteBytes(byte[] bytes)
     {
-        foreach (byte b in bytes)
+        int offset = 0;
+        int remaining = bytes.Length;
+
+        while (remaining > 0)
         {
             if (_index == _bufferSize)
             {
@@ -36,7 +40,12 @@ internal sealed class ZipEntryByteWriter : EntryStreamOpsBase
                 _index = 0;
             }
 
-            _buffer[_index++] = b;
+            int toCopy = Math.Min(remaining, _bufferSize - _index);
+            Array.Copy(bytes, offset, _buffer, _index, toCopy);
+
+            _index += toCopy;
+            offset += toCopy;
+            remaining -= toCopy;
         }
     }
 

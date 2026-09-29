@@ -7,20 +7,20 @@ using PSCompression.Extensions;
 
 namespace PSCompression.FormatHandlers.Zip;
 
-public sealed class ZipEntryCache
+internal sealed class ZipEntryCache
 {
-    private readonly Dictionary<string, List<PathWithType>> _cache;
-
-    internal ZipEntryCache() => _cache = new(StringComparer.InvariantCultureIgnoreCase);
+    private readonly Dictionary<string, List<PathWithType>> _cache = new(
+        StringComparer.InvariantCultureIgnoreCase);
 
     internal List<PathWithType> WithSource(string source)
     {
-        if (!_cache.ContainsKey(source))
+        if (!_cache.TryGetValue(source, out List<PathWithType>? value))
         {
-            _cache[source] = [];
+            value = [];
+            _cache[source] = value;
         }
 
-        return _cache[source];
+        return value;
     }
 
     internal void Add(string source, PathWithType pathWithType) =>
@@ -29,9 +29,7 @@ public sealed class ZipEntryCache
     internal ZipEntryCache AddRange(IEnumerable<(string, PathWithType)> values)
     {
         foreach ((string source, PathWithType pathWithType) in values)
-        {
             Add(source, pathWithType);
-        }
 
         return this;
     }
@@ -44,17 +42,11 @@ public sealed class ZipEntryCache
             foreach ((string path, EntryType type) in entry.Value)
             {
                 if (!zip.TryGetEntry(path, out ZipEntry? zipEntry))
-                {
                     continue;
-                }
 
-                if (type == EntryType.Archive)
-                {
-                    yield return new ZipEntryFile(zipEntry, entry.Key);
-                    continue;
-                }
-
-                yield return new ZipEntryDirectory(zipEntry, entry.Key);
+                yield return type == EntryType.Archive
+                    ? new ZipEntryFile(zipEntry, entry.Key)
+                    : new ZipEntryDirectory(zipEntry, entry.Key);
             }
         }
     }

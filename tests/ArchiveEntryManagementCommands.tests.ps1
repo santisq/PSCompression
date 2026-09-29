@@ -113,6 +113,12 @@ Describe 'Archive Entry Management Commands' {
             New-ZipEntry @newZipEntrySplat |
                 Get-ZipEntryContent |
                 Should -Be 'hello world!'
+
+            { New-ZipEntry @newZipEntrySplat } |
+                Should -Throw -ExceptionType ([PSCompression.Exceptions.DuplicatedEntryException])
+
+            { New-ZipEntry @newZipEntrySplat -Force } |
+                Should -Not -Throw
         }
 
         It 'Can create entries with content from file without specifying an EntryPath' {
@@ -627,25 +633,24 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'No entry is renamed with -WhatIf' {
-            $zip | Get-ZipEntry |
-                Rename-ZipEntry -NewName { 'test' + $_.Name } -WhatIf
-
-            $zip | Get-ZipEntry |
-                Should -Not -Match '^testtest'
+            $zip | Get-ZipEntry | Rename-ZipEntry -NewName { 'test' + $_.Name } -WhatIf
+            $zip | Get-ZipEntry | Should -Not -Match '^testtest'
         }
 
         It 'Can rename file entries using a delay-bind ScriptBlock' {
-            { $zip | Get-ZipEntry -Type Archive | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
-                Should -Not -Throw
+            {
+                $zip | Get-ZipEntry -Type Archive | Rename-ZipEntry -NewName { 'test' + $_.Name }
+            } | Should -Not -Throw
 
-            $zip | Get-ZipEntry -Type Archive |
-                ForEach-Object Name |
-                Should -Match '^testtest'
+            $zip | Get-ZipEntry -Type Archive | ForEach-Object Name | Should -Match '^testtest'
         }
 
         It 'Should throw if trying to rename entries created from input Stream' {
-            { Invoke-WebRequest $uri -UseBasicParsing | Get-ZipEntry | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
-                Should -Throw -ExceptionType ([NotSupportedException])
+            {
+                Invoke-WebRequest $uri -UseBasicParsing |
+                    Get-ZipEntry |
+                    Rename-ZipEntry -NewName { 'test' + $_.Name }
+            } | Should -Throw -ExceptionType ([NotSupportedException])
         }
 
         It 'Produces output with -PassThru' {
@@ -657,18 +662,21 @@ Describe 'Archive Entry Management Commands' {
         It 'Can rename directory entries and all its child entries' {
             $dir = $zip | Get-ZipEntry -Type Directory -Include testfolder00/
             $childs = $zip | Get-ZipEntry -Include testfolder00/*
-            Rename-ZipEntry $dir -NewName myNewName
+            $passthru = Rename-ZipEntry $dir -NewName myNewName -PassThru
+            $passthru | Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryDirectory])
             $zip | Get-ZipEntry -Include myNewName/* | Should -HaveCount $childs.Count
         }
 
         It 'Should throw if an entry with the same Name already exists' {
-            { $zip | Get-ZipEntry -Type Directory -Include testfolder01/ |
-                Rename-ZipEntry -NewName testfolder02 } |
-                Should -Throw
+            {
+                $zip | Get-ZipEntry -Type Directory -Include testfolder01/ |
+                    Rename-ZipEntry -NewName testfolder02
+            } | Should -Throw
 
-            { $zip | Get-ZipEntry -Type Archive -Include testfolder01/file00.txt |
-                Rename-ZipEntry -NewName file01.txt } |
-                Should -Throw
+            {
+                $zip | Get-ZipEntry -Type Archive -Include testfolder01/file00.txt |
+                    Rename-ZipEntry -NewName file01.txt
+            } | Should -Throw
         }
 
         It 'Should throw if renaming an entry that no longer exists' {
