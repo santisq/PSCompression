@@ -1,7 +1,7 @@
 ---
 external help file: PSCompression.dll-Help.xml
 Module Name: PSCompression
-online version:
+online version: https://github.com/santisq/PSCompression
 schema: 2.0.0
 ---
 
