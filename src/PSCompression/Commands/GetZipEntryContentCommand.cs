@@ -3,9 +3,10 @@ using System.IO;
 using System.Management.Automation;
 using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
-using PSCompression.Abstractions;
-using PSCompression.Exceptions;
+using PSCompression.Abstractions.Commands;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Common;
+using PSCompression.FormatHandlers.Zip;
 
 namespace PSCompression.Commands;
 
@@ -18,20 +19,21 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
     [Parameter]
     public SecureString? Password { get; set; }
 
-    private ZipArchiveCache<ZipFile>? _cache;
+    private ArchiveCache<ZipFile, ZipEntryFile> _cache = new(entry => entry.OpenSharpZipLibArchive());
 
     protected override void ProcessRecord()
     {
-        _cache ??= new ZipArchiveCache<ZipFile>(entry => entry.OpenRead(Password));
-
         foreach (ZipEntryFile entry in Entry)
         {
             try
             {
                 ZipFile zip = _cache.GetOrCreate(entry);
-                if (entry.IsEncrypted && Password is null)
+
+                if (entry.IsEncrypted)
                 {
-                    zip.Password = entry.PromptForPassword(Host);
+                    zip.Password = Password is null
+                        ? Host.PromptForPassword(entry)
+                        : Password.AsPlainText();
                 }
 
                 ReadEntry(entry.Open(zip));
@@ -74,7 +76,6 @@ public sealed class GetZipEntryContentCommand : GetEntryContentCommandBase<ZipEn
 
     public void Dispose()
     {
-        _cache?.Dispose();
-        GC.SuppressFinalize(this);
+        _cache.Dispose();
     }
 }

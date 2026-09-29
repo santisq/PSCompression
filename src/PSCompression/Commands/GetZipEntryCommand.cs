@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Management.Automation;
 using System.IO;
-using PSCompression.Abstractions;
 using ICSharpCode.SharpZipLib.Zip;
+using PSCompression.FormatHandlers.Zip;
+using PSCompression.Abstractions.Entries;
+using PSCompression.Abstractions.Commands;
 
 namespace PSCompression.Commands;
 
@@ -11,7 +13,7 @@ namespace PSCompression.Commands;
 [Alias("zipge")]
 public sealed class GetZipEntryCommand : GetEntryCommandBase
 {
-    internal override ArchiveType ArchiveType => ArchiveType.zip;
+    internal override Enum.ArchiveType ArchiveType => Enum.ArchiveType.zip;
 
     protected override IEnumerable<EntryBase> GetEntriesFromFile(string path)
     {
@@ -21,14 +23,10 @@ public sealed class GetZipEntryCommand : GetEntryCommandBase
             foreach (ZipEntry entry in zip)
             {
                 if (ShouldSkipEntry(entry.IsDirectory))
-                {
                     continue;
-                }
 
                 if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
-                {
                     continue;
-                }
 
                 entries.Add(entry.IsDirectory
                     ? new ZipEntryDirectory(entry, path)
@@ -47,14 +45,10 @@ public sealed class GetZipEntryCommand : GetEntryCommandBase
             foreach (ZipEntry entry in zip)
             {
                 if (ShouldSkipEntry(entry.IsDirectory))
-                {
                     continue;
-                }
 
                 if (!ShouldInclude(entry.Name) || ShouldExclude(entry.Name))
-                {
                     continue;
-                }
 
                 entries.Add(entry.IsDirectory
                     ? new ZipEntryDirectory(entry, stream)

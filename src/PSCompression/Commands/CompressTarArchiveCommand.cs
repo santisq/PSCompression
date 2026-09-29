@@ -4,8 +4,8 @@ using System.IO;
 using System.Management.Automation;
 using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
-using PSCompression.Abstractions;
-using PSCompression.Exceptions;
+using PSCompression.Abstractions.Commands;
+using PSCompression.Enum;
 using PSCompression.Extensions;
 
 namespace PSCompression.Commands;
@@ -13,7 +13,7 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsData.Compress, "TarArchive")]
 [OutputType(typeof(FileInfo))]
 [Alias("tarcompress")]
-public sealed class CompressTarArchiveCommand : ToCompressedFileCommandBase<TarOutputStream>
+public sealed class CompressTarArchiveCommand : CompressArchiveCommandBase<TarOutputStream>
 {
     private Stream? _compressionStream;
 
@@ -32,8 +32,7 @@ public sealed class CompressTarArchiveCommand : ToCompressedFileCommandBase<TarO
 
     protected override TarOutputStream CreateCompressionStream(Stream outputStream)
     {
-        if (Algorithm == Algorithm.lz &&
-            MyInvocation.BoundParameters.ContainsKey(nameof(CompressionLevel)))
+        if (Algorithm == Algorithm.lz && MyInvocation.HasBound(nameof(CompressionLevel)))
         {
             WriteWarning(
                 "The lzip algorithm does not support custom CompressionLevel settings. " +

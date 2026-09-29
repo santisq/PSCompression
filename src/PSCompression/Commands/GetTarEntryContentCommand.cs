@@ -1,9 +1,10 @@
 using System;
 using System.IO;
 using System.Management.Automation;
-using PSCompression.Abstractions;
-using PSCompression.Exceptions;
+using PSCompression.Abstractions.Commands;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Common;
+using PSCompression.FormatHandlers.Tar;
 
 namespace PSCompression.Commands;
 
@@ -35,10 +36,7 @@ public sealed class GetTarEntryContentCommand : GetEntryContentCommandBase<TarEn
     private void ReadEntry(TarEntryFile entry)
     {
         using MemoryStream mem = new();
-        if (!entry.GetContentStream(mem))
-        {
-            return;
-        }
+        if (!entry.GetContentStream(mem)) return;
 
         if (AsByteStream)
         {

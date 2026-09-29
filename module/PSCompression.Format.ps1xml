@@ -2,9 +2,10 @@
 <Configuration>
   <ViewDefinitions>
     <View>
-      <Name>zipentryview</Name>
+      <Name>entryview</Name>
       <ViewSelectedBy>
-        <TypeName>PSCompression.Abstractions.ZipEntryBase</TypeName>
+        <TypeName>PSCompression.FormatHandlers.Rar.RarEntry</TypeName>
+        <TypeName>PSCompression.Abstractions.Entries.ZipEntryBase</TypeName>
       </ViewSelectedBy>
       <GroupBy>
         <ScriptBlock>[PSCompression.Internal._Format]::GetDirectoryPath($_)</ScriptBlock>
@@ -48,14 +49,14 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_ -is [PSCompression.ZipEntryFile]) {
+                  if ($_.Type -eq [PSCompression.Enum.EntryType]::Archive) {
                     [PSCompression.Internal._Format]::GetFormattedLength($_.CompressedLength)
                   }
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_ -is [PSCompression.ZipEntryFile]) {
+                  if ($_.Type -eq [PSCompression.Enum.EntryType]::Archive) {
                     [PSCompression.Internal._Format]::GetFormattedLength($_.Length)
                   }
                 </ScriptBlock>
@@ -71,7 +72,7 @@
     <View>
       <Name>tarentryview</Name>
       <ViewSelectedBy>
-        <TypeName>PSCompression.Abstractions.TarEntryBase</TypeName>
+        <TypeName>PSCompression.Abstractions.Entries.TarEntryBase</TypeName>
       </ViewSelectedBy>
       <GroupBy>
         <ScriptBlock>[PSCompression.Internal._Format]::GetDirectoryPath($_)</ScriptBlock>
@@ -110,7 +111,7 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_ -is [PSCompression.TarEntryFile]) {
+                  if ($_ -is [PSCompression.FormatHandlers.Tar.TarEntryFile]) {
                     [PSCompression.Internal._Format]::GetFormattedLength($_.Length)
                   }
                 </ScriptBlock>

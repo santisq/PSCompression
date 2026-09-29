@@ -32,13 +32,13 @@ The `ConvertTo-DeflateString` cmdlet compresses input strings into Deflate-compr
 ### Example 1: Compress strings to Deflate compressed Base64 encoded string
 
 ```powershell
-PS ..\pwsh> $strings = 'hello', 'world', '!'
-PS ..\pwsh> ConvertTo-DeflateString $strings
+PS /> $strings = 'hello', 'world', '!'
+PS /> ConvertTo-DeflateString $strings
 
 ykjNycnn5SrPL8pJ4eVS5OUCAAAA//8DAA==
 
 # Or using pipeline input
-PS ..\pwsh> $strings | ConvertTo-DeflateString
+PS /> $strings | ConvertTo-DeflateString
 
 ykjNycnn5SrPL8pJ4eVS5OUCAAAA//8DAA==
 ```
@@ -48,11 +48,11 @@ This example shows how to compress an array of strings into a single Deflate-com
 ### Example 2: Save Deflate-compressed bytes to a file using `-AsByteStream`
 
 ```powershell
-PS ..\pwsh> 'hello world!' | ConvertTo-DeflateString -AsByteStream | Set-Content -FilePath .\helloworld.deflate -AsByteStream
+PS /> 'hello world!' | ConvertTo-DeflateString -AsByteStream | Set-Content -FilePath .\helloworld.deflate -AsByteStream
 
 # To read the file back you can use `ConvertFrom-DeflateString` following these steps:
-PS ..\pwsh> $path = Convert-Path .\helloworld.deflate
-PS ..\pwsh> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-DeflateString
+PS /> $path = Convert-Path .\helloworld.deflate
+PS /> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-DeflateString
 
 hello world!
 ```
@@ -65,10 +65,10 @@ This example shows how to use `-AsByteStream` to output raw compressed bytes tha
 ### Example 3: Compress strings using a specific Encoding
 
 ```powershell
-PS ..\pwsh> 'ñ' | ConvertTo-DeflateString -Encoding ansi | ConvertFrom-DeflateString
+PS /> 'ñ' | ConvertTo-DeflateString -Encoding ansi | ConvertFrom-DeflateString
 �
 
-PS ..\pwsh> 'ñ' | ConvertTo-DeflateString -Encoding utf8BOM | ConvertFrom-DeflateString
+PS /> 'ñ' | ConvertTo-DeflateString -Encoding utf8BOM | ConvertFrom-DeflateString
 ñ
 ```
 
@@ -78,11 +78,11 @@ This example shows how different encodings affect the compression and decompress
 
 ```powershell
 # Check the total length of the files
-PS ..\pwsh> (Get-Content myLogs\*.txt | Measure-Object Length -Sum).Sum / 1kb
+PS /> (Get-Content myLogs\*.txt | Measure-Object Length -Sum).Sum / 1kb
 87.216796875
 
 # Check the total length after compression
-PS ..\pwsh> (Get-Content myLogs\*.txt | ConvertTo-DeflateString).Length / 1kb
+PS /> (Get-Content myLogs\*.txt | ConvertTo-DeflateString).Length / 1kb
 35.123456789
 ```
 

@@ -41,7 +41,7 @@ point happens to every entry that is considered a child of the directory you are
 ### Example 1: Rename a Zip File Entry
 
 ```powershell
-PS ..pwsh\> Get-ZipEntry .\myZip.zip -Type Archive -Include relativePath/to/myEntryToRename.ext |
+PS /> Get-ZipEntry .\myZip.zip -Type Archive -Include relativePath/to/myEntryToRename.ext |
     Rename-ZipEntry -NewName myNewName.ext
 ```
 
@@ -50,7 +50,7 @@ This example renames a specific file entry inside the zip archive to `myNewName.
 ### Example 2: Rename all entries with `.ext` extension using a delay-bind scriptblock
 
 ```powershell
-PS ..pwsh\> Get-ZipEntry .\myZip.zip -Type Archive -Include *.ext |
+PS /> Get-ZipEntry .\myZip.zip -Type Archive -Include *.ext |
     Rename-ZipEntry -NewName { $_.BaseName + 'myNewName' + $_.Extension }
 ```
 
@@ -62,7 +62,7 @@ PS ..pwsh\> Get-ZipEntry .\myZip.zip -Type Archive -Include *.ext |
 ### Example 3: Rename a Zip Directory Entry
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US/*
+PS /> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US/*
 
    Directory: /PSCompression/docs/en-US/
 
@@ -83,8 +83,8 @@ Archive            2/22/2024  1:19 PM         1.14 KB         2.95 KB Remove-Zip
 Archive            2/22/2024  1:19 PM       741.00  B         2.16 KB Rename-ZipEntry.md
 Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEntryContent.md
 
-PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US/ | Rename-ZipEntry -NewName 'en-US123'
-PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US123/*
+PS /> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US/ | Rename-ZipEntry -NewName 'en-US123'
+PS /> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US123/*
 
    Directory: /PSCompression/docs/en-US123/
 
@@ -111,7 +111,7 @@ This example renames a directory entry (`en-US/`) to `en-US123/`. All child entr
 ### Example 4: Prompt for confirmation before renaming entries
 
 ```powershell
-PS ..pwsh\> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US123/ | Rename-ZipEntry -NewName 'Test' -Confirm
+PS /> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-US123/ | Rename-ZipEntry -NewName 'Test' -Confirm
 
 Confirm
 Are you sure you want to perform this action?
@@ -227,9 +227,9 @@ You can pipe a single `ZipEntryFile` or `ZipEntryDirectory` object produced by [
 
 By default, this cmdlet produces no output.
 
-### PSCompression.ZipEntryFile
+### PSCompression.FormatHandlers.Zip.ZipEntryFile
 
-### PSCompression.ZipEntryDirectory
+### PSCompression.FormatHandlers.Zip.ZipEntryDirectory
 
 When the `-PassThru` switch is used, the cmdlet outputs the renamed entry object.
 

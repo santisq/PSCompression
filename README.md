@@ -1,6 +1,6 @@
 <h1 align="center">PSCompression</h1>
 <div align="center">
-<sub>Zip, tar, and string compression utilities for PowerShell!</sub>
+<sub>Zip, tar, rar, and string compression utilities for PowerShell!</sub>
 <br/><br/>
 
 [![build](https://github.com/santisq/PSCompression/actions/workflows/ci.yml/badge.svg)](https://github.com/santisq/PSCompression/actions/workflows/ci.yml)
@@ -11,14 +11,15 @@
 
 </div>
 
-`PSCompression` is a PowerShell module that provides utilities for creating, managing, and extracting zip and tar archives, as well as compressing and decompressing strings. It overcomes limitations in built-in PowerShell archive cmdlets (e.g., 2 GB zip file limits) and supports multiple compression algorithms, including gzip, bzip2, Zstandard, lzip, Brotli, Deflate, and Zlib. Built for cross-platform use, it’s compatible with Windows, Linux, and macOS.
+`PSCompression` is a PowerShell module that provides utilities for creating, managing, and extracting zip, tar, and rar archives, as well as compressing and decompressing strings. It overcomes limitations in built-in PowerShell archive cmdlets (e.g., 2 GB zip file limits) and supports multiple compression algorithms, including gzip, bzip2, Zstandard, lzip, Brotli, Deflate, and Zlib. Built for cross-platform use, it’s compatible with Windows, Linux, and macOS.
 
-__New in recent updates:__ Full support for reading and extracting __password-protected (encrypted) zip entries__, including AES encryption.
+__New in recent updates:__ Support for __RAR archives__ (listing, reading, and extracting encrypted/password-protected entries) and full support for reading and extracting __password-protected (encrypted) zip entries__, including AES encryption.
 
 ## Features
 
 - __Zip Archive Management__: Create, list, extract, retrieve content, modify, and remove entries in zip archives with pipeline support.  
     Now includes __full support for reading and extracting password-protected entries__ (traditional ZipCrypto and AES encryption).
+- __RAR Archive Management__: List, extract, and retrieve content from RAR entries (including encrypted/password-protected entries and streams).
 - __Tar Archive Management__: Compress and extract tar archives with support for `gz`, `bz2`, `zst`, `lz`, and uncompressed (`none`) formats.
 - __Tar Entry Management__: List, extract, and retrieve content from individual tar entries.
 - __String Compression__: Compress and decompress strings using Brotli, Deflate, Gzip, and Zlib algorithms.
@@ -38,6 +39,13 @@ __New in recent updates:__ Full support for reading and extracting __password-pr
 
 > [!NOTE]
 > Due to a .NET limitation, cmdlets like `New-ZipEntry`, `Compress-ZipArchive` with `-Update`, and `Set-ZipEntryContent` may fail when handling files or content > 2 GB __in existing zip archives__. As a workaround, recreate the zip archive or use tools like 7-Zip, which support larger files. See [issue #19](https://github.com/santisq/PSCompression/issues/19) for details.
+
+### RAR Archive
+
+- [__`Expand-RarArchive`__](docs/en-US/Expand-RarArchive.md) — Extracts a RAR archive to a destination directory.
+- [__`Expand-RarEntry`__](docs/en-US/Expand-RarEntry.md) — Extracts individual RAR entries to a destination directory.
+- [__`Get-RarEntry`__](docs/en-US/Get-RarEntry.md) — Lists RAR archive entries from paths or streams.
+- [__`Get-RarEntryContent`__](docs/en-US/Get-RarEntryContent.md) — Retrieves the content of RAR entries as text or bytes.
 
 ### Tar Archive
 

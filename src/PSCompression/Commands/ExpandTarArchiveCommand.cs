@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
 using System.Text;
 using ICSharpCode.SharpZipLib.Tar;
-using PSCompression.Abstractions;
-using PSCompression.Exceptions;
+using PSCompression.Abstractions.Commands;
+using PSCompression.Enum;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Tar;
 using IO = System.IO;
 
 namespace PSCompression.Commands;
@@ -15,88 +15,34 @@ namespace PSCompression.Commands;
 [Cmdlet(VerbsData.Expand, "TarArchive")]
 [OutputType(typeof(FileInfo), typeof(DirectoryInfo))]
 [Alias("untar")]
-public sealed class ExpandTarArchiveCommand : CommandWithPathBase
+public sealed class ExpandTarArchiveCommand : ExpandArchiveCommandBase
 {
     private bool _shouldInferAlgo;
-
-    [Parameter(Position = 1)]
-    public string? Destination { get; set; }
 
     [Parameter]
     public Algorithm Algorithm { get; set; }
 
-    [Parameter]
-    public SwitchParameter Force { get; set; }
-
-    [Parameter]
-    public SwitchParameter PassThru { get; set; }
-
     protected override void BeginProcessing()
     {
-        Destination = Destination is null
-            // PowerShell is retarded and decided to mix up ProviderPath & Path
-            ? SessionState.Path.CurrentFileSystemLocation.ProviderPath
-            : Destination.ResolvePath(this);
-
-        if (File.Exists(Destination))
-        {
-            ThrowTerminatingError(ExceptionHelper.NotDirectoryPath(
-                Destination, nameof(Destination)));
-        }
-
-        Directory.CreateDirectory(Destination);
-
-        _shouldInferAlgo = !MyInvocation.BoundParameters
-            .ContainsKey(nameof(Algorithm));
+        base.BeginProcessing();
+        _shouldInferAlgo = !MyInvocation.HasBound(nameof(Algorithm));
     }
 
-    protected override void ProcessRecord()
+    protected override List<PSObject> ExtractArchive(string source, string destination)
     {
-        Dbg.Assert(Destination is not null);
+        if (_shouldInferAlgo) Algorithm = AlgorithmMappings.Parse(source);
 
-        foreach (string path in EnumerateResolvedPaths())
-        {
-            if (_shouldInferAlgo)
-            {
-                Algorithm = AlgorithmMappings.Parse(path);
-            }
-
-            try
-            {
-                FileSystemInfo[] output = ExtractArchive(path);
-
-                if (PassThru)
-                {
-                    IOrderedEnumerable<PSObject> result = output
-                        .Select(PathExtensions.AppendPSProperties)
-                        .OrderBy(pso => pso.Properties["PSParentPath"].Value);
-
-                    WriteObject(result, enumerateCollection: true);
-                }
-            }
-            catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                WriteError(exception.ToWriteError(path));
-            }
-        }
-    }
-
-    private FileSystemInfo[] ExtractArchive(string path)
-    {
-        using FileStream fs = File.OpenRead(path);
+        using FileStream fs = File.OpenRead(source);
         using Stream decompress = Algorithm.FromCompressedStream(fs);
         using TarInputStream tar = new(decompress, Encoding.UTF8);
 
-        List<FileSystemInfo> result = [];
+        List<PSObject> result = [];
         foreach (TarEntry entry in tar.EnumerateEntries())
         {
             try
             {
-                result.Add(ExtractEntry(entry, tar));
+                FileSystemInfo info = ExtractEntry(entry, tar, destination);
+                if (PassThru) result.Add(info.AppendPSProperties());
             }
             catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
             {
@@ -111,22 +57,20 @@ public sealed class ExpandTarArchiveCommand : CommandWithPathBase
         return [.. result];
     }
 
-    private FileSystemInfo ExtractEntry(TarEntry entry, TarInputStream tar)
+    private FileSystemInfo ExtractEntry(TarEntry entry, TarInputStream tar, string destination)
     {
-        Dbg.Assert(Destination is not null);
-
-        string destination = IO.Path.GetFullPath(
-            IO.Path.Combine(Destination, entry.Name));
+        destination = IO.Path.GetFullPath(IO.Path.Combine(destination, entry.Name));
 
         if (entry.IsDirectory)
         {
             DirectoryInfo dir = new(destination);
-            dir.Create(Force);
+            dir.Create();
             return dir;
         }
 
         FileInfo file = new(destination);
-        file.Directory?.Create();
+        Dbg.Assert(file.Directory is not null, "Files must always have a parent directory.");
+        file.Directory.Create();
 
         using (FileStream destStream = File.Open(
             destination,

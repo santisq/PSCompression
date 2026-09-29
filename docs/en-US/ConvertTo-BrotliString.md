@@ -32,13 +32,13 @@ The `ConvertTo-BrotliString` cmdlet compresses input strings into Brotli-compres
 ### Example 1: Compress strings into a Brotli-compressed Base64 string
 
 ```powershell
-PS ..\pwsh> $strings = 'hello', 'world', '!'
-PS ..\pwsh> ConvertTo-BrotliString $strings
+PS /> $strings = 'hello', 'world', '!'
+PS /> ConvertTo-BrotliString $strings
 
 CwiAaGVsbG8NCndvcmxkDQohDQoD
 
 # Or using pipeline input
-PS ..\pwsh> $strings | ConvertTo-BrotliString
+PS /> $strings | ConvertTo-BrotliString
 
 CwiAaGVsbG8NCndvcmxkDQohDQoD
 ```
@@ -48,11 +48,11 @@ This example shows how to compress an array of strings into a single Brotli-comp
 ### Example 2: Save Brotli-compressed bytes to a file using `-AsByteStream`
 
 ```powershell
-PS ..\pwsh> 'hello world!' | ConvertTo-BrotliString -AsByteStream | Set-Content -FilePath .\helloworld.br -AsByteStream
+PS /> 'hello world!' | ConvertTo-BrotliString -AsByteStream | Set-Content -FilePath .\helloworld.br -AsByteStream
 
 # To read the file back you can use `ConvertFrom-BrotliString` following these steps:
-PS ..\pwsh> $path = Convert-Path .\helloworld.br
-PS ..\pwsh> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-BrotliString
+PS /> $path = Convert-Path .\helloworld.br
+PS /> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-BrotliString
 
 hello world!
 ```
@@ -65,10 +65,10 @@ This example shows how to use `-AsByteStream` to output raw compressed bytes tha
 ### Example 3: Compress strings using a specific Encoding
 
 ```powershell
-PS ..\pwsh> 'ñ' | ConvertTo-BrotliString -Encoding ansi | ConvertFrom-BrotliString
+PS /> 'ñ' | ConvertTo-BrotliString -Encoding ansi | ConvertFrom-BrotliString
 �
 
-PS ..\pwsh> 'ñ' | ConvertTo-BrotliString -Encoding utf8BOM | ConvertFrom-BrotliString
+PS /> 'ñ' | ConvertTo-BrotliString -Encoding utf8BOM | ConvertFrom-BrotliString
 ñ
 ```
 
@@ -78,11 +78,11 @@ This example shows how different encodings affect the compression and decompress
 
 ```powershell
 # Check the total length of the files
-PS ..\pwsh> (Get-Content myLogs\*.txt | Measure-Object Length -Sum).Sum / 1kb
+PS /> (Get-Content myLogs\*.txt | Measure-Object Length -Sum).Sum / 1kb
 87.216796875
 
 # Check the total length after compression
-PS ..\pwsh> (Get-Content myLogs\*.txt | ConvertTo-BrotliString).Length / 1kb
+PS /> (Get-Content myLogs\*.txt | ConvertTo-BrotliString).Length / 1kb
 35.123456789
 ```
 

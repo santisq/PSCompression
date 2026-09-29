@@ -7,8 +7,11 @@ using System.Management.Automation;
 using System.Text;
 using PSCompression.Extensions;
 using PSCompression.Exceptions;
-using PSCompression.Abstractions;
 using ICSharpCode.SharpZipLib.Zip;
+using PSCompression.Attributes;
+using PSCompression.FormatHandlers.Zip;
+using PSCompression.FormatHandlers.Common;
+using PSCompression.Abstractions.Entries;
 
 namespace PSCompression.Commands;
 
@@ -73,7 +76,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
                 {
                     if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
                     {
-                        if (!Force.IsPresent)
+                        if (!Force)
                         {
                             WriteError(DuplicatedEntryException
                                 .Create(entry, Destination)
@@ -109,7 +112,7 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
             {
                 if (_zip.TryGetEntry(entry, out ZipArchiveEntry? zipentry))
                 {
-                    if (!Force.IsPresent)
+                    if (!Force)
                     {
                         WriteError(DuplicatedEntryException
                             .Create(entry, Destination)
@@ -170,9 +173,8 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         try
         {
             Dispose();
-            WriteObject(
-                GetEntries().ToEntrySort(),
-                enumerateCollection: true);
+            foreach (EntryBase entry in GetEntries().SortEntries())
+                WriteObject(entry);
         }
         catch (Exception _) when (_ is PipelineStoppedException or FlowControlException)
         {
@@ -203,12 +205,9 @@ public sealed class NewZipEntryCommand : PSCmdlet, IDisposable
         if (_writers is not null)
         {
             foreach (StreamWriter writer in _writers)
-            {
                 writer.Dispose();
-            }
         }
 
         _zip?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

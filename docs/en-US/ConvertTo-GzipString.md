@@ -32,15 +32,15 @@ The `ConvertTo-GzipString` cmdlet compresses input strings into Gzip-compressed 
 ### Example 1: Compress strings into a GZip-compressed Base64 string
 
 ```powershell
-PS ..\pwsh> $strings = 'hello', 'world', '!'
+PS /> $strings = 'hello', 'world', '!'
 
 # With positional binding
-PS ..\pwsh> ConvertTo-GzipString $strings
+PS /> ConvertTo-GzipString $strings
 
 H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
 
 # Or pipeline input, both work
-PS ..\pwsh> $strings | ConvertTo-GzipString
+PS /> $strings | ConvertTo-GzipString
 
 H4sIAAAAAAAEAMtIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
 ```
@@ -50,11 +50,11 @@ This example shows how to compress an array of strings into a single Gzip-compre
 ### Example 2: Save Gzip-compressed bytes to a file using `-AsByteStream`
 
 ```powershell
-PS ..\pwsh> 'hello world!' | ConvertTo-GzipString -AsByteStream | Set-Content -FilePath .\helloworld.gz -AsByteStream
+PS /> 'hello world!' | ConvertTo-GzipString -AsByteStream | Set-Content -FilePath .\helloworld.gz -AsByteStream
 
 # To read the file back you can use `ConvertFrom-GzipString` following these steps:
-PS ..\pwsh> $path = Convert-Path .\helloworld.gz
-PS ..\pwsh> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-GzipString
+PS /> $path = Convert-Path .\helloworld.gz
+PS /> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-GzipString
 
 hello world!
 ```
@@ -67,10 +67,10 @@ This example shows how to use `-AsByteStream` to output raw compressed bytes tha
 ### Example 3: Compress strings using a specific Encoding
 
 ```powershell
-PS ..\pwsh> 'ñ' | ConvertTo-GzipString -Encoding ansi | ConvertFrom-GzipString
+PS /> 'ñ' | ConvertTo-GzipString -Encoding ansi | ConvertFrom-GzipString
 �
 
-PS ..\pwsh> 'ñ' | ConvertTo-GzipString -Encoding utf8BOM | ConvertFrom-GzipString
+PS /> 'ñ' | ConvertTo-GzipString -Encoding utf8BOM | ConvertFrom-GzipString
 ñ
 ```
 
@@ -80,11 +80,11 @@ This example shows how different encodings affect the compression and decompress
 
 ```powershell
 # Check the total length of the files
-PS ..\pwsh> (Get-Content myLogs\*.txt | Measure-Object Length -Sum).Sum / 1kb
+PS /> (Get-Content myLogs\*.txt | Measure-Object Length -Sum).Sum / 1kb
 87.216796875
 
 # Check the total length after compression
-PS ..\pwsh> (Get-Content myLogs\*.txt | ConvertTo-GzipString).Length / 1kb
+PS /> (Get-Content myLogs\*.txt | ConvertTo-GzipString).Length / 1kb
 35.123456789
 ```
 

@@ -3,8 +3,10 @@ using System.IO;
 using System.Management.Automation;
 using System.Security;
 using ICSharpCode.SharpZipLib.Zip;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Commands;
+using PSCompression.Abstractions.Entries;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Common;
 
 namespace PSCompression.Commands;
 
@@ -13,27 +15,24 @@ namespace PSCompression.Commands;
 [Alias("unzipentry")]
 public sealed class ExpandZipEntryCommand : ExpandEntryCommandBase<ZipEntryBase>, IDisposable
 {
+    private readonly ArchiveCache<ZipFile, ZipEntryBase> _cache = new(entry => entry.OpenSharpZipLibArchive());
+
     [Parameter]
     public SecureString? Password { get; set; }
 
-    private ZipArchiveCache<ZipFile>? _cache;
-
-    protected override FileSystemInfo Extract(ZipEntryBase entry)
+    protected override FileSystemInfo Extract(ZipEntryBase entry, string destination)
     {
-        _cache ??= new ZipArchiveCache<ZipFile>(entry => entry.OpenRead(Password));
         ZipFile zip = _cache.GetOrCreate(entry);
 
-        if (entry.IsEncrypted && Password is null && entry is ZipEntryFile fileEntry)
+        if (entry.IsEncrypted)
         {
-            zip.Password = fileEntry.PromptForPassword(Host);
+            zip.Password = Password is null
+                ? Host.PromptForPassword(entry)
+                : Password.AsPlainText();
         }
 
-        return entry.ExtractTo(Destination!, Force, zip);
+        return entry.ExtractTo(destination, Force, zip);
     }
 
-    public void Dispose()
-    {
-        _cache?.Dispose();
-        GC.SuppressFinalize(this);
-    }
+    public void Dispose() => _cache.Dispose();
 }

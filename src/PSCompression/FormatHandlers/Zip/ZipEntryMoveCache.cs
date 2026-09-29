@@ -1,0 +1,91 @@
+using System;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Linq;
+using System.Text.RegularExpressions;
+using PSCompression.Abstractions.Entries;
+using PSCompression.Enum;
+using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Common;
+namespace PSCompression.FormatHandlers.Zip;
+
+internal sealed class ZipEntryMoveCache
+{
+    private readonly Dictionary<string, Dictionary<string, EntryWithPath>> _cache = new(
+        StringComparer.InvariantCultureIgnoreCase);
+
+    private readonly Dictionary<string, Dictionary<string, string>> _mappings = [];
+
+    private Dictionary<string, EntryWithPath> WithSource(ZipEntryBase entry)
+    {
+        if (!_cache.TryGetValue(entry.Source, out Dictionary<string, EntryWithPath>? source))
+        {
+            source = [];
+            _cache[entry.Source] = source;
+        }
+
+        return source;
+    }
+
+    internal bool IsDirectoryEntry(string source, string path) =>
+        _cache[source].TryGetValue(path, out EntryWithPath entryWithPath)
+            && entryWithPath.ZipEntry.Type is EntryType.Directory;
+
+    internal void AddEntry(ZipEntryBase entry, string newname) =>
+        WithSource(entry).Add(entry.RelativePath, new(entry, newname));
+
+    internal IEnumerable<(string, PathWithType)> GetPassThruMappings()
+    {
+        foreach (var source in _cache)
+            foreach ((string path, EntryWithPath entryWithPath) in source.Value)
+                yield return (source.Key, new(_mappings[source.Key][path], entryWithPath.ZipEntry.Type));
+    }
+
+    internal Dictionary<string, Dictionary<string, string>> GetMappings(
+        ArchiveCache<ZipArchive, ZipEntryBase> cache)
+    {
+        foreach (KeyValuePair<string, Dictionary<string, EntryWithPath>> source in _cache)
+        {
+            _mappings[source.Key] = GetChildMappings(cache, source.Value);
+        }
+
+        return _mappings;
+    }
+
+    private static Dictionary<string, string> GetChildMappings(
+        ArchiveCache<ZipArchive, ZipEntryBase> cache,
+        Dictionary<string, EntryWithPath> pathChanges)
+    {
+        string newpath;
+        Dictionary<string, string> result = [];
+
+        foreach (var pair in pathChanges.OrderByDescending(e => e.Key))
+        {
+            (ZipEntryBase entry, string newname) = pair.Value;
+            if (entry.Type is EntryType.Archive)
+            {
+                newpath = ((ZipEntryFile)entry).GetNewName(newname);
+                result[pair.Key] = newpath;
+                continue;
+            }
+
+            ZipEntryDirectory dir = (ZipEntryDirectory)entry;
+            newpath = dir.ChangeName(newname);
+            result[pair.Key] = newpath;
+            Regex re = new(
+                Regex.Escape(dir.RelativePath),
+                RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+            foreach (ZipArchiveEntry key in dir.GetChilds(cache[dir.Source]))
+            {
+                string child = result.ContainsKey(key.FullName)
+                    ? result[key.FullName]
+                    : key.FullName;
+
+                result[key.FullName] = re.Replace(child, newpath);
+            }
+        }
+
+        return result;
+    }
+}

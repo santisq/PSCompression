@@ -20,7 +20,7 @@ Describe 'Archive Entry Management Commands' {
         $testTarpath = Join-Path $TestDrive $testTarName
         $itemCounts = Get-Structure | New-Structure $testTarpath
         $totalCount = $itemCounts.File + $itemCounts.Directory
-        $algos = [PSCompression.Algorithm].GetEnumValues()
+        $algos = [PSCompression.Enum.Algorithm].GetEnumValues()
 
         $tarArchives = foreach ($algo in $algos) {
             $compressTarArchiveSplat = @{
@@ -32,8 +32,10 @@ Describe 'Archive Entry Management Commands' {
             Compress-TarArchive @compressTarArchiveSplat
         }
 
-        $encryptedZip = Get-Item $PSScriptRoot/../assets/helloworld.zip
-        $zip, $file, $uri, $tarArchives, $itemCounts, $totalCount, $encryptedZip | Out-Null
+        $encryptedZip = Get-Item $PSScriptRoot/../assets/test.zip
+        $rar = Get-Item $PSScriptRoot/../assets/test.rar
+        $encryptedRar = Get-Item $PSScriptRoot/../assets/testEncrypted.rar
+        $zip, $file, $uri, $tarArchives, $itemCounts, $totalCount, $encryptedZip, $rar, $encryptedRar | Out-Null
     }
 
     Context 'New-ZipEntry' -Tag 'New-ZipEntry' {
@@ -64,12 +66,12 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Can create new zip file entries' {
             New-ZipEntry $zip.FullName -EntryPath test\newentry.txt |
-                Should -BeOfType ([PSCompression.ZipEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryFile])
         }
 
         It 'Can create new zip directory entries' {
             New-ZipEntry $zip.FullName -EntryPath test\ |
-                Should -BeOfType ([PSCompression.ZipEntryDirectory])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryDirectory])
         }
 
         It 'Can create multiple entries' {
@@ -79,7 +81,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Should not create an entry with the same path' {
             { New-ZipEntry $zip.FullName -EntryPath foo.txt, bar.txt, baz.txt } |
-                Should -Throw
+                Should -Throw -ExceptionType ([PSCompression.Exceptions.DuplicatedEntryException])
         }
 
         It 'Can replace an existing entry with -Force' {
@@ -111,6 +113,12 @@ Describe 'Archive Entry Management Commands' {
             New-ZipEntry @newZipEntrySplat |
                 Get-ZipEntryContent |
                 Should -Be 'hello world!'
+
+            { New-ZipEntry @newZipEntrySplat } |
+                Should -Throw -ExceptionType ([PSCompression.Exceptions.DuplicatedEntryException])
+
+            { New-ZipEntry @newZipEntrySplat -Force } |
+                Should -Not -Throw
         }
 
         It 'Can create entries with content from file without specifying an EntryPath' {
@@ -148,16 +156,16 @@ Describe 'Archive Entry Management Commands' {
     Context 'Get-ZipEntry' -Tag 'Get-ZipEntry' {
         It 'Can list entries in a zip archive' {
             $zip | Get-ZipEntry |
-                Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
+                Should -BeOfType ([PSCompression.Abstractions.Entries.ZipEntryBase])
         }
 
         It 'Can list entries from a Stream' {
             Invoke-WebRequest $uri -UseBasicParsing | Get-ZipEntry |
-                Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
+                Should -BeOfType ([PSCompression.Abstractions.Entries.ZipEntryBase])
 
             Use-Object ($stream = $zip.OpenRead()) {
                 $stream | Get-ZipEntry |
-                    Should -BeOfType ([PSCompression.Abstractions.ZipEntryBase])
+                    Should -BeOfType ([PSCompression.Abstractions.Entries.ZipEntryBase])
             }
         }
 
@@ -195,12 +203,12 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Can list zip file entries' {
             $zip | Get-ZipEntry -Type Archive |
-                Should -BeOfType ([PSCompression.ZipEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryFile])
         }
 
         It 'Can list zip directory entries' {
             $zip | Get-ZipEntry -Type Directory |
-                Should -BeOfType ([PSCompression.ZipEntryDirectory])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryDirectory])
         }
 
         It 'Can list a specific entry with the -Include parameter' {
@@ -218,7 +226,7 @@ Describe 'Archive Entry Management Commands' {
     Context 'Get-TarEntry' -Tag 'Get-TarEntry' {
         It 'Can list entries in a tar archive' {
             $tarArchives | Get-TarEntry |
-                Should -BeOfType ([PSCompression.Abstractions.TarEntryBase])
+                Should -BeOfType ([PSCompression.Abstractions.Entries.TarEntryBase])
         }
 
         It 'Can list entries from a Stream' {
@@ -232,7 +240,7 @@ Describe 'Archive Entry Management Commands' {
 
                 Use-Object ($stream = $archive.OpenRead()) {
                     $stream | Get-TarEntry -Algorithm $algo |
-                        Should -BeOfType ([PSCompression.Abstractions.TarEntryBase])
+                        Should -BeOfType ([PSCompression.Abstractions.Entries.TarEntryBase])
                 }
             }
         }
@@ -284,23 +292,58 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Can list tar file entries' {
             $tarArchives | Get-TarEntry -Type Archive |
-                Should -BeOfType ([PSCompression.TarEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Tar.TarEntryFile])
         }
 
         It 'Can list tar directory entries' {
             $tarArchives | Get-TarEntry -Type Directory |
-                Should -BeOfType ([PSCompression.TarEntryDirectory])
+                Should -BeOfType ([PSCompression.FormatHandlers.Tar.TarEntryDirectory])
         }
 
         It 'Can list a specific entry with the -Include parameter' {
             $tarArchives | Get-TarEntry -Include "${testTarName}/testfolder05/testfile00.txt" |
-                Should -BeOfType ([PSCompression.TarEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Tar.TarEntryFile])
         }
 
         It 'Can exclude entries using the -Exclude parameter' {
             $tarArchives | Get-TarEntry -Exclude *.txt |
                 ForEach-Object Extension |
                 Should -Not -Be '.txt'
+        }
+    }
+
+    Context 'Get-RarEntry' -Tag 'Get-RarEntry' {
+        It 'Lists entries from path' {
+            Get-RarEntry $rar | Should -BeOfType ([PSCompression.FormatHandlers.Rar.RarEntry])
+        }
+
+        It 'Can list by entry type' {
+            [PSCompression.Enum.EntryType].GetEnumNames() | ForEach-Object {
+                (Get-RarEntry $rar -Type $_).Type | Sort-Object -Unique | Should -Be $_
+            }
+        }
+
+        It 'Can include entries by pattern' {
+            Get-RarEntry $rar -Include *.txt | Should -HaveCount 1
+        }
+
+        It 'Can exclude entries by pattern' {
+            Get-RarEntry $rar -Exclude *.txt | Should -HaveCount 2
+        }
+
+        It 'List entries from a stream' {
+            Use-Object ($stream = (Get-Item $rar).OpenRead()) {
+                $stream | Get-RarEntry | Should -BeOfType ([PSCompression.FormatHandlers.Rar.RarEntry])
+                [PSCompression.Enum.EntryType].GetEnumNames() | ForEach-Object {
+                    ($stream | Get-RarEntry -Type $_).Type | Sort-Object -Unique | Should -Be $_
+                }
+            }
+
+            { $stream | Get-RarEntry } | Should -Throw -ExceptionType ([ObjectDisposedException])
+        }
+
+        It 'Should throw on invalid RAR archive' {
+            { Get-RarEntry $zip.FullName } | Should -Throw -ExceptionType ([InvalidDataException])
         }
     }
 
@@ -359,7 +402,7 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'Can read encrypted entries' {
-            $passw = ConvertTo-SecureString 'test' -AsPlainText -Force
+            $passw = ConvertTo-SecureString test -AsPlainText -Force
 
             Use-Object ($stream = $encryptedZip.OpenRead()) {
                 $stream | Get-ZipEntry -Type Archive |
@@ -448,6 +491,51 @@ Describe 'Archive Entry Management Commands' {
         }
     }
 
+    Context 'Get-RarEntryContent' -Tag 'Get-RarEntryContent' {
+        BeforeAll {
+            $entry = Get-RarEntry $rar
+            $encryptedEntry = Get-RarEntry $encryptedRar -Include *.txt
+            $entry, $encryptedEntry | Out-Null
+        }
+
+        It 'Can read content from an entry' {
+            $entry | Get-RarEntryContent | Should -BeExactly 1, 2, 3
+        }
+
+        It 'Can read all content as a single string' {
+            $entry | Get-RarEntryContent -Raw | Should -HaveCount 1
+        }
+
+        It 'Can read as a byte stream' {
+            $entry | Get-RarEntryContent -AsByteStream | Should -BeExactly 49, 10, 50, 10, 51, 10
+        }
+
+        It 'Can read bytes and output as a single byte array' {
+            $entry | Get-RarEntryContent -AsByteStream -Raw | Should -BeOfType ([byte[]])
+        }
+
+        It 'Can read encrypted entries' {
+            $encryptedEntry.IsEncrypted | Should -BeTrue
+            $passw = ConvertTo-SecureString test -AsPlainText -Force
+            $encryptedEntry | Get-RarEntryContent -Password $passw | Should -BeExactly 'hello world!'
+            $passw = ConvertTo-SecureString foo -AsPlainText -Force
+            { $encryptedEntry | Get-RarEntryContent -Password $passw } | Should -Throw
+        }
+
+        It 'Can read from a stream' {
+            Use-Object ($stream = (Get-Item $rar).OpenRead()) {
+                $stream, $stream | Get-RarEntry -Include *.txt |
+                    Get-RarEntryContent | Should -BeExactly 1, 2, 3, 1, 2, 3
+            }
+
+            $disposed = Use-Object ($stream = (Get-Item $rar).OpenRead()) {
+                $stream | Get-RarEntry -Include *.txt
+            }
+
+            { $disposed | Get-RarEntryContent } | Should -Throw -ExceptionType ([ObjectDisposedException])
+        }
+    }
+
     Context 'Remove-ZipEntry' -Tag 'Remove-ZipEntry' {
         It 'No entry is removed with -WhatIf' {
             $zip | Get-ZipEntry | Remove-ZipEntry -WhatIf
@@ -458,7 +546,7 @@ Describe 'Archive Entry Management Commands' {
             { $zip | Get-ZipEntry -Type Archive | Remove-ZipEntry } |
                 Should -Not -Throw
 
-            $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.ZipEntryFile])
+            $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryFile])
         }
 
         It 'Should throw if trying to remove entries created from input Stream' {
@@ -469,7 +557,7 @@ Describe 'Archive Entry Management Commands' {
         It 'Can remove directory entries' {
             $entries = $zip | Get-ZipEntry -Type Directory
             { Remove-ZipEntry -InputObject $entries } | Should -Not -Throw
-            $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.ZipEntryDirectory])
+            $zip | Get-ZipEntry | Should -Not -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryDirectory])
         }
 
         It 'Should not throw if there are no entries to remove' {
@@ -531,7 +619,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Outputs the source entry with -PassThru' {
             'hello world!' | Set-ZipEntryContent $entry -PassThru |
-                Should -BeOfType ([PSCompression.ZipEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryFile])
         }
     }
 
@@ -545,48 +633,50 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'No entry is renamed with -WhatIf' {
-            $zip | Get-ZipEntry |
-                Rename-ZipEntry -NewName { 'test' + $_.Name } -WhatIf
-
-            $zip | Get-ZipEntry |
-                Should -Not -Match '^testtest'
+            $zip | Get-ZipEntry | Rename-ZipEntry -NewName { 'test' + $_.Name } -WhatIf
+            $zip | Get-ZipEntry | Should -Not -Match '^testtest'
         }
 
         It 'Can rename file entries using a delay-bind ScriptBlock' {
-            { $zip | Get-ZipEntry -Type Archive | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
-                Should -Not -Throw
+            {
+                $zip | Get-ZipEntry -Type Archive | Rename-ZipEntry -NewName { 'test' + $_.Name }
+            } | Should -Not -Throw
 
-            $zip | Get-ZipEntry -Type Archive |
-                ForEach-Object Name |
-                Should -Match '^testtest'
+            $zip | Get-ZipEntry -Type Archive | ForEach-Object Name | Should -Match '^testtest'
         }
 
         It 'Should throw if trying to rename entries created from input Stream' {
-            { Invoke-WebRequest $uri -UseBasicParsing | Get-ZipEntry | Rename-ZipEntry -NewName { 'test' + $_.Name } } |
-                Should -Throw -ExceptionType ([NotSupportedException])
+            {
+                Invoke-WebRequest $uri -UseBasicParsing |
+                    Get-ZipEntry |
+                    Rename-ZipEntry -NewName { 'test' + $_.Name }
+            } | Should -Throw -ExceptionType ([NotSupportedException])
         }
 
         It 'Produces output with -PassThru' {
             $zip | Get-ZipEntry -Type Archive |
                 Rename-ZipEntry -NewName { $_.Name -replace 'test' } -PassThru |
-                Should -BeOfType ([PSCompression.ZipEntryFile])
+                Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryFile])
         }
 
         It 'Can rename directory entries and all its child entries' {
             $dir = $zip | Get-ZipEntry -Type Directory -Include testfolder00/
             $childs = $zip | Get-ZipEntry -Include testfolder00/*
-            Rename-ZipEntry $dir -NewName myNewName
+            $passthru = Rename-ZipEntry $dir -NewName myNewName -PassThru
+            $passthru | Should -BeOfType ([PSCompression.FormatHandlers.Zip.ZipEntryDirectory])
             $zip | Get-ZipEntry -Include myNewName/* | Should -HaveCount $childs.Count
         }
 
         It 'Should throw if an entry with the same Name already exists' {
-            { $zip | Get-ZipEntry -Type Directory -Include testfolder01/ |
-                Rename-ZipEntry -NewName testfolder02 } |
-                Should -Throw
+            {
+                $zip | Get-ZipEntry -Type Directory -Include testfolder01/ |
+                    Rename-ZipEntry -NewName testfolder02
+            } | Should -Throw
 
-            { $zip | Get-ZipEntry -Type Archive -Include testfolder01/file00.txt |
-                Rename-ZipEntry -NewName file01.txt } |
-                Should -Throw
+            {
+                $zip | Get-ZipEntry -Type Archive -Include testfolder01/file00.txt |
+                    Rename-ZipEntry -NewName file01.txt
+            } | Should -Throw
         }
 
         It 'Should throw if renaming an entry that no longer exists' {
@@ -697,7 +787,7 @@ Describe 'Archive Entry Management Commands' {
         }
 
         It 'Can extract an encrypted entry' {
-            $passw = ConvertTo-SecureString 'test' -AsPlainText -Force
+            $passw = ConvertTo-SecureString test -AsPlainText -Force
             $dest = Join-Path $TestDrive encryptedTestFolder
             Use-Object ($stream = $encryptedZip.OpenRead()) {
                 $info = $stream | Get-ZipEntry -Type Archive |
@@ -720,7 +810,7 @@ Describe 'Archive Entry Management Commands' {
     Context 'Expand-TarEntry' -Tag 'Expand-TarEntry' {
         It 'Can extract entries to a destination directory' {
             $tarArchives | ForEach-Object {
-                $destination = "extract_$($_.Extension)"
+                $destination = "extract_$($_.Extension.TrimStart('.'))"
 
                 { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination } |
                     Should -Not -Throw
@@ -732,12 +822,8 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Can extract tar entries created from input Stream' {
             foreach ($archive in $tarArchives) {
-                if ($archive.Extension -eq '.tar') {
-                    $algo = 'none'
-                }
-                else {
-                    $algo = $archive.Extension.TrimStart('.')
-                }
+                $algo = $archive.Extension.TrimStart('.')
+                if ($algo -eq 'tar') { $algo = 'none' }
 
                 $destination = "extract_${algo}_fromStream"
 
@@ -753,14 +839,10 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Should throw when a Stream is Diposed' {
             foreach ($archive in $tarArchives) {
-                if ($archive.Extension -eq '.tar') {
-                    $algo = 'none'
-                }
-                else {
-                    $algo = $archive.Extension.TrimStart('.')
-                }
+                $algo = $archive.Extension.TrimStart('.')
+                if ($algo -eq 'tar') { $algo = 'none' }
 
-                $destination = "extract_$($_.Extension)_fromStream"
+                $destination = "extract_${algo}_fromStream"
 
                 $entries = Use-Object ($stream = $archive.OpenRead()) {
                     $stream | Get-TarEntry -Algorithm $algo
@@ -784,7 +866,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Should not overwrite files without -Force' {
             $tarArchives | ForEach-Object {
-                $destination = "extract_$($_.Extension)"
+                $destination = "extract_$($_.Extension.TrimStart('.'))"
 
                 { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination } |
                     Should -Throw -ExceptionType ([IOException])
@@ -793,7 +875,7 @@ Describe 'Archive Entry Management Commands' {
 
         It 'Can overwrite files if using -Force' {
             $tarArchives | ForEach-Object {
-                $destination = "extract_$($_.Extension)"
+                $destination = "extract_$($_.Extension.TrimStart('.'))"
 
                 { $_ | Get-TarEntry | Expand-TarEntry -Destination $destination -Force } |
                     Should -Not -Throw
@@ -803,7 +885,7 @@ Describe 'Archive Entry Management Commands' {
         It 'Should extract entries to the current directory when -Destination is not specified' {
             foreach ($archive in $tarArchives) {
                 try {
-                    New-Item "expandToCurrent_$($archive.Extension)" -ItemType Directory | Push-Location
+                    New-Item "expandToCurrent_$($archive.Extension.TrimStart('.'))" -ItemType Directory | Push-Location
                     { $archive | Get-TarEntry | Expand-TarEntry } | Should -Not -Throw
                     Get-ChildItem | Should -Not -HaveCount 0
                 }
@@ -812,6 +894,76 @@ Describe 'Archive Entry Management Commands' {
                 }
 
             }
+        }
+    }
+
+    Context 'Expand-RarEntry' -Tag 'Expand-RarEntry' {
+        BeforeAll {
+            $entries = $rar | Get-RarEntry
+            $destination = New-Item (Join-Path $TestDrive 'ExpandRarEntryTests') -ItemType Directory
+            $destination | Push-Location
+            $entries | Out-Null
+        }
+
+        AfterAll { Pop-Location }
+
+        It 'Can extract entries to the current directory' {
+            { $entries | Expand-RarEntry } | Should -Not -Throw
+            Get-ChildItem -Recurse | Should -HaveCount 4
+        }
+
+        It 'Should throw if files already exist in destination' {
+            { $entries | Expand-RarEntry } | Should -Throw -ExceptionType ([IOException])
+        }
+
+        It 'Can overwrite files' {
+            { $entries | Expand-RarEntry -Force } | Should -Not -Throw
+        }
+
+        It 'Can extract entries to a specified destination' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            { $entries | Expand-RarEntry -Destination $tmp.FullName } | Should -Not -Throw
+            Get-ChildItem $tmp.FullName -Recurse | Should -HaveCount 4
+        }
+
+        It 'Can extract entries from a stream' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            Use-Object ($stream = $rar.OpenRead()) {
+                { $stream | Get-RarEntry | Expand-RarEntry -Destination $tmp.FullName } |
+                    Should -Not -Throw
+            }
+
+            Get-ChildItem $tmp.FullName -Recurse | Should -HaveCount 4
+
+            $disposedStreamEntries = Use-Object ($stream = $rar.OpenRead()) {
+                $stream | Get-RarEntry
+            }
+
+            { $disposedStreamEntries | Expand-RarEntry -Destination $tmp.FullName -Force } |
+                Should -Throw -ExceptionType ([ObjectDisposedException])
+        }
+
+        It 'Can output the extracted entries' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            $extracted = $entries | Expand-RarEntry -Destination $tmp.FullName -PassThru
+            $extracted | Should -HaveCount 3
+            $extracted | Should -BeOfType ([FileSystemInfo])
+            $extracted | Where-Object Extension -EQ '.txt' | Get-Content |
+                Should -BeExactly 1, 2, 3
+        }
+
+        It 'Can extract encrypted entries' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            $passw = ConvertTo-SecureString test -AsPlainText -Force
+            { Get-RarEntry $encryptedRar | Expand-RarEntry -Destination $tmp.FullName -Password $passw } |
+                Should -Not -Throw
+
+            $file = Get-ChildItem $tmp.FullName -Filter *.txt -Recurse
+            Get-Content $file.FullName | Should -BeExactly 'hello world!'
+
+            $passw = ConvertTo-SecureString foo -AsPlainText -Force
+            { Get-RarEntry $encryptedRar | Expand-RarEntry -Destination $tmp.FullName -Password $passw -Force } |
+                Should -Throw
         }
     }
 }

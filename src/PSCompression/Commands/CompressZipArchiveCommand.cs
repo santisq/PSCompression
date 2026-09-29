@@ -3,21 +3,18 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using PSCompression.Extensions;
-using PSCompression.Exceptions;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Commands;
 
 namespace PSCompression.Commands;
 
 [Cmdlet(VerbsData.Compress, "ZipArchive")]
 [OutputType(typeof(FileInfo))]
 [Alias("zipcompress")]
-public sealed class CompressZipArchiveCommand : ToCompressedFileCommandBase<ZipArchive>
+public sealed class CompressZipArchiveCommand : CompressArchiveCommandBase<ZipArchive>
 {
     private ZipArchiveMode ZipArchiveMode
     {
-        get => Force.IsPresent || Update.IsPresent
-            ? ZipArchiveMode.Update
-            : ZipArchiveMode.Create;
+        get => Force || Update ? ZipArchiveMode.Update : ZipArchiveMode.Create;
     }
 
     protected override string FileExtension => ".zip";

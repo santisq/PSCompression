@@ -50,7 +50,7 @@ The `Compress-TarArchive` cmdlet creates a tar archive, optionally compressed wi
 ### Example 1: Compress all `.log` files in a directory
 
 ```powershell
-Get-ChildItem C:\Logs -Recurse -Filter *.log |
+PS /> Get-ChildItem C:\Logs -Recurse -Filter *.log |
     Compress-TarArchive -Destination C:\Archives\logs.tar.gz
 ```
 
@@ -62,7 +62,7 @@ This example demonstrates how to compress all `.log` files in the `C:\Logs` dire
 ### Example 2: Compress a folder using `Fastest` Compression Level
 
 ```powershell
-Compress-TarArchive -Path . -Destination myPath.tar.gz -CompressionLevel Fastest
+PS /> Compress-TarArchive -Path . -Destination myPath.tar.gz -CompressionLevel Fastest
 ```
 
 This example shows how to compress the current directory (`.`) into a gzip-compressed tar archive named `myPath.tar.gz` using the `Fastest` compression level for quicker processing.
@@ -70,7 +70,7 @@ This example shows how to compress the current directory (`.`) into a gzip-compr
 ### Example 3: Overwrite an existing tar archive
 
 ```powershell
-Compress-TarArchive -Path .\Path -Destination dest.tar.gz -Force
+PS /> Compress-TarArchive -Path .\Path -Destination dest.tar.gz -Force
 ```
 
 This example illustrates how to create a new tar archive named `dest.tar.gz` from the path directory, overwriting any existing archive with the same name using the `-Force` parameter.
@@ -78,7 +78,7 @@ This example illustrates how to create a new tar archive named `dest.tar.gz` fro
 ### Example 4: Exclude files and folders from source
 
 ```powershell
-Compress-TarArchive -Path .\Path -Destination myPath.tar.gz -Exclude *.xyz, *\test\*
+PS /> Compress-TarArchive -Path .\Path -Destination myPath.tar.gz -Exclude *.xyz, *\test\*
 ```
 
 This example shows how to compress all items in `path` excluding all files having a `.xyz` extension, any folder named `test` and all its child items.
@@ -90,7 +90,7 @@ This example shows how to compress all items in `path` excluding all files havin
 ### Example 5: Compress a directory using bzip2 algorithm
 
 ```powershell
-Compress-TarArchive -Path .\data -Destination C:\Backups\data.tar.bz2 -Algorithm bz2
+PS /> Compress-TarArchive -Path .\data -Destination C:\Backups\data.tar.bz2 -Algorithm bz2
 ```
 
 This example demonstrates how to compress the `data` directory into a bzip2-compressed tar archive named `data.tar.bz2` in the `C:\Backups` directory using the `bz2` algorithm.

@@ -1,0 +1,87 @@
+using System;
+using System.IO;
+using System.Security;
+using ICSharpCode.SharpZipLib.Zip;
+using PSCompression.Enum;
+using PSCompression.Extensions;
+
+namespace PSCompression.Abstractions.Entries;
+
+public abstract partial class ZipEntryBase(ZipEntry entry, string source) : EntryBase(source)
+{
+    public override string? Name { get; protected set; }
+
+    public override string RelativePath { get; } = entry.Name;
+
+    public override DateTime? LastWriteTime { get; } = entry.DateTime;
+
+    public override long Length { get; internal set; } = entry.Size;
+
+    public long CompressedLength { get; internal set; } = entry.CompressedSize;
+
+    public bool IsEncrypted { get; } = entry.IsCrypted;
+
+    public int AESKeySize { get; } = entry.AESKeySize;
+
+    public CompressionMethod CompressionMethod { get; } = entry.CompressionMethod;
+
+    public string Comment { get; } = entry.Comment ?? string.Empty;
+
+    public long Crc { get; } = entry.Crc;
+
+    protected ZipEntryBase(ZipEntry entry, Stream? stream)
+        : this(entry, $"InputStream.{Guid.NewGuid()}")
+    {
+        Stream = stream;
+    }
+
+    internal ZipFile OpenSharpZipLibArchive()
+        => FromStream ? new(Stream, leaveOpen: true) : new(Source);
+
+    public FileSystemInfo ExtractTo(
+        string destination,
+        bool overwrite,
+        SecureString? password = null)
+    {
+        using ZipFile zip = FromStream
+            ? new(Stream, leaveOpen: true)
+            : new(Source);
+
+        if (password is { Length: > 0 })
+            zip.Password = password.AsPlainText();
+
+        return ExtractTo(destination, overwrite, zip);
+    }
+
+    internal FileSystemInfo ExtractTo(
+        string destination,
+        bool overwrite,
+        ZipFile zip)
+    {
+        zip.ThrowIfNotFound(
+            RelativePath,
+            Source,
+            out ZipEntry? entry);
+
+        destination = Path.GetFullPath(Path.Combine(destination, RelativePath));
+
+        if (Type == EntryType.Directory)
+        {
+            DirectoryInfo dir = new(destination);
+            dir.Create();
+            return dir;
+        }
+
+        FileInfo file = new(destination);
+        Dbg.Assert(file.Directory is not null, "Files must always have a parent directory.");
+        file.Directory.Create();
+
+        using Stream source = zip.GetInputStream(entry);
+        using FileStream fs = file.Open(
+            overwrite ? FileMode.Create : FileMode.CreateNew,
+            FileAccess.Write);
+
+        source.CopyTo(fs);
+        return file;
+    }
+}

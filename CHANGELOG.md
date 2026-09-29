@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## 09/29/2026
+
+- **RAR Archive Support**
+  - Added new cmdlets targeting `SharpCompress` to inspect, extract, and read `.rar` archives:
+    - `Get-RarEntry`
+    - `Get-RarEntryContent`
+    - `Expand-RarEntry`
+    - `Expand-RarArchive`
+  - Added support for reading and extracting encrypted / password-protected RAR entries.
+  - Added support for processing RAR entries directly from input streams.
+
+- **Documentation Updates**
+  - Updated namespace references to reflect `PSCompression.FormatHandlers.<Format>`.
+  - Updated and clarified descriptions for `-AsByteStream`, `-Raw`, and `-Force` parameters across Tar, Zip, and RAR cmdlet documentation.
+
+- **CI & Build System**
+  - Updated GitHub Actions workflows in `.github/workflows/ci.yml`:
+    - Updated `actions/checkout` to `v7`.
+    - Updated `codecov/codecov-action` to `v7`.
+
 ## 12/13/2025
 
 - **Native Zip Entry Objects**

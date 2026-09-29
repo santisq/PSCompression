@@ -13,7 +13,7 @@ Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 
 Describe 'Archive Compression & Expansion Commands' -Tag 'Archive Compression & Expansion Commands' {
     BeforeAll {
-        $algos = [PSCompression.Algorithm].GetEnumValues()
+        $algos = [PSCompression.Enum.Algorithm].GetEnumValues()
         $sourceName = 'CompressArchiveTests'
         $destName = 'CompressArchiveExtract'
         $testpath = Join-Path $TestDrive $sourceName
@@ -224,6 +224,60 @@ Describe 'Archive Compression & Expansion Commands' -Tag 'Archive Compression & 
 
             { $compressed | Expand-TarArchive -Destination testOverwrite -Force } |
                 Should -Not -Throw
+        }
+    }
+
+    Context 'Expand-RarArchive' -Tag 'Expand-RarArchive' {
+        BeforeAll {
+            $rar = Get-Item $PSScriptRoot/../assets/test.rar
+            $encryptedRar = Get-Item $PSScriptRoot/../assets/testEncrypted.rar
+            $destination = New-Item (Join-Path $TestDrive 'ExpandRarArchiveTests') -ItemType Directory
+            $destination | Push-Location
+            $rar, $encryptedRar | Out-Null
+        }
+
+        AfterAll { Pop-Location }
+
+        It 'Can extract archive to the current directory' {
+            { $rar | Expand-RarArchive } | Should -Not -Throw
+            Get-ChildItem -Recurse | Should -HaveCount 4
+        }
+
+        It 'Should throw if files already exist in destination' {
+            { $rar | Expand-RarArchive } | Should -Throw -ExceptionType ([IOException])
+        }
+
+        It 'Can overwrite files' {
+            { $rar | Expand-RarArchive -Force } | Should -Not -Throw
+        }
+
+        It 'Can extract archive to a specified destination' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            { $rar | Expand-RarArchive -Destination $tmp.FullName } | Should -Not -Throw
+            Get-ChildItem $tmp.FullName -Recurse | Should -HaveCount 4
+        }
+
+        It 'Can output the extracted filesystem objects' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            $extracted = $rar | Expand-RarArchive -Destination $tmp.FullName -PassThru
+            $extracted | Should -HaveCount 3
+            $extracted | Should -BeOfType ([FileSystemInfo])
+            $extracted | Where-Object Extension -eq '.txt' | Get-Content |
+                Should -BeExactly 1, 2, 3
+        }
+
+        It 'Can extract encrypted entries' {
+            $tmp = $destination.CreateSubdirectory([guid]::NewGuid())
+            $passw = ConvertTo-SecureString test -AsPlainText -Force
+            { $encryptedRar | Expand-RarArchive -Destination $tmp.FullName -Password $passw } |
+                Should -Not -Throw
+
+            $file = Get-ChildItem $tmp.FullName -Filter *.txt -Recurse
+            Get-Content $file.FullName | Should -BeExactly 'hello world!'
+
+            $passw = ConvertTo-SecureString foo -AsPlainText -Force
+            { $encryptedRar | Expand-RarArchive -Destination $tmp.FullName -Password $passw -Force } |
+                Should -Throw
         }
     }
 }

@@ -55,7 +55,7 @@ The `Get-ZipEntry` cmdlet lists entries in zip archives. It supports input from 
 ### Example 1: List entries for a specified file path
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry path\to\myZip.zip
+PS /> Get-ZipEntry path\to\myZip.zip
 ```
 
 This example lists all entries in the specified zip archive.
@@ -63,7 +63,7 @@ This example lists all entries in the specified zip archive.
 ### Example 2: List entries from all files with `.zip` extension in the current directory
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry *.zip
+PS /> Get-ZipEntry *.zip
 ```
 
 This example lists entries from all `.zip` files in the current directory. The `-Path` parameter supports wildcards.
@@ -71,7 +71,7 @@ This example lists entries from all `.zip` files in the current directory. The `
 ### Example 3: List all `Archive` entries from a Zip file
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Type Archive
+PS /> Get-ZipEntry path\to\myZip.zip -Type Archive
 ```
 
 > [!TIP]
@@ -80,7 +80,7 @@ PS ..\pwsh> Get-ZipEntry path\to\myZip.zip -Type Archive
 ### Example 4: Filtering entries with `-Include` and `-Exclude` parameters
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-us*
+PS /> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-us*
 
    Directory: /PSCompression/docs/en-US/
 
@@ -101,7 +101,7 @@ Archive            2/22/2024  1:19 PM         1.14 KB         2.95 KB Remove-Zip
 Archive            2/22/2024  1:19 PM       741.00  B         2.16 KB Rename-ZipEntry.md
 Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEntryContent.md
 
-PS ..\pwsh> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-us* -Exclude *en-US/Compress*, *en-US/Remove*
+PS /> Get-ZipEntry .\PSCompression.zip -Include PSCompression/docs/en-us* -Exclude *en-US/Compress*, *en-US/Remove*
 
    Directory: /PSCompression/docs/en-US/
 
@@ -128,8 +128,8 @@ Archive            2/22/2024  1:19 PM         1.55 KB         5.35 KB Set-ZipEnt
 ### Example 5: List entries from an input Stream
 
 ```powershell
-PS ..\pwsh> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
-PS ..\pwsh> $package | Get-ZipEntry | Select-Object -First 5
+PS /> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
+PS /> $package | Get-ZipEntry | Select-Object -First 5
 
    Directory: /
 
@@ -294,9 +294,9 @@ You can pipe a stream containing a zip archive (e.g., output from `Invoke-WebReq
 
 ## OUTPUTS
 
-### PSCompression.ZipEntryDirectory
+### PSCompression.FormatHandlers.Zip.ZipEntryDirectory
 
-### PSCompression.ZipEntryFile
+### PSCompression.FormatHandlers.Zip.ZipEntryFile
 
 ## NOTES
 

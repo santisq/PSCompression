@@ -1,7 +1,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Commands;
 
 namespace PSCompression.Commands;
 
@@ -12,7 +12,7 @@ public sealed class ConvertFromZLibStringCommand : FromCompressedStringCommandBa
 {
     protected override Stream CreateDecompressionStream(Stream inputStream)
     {
-        inputStream.Seek(2, SeekOrigin.Begin);
+        inputStream.Position = 2;
         DeflateStream deflate = new(inputStream, CompressionMode.Decompress);
         return deflate;
     }

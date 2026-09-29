@@ -3,8 +3,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Management.Automation;
 using System.Text;
-using PSCompression.Exceptions;
+using PSCompression.Attributes;
 using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Zip;
 
 namespace PSCompression.Commands;
 
@@ -111,6 +112,5 @@ public sealed class SetZipEntryContentCommand : PSCmdlet, IDisposable
         _byteWriter?.Dispose();
         _stringWriter?.Dispose();
         _zip?.Dispose();
-        GC.SuppressFinalize(this);
     }
 }

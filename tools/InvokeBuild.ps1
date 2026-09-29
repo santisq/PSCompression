@@ -55,7 +55,7 @@ task Package {
             Path       = $ProjectInfo.Project.Release
             Repository = $repoParams.Name
         }
-        Publish-Module @publishModuleSplat
+        Publish-Module @publishModuleSplat -EA 0
     }
     finally {
         Unregister-PSRepository -Name $repoParams.Name

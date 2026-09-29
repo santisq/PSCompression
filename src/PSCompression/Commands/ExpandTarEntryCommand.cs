@@ -1,6 +1,7 @@
 using System.IO;
 using System.Management.Automation;
-using PSCompression.Abstractions;
+using PSCompression.Abstractions.Commands;
+using PSCompression.Abstractions.Entries;
 
 namespace PSCompression.Commands;
 
@@ -9,6 +10,6 @@ namespace PSCompression.Commands;
 [Alias("untarentry")]
 public sealed class ExpandTarEntryCommand : ExpandEntryCommandBase<TarEntryBase>
 {
-    protected override FileSystemInfo Extract(TarEntryBase entry) =>
-        entry.ExtractTo(Destination!, Force);
+    protected override FileSystemInfo Extract(TarEntryBase entry, string destination) =>
+        entry.ExtractTo(destination, Force);
 }

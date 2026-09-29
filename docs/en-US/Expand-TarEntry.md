@@ -31,7 +31,7 @@ The `Expand-TarEntry` cmdlet extracts tar entries produced by [`Get-TarEntry`](.
 ### Example 1: Extract all `.txt` files from a tar archive to the current directory
 
 ```powershell
-PS C:\> Get-TarEntry .\archive.tar -Include *.txt | Expand-TarEntry
+PS /> Get-TarEntry .\archive.tar -Include *.txt | Expand-TarEntry
 ```
 
 This example extracts only the `.txt` files from `archive.tar` to the current directory, preserving their relative paths within the archive.
@@ -39,7 +39,7 @@ This example extracts only the `.txt` files from `archive.tar` to the current di
 ### Example 2: Extract all `.txt` files from a tar archive to a specific directory
 
 ```powershell
-PS C:\> Get-TarEntry .\archive.tar.gz -Include *.txt | Expand-TarEntry -Destination .\extracted
+PS /> Get-TarEntry .\archive.tar.gz -Include *.txt | Expand-TarEntry -Destination .\extracted
 ```
 
 This example extracts only the `.txt` files from a gzip-compressed tar archive to the specified `.\extracted` directory (created automatically if needed).
@@ -47,7 +47,7 @@ This example extracts only the `.txt` files from a gzip-compressed tar archive t
 ### Example 3: Extract all entries excluding `.txt` files from a tar archive
 
 ```powershell
-PS C:\> Get-TarEntry .\archive.tar -Exclude *.txt | Expand-TarEntry
+PS /> Get-TarEntry .\archive.tar -Exclude *.txt | Expand-TarEntry
 ```
 
 This example extracts everything except `.txt` files from `archive.tar` to the current directory, preserving the original structure.
@@ -55,7 +55,7 @@ This example extracts everything except `.txt` files from `archive.tar` to the c
 ### Example 4: Extract entries overwriting existing files
 
 ```powershell
-PS C:\> Get-TarEntry .\archive.tar -Include *.txt | Expand-TarEntry -Force
+PS /> Get-TarEntry .\archive.tar -Include *.txt | Expand-TarEntry -Force
 ```
 
 This example extracts the `.txt` files and overwrites any existing files with the same name in the destination due to the `-Force` switch.
@@ -63,7 +63,7 @@ This example extracts the `.txt` files and overwrites any existing files with th
 ### Example 5: Extract entries and output the expanded items
 
 ```powershell
-PS C:\> Get-TarEntry .\archive.tar -Exclude *.txt | Expand-TarEntry -PassThru
+PS /> Get-TarEntry .\archive.tar -Exclude *.txt | Expand-TarEntry -PassThru
 
     Directory: C:\
 
@@ -78,8 +78,8 @@ This example extracts everything except `.txt` files and uses `-PassThru` to out
 ### Example 6: Extract a specific entry from a compressed tar archive
 
 ```powershell
-PS C:\> $stream = Invoke-WebRequest https://example.com/archive.tar.gz
-PS C:\> $stream | Get-TarEntry -Include readme.md -Algorithm gz | Expand-TarEntry -PassThru | Get-Content
+PS /> $stream = Invoke-WebRequest https://example.com/archive.tar.gz
+PS /> $stream | Get-TarEntry -Include readme.md -Algorithm gz | Expand-TarEntry -PassThru | Get-Content
 ```
 
 This example extracts only the `readme.md` file from a gzip-compressed tar archive streamed from the web and immediately displays its contents.
@@ -107,7 +107,7 @@ Accept wildcard characters: False
 
 ### -Force
 
-Overwrites existing files in the destination directory. Without `-Force`, existing files are skipped.
+Overwrites existing files in the destination directory. Without `-Force`, attempting to extract an entry over an existing file results in a non-terminating error.
 
 ```yaml
 Type: SwitchParameter
@@ -172,7 +172,9 @@ You can pipe instances of `TarEntryFile` or `TarEntryDirectory` from [`Get-TarEn
 
 By default, this cmdlet produces no output.
 
-### System.IO.FileSystemInfo
+### System.IO.FileInfo
+
+### System.IO.DirectoryInfo
 
 When the `-PassThru` switch is used, the cmdlet outputs `FileInfo` and `DirectoryInfo` objects representing the extracted items.
 

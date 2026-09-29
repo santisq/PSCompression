@@ -4,7 +4,6 @@ using System.Management.Automation;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Microsoft.PowerShell.Commands;
-using PSCompression.Exceptions;
 
 namespace PSCompression.Extensions;
 
@@ -25,88 +24,84 @@ public static partial class PathExtensions
 
     private const string DirectorySeparator = "/";
 
-    public static string NormalizePath(this string path) =>
-        path.EndsWith("/") || path.EndsWith("\\")
-            ? NormalizeEntryPath(path)
-            : NormalizeFileEntryPath(path);
-
-    internal static string ResolvePath(this string path, PSCmdlet cmdlet)
+    extension(string path)
     {
-        string resolved = cmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath(
-            path: path,
-            provider: out ProviderInfo provider,
-            drive: out _);
+        public string NormalizePath()
+            => path.EndsWith("/") || path.EndsWith("\\")
+                ? NormalizeEntryPath(path) : NormalizeFileEntryPath(path);
 
-        provider.Validate(path, throwOnInvalidProvider: true, cmdlet);
-        return resolved;
-    }
-
-    internal static bool Validate(
-        this ProviderInfo provider,
-        string path,
-        bool throwOnInvalidProvider,
-        PSCmdlet cmdlet)
-    {
-        if (provider.ImplementingType == typeof(FileSystemProvider))
+        internal string ResolvePath(PSCmdlet cmdlet)
         {
-            return true;
+            string resolved = cmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath(
+                path: path,
+                provider: out ProviderInfo provider,
+                drive: out _);
+
+            provider.Validate(path, throwOnInvalidProvider: true, cmdlet);
+            return resolved;
         }
 
-        ErrorRecord error = provider.ToInvalidProviderError(path);
-
-        if (throwOnInvalidProvider)
+        internal string AddExtensionIfMissing(string extension)
         {
-            cmdlet.ThrowTerminatingError(error);
+            if (!path.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
+            {
+                path += extension;
+            }
+
+            return path;
         }
 
-        cmdlet.WriteError(error);
-        return false;
+        internal string NormalizeEntryPath()
+            => s_reNormalize
+                .Replace(path, DirectorySeparator)
+                .TrimStart('/');
+
+        internal string NormalizeFileEntryPath()
+            => NormalizeEntryPath(path).TrimEnd('/');
     }
 
-    internal static string AddExtensionIfMissing(this string path, string extension)
+    extension(ProviderInfo provider)
     {
-        if (!path.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
+        internal bool Validate(
+            string path,
+            bool throwOnInvalidProvider,
+            PSCmdlet cmdlet)
         {
-            path += extension;
+            if (provider.ImplementingType == typeof(FileSystemProvider))
+            {
+                return true;
+            }
+
+            ErrorRecord error = provider.ToInvalidProviderError(path);
+
+            if (throwOnInvalidProvider)
+            {
+                cmdlet.ThrowTerminatingError(error);
+            }
+
+            cmdlet.WriteError(error);
+            return false;
+        }
+    }
+
+    extension(FileSystemInfo info)
+    {
+        internal PSObject AppendPSProperties()
+        {
+            string? parent = info is DirectoryInfo dir
+                ? dir.Parent?.FullName
+                : Unsafe.As<FileInfo>(info).DirectoryName;
+
+            return info.AppendPSProperties(parent);
         }
 
-        return path;
-    }
-
-    internal static string NormalizeEntryPath(this string path)
-        => s_reNormalize
-            .Replace(path, DirectorySeparator)
-            .TrimStart('/');
-
-    internal static string NormalizeFileEntryPath(this string path)
-        => NormalizeEntryPath(path).TrimEnd('/');
-
-    internal static void Create(this DirectoryInfo dir, bool force)
-    {
-        if (force || !dir.Exists)
+        internal PSObject AppendPSProperties(string? parent)
         {
-            dir.Create();
-            return;
+            const string Provider = @"Microsoft.PowerShell.Core\FileSystem::";
+            PSObject pso = PSObject.AsPSObject(info);
+            pso.Properties.Add(new PSNoteProperty("PSPath", $"{Provider}{info.FullName}"));
+            pso.Properties.Add(new PSNoteProperty("PSParentPath", $"{Provider}{parent}"));
+            return pso;
         }
-
-        throw new IOException($"The directory '{dir.FullName}' already exists.");
-    }
-
-    internal static PSObject AppendPSProperties(this FileSystemInfo info)
-    {
-        string? parent = info is DirectoryInfo dir
-            ? dir.Parent?.FullName
-            : Unsafe.As<FileInfo>(info).DirectoryName;
-
-        return info.AppendPSProperties(parent);
-    }
-
-    internal static PSObject AppendPSProperties(this FileSystemInfo info, string? parent)
-    {
-        const string Provider = @"Microsoft.PowerShell.Core\FileSystem::";
-        PSObject pso = PSObject.AsPSObject(info);
-        pso.Properties.Add(new PSNoteProperty("PSPath", $"{Provider}{info.FullName}"));
-        pso.Properties.Add(new PSNoteProperty("PSParentPath", $"{Provider}{parent}"));
-        return pso;
     }
 }

@@ -1,8 +1,9 @@
 using System;
 using System.IO.Compression;
 using System.Management.Automation;
-using PSCompression.Abstractions;
-using PSCompression.Exceptions;
+using PSCompression.Abstractions.Entries;
+using PSCompression.Extensions;
+using PSCompression.FormatHandlers.Common;
 
 namespace PSCompression.Commands;
 
@@ -11,7 +12,7 @@ namespace PSCompression.Commands;
 [Alias("ziprm")]
 public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
 {
-    private readonly ZipArchiveCache<ZipArchive> _cache = new(
+    private readonly ArchiveCache<ZipArchive, ZipEntryBase> _cache = new(
         entry => entry.OpenZip(ZipArchiveMode.Update));
 
     [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -45,7 +46,6 @@ public sealed class RemoveZipEntryCommand : PSCmdlet, IDisposable
 
     public void Dispose()
     {
-        _cache?.Dispose();
-        GC.SuppressFinalize(this);
+        _cache.Dispose();
     }
 }

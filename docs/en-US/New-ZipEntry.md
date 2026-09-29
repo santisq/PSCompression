@@ -63,7 +63,7 @@ When adding from string input (`-Value`), the `-EntryPath` parameter is required
 ### Example 1: Create empty entries
 
 ```powershell
-PS ..\pwsh> New-ZipEntry .\test.zip -EntryPath test\entry, newfolder\
+PS /> New-ZipEntry .\test.zip -EntryPath test\entry, newfolder\
 
    Directory: /newfolder/
 
@@ -83,12 +83,12 @@ This example creates an empty file entry (`test/entry`) and a directory entry (`
 ### Example 2: Create entries with content from input strings
 
 ```powershell
-PS ..\pwsh> 'hello', 'world', '!' | New-ZipEntry .\test.zip -EntryPath test\entry, newfolder\
+PS /> 'hello', 'world', '!' | New-ZipEntry .\test.zip -EntryPath test\entry, newfolder\
 New-ZipEntry: An entry with path 'test/entry' already exists in 'path\to\test.zip'.
 New-ZipEntry: An entry with path 'newfolder/' already exists in 'path\to\test.zip'.
 
-PS ..\pwsh> 'hello', 'world', '!' | New-ZipEntry .\test.zip -EntryPath test\entry, newfolder\ -Force
-PS ..\pwsh> Get-ZipEntry .\test.zip -Include test/entry | Get-ZipEntryContent
+PS /> 'hello', 'world', '!' | New-ZipEntry .\test.zip -EntryPath test\entry, newfolder\ -Force
+PS /> Get-ZipEntry .\test.zip -Include test/entry | Get-ZipEntryContent
 hello
 world
 !
@@ -102,8 +102,8 @@ This example pipes three strings into `New-ZipEntry`, creating/overwriting file 
 ### Example 3: Create entries with content from a source file path
 
 ```powershell
-PS ..\pwsh> $file = 'hello world!' | New-Item mytestfile.txt
-PS ..\pwsh> New-ZipEntry .\test.zip -SourcePath $file.FullName -EntryPath newentry.txt
+PS /> $file = 'hello world!' | New-Item mytestfile.txt
+PS /> New-ZipEntry .\test.zip -SourcePath $file.FullName -EntryPath newentry.txt
 ```
 
 This example adds the contents of a local file to the zip archive under the specified entry path.
@@ -111,8 +111,8 @@ This example adds the contents of a local file to the zip archive under the spec
 ### Example 4: Archive all files in a specified location
 
 ```powershell
-PS ..\pwsh> $files = Get-ChildItem -File -Recurse
-PS ..\pwsh> $files | ForEach-Object { New-ZipEntry .\test.zip -SourcePath $_.FullName }
+PS /> $files = Get-ChildItem -File -Recurse
+PS /> $files | ForEach-Object { New-ZipEntry .\test.zip -SourcePath $_.FullName }
 ```
 
 This example recursively adds all files from the current directory to the zip archive, preserving their relative paths.
@@ -123,8 +123,8 @@ This example recursively adds all files from the current directory to the zip ar
 ### Example 5: Archive all `.txt` files in a specified location using a specified encoding
 
 ```powershell
-PS ..\pwsh> $files = Get-ChildItem -File -Recurse -Filter *.txt
-PS ..\pwsh> $files | ForEach-Object {
+PS /> $files = Get-ChildItem -File -Recurse -Filter *.txt
+PS /> $files | ForEach-Object {
    $_ | Get-Content -Encoding ascii |
       New-ZipEntry .\test.zip -EntryPath $_.FullName -Encoding ascii
 }
@@ -267,9 +267,9 @@ You can pipe one or more strings to this cmdlet to use as content for new file e
 
 ## OUTPUTS
 
-### PSCompression.ZipEntryDirectory
+### PSCompression.FormatHandlers.Zip.ZipEntryDirectory
 
-### PSCompression.ZipEntryFile
+### PSCompression.FormatHandlers.Zip.ZipEntryFile
 
 The cmdlet outputs the newly created `ZipEntryDirectory` or `ZipEntryFile` objects.
 

@@ -12,57 +12,64 @@ Import-Module ([Path]::Combine($PSScriptRoot, 'shared.psm1'))
 Describe 'File Entry Types' {
     BeforeAll {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
-        'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
-
-        $tarArchive = New-Item (Join-Path $TestDrive helloworld.txt) -ItemType File -Force |
-            Compress-TarArchive -Destination 'testTarDirectory' -PassThru
-
-        $tarArchive | Out-Null
+        $zipEntry = 'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
+        $rarEntry = Get-RarEntry $PSScriptRoot/../assets/test.rar -Include *.txt
+        $tarEntry = New-Item (Join-Path $TestDrive helloworld.txt) -ItemType File -Force |
+            Compress-TarArchive -Destination 'testTarDirectory' -PassThru |
+            Get-TarEntry
+        $tarArchive, $zipEntry, $tarEntry, $rarEntry | Out-Null
     }
 
     It 'Should be of type Archive' {
-        ($zip | Get-ZipEntry).Type | Should -BeExactly ([PSCompression.EntryType]::Archive)
-
-        ($tarArchive | Get-TarEntry).Type | Should -BeExactly ([PSCompression.EntryType]::Archive)
+        $zipEntry.Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
+        $tarEntry.Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
+        $rarEntry.Type | Should -BeExactly ([PSCompression.Enum.EntryType]::Archive)
     }
 
-    It 'Should Have a BaseName Property' {
-        ($zip | Get-ZipEntry).BaseName | Should -BeOfType ([string])
-        ($zip | Get-ZipEntry).BaseName | Should -BeExactly helloworld
-
-        ($tarArchive | Get-TarEntry).BaseName | Should -BeOfType ([string])
-        ($tarArchive | Get-TarEntry).BaseName | Should -BeExactly helloworld
+    It 'Should have a BaseName property' {
+        $zipEntry.BaseName | Should -BeExactly helloworld
+        $rarEntry.BaseName | Should -BeExactly test
+        $tarEntry.BaseName | Should -BeExactly helloworld
     }
 
-    It 'Should Have an Extension Property' {
-        ($zip | Get-ZipEntry).Extension | Should -BeOfType ([string])
-        ($zip | Get-ZipEntry).Extension | Should -BeExactly .txt
-
-        ($tarArchive | Get-TarEntry).Extension | Should -BeOfType ([string])
-        ($tarArchive | Get-TarEntry).Extension | Should -BeExactly .txt
+    It 'Should have an Extension property' {
+        $zipEntry.Extension | Should -BeExactly .txt
+        $tarEntry.Extension | Should -BeExactly .txt
+        $rarEntry.Extension | Should -BeExactly .txt
     }
 
-    It 'Should Have an IsEncrypted Property' {
-        ($zip | Get-ZipEntry).IsEncrypted | Should -BeOfType ([bool])
-        ($zip | Get-ZipEntry).IsEncrypted | Should -BeFalse
+    It 'Should have an IsEncrypted property' {
+        $zipEntry.IsEncrypted | Should -BeFalse
+        $rarEntry.IsEncrypted | Should -BeFalse
     }
 
-    It 'Should Have an AESKeySize Property' {
-        ($zip | Get-ZipEntry).AESKeySize | Should -BeOfType ([int])
-        ($zip | Get-ZipEntry).AESKeySize | Should -BeExactly 0
+    It 'Should have an AESKeySize property' {
+        $zipEntry.AESKeySize | Should -BeOfType ([int])
+        $zipEntry.AESKeySize | Should -BeExactly 0
     }
 
-    It 'Should Have a CompressionMethod Property' {
-        ($zip | Get-ZipEntry).CompressionMethod | Should -Be Deflated
+    It 'Should have a CompressionMethod property' {
+        $zipEntry.CompressionMethod | Should -Be Deflated
     }
 
-    It 'Should Have a Comment Property' {
-        ($zip | Get-ZipEntry).Comment | Should -BeOfType ([string])
-        ($zip | Get-ZipEntry).Comment | Should -BeExactly ''
+    It 'Should have a CompressionRatio property' {
+        $zipEntry.CompressionRatio | Should -BeOfType ([string])
+        $rarEntry.CompressionRatio | Should -BeOfType ([string])
+    }
+
+    It 'Should have a LastWriteTime property' {
+        $zipEntry.LastWriteTime | Should -BeOfType ([datetime])
+        $rarEntry.LastWriteTime | Should -BeOfType ([datetime])
+        $tarEntry.LastWriteTime | Should -BeOfType ([datetime])
+    }
+
+    It 'Should have a Comment property' {
+        $zipEntry.Comment | Should -BeOfType ([string])
+        $zipEntry.Comment | Should -BeExactly ''
     }
 
     It 'Should Open the source zip' {
-        Use-Object ($stream = ($zip | Get-ZipEntry).OpenRead()) {
+        Use-Object ($stream = $zipEntry.OpenRead()) {
             $stream | Should -BeOfType ([ZipArchive])
         }
     }

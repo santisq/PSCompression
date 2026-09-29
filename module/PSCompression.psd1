@@ -11,7 +11,7 @@
     RootModule         = 'PSCompression.psm1'
 
     # Version number of this module.
-    ModuleVersion      = '3.1.0'
+    ModuleVersion      = '4.0.0'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -29,7 +29,7 @@
     Copyright          = '(c) Santiago Squarzon. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description        = 'Zip, tar, and string compression utilities for PowerShell!'
+    Description        = 'Zip, tar, rar, and string compression utilities for PowerShell!'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion  = '5.1'
@@ -78,8 +78,8 @@
         'Get-ZipEntry'
         'Get-ZipEntryContent'
         'Set-ZipEntryContent'
-        'Remove-ZipEntry'
         'New-ZipEntry'
+        'Remove-ZipEntry'
         'Expand-ZipEntry'
         'ConvertTo-GzipString'
         'ConvertFrom-GzipString'
@@ -96,6 +96,10 @@
         'Get-TarEntryContent'
         'Expand-TarEntry'
         'Expand-TarArchive'
+        'Get-RarEntry'
+        'Get-RarEntryContent'
+        'Expand-RarEntry'
+        'Expand-RarArchive'
     )
 
     # Variables to export from this module
@@ -114,12 +118,16 @@
         'togzipstring'      # ConvertTo-GzipString
         'tozlibstring'      # ConvertTo-ZlibString
         'untar'             # Expand-TarArchive
+        'unrar'             # Expand-RarArchive
         'untarentry'        # Expand-TarEntry
         'unzipentry'        # Expand-ZipEntry
+        'unrarentry'        # Expand-RarEntry
         'targe'             # Get-TarEntry
-        'targec'            # Get-TarEntryContent
         'zipge'             # Get-ZipEntry
+        'rarge'             # Get-RarEntry
+        'targec'            # Get-TarEntryContent
         'zipgec'            # Get-ZipEntryContent
+        'rargec'            # Get-RarEntryContent
         'zipne'             # New-ZipEntry
         'ziprm'             # Remove-ZipEntry
         'zipren'            # Rename-ZipEntry
@@ -145,6 +153,8 @@
                 'zip-compression'
                 'tar'
                 'tar-compression'
+                'rar'
+                'rar-compression'
                 'gzip'
                 'gzip-compression'
                 'bzip2'

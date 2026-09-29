@@ -30,7 +30,7 @@ The `ConvertFrom-BrotliString` cmdlet decompresses Base64-encoded strings that w
 ### Example 1: Decompress a Brotli-compressed Base64 string
 
 ```powershell
-PS ..\pwsh> ConvertFrom-BrotliString CwiAaGVsbG8NCndvcmxkDQohDQoD
+PS /> ConvertFrom-BrotliString CwiAaGVsbG8NCndvcmxkDQohDQoD
 
 hello
 world
@@ -42,11 +42,11 @@ This example decompresses a Brotli-compressed Base64 string, restoring the origi
 ### Example 2: Compare default behavior with the `-Raw` switch
 
 ```powershell
-PS ..\pwsh> $strings = 'hello', 'world', '!'
-PS ..\pwsh> $compressed = $strings | ConvertTo-BrotliString
-PS ..\pwsh> $decompressed = $compressed | ConvertFrom-BrotliString -Raw
-PS ..\pwsh> $decompressed.GetType() # System.String
-PS ..\pwsh> $decompressed
+PS /> $strings = 'hello', 'world', '!'
+PS /> $compressed = $strings | ConvertTo-BrotliString
+PS /> $decompressed = $compressed | ConvertFrom-BrotliString -Raw
+PS /> $decompressed.GetType() # System.String
+PS /> $decompressed
 
 hello
 world

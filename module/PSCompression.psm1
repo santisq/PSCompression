@@ -6,7 +6,7 @@ $moduleName = [Path]::GetFileNameWithoutExtension($PSCommandPath)
 $frame = 'net8.0'
 
 if (-not $IsCoreCLR) {
-    $frame = 'netstandard2.0'
+    $frame = 'net472'
     $asm = [Path]::Combine($PSScriptRoot, 'bin', $frame, "${moduleName}.dll")
     Import-Module -Name $asm -ErrorAction Stop -PassThru
     return

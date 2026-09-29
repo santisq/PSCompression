@@ -14,7 +14,7 @@ Describe 'ZipEntryBase Class' {
         $zip = New-Item (Join-Path $TestDrive test.zip) -ItemType File -Force
         'hello world!' | New-ZipEntry $zip.FullName -EntryPath helloworld.txt
         New-ZipEntry $zip.FullName -EntryPath somefolder/
-        $encryptedZip = Get-Item $PSScriptRoot/../assets/helloworld.zip
+        $encryptedZip = Get-Item $PSScriptRoot/../assets/test.zip
         $encryptedZip | Out-Null
     }
 
@@ -42,7 +42,7 @@ Describe 'ZipEntryBase Class' {
     }
 
     It 'Can extract an encrypted entry' {
-        $passw = ConvertTo-SecureString 'test' -AsPlainText -Force
+        $passw = ConvertTo-SecureString test -AsPlainText -Force
         $dest = Join-Path $TestDrive encryptedTestFolder
         Use-Object ($stream = $encryptedZip.OpenRead()) {
             $info = ($stream | Get-ZipEntry -Type Archive).ExtractTo($dest, $false, $passw)

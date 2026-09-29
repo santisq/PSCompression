@@ -41,14 +41,14 @@ Get-ZipEntryContent
 The `Get-ZipEntryContent` cmdlet retrieves the content of `ZipEntryFile` objects produced by [`Get-ZipEntry`](./Get-ZipEntry.md) or [`New-ZipEntry`](./New-ZipEntry.md). This cmdlet supports text output (line-by-line or raw string) and binary output (byte arrays or streams). It also supports reading password-protected entries.
 
 > [!TIP]
-> Entries outputted by `Get-ZipEntry` can be piped to this cmdlet.
+> Entries output by `Get-ZipEntry` can be piped to this cmdlet.
 
 ## EXAMPLES
 
 ### Example 1: Get the content of a Zip Archive Entry
 
 ```powershell
-PS ..pwsh\> Get-ZipEntry .\myZip.zip -Include myrelative/entry.txt | Get-ZipEntryContent
+PS /> Get-ZipEntry .\myZip.zip -Include myrelative/entry.txt | Get-ZipEntryContent
 ```
 
 This example retrieves the text content of a specific file entry from a zip archive. By default, content is streamed line by line (as an array of strings).
@@ -56,7 +56,7 @@ This example retrieves the text content of a specific file entry from a zip arch
 ### Example 2: Get raw content of a Zip Archive Entry
 
 ```powershell
-PS ..pwsh\> Get-ZipEntry .\myZip.zip -Include myrelative/entry.txt | Get-ZipEntryContent -Raw
+PS /> Get-ZipEntry .\myZip.zip -Include myrelative/entry.txt | Get-ZipEntryContent -Raw
 ```
 
 This example retrieves the entire text content as a single multi-line string using the `-Raw` switch.
@@ -64,8 +64,8 @@ This example retrieves the entire text content as a single multi-line string usi
 ### Example 3: Get the bytes of a Zip Archive Entry as a Stream
 
 ```powershell
-PS ..pwsh\> $bytes = Get-ZipEntry .\test.zip -Include test/helloworld.txt | Get-ZipEntryContent -AsByteStream
-PS ..pwsh\> [System.Text.Encoding]::UTF8.GetString($bytes)
+PS /> $bytes = Get-ZipEntry .\test.zip -Include test/helloworld.txt | Get-ZipEntryContent -AsByteStream
+PS /> [System.Text.Encoding]::UTF8.GetString($bytes)
 hello world!
 ```
 
@@ -74,14 +74,14 @@ This example retrieves the raw bytes of a file entry as a byte array using `-AsB
 ### Example 4: Get contents of all `.md` files as byte arrays
 
 ```powershell
-PS ..pwsh\> $bytes = Get-ZipEntry .\test.zip -Include *.md | Get-ZipEntryContent -AsByteStream -Raw
-PS ..pwsh\> $bytes[0].GetType()
+PS /> $bytes = Get-ZipEntry .\test.zip -Include *.md | Get-ZipEntryContent -AsByteStream -Raw
+PS /> $bytes[0].GetType()
 
 IsPublic IsSerial Name                                     BaseType
 -------- -------- ----                                     --------
 True     True     Byte[]                                   System.Array
 
-PS ..pwsh\> $bytes[1].Length
+PS /> $bytes[1].Length
 7767
 ```
 
@@ -90,8 +90,8 @@ This example retrieves the raw bytes of all `.md` files as an array of `byte[]` 
 ### Example 5: Get content from input Stream
 
 ```powershell
-PS ..\pwsh> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
-PS ..\pwsh> $package | Get-ZipEntry -Include *.psd1 | Get-ZipEntryContent -Raw | Invoke-Expression
+PS /> $package = Invoke-WebRequest https://www.powershellgallery.com/api/v2/package/PSCompression
+PS /> $package | Get-ZipEntry -Include *.psd1 | Get-ZipEntryContent -Raw | Invoke-Expression
 
 Name                           Value
 ----                           -----
@@ -117,12 +117,12 @@ This example downloads a NuGet package (a zip archive) from PowerShell Gallery, 
 ### Example 6: Get content from a password protected entry
 
 ```powershell
-PS ..\pwsh> Get-ZipEntry .\myZip.zip -Include myEncryptedEntry.txt | Get-ZipEntryContent -Password (Read-Host -AsSecureString)
+PS /> Get-ZipEntry .\myZip.zip -Include myEncryptedEntry.txt | Get-ZipEntryContent -Password (Read-Host -AsSecureString)
 ```
 
 This example demonstrates how to read an encrypted entry using `Read-Host -AsSecureString` to provide the password.
 
-> [!TIP]
+> [!NOTE]
 > If an entry is encrypted and no password is supplied, the cmdlet will prompt for one.
 
 ## PARAMETERS
@@ -200,6 +200,9 @@ Accept wildcard characters: False
 
 Specifies that the content should be read as a stream of bytes.
 
+> [!TIP]
+> By default, `-AsByteStream` streams bytes through the pipeline one by one. To receive the entire un-enumerated byte array (`byte[]`) per entry without pipeline unrolling, combine it with `-Raw`.
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: Bytes
@@ -216,7 +219,7 @@ Accept wildcard characters: False
 
 Specifies the password as a `SecureString` to extract the encrypted zip entry.
 
-> [!TIP]
+> [!NOTE]
 > If an entry is encrypted and no password is supplied, the cmdlet will prompt for one.
 
 ```yaml
@@ -249,8 +252,10 @@ By default, this cmdlet returns the content as an array of strings, one per line
 
 ### System.Byte
 
-- When the `-AsByteStream` parameter is used, this cmdlet returns the content as a byte array (`System.Byte[]`).
-- When `-AsByteStream` and `-Raw` are combined, it returns an array of byte arrays (one per entry).
+Outputs bytes to the pipeline when `-AsByteStream` is specified.
+
+- __`-AsByteStream`__: Streams the bytes individually one by one (enumerating the entry's byte array).
+- __`-AsByteStream` and `-Raw`__: Outputs the raw byte array (`byte[]`) for each entry without enumeration.
 
 ## NOTES
 

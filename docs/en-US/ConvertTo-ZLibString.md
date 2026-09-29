@@ -32,13 +32,13 @@ The `ConvertTo-ZLibString` cmdlet compresses input strings into ZLib-compressed 
 ### Example 1: Compress strings into a ZLib-compressed Base64 string
 
 ```powershell
-PS ..\pwsh> $strings = 'hello', 'world', '!'
-PS ..\pwsh> ConvertTo-ZLibString $strings
+PS /> $strings = 'hello', 'world', '!'
+PS /> ConvertTo-ZLibString $strings
 
 eJzKSM3JyeflKs8vyknh5VLk5QIAAAD//wMAMosEow==
 
 # Or using pipeline input
-PS ..\pwsh> $strings | ConvertTo-ZLibString
+PS /> $strings | ConvertTo-ZLibString
 
 eJzKSM3JyeflKs8vyknh5VLk5QIAAAD//wMAMosEow==
 ```
@@ -48,11 +48,11 @@ This example shows how to compress an array of strings into a single ZLib-compre
 ### Example 2: Save ZLib-compressed bytes to a file using `-AsByteStream`
 
 ```powershell
-PS ..\pwsh> 'hello world!' | ConvertTo-ZLibString -AsByteStream | Set-Content -FilePath .\helloworld.zlib -AsByteStream
+PS /> 'hello world!' | ConvertTo-ZLibString -AsByteStream | Set-Content -FilePath .\helloworld.zlib -AsByteStream
 
 # To read the file back you can use `ConvertFrom-ZLibString` following these steps:
-PS ..\pwsh> $path = Convert-Path .\helloworld.zlib
-PS ..\pwsh> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-ZLibString
+PS /> $path = Convert-Path .\helloworld.zlib
+PS /> [System.Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path)) | ConvertFrom-ZLibString
 
 hello world!
 ```
@@ -65,10 +65,10 @@ This example shows how to use `-AsByteStream` to output raw compressed bytes tha
 ### Example 3: Compress strings using a specific Encoding
 
 ```powershell
-PS ..\pwsh> 'ñ' | ConvertTo-ZLibString -Encoding ansi | ConvertFrom-ZLibString
+PS /> 'ñ' | ConvertTo-ZLibString -Encoding ansi | ConvertFrom-ZLibString
 �
 
-PS ..\pwsh> 'ñ' | ConvertTo-ZLibString -Encoding utf8BOM | ConvertFrom-ZLibString
+PS /> 'ñ' | ConvertTo-ZLibString -Encoding utf8BOM | ConvertFrom-ZLibString
 ñ
 ```
 
@@ -78,11 +78,11 @@ This example shows how different encodings affect the compression and decompress
 
 ```powershell
 # Check the total length of the files
-PS ..\pwsh> (Get-Content myLogs\*.txt | Measure-Object Length -Sum).Sum / 1kb
+PS /> (Get-Content myLogs\*.txt | Measure-Object Length -Sum).Sum / 1kb
 87.216796875
 
 # Check the total length after compression
-PS ..\pwsh> (Get-Content myLogs\*.txt | ConvertTo-ZLibString).Length / 1kb
+PS /> (Get-Content myLogs\*.txt | ConvertTo-ZLibString).Length / 1kb
 35.123456789
 ```
 

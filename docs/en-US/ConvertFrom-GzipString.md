@@ -30,7 +30,7 @@ The `ConvertFrom-GzipString` cmdlet decompresses Base64-encoded strings that wer
 ### Example 1: Decompress a GZip-compressed Base64 string
 
 ```powershell
-PS ..\pwsh> ConvertFrom-GzipString H4sIAAAAAAAACstIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
+PS /> ConvertFrom-GzipString H4sIAAAAAAAACstIzcnJ5+Uqzy/KSeHlUuTlAgBLr/K2EQAAAA==
 
 hello
 world
@@ -42,11 +42,11 @@ This example decompresses a GZip-compressed Base64 string, restoring the origina
 ### Example 2: Compare default behavior with the `-Raw` switch
 
 ```powershell
-PS ..\pwsh> $strings = 'hello', 'world', '!'
-PS ..\pwsh> $compressed = $strings | ConvertTo-GzipString
-PS ..\pwsh> $decompressed = $compressed | ConvertFrom-GzipString -Raw
-PS ..\pwsh> $decompressed.GetType() # System.String
-PS ..\pwsh> $decompressed
+PS /> $strings = 'hello', 'world', '!'
+PS /> $compressed = $strings | ConvertTo-GzipString
+PS /> $decompressed = $compressed | ConvertFrom-GzipString -Raw
+PS /> $decompressed.GetType() # System.String
+PS /> $decompressed
 
 hello
 world
